@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../projectile.dart';
 import '../game_icon.dart';
-import '../../tower_game.dart';
 
 class ShooterEnemy extends Enemy {
   double _shootTimer = 0;

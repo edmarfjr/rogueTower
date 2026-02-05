@@ -35,6 +35,7 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
 
   @override
   Future<void> onLoad() async {
+    //debugMode = true;
     // 1. CONFIGURA O VIEWPORT (Tamanho da "Janela")
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
@@ -174,7 +175,7 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     overlays.remove('GameOver');
     resumeEngine();
 
-    currentRoom = 4;
+    currentRoom = 1;
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
 

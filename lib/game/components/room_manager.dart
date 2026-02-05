@@ -8,6 +8,9 @@ import 'chest.dart';
 //importacao de inimigos
 import 'enemies/enemy.dart';
 import 'enemies/enemy_shooter.dart';
+import 'enemies/enemy_bouncer.dart';
+import 'enemies/enemy_dasher.dart';
+import 'enemies/enemy_spinner.dart';
 import 'enemies/enemy_boss1.dart';
 
 typedef EnemyFactory = PositionComponent Function(Vector2 position);
@@ -20,10 +23,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   double _checkTimer = 0.0; 
   final double _minTimeBeforeClear = 1.0; // 1 segundo de espera antes de verificar
   final List<EnemyFactory> _enemyRoster = [
-    (pos) => Enemy(position: pos),        // Inimigo Comum (Inseto)
-    (pos) => ShooterEnemy(position: pos), // Inimigo Atirador (Robô)
-    // Futuro: (pos) => TankEnemy(position: pos),
-    // Futuro: (pos) => FastEnemy(position: pos),
+    (pos) => Enemy(position: pos),         // 0: Segue (Comum)
+    (pos) => ShooterEnemy(position: pos),  // 1: Atira (Comportamento de torre/kite)
+    (pos) => SpinnerEnemy(position: pos),  // 2: Aleatório + 4 Tiros
+    (pos) => DasherEnemy(position: pos),   // 3: Mira e Investe
+    (pos) => BouncerEnemy(position: pos),  // 4: Rebate
   ];
 
   @override
@@ -88,7 +92,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     final List<Vector2> occupiedPositions = [Vector2.zero()];
     
     // Chance de ter obstáculos
-    if (rng.nextDouble() > 0.8) return; 
+    if (rng.nextDouble() > 0.5) return; 
 
     int obstacleCount = 4 + rng.nextInt(6); // 4 a 10 paredes
     int attempts = 0; // Segurança para não travar o jogo num loop infinito
