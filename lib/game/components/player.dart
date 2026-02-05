@@ -30,6 +30,8 @@ class Player extends PositionComponent
   double moveSpeed = 150.0;
 
   Vector2 velocity = Vector2.zero();
+  Vector2 velocityDash = Vector2(1, 0);
+  
   // Variável para armazenar input do teclado
   Vector2 _keyboardInput = Vector2.zero(); 
 
@@ -139,12 +141,12 @@ class Player extends PositionComponent
     _dashCooldownTimer = _dashCooldown;
 
     // Define a direção: Se estiver andando, vai naquela direção. Se parado, vai pra direita (padrão)
-    if (velocity.isZero()) {
-      _dashDirection = Vector2(1, 0); 
-    } else {
-      _dashDirection = velocity.normalized();
-    }
-    
+    //if (velocity.isZero()) {
+    //  _dashDirection = Vector2(1, 0); 
+    //} else {
+    //  _dashDirection = velocity.normalized();
+    //}
+    _dashDirection = velocityDash.normalized();
     // Efeito Visual simples: Muda a cor para branco (flash)
     children.whereType<RectangleComponent>().first.paint.color = Colors.white;
     
@@ -270,7 +272,8 @@ class Player extends PositionComponent
          velocity = _keyboardInput.normalized() * speed;
        }
     }
-
+    if(velocity!=Vector2.zero()) velocityDash = velocity;
+    
     position += velocity * dt;
   }
 
@@ -341,6 +344,37 @@ class Player extends PositionComponent
     // Isso evita que ele "entre" na parede
     position += separationVector * 2.0; 
   }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    // Só desenha a barra se estiver em Cooldown
+    if (_dashCooldownTimer > 0) {
+      
+      // Configurações da Barra
+      const double barHeight = 4.0;
+      final double barWidth = size.x; // Largura igual à do player
+      final double yOffset = size.y + 5; // 5 pixels abaixo do pé
+
+      // Calcula a porcentagem restante (0.0 a 1.0)
+      // Queremos que ela "decresça", ou seja, comece cheia e vá diminuindo
+      double percent = _dashCooldownTimer / _dashCooldown;
+
+      // 1. Desenha o Fundo (Preto/Cinza)
+      canvas.drawRect(
+        Rect.fromLTWH(0, yOffset, barWidth, barHeight),
+        Paint()..color = Pallete.preto.withOpacity(0.5),
+      );
+
+      // 2. Desenha a Barra Verde (Decrescente)
+      canvas.drawRect(
+        Rect.fromLTWH(0, yOffset, barWidth * percent, barHeight),
+        Paint()..color = Pallete.verdeCla,
+      );
+    }
+  }
+
 //upgrades
 
   // 1. AUMENTA DANO (Força bruta)
@@ -364,4 +398,10 @@ class Player extends PositionComponent
   void increaseRange(){
     attackRange *= 1.2;
   }
+
+  void increaseHp(){
+    maxHealth++;
+    healthNotifier.value++;
+  }
+
 }

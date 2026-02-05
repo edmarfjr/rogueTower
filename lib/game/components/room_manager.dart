@@ -164,30 +164,69 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
 void _spawnDoors() {
     final rng = Random();
-    
-    // Lista de possíveis recompensas para aparecer nas portas
-    final options = [
-      CollectibleType.potion,
+
+    // 1. DEFINIR O POOL DE RECOMPENSAS
+    // Começamos com as básicas que queremos que apareçam com frequência
+    // Usamos um Set para garantir que não haja duplicatas na lista inicial
+    Set<CollectibleType> possibleRewards = {
       CollectibleType.coin,
-      CollectibleType.key,
-      CollectibleType.chest
-    ];
+      CollectibleType.potion,
+    };
 
-    // Escolhe duas recompensas aleatórias diferentes (opcional: ou iguais)
-    CollectibleType rewardLeft = options[rng.nextInt(options.length)];
-    CollectibleType rewardRight = options[rng.nextInt(options.length)];
-
-    // Porta Esquerda
-    gameRef.world.add(Door(
-      position: Vector2(-80, -300), 
-      rewardType: rewardLeft
-    )); 
+    // 2. ADICIONAR RECOMPENSAS RARAS (Com base na sorte)
     
-    // Porta Direita
+    // 40% de chance de aparecer uma Chave na seleção
+    if (rng.nextDouble() < 0.40) {
+      possibleRewards.add(CollectibleType.key);
+    }
+    
+    // 25% de chance de aparecer um Baú na seleção (Upgrades)
+    // (Pode aumentar essa chance se o jogador estiver em salas avançadas)
+    if (rng.nextDouble() < 0.25) {
+      possibleRewards.add(CollectibleType.chest);
+    }
+
+    // 3. CONVERTER PARA LISTA E COMPLETAR (SEGURANÇA)
+    // Precisamos de no mínimo 2 itens diferentes.
+    List<CollectibleType> finalPool = possibleRewards.toList();
+
+    // Se por azar o RNG não adicionou chaves nem baús e só temos [coin, potion], 
+    // já temos 2. Mas se no futuro você mudar a lógica e tiver menos de 2,
+    // esse while garante que o jogo não trave.
+    while (finalPool.length < 2) {
+      // Adiciona tipos forçados se faltar opção
+      if (!finalPool.contains(CollectibleType.key)) {
+        finalPool.add(CollectibleType.key);
+      } else if (!finalPool.contains(CollectibleType.chest)) {
+        finalPool.add(CollectibleType.chest);
+      }
+    }
+
+    // 4. EMBARALHAR (SHUFFLE)
+    // Isso mistura a lista. Ex: vira [Key, Coin, Potion]
+    finalPool.shuffle();
+
+    // 5. PEGAR OS DOIS PRIMEIROS
+    // Como a lista foi embaralhada, pegamos o índice 0 e o índice 1.
+    // Como são índices diferentes da mesma lista de itens únicos, nunca serão iguais.
+    CollectibleType rewardLeft = finalPool[0];
+    CollectibleType rewardRight = finalPool[1];
+
+    // --- CRIA AS PORTAS ---
+
+    // Porta da Esquerda
     gameRef.world.add(Door(
-      position: Vector2(80, -300),
-      rewardType: rewardRight
-    ));  
+      position: Vector2(-100, -300), // Ajuste a posição Y conforme seu mapa
+      rewardType: rewardLeft,
+    ));
+
+    // Porta da Direita
+    gameRef.world.add(Door(
+      position: Vector2(100, -300),
+      rewardType: rewardRight,
+    ));
+    
+    print("Portas geradas: $rewardLeft e $rewardRight");
   }
 
   void _unlockDoors() {

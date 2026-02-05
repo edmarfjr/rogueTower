@@ -27,8 +27,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
   @override
   Future<void> onLoad() async {
     add(GameIcon(
-      icon: isEnemyProjectile ? Icons.circle : Icons.navigation, 
-      color: isEnemyProjectile ? Colors.red : const Color(0xFFFFD700),
+      icon: isEnemyProjectile ? Icons.navigation : Icons.circle, 
+      color: isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
