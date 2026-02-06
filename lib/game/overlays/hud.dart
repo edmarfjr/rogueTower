@@ -129,14 +129,14 @@ class Hud extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2), // Fundo semi-transparente
+                      color: Pallete.branco.withOpacity(0.2), // Fundo semi-transparente
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
                       child: Icon(
                         Icons.double_arrow, // Ícone de raio
-                        color: Colors.greenAccent,
+                        color: Pallete.verdeCla,
                         size: 40,
                       ),
                     ),

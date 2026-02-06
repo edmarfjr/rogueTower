@@ -77,7 +77,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       _spawnEnemies(roomNumber);
     }
     
-    _spawnDoors();
+    _spawnDoors(roomNumber);
     print("Sala $roomNumber iniciada...");
   }
 
@@ -162,7 +162,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
   }
 
-void _spawnDoors() {
+void _spawnDoors(int roomNumber) {
+    if (roomNumber % 5 == 0) {
+      gameRef.world.add(Door(
+        position: Vector2(0, -300), // Ajuste a posição Y conforme seu mapa
+        rewardType: CollectibleType.boss,
+      ));
+      return;
+    }
     final rng = Random();
 
     // 1. DEFINIR O POOL DE RECOMPENSAS
@@ -180,6 +187,9 @@ void _spawnDoors() {
     
     // Chance de Baú
     if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
+
+    // Chance de conteiner de vida
+    if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.healthContainer);
     
     // --- NOVO: Chance de Loja (15% a 20%) ---
     // Só aparece se não for a própria loja (para não ter loop de lojas infinitas, se quiser)
@@ -207,7 +217,7 @@ void _spawnDoors() {
     // 5. PEGAR OS DOIS PRIMEIROS
     // Como a lista foi embaralhada, pegamos o índice 0 e o índice 1.
     // Como são índices diferentes da mesma lista de itens únicos, nunca serão iguais.
-    CollectibleType rewardLeft = CollectibleType.shop;//finalPool[0];
+    CollectibleType rewardLeft = finalPool[0];
     CollectibleType rewardRight = finalPool[1];
 
     // --- CRIA AS PORTAS ---

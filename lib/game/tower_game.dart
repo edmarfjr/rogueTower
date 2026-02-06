@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame/experimental.dart'; // Para Rectangle
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
-import 'package:flame/experimental.dart';
+
 import 'package:TowerRogue/game/components/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/door.dart';
@@ -22,18 +23,19 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   late final Player player;
   late final RoomManager roomManager;
   
-  // JOYSTICK
-  late JoystickComponent joystick;
-  final double _joystickRadius = 60.0; // Reduzi um pouco para ficar mais confortável
+  // --- SISTEMA DE JOYSTICK MANUAL ---
+  // Em vez de usar JoystickComponent, usamos 2 círculos simples
+  late CircleComponent joystickBase;
+  late CircleComponent joystickKnob;
+  
+  final double _maxRadius = 60.0; 
+  bool _isDragging = false;
+  
+  // Variável pública para o Player ler
   Vector2 joystickDelta = Vector2.zero();
 
-  // PAINTS (Controle de Transparência)
-  // Começam visíveis (Alpha 255) para você debugar. 
-  // Mude .withAlpha(0) quando quiser esconder.
-  final _knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
-  final _backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
-
-  int currentRoom = 1;
+  // --- CONTADORES ---
+  int currentRoom = 0;
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
   CollectibleType nextRoomReward = CollectibleType.coin;
@@ -43,24 +45,36 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   @override
   Future<void> onLoad() async {
-    // 1. VIEWPORT
+    // 1. VIEWPORT (Janela do Jogo)
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
-    // 2. CONFIGURAÇÃO DO JOYSTICK
-    joystick = JoystickComponent(
-      knob: CircleComponent(radius: 20, paint: _knobPaint),
-      background: CircleComponent(radius: _joystickRadius, paint: _backgroundPaint),
-      priority: 1000, // Prioridade máxima
-      anchor: Anchor.center, // <--- CORREÇÃO 1: Centro no dedo
+    // 2. CONSTRUÇÃO MANUAL DO JOYSTICK
+    // Base (O círculo cinza no fundo)
+    joystickBase = CircleComponent(
+      radius: _maxRadius,
+      paint: Paint()..color = Colors.grey.withOpacity(0.3),
+      anchor: Anchor.center, // Importante: Centro no pivô
+      priority: 900,         // Alto, mas abaixo do knob
     );
 
-    // Começa fora da tela para não aparecer no (0,0)
-    joystick.position = Vector2(-1000, -1000);
+    // Knob (A bolinha branca que mexe)
+    joystickKnob = CircleComponent(
+      radius: 20,
+      paint: Paint()..color = Colors.white.withOpacity(0.8),
+      anchor: Anchor.center,
+      priority: 901,         // Mais alto para ficar em cima da base
+    );
 
-    // Adiciona ao HUD (Viewport)
-    camera.viewport.add(joystick);
+    // Esconde eles inicialmente (jogando pra longe)
+    joystickBase.position = Vector2(-1000, -1000);
+    joystickKnob.position = Vector2(-1000, -1000);
 
-    // 3. ARENA E BORDAS
+    // ADICIONA AO VIEWPORT (Para ficarem fixos na tela, tipo HUD)
+    camera.viewport.add(joystickBase);
+    camera.viewport.add(joystickKnob);
+
+
+    // 3. CONFIGURAÇÃO DA ARENA
     const double gameWidth = 400;
     const double gameHeight = 700;
 
@@ -78,48 +92,60 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
       considerViewport: true,
     );
 
-    // 4. MUNDO E PLAYER
+    // 4. MUNDO E ENTIDADES
     roomManager = RoomManager();
     world.add(roomManager);
 
     player = Player(position: Vector2(0, 0));
     world.add(player);
     
-    // Opcional: Se quiser colisão na tela toda. 
-    // Mas ScreenHitbox no mundo pode bugar se a câmera andar. 
-    // Prefira usar as paredes da ArenaBorder.
-    // world.add(ScreenHitbox()); 
-
     camera.follow(player);
   }
 
-  // --- LÓGICA DO JOYSTICK DINÂMICO ---
+  // ==========================================
+  // LÓGICA DE TOQUE MANUAL (INFALÍVEL)
+  // ==========================================
 
   @override
   void onPanStart(DragStartInfo info) {
-    // CORREÇÃO 2: Conversão Robusta de Coordenadas
-    // Pegamos o pixel exato da tela (.widget) e convertemos para o Viewport (360x640)
-    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
+    // 1. Converte o toque da tela para coordenadas do Viewport (360x640)
+    final screenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
+
+    // 2. Posiciona a BASE e o KNOB exatamente onde tocou
+    joystickBase.position = screenPosition;
+    joystickKnob.position = screenPosition;
     
-    // Move o joystick para lá
-    joystick.position = viewportPosition;
+    // 3. Marca como arrastando
+    _isDragging = true;
+    
+    // Zera o movimento inicial
+    joystickDelta = Vector2.zero();
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    // Mesma conversão para garantir consistência
-    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
-    final localDelta = viewportPosition - joystick.position;
+    if (!_isDragging) return;
+
+    // 1. Onde o dedo está AGORA (no viewport)
+    final currentScreenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
     
-    // Lógica de limitar o movimento da bolinha (Knob)
-    if (localDelta.length > _joystickRadius) {
-      joystick.knob!.position = localDelta.normalized() * _joystickRadius;
+    // 2. Calcula a distância entre o dedo e o centro da base
+    final dragVector = currentScreenPosition - joystickBase.position;
+    
+    // 3. Limita o movimento ao raio máximo (Matemática de vetores)
+    if (dragVector.length > _maxRadius) {
+      // Se esticou demais, prende na borda do círculo
+      joystickKnob.position = joystickBase.position + (dragVector.normalized() * _maxRadius);
     } else {
-      joystick.knob!.position = localDelta;
+      // Se está dentro, segue o dedo
+      joystickKnob.position = currentScreenPosition;
     }
-    
-    // Atualiza o Delta que o Player vai ler
-    joystickDelta = joystick.relativeDelta;
+
+    // 4. CALCULA O DELTA (Isso é o que o Player usa para andar)
+    // O valor deve ser entre -1 e 1
+    // (Posição do Knob - Posição da Base) / Raio
+    final rawDelta = joystickKnob.position - joystickBase.position;
+    joystickDelta = rawDelta / _maxRadius;
   }
 
   @override
@@ -133,15 +159,15 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   void _resetJoystick() {
-    // Joga o joystick para longe novamente (ou use opacidade se preferir)
-    joystick.position = Vector2(-1000, -1000); 
+    _isDragging = false;
     
-    // Reseta a bolinha e o movimento
-    joystick.knob!.position = Vector2.zero();
+    // Some com o joystick visualmente
+    joystickBase.position = Vector2(-1000, -1000);
+    joystickKnob.position = Vector2(-1000, -1000);
+    
+    // Para o player
     joystickDelta = Vector2.zero();
   }
-
-  // --- MÉTODOS DE FLUXO (Mantidos) ---
 
   @override
   void onMount() {
@@ -184,13 +210,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     currentRoom++;
     nextRoomReward = chosenReward;
 
-    // Limpeza segura usando query
+    // Limpeza de componentes
     world.children.query<Door>().forEach((d) => d.removeFromParent());
     world.children.query<Projectile>().forEach((p) => p.removeFromParent());
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
-    world.children.query<Chest>().forEach((c) => c.removeFromParent());// Adicione ShopItem se tiver criado
+    world.children.query<Chest>().forEach((c) => c.removeFromParent());
     
     startLevel();
   }
@@ -204,7 +230,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.remove('GameOver');
     resumeEngine();
 
-    currentRoom = 1;
+    currentRoom = 0;
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
 
@@ -215,7 +241,6 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
-    // Adicione ShopItem na limpeza se necessário
 
     player.reset();
     camera.follow(player);

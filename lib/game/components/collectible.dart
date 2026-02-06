@@ -11,13 +11,15 @@ enum CollectibleType {
   coin,
   potion,
   key,
+  shield,
+  shop,
+  boss,
   chest, 
   damage,
   fireRate,
   moveSpeed,
   range,
-  shield,
-  shop,
+  healthContainer,
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -36,44 +38,48 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
     switch (type) {
       case CollectibleType.coin:
-        iconData = Icons.monetization_on; // Cifrão ou Moeda
-        iconColor = Pallete.amarelo; // Dourado
+        iconData = Icons.monetization_on; 
+        iconColor = Pallete.amarelo; 
         break;
       case CollectibleType.potion:
-        iconData = Icons.favorite; // Coração ou Icons.local_drink
-        iconColor = Pallete.vermelho; // Rosa
+        iconData = Icons.favorite; 
+        iconColor = Pallete.vermelho; 
         break;
       case CollectibleType.key:
-        iconData = Icons.vpn_key; // Chave
-        iconColor = Pallete.laranja; // Ciano
+        iconData = Icons.vpn_key; 
+        iconColor = Pallete.laranja; 
         break;
       case CollectibleType.chest:
-        iconData = Icons.vpn_key; // Chave
-        iconColor = Pallete.laranja; // Ciano
+        iconData = Icons.vpn_key; 
+        iconColor = Pallete.laranja;
         break;
       case CollectibleType.damage:
-        iconData = Icons.gavel; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.gavel; 
+        iconColor = Pallete.azulCla; 
         break;
       case CollectibleType.fireRate:
-        iconData = Icons.double_arrow; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.double_arrow; 
+        iconColor = Pallete.azulCla; 
         break;
       case CollectibleType.moveSpeed:
-        iconData = Icons.roller_skating; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.roller_skating; 
+        iconColor = Pallete.azulCla; 
         break;
       case CollectibleType.range:
-        iconData = Icons.gps_fixed; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.gps_fixed; 
+        iconColor = Pallete.azulCla; 
         break;
       case CollectibleType.shield:
-        iconData = Icons.gpp_bad; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.gpp_bad; 
+        iconColor = Pallete.azulCla; 
+        break;
+      case CollectibleType.healthContainer:
+        iconData = Icons.favorite_outline; 
+        iconColor = Pallete.vermelho; 
         break;
      default:
-        iconData = Icons.gps_fixed; // Setas pra cima
-        iconColor = Pallete.azulCla; // Verde
+        iconData = Icons.gps_fixed; 
+        iconColor = Pallete.azulCla; 
           break;
     }
 
@@ -168,7 +174,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
            gameRef.player.increaseShield();
            feedbackText = "+ Shield!";
            break;
-           
+
+        case CollectibleType.healthContainer:
+           gameRef.player.increaseHp();
+           feedbackText = "+ Health Container!";
+           break;
         default:
           break;
       }

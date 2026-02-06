@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   
   double hp = 30;
   double speed = 80;
+  bool rotaciona = false;
   
   // Controle de dano visual
   bool _isHit = false;
@@ -67,6 +70,14 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     
     // Calcula vetor direção até o player
     final direction = (player.position - position).normalized();
+
+    if(rotaciona){final visual = children.whereType<GameIcon>().firstOrNull;
+      if (visual != null) 
+      {
+        visual.angle = atan2(direction.y, direction.x) + (pi / 2);
+      }
+    }
+    
     
     // Move
     position += direction * speed * dt;

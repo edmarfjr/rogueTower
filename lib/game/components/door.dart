@@ -82,6 +82,10 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         iconData = Icons.gpp_bad;
         iconColor = Pallete.cinzaCla;
         break;
+      case CollectibleType.boss:
+        iconData = Icons.dangerous;
+        iconColor = Pallete.vermelho;
+        break;
       default:
         iconData = Icons.help_outline;
         iconColor = Colors.white;
