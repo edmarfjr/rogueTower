@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:tower/game/components/pallete.dart';
+import '../pallete.dart';
 import 'enemy.dart';
 import '../wall.dart';
 import '../game_icon.dart';

@@ -8,13 +8,13 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/input.dart';
 import 'package:flame/experimental.dart'; // Garante que Rectangle venha daqui
-import 'package:tower/game/components/chest.dart';
+import 'package:TowerRogue/game/components/chest.dart';
 
-import 'package:tower/game/components/player.dart';
-import 'package:tower/game/components/enemies/enemy.dart';
-import 'package:tower/game/components/door.dart';
-import 'package:tower/game/components/room_manager.dart';
-import 'package:tower/game/components/projectile.dart';
+import 'package:TowerRogue/game/components/player.dart';
+import 'package:TowerRogue/game/components/enemies/enemy.dart';
+import 'package:TowerRogue/game/components/door.dart';
+import 'package:TowerRogue/game/components/room_manager.dart';
+import 'package:TowerRogue/game/components/projectile.dart';
 import 'components/collectible.dart';
 import 'components/pallete.dart';
 import 'components/wall.dart';
@@ -24,13 +24,18 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   
   late final Player player;
   late JoystickComponent joystick;
-  final double _joystickRadius = 60.0;
+  final double _joystickRadius = 80.0;
+  Vector2 joystickDelta = Vector2.zero();
+
   late final RoomManager roomManager;
   
   int currentRoom = 1;
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
   CollectibleType nextRoomReward = CollectibleType.coin;
+
+  final _knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
+  final _backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
 
   @override
   Color backgroundColor() => Pallete.preto;
@@ -41,15 +46,17 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     // 1. CONFIGURA O VIEWPORT (Tamanho da "Janela")
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
-    final knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
-    final backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
-
+    _knobPaint.color = _knobPaint.color.withAlpha(0);
+    _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
+    
     joystick = JoystickComponent(
-      knob: CircleComponent(radius: 20, paint: knobPaint),
-      background: CircleComponent(radius: _joystickRadius, paint: backgroundPaint),
+      knob: CircleComponent(radius: 20, paint: _knobPaint),
+      background: CircleComponent(radius: _joystickRadius, paint: _backgroundPaint),
       // Definimos prioridade alta para ficar em cima de tudo
       priority: 100, 
     );
+
+    camera.viewport.add(joystick);
 
     // --- CONFIGURAÇÃO DA ARENA ---
     const double gameWidth = 400;
@@ -88,27 +95,25 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   @override
   void onPanStart(DragStartInfo info) {
-    // Quando o dedo toca na tela:
+    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.global);
+    joystick.position = viewportPosition;
     
-    // 1. Move a base do joystick para onde o dedo tocou (Coordenada da Tela/Widget)
-    joystick.position = info.eventPosition.widget;
-    
-    // 2. Adiciona o joystick ao jogo (se ele não estiver lá)
-    if (!joystick.isMounted) {
-      camera.viewport.add(joystick); 
-    }
+    _knobPaint.color = _knobPaint.color.withOpacity(0.8);
+    _backgroundPaint.color = _backgroundPaint.color.withOpacity(0.3);
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
     // A matemática continua a mesma, pois widget position é relativo a tela
-    final localDelta = info.eventPosition.widget - joystick.position;
+    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.global);
+    final localDelta = viewportPosition - joystick.position;
     
     if (localDelta.length > _joystickRadius) {
       joystick.knob!.position = localDelta.normalized() * _joystickRadius;
     } else {
       joystick.knob!.position = localDelta;
     }
+    joystickDelta = joystick.relativeDelta;
   }
 
   @override
@@ -124,11 +129,11 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   void _resetJoystick() {
-    // CORREÇÃO: Remove do pai atual (que agora é o viewport)
-    if (joystick.isMounted) {
-      joystick.removeFromParent();
-    }
+    _knobPaint.color = _knobPaint.color.withAlpha(0);
+    _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
+
     joystick.knob!.position = Vector2.zero();
+    joystickDelta = Vector2.zero();
   }
 
   @override

@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Para LogicalKeyboardKey
 
-import 'package:tower/game/tower_game.dart'; // Import para acessar as cores e classes do jogo
+import '../tower_game.dart'; // Import para acessar as cores e classes do jogo
 import 'enemies/enemy.dart'; 
 import 'projectile.dart';
 import './game_icon.dart';
