@@ -7,15 +7,15 @@ import 'package:flame/experimental.dart'; // Para Rectangle
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
 
-import 'package:TowerRogue/game/components/player.dart';
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
-import 'package:TowerRogue/game/components/door.dart';
+import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/room_manager.dart';
-import 'package:TowerRogue/game/components/projectile.dart';
-import 'package:TowerRogue/game/components/chest.dart';
-import 'components/collectible.dart';
+import 'package:TowerRogue/game/components/gameObj/projectile.dart';
+import 'package:TowerRogue/game/components/gameObj/chest.dart';
+import 'components/gameObj/collectible.dart';
 import 'components/pallete.dart';
-import 'components/wall.dart';
+import 'components/gameObj/wall.dart';
 import 'components/arena_border.dart';
 
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {

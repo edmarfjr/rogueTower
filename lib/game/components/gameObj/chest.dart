@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import './pallete.dart';
+import '../pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../tower_game.dart';
-import './player.dart';
-import 'game_icon.dart';
+import '../../tower_game.dart';
+import 'player.dart';
+import '../game_icon.dart';
 import 'collectible.dart';
 
 class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {

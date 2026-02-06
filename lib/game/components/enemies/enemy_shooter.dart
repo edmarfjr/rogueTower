@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
-import '../projectile.dart';
+import '../gameObj/projectile.dart';
 import '../game_icon.dart';
 
 class ShooterEnemy extends Enemy {

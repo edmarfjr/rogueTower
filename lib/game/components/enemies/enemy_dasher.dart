@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../pallete.dart';
 import 'enemy.dart';
-import '../wall.dart';
+import '../gameObj/wall.dart';
 import '../game_icon.dart';
 
 enum DasherState { aiming, dashing, recovering }

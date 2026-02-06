@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import '../../tower_game.dart'; // Para acessar o player via gameRef
 import '../game_icon.dart';
 import '../pallete.dart';
-import '../wall.dart';
+import '../gameObj/wall.dart';
 import '../floating_text.dart';
-import '../explosion.dart';
+import '../effects/explosion.dart';
 
 class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   

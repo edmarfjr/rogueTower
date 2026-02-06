@@ -2,20 +2,21 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Para LogicalKeyboardKey
-
-import '../tower_game.dart'; // Import para acessar as cores e classes do jogo
-import 'enemies/enemy.dart'; 
+import 'dart:math';
+import '../../tower_game.dart'; // Import para acessar as cores e classes do jogo
+import '../enemies/enemy.dart'; 
 import 'projectile.dart';
-import './game_icon.dart';
-import 'pallete.dart';
+import '../game_icon.dart';
+import '../pallete.dart';
 import 'wall.dart';
+import '../effects/dust.dart';
 
 class Player extends PositionComponent 
     with HasGameRef<TowerGame>, KeyboardHandler, CollisionCallbacks {
   
   // ValueNotifier permite que o HUD "escute" mudanças na vida
   int maxHealth = 3;
-  ValueNotifier<int> get healthNotifier => ValueNotifier<int>(maxHealth);
+  late final ValueNotifier<int> healthNotifier;
   ValueNotifier<int> shieldNotifier = ValueNotifier<int>(0);
   
   // I-Frames (Invencibilidade)
@@ -45,7 +46,16 @@ class Player extends PositionComponent
   double dashCooldown = 1.0; 
   Vector2 _dashDirection = Vector2.zero();
 
-  Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center);
+  // Variáveis de Animação
+  double _walkTimer = 0;
+  final double _bounceSpeed = 15.0;     // Quão rápido ele quica
+  final double _bounceAmplitude = 0.15; // Quão forte ele estica/esmaga (15%)
+
+  double _dustSpawnTimer = 0;
+
+  Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
+    healthNotifier = ValueNotifier<int>(maxHealth);
+  }
 
   @override
   Future<void> onLoad() async {
@@ -118,9 +128,48 @@ class Player extends PositionComponent
       visual.scale = Vector2(velocity.x < 0 ? -1 : 1, 1);
     }
 
+    _animateMovement(dt);
+
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
+  }
+
+  void _animateMovement(double dt) {
+    // Pega o componente visual (GameIcon)
+    final visual = children.whereType<GameIcon>().firstOrNull;
+    if (visual == null) return;
+
+    // Lógica de Direção (Esquerda/Direita)
+    // Mantém a direção atual se estiver parado horizontalmente
+    double facingDirection = visual.scale.x.sign; 
+    if (velocity.x < -0.1) facingDirection = -1.0;
+    if (velocity.x > 0.1) facingDirection = 1.0;
+
+    // Se estiver se movendo (velocidade > 0)
+    if (!velocity.isZero()) {
+      _walkTimer += dt * _bounceSpeed;
+
+      // Cálculo da Onda Senoidal (vai de -1 a 1)
+      double wave = sin(_walkTimer);
+
+      // Efeito Squash & Stretch:
+      // Quando Y estica (+), X deve esmagar (-) para manter o volume visual
+      double scaleY = 1.0 + (wave * _bounceAmplitude); 
+      double scaleX = 1.0 - (wave * _bounceAmplitude * 0.5); // X varia menos que Y
+
+      // Aplica a escala combinando com a direção
+      visual.scale = Vector2(facingDirection * scaleX, scaleY);
+      
+      // Opcional: Rotacionar levemente para dar gingado
+      visual.angle = cos(_walkTimer) * 0.1; // Balança 0.1 radianos
+      
+    } else {
+      // PARADO: Reseta a animação suavemente ou instantaneamente
+      _walkTimer = 0;
+      visual.scale = Vector2(facingDirection, 1.0); // Volta ao tamanho normal (1,1)
+      visual.angle = 0; // Zera rotação
+    }
   }
 
   // --- CORREÇÃO PRINCIPAL AQUI ---
@@ -165,6 +214,24 @@ class Player extends PositionComponent
   void _handleDashMovement(double dt) {
     _dashTimer -= dt;
     position += _dashDirection * dashSpeed * dt;
+
+    _dustSpawnTimer -= dt;
+    if (_dustSpawnTimer <= 0) {
+      // Reinicia o timer (0.05 significa uma nuvem a cada 0.05 segundos)
+      _dustSpawnTimer = 0.025; 
+      
+      // Cria um deslocamento aleatório para a poeira não sair em linha reta perfeita
+      final rng = Random();
+      final offset = Vector2(
+        (rng.nextDouble() - 0.5) * 10, // -5 a +5 no X
+        (rng.nextDouble() - 0.5) * 10 + 10 // +5 a +15 no Y (Perto do pé)
+      );
+
+      // Adiciona a partícula no MUNDO (não dentro do player, senão ela se move junto com ele)
+      gameRef.world.add(Dust(
+        position: position + offset,
+      ));
+    }
 
     if (_dashTimer <= 0) {
       isDashing = false;

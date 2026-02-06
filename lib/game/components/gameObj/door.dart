@@ -1,11 +1,11 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../tower_game.dart';
-import './player.dart';
+import '../../tower_game.dart';
+import 'player.dart';
 import 'collectible.dart';
-import 'game_icon.dart';
-import 'pallete.dart';
+import '../game_icon.dart';
+import '../pallete.dart';
 
 class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   bool isOpen = false;
@@ -84,6 +84,10 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         break;
       case CollectibleType.boss:
         iconData = Icons.dangerous;
+        iconColor = Pallete.vermelho;
+        break;
+      case CollectibleType.healthContainer:
+        iconData = Icons.favorite_outline;
         iconColor = Pallete.vermelho;
         break;
       default:

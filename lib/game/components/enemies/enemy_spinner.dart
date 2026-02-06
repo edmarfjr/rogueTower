@@ -2,8 +2,8 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
-import '../wall.dart';
-import '../projectile.dart';
+import '../gameObj/wall.dart';
+import '../gameObj/projectile.dart';
 import '../game_icon.dart';
 
 class SpinnerEnemy extends Enemy {

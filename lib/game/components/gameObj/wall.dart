@@ -1,8 +1,8 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../tower_game.dart';
-import 'game_icon.dart';
+import '../../tower_game.dart';
+import '../game_icon.dart';
 
 class Wall extends PositionComponent with HasGameRef<TowerGame> {
   Wall({required Vector2 position}) 

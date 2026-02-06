@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import '../tower_game.dart';
-import 'door.dart';
-import 'collectible.dart';
-import 'wall.dart';
-import 'chest.dart';
+import 'gameObj/door.dart';
+import 'gameObj/collectible.dart';
+import 'gameObj/wall.dart';
+import 'gameObj/chest.dart';
 //importacao de inimigos
 import 'enemies/enemy.dart';
 import 'enemies/enemy_shooter.dart';
@@ -289,7 +289,9 @@ void _spawnDoors(int roomNumber) {
     for (final door in doors) {
       door.open();
     }
-    if (gameRef.currentRoom == 0) return;
+    if (gameRef.currentRoom == 0) {
+      return;
+    }
 
    // LÓGICA DE SPAWN DA RECOMPENSA
     if (gameRef.nextRoomReward == CollectibleType.chest) {

@@ -2,11 +2,11 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
-import '../projectile.dart';
+import '../gameObj/projectile.dart';
 import '../game_icon.dart';
-import '../collectible.dart';
+import '../gameObj/collectible.dart';
 import '../floating_text.dart';
-import '../explosion.dart'; 
+import '../effects/explosion.dart'; 
 
 class BossEnemy extends Enemy {
   double _attackTimer = 0;

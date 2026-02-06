@@ -2,13 +2,13 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import './game_icon.dart';
-import 'enemies/enemy.dart'; 
-import 'pallete.dart';
+import '../game_icon.dart';
+import '../enemies/enemy.dart'; 
+import '../pallete.dart';
 import 'wall.dart';
-import '../tower_game.dart';
+import '../../tower_game.dart';
 import 'player.dart';
-import 'explosion.dart';
+import '../effects/explosion.dart';
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
   final Vector2 direction;
