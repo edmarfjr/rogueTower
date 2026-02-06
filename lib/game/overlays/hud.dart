@@ -119,7 +119,7 @@ class Hud extends StatelessWidget {
                     ),
                     child: const Center(
                       child: Icon(
-                        Icons.flash_on, // Ícone de raio
+                        Icons.double_arrow, // Ícone de raio
                         color: Colors.greenAccent,
                         size: 40,
                       ),

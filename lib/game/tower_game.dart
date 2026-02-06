@@ -46,8 +46,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     // 1. CONFIGURA O VIEWPORT (Tamanho da "Janela")
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
-    _knobPaint.color = _knobPaint.color.withAlpha(0);
-    _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
+   // _knobPaint.color = _knobPaint.color.withAlpha(0);
+   // _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
     
     joystick = JoystickComponent(
       knob: CircleComponent(radius: 20, paint: _knobPaint),
@@ -98,8 +98,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.global);
     joystick.position = viewportPosition;
     
-    _knobPaint.color = _knobPaint.color.withOpacity(0.8);
-    _backgroundPaint.color = _backgroundPaint.color.withOpacity(0.3);
+   // _knobPaint.color = _knobPaint.color.withOpacity(0.8);
+   // _backgroundPaint.color = _backgroundPaint.color.withOpacity(0.3);
   }
 
   @override
@@ -129,8 +129,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   void _resetJoystick() {
-    _knobPaint.color = _knobPaint.color.withAlpha(0);
-    _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
+   // _knobPaint.color = _knobPaint.color.withAlpha(0);
+   // _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
 
     joystick.knob!.position = Vector2.zero();
     joystickDelta = Vector2.zero();

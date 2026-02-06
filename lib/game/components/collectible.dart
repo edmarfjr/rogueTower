@@ -52,15 +52,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         iconColor = Pallete.azulCla; // Verde
         break;
       case CollectibleType.fireRate:
-        iconData = Icons.gavel; // Setas pra cima
+        iconData = Icons.double_arrow; // Setas pra cima
         iconColor = Pallete.azulCla; // Verde
         break;
       case CollectibleType.moveSpeed:
-        iconData = Icons.gavel; // Setas pra cima
+        iconData = Icons.roller_skating; // Setas pra cima
         iconColor = Pallete.azulCla; // Verde
         break;
       case CollectibleType.range:
-        iconData = Icons.gavel; // Setas pra cima
+        iconData = Icons.gps_fixed; // Setas pra cima
         iconColor = Pallete.azulCla; // Verde
         break;
     }
@@ -80,20 +80,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
     if (other == gameRef.player) {
       String feedbackText = "";
-      Color feedbackColor = Colors.white;
+      Color feedbackColor = Pallete.branco;
 
       switch (type) {
         case CollectibleType.coin:
           gameRef.coinsNotifier.value += 10;
           feedbackText = "+ 10\$ ";
-          feedbackColor = const Color(0xFFFFD700); // Dourado
+          feedbackColor = Pallete.branco; // Dourado
           break;
           
         case CollectibleType.potion:
           if (gameRef.player.healthNotifier.value < gameRef.player.maxHealth) {
             gameRef.player.healthNotifier.value++;
             feedbackText = "Curado!";
-            feedbackColor = const Color(0xFFFF0055); // Rosa
+            feedbackColor = Pallete.branco; // Rosa
           } else {
             feedbackText = "Cheio!"; // Se já estiver com vida cheia
           }
@@ -101,31 +101,31 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
           
         case CollectibleType.key:
           gameRef.keysNotifier.value++;
-          feedbackText = "Chave!";
-          feedbackColor = const Color(0xFF00FFFF); // Ciano
+          feedbackText = "Key!";
+          feedbackColor = Pallete.branco; // Ciano
           break;
           
         case CollectibleType.damage:
           gameRef.player.increaseDamage();
-          feedbackText = "+ Dano!";
-          feedbackColor = const Color(0xFFFF4500); // Laranja
+          feedbackText = "+ Damage!";
+          feedbackColor = Pallete.branco; // Laranja
           break;
           
         case CollectibleType.fireRate:
           gameRef.player.increaseFireRate();
-          feedbackText = "+ Rapido!";
-          feedbackColor = const Color(0xFFFFFF00); // Amarelo
+          feedbackText = "+ Fire Rate!";
+          feedbackColor = Pallete.branco; // Amarelo
           break;
           
         // Outros upgrades...
         case CollectibleType.moveSpeed:
            gameRef.player.increaseMovementSpeed();
-           feedbackText = "+ Velocidade!";
+           feedbackText = "+ Movement Speed!";
            break;
         
         case CollectibleType.range:
            gameRef.player.increaseRange();
-           feedbackText = "+ Velocidade!";
+           feedbackText = "+ Range!";
            break;
            
         default:

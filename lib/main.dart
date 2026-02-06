@@ -38,7 +38,7 @@ class GameEntry extends StatelessWidget {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),
             'HUD': (context, game) => Hud(game: game),
-            'GameOver': (context, game) => GameOver(game: game), // <--- Uso da nova classe
+            'GameOver': (context, game) => GameOver(game: game), 
           },
         ),
       )
