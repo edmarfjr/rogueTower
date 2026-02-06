@@ -1,8 +1,9 @@
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../gameObj/projectile.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 
 class ShooterEnemy extends Enemy {
   double _shootTimer = 0;
@@ -15,8 +16,9 @@ class ShooterEnemy extends Enemy {
 
   @override
   Future<void> onLoad() async {
+    
     await super.onLoad();
-
+    originalColor = Pallete.lilas;
     // Remove o visual antigo (Rato)
     // Usamos toList() para criar uma cópia da lista e evitar erro de modificação durante iteração
     children.whereType<GameIcon>().toList().forEach((icon) => icon.removeFromParent());
@@ -24,7 +26,7 @@ class ShooterEnemy extends Enemy {
     // Adiciona visual novo (Robô)
     add(GameIcon(
       icon: Icons.adb, 
-      color: Colors.purple, 
+      color: originalColor, 
       size: size,
       anchor: Anchor.center,
       position: size / 2,
@@ -73,6 +75,7 @@ class ShooterEnemy extends Enemy {
       position: position + direction * 20, 
       direction: direction,
       damage: 1, 
+      speed: 200,
       isEnemyProjectile: true, 
     ));
   }

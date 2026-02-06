@@ -1,10 +1,11 @@
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
-import '../game_icon.dart';
-import '../pallete.dart';
-import '../floating_text.dart';
+import '../core/game_icon.dart';
+import '../core/pallete.dart';
+import '../effects/floating_text.dart';
 
 // Novos tipos adicionados
 enum CollectibleType { 
@@ -14,20 +15,23 @@ enum CollectibleType {
   shield,
   shop,
   boss,
+  nextlevel,
   chest, 
   damage,
   fireRate,
   moveSpeed,
   range,
   healthContainer,
+  berserk,
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   final CollectibleType type;
 
   int custo;
+  int souls;
 
-  Collectible({required Vector2 position, required this.type, this.custo = 0}) 
+  Collectible({required Vector2 position, required this.type, this.custo = 0, this.souls = 0}) 
       : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
@@ -50,7 +54,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         iconColor = Pallete.laranja; 
         break;
       case CollectibleType.chest:
-        iconData = Icons.vpn_key; 
+        iconData = Icons.inventory_2; // Alterei para caixa para diferenciar da chave
         iconColor = Pallete.laranja;
         break;
       case CollectibleType.damage:
@@ -71,22 +75,30 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         break;
       case CollectibleType.shield:
         iconData = Icons.gpp_bad; 
-        iconColor = Pallete.azulCla; 
+        iconColor = Pallete.lilas; 
         break;
       case CollectibleType.healthContainer:
         iconData = Icons.favorite_outline; 
         iconColor = Pallete.vermelho; 
         break;
-     default:
-        iconData = Icons.gps_fixed; 
+      case CollectibleType.nextlevel:
+        iconData = Icons.stairs; 
+        iconColor = Pallete.lilas; 
+        break;
+      case CollectibleType.berserk:
+        iconData = Icons.sentiment_very_satisfied; 
+        iconColor = Pallete.vermelho; 
+        break;
+      default:
+        iconData = Icons.help_outline; 
         iconColor = Pallete.azulCla; 
-          break;
+        break;
     }
 
     add(GameIcon(
       icon: iconData,
       color: iconColor,
-      size: size * 1.5, // Ícones um pouco maiores que o hitbox ficam bonitos
+      size: size * 1.5, 
     ));
 
     if (custo > 0){
@@ -107,87 +119,43 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
     add(CircleHitbox());
   }
 
- @override
+  @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
     if (other == gameRef.player) {
 
+      // 1. VERIFICAÇÃO DE CUSTO
       if (custo > 0){
         if (gameRef.coinsNotifier.value < custo){
+          // Feedback Visual de "Sem dinheiro" (Opcional)
+           gameRef.world.add(FloatingText(
+             text: "No Funds!",
+             position: position + Vector2(0, -20),
+             color: Pallete.vermelho,
+             fontSize: 10,
+           ));
           return;
-        }else{
+        } else {
           gameRef.coinsNotifier.value -= custo;
         }
       }
 
-      String feedbackText = "";
-      Color feedbackColor = Pallete.branco;
+      // 2. APLICA O EFEITO (USANDO O MÉTODO ESTÁTICO)
+      // Recebemos um mapa com o texto e a cor para o feedback
+      final feedback = Collectible.applyEffect(
+        type: type, 
+        game: gameRef
+      );
 
-      switch (type) {
-        case CollectibleType.coin:
-          gameRef.coinsNotifier.value += 10;
-          feedbackText = "+ 10\$ ";
-          feedbackColor = Pallete.branco; // Dourado
-          break;
-          
-        case CollectibleType.potion:
-          if (gameRef.player.healthNotifier.value < gameRef.player.maxHealth) {
-            gameRef.player.healthNotifier.value++;
-            feedbackText = "Curado!";
-            feedbackColor = Pallete.branco; // Rosa
-          } else {
-            feedbackText = "Cheio!"; // Se já estiver com vida cheia
-          }
-          break;
-          
-        case CollectibleType.key:
-          gameRef.keysNotifier.value++;
-          feedbackText = "Key!";
-          feedbackColor = Pallete.branco; // Ciano
-          break;
-          
-        case CollectibleType.damage:
-          gameRef.player.increaseDamage();
-          feedbackText = "+ Damage!";
-          feedbackColor = Pallete.branco; // Laranja
-          break;
-          
-        case CollectibleType.fireRate:
-          gameRef.player.increaseFireRate();
-          feedbackText = "+ Fire Rate!";
-          feedbackColor = Pallete.branco; // Amarelo
-          break;
-          
-        // Outros upgrades...
-        case CollectibleType.moveSpeed:
-           gameRef.player.increaseMovementSpeed();
-           feedbackText = "+ Movement Speed!";
-           break;
-        
-        case CollectibleType.range:
-           gameRef.player.increaseRange();
-           feedbackText = "+ Range!";
-           break;
-        
-        case CollectibleType.shield:
-           gameRef.player.increaseShield();
-           feedbackText = "+ Shield!";
-           break;
+      String feedbackText = feedback['text'] as String;
+      Color feedbackColor = feedback['color'] as Color;
 
-        case CollectibleType.healthContainer:
-           gameRef.player.increaseHp();
-           feedbackText = "+ Health Container!";
-           break;
-        default:
-          break;
-      }
-
-      // Só mostra o texto se tiver algo para dizer
+      // 3. MOSTRA FEEDBACK VISUAL
       if (feedbackText.isNotEmpty) {
         gameRef.world.add(FloatingText(
           text: feedbackText,
-          position: position.clone(), // Aparece onde o item estava
+          position: position.clone(), 
           color: feedbackColor,
           fontSize: 12,
         ));
@@ -197,5 +165,96 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
     }
   }
 
+  // ===========================================================================
+  // MÉTODO ESTÁTICO HELPER (REUTILIZÁVEL)
+  // ===========================================================================
+  // Retorna um Map com 'text' (String) e 'color' (Color) para feedback visual
+  static Map<String, dynamic> applyEffect({
+    required CollectibleType type,
+    required TowerGame game,
+  }) {
+    String text = "";
+    Color color = Pallete.branco;
+    final player = game.player; // Atalho
 
+    switch (type) {
+      case CollectibleType.coin:
+        game.coinsNotifier.value += 10;
+        text = "+ 10\$ ";
+        color = Pallete.amarelo;
+        break;
+        
+      case CollectibleType.potion:
+        if (player.healthNotifier.value < player.maxHealth) {
+          player.healthNotifier.value++; // Ou player.heal() se tiver criado
+          text = "Curado!";
+          color = Pallete.vermelho; // Rosa/Vermelho
+        } else {
+          text = "Cheio!";
+          color = Pallete.cinzaCla;
+        }
+        break;
+        
+      case CollectibleType.key:
+        game.keysNotifier.value++;
+        text = "Key!";
+        color = Pallete.laranja; // Ciano/Laranja
+        break;
+        
+      case CollectibleType.damage:
+        player.increaseDamage();
+        text = "+ Damage!";
+        color = Pallete.azulCla; // Laranja
+        break;
+        
+      case CollectibleType.fireRate:
+        player.increaseFireRate();
+        text = "+ Fire Rate!";
+        color = Pallete.azulCla; // Amarelo
+        break;
+        
+      case CollectibleType.moveSpeed:
+         player.increaseMovementSpeed();
+         text = "+ Speed!";
+         color = Pallete.azulCla;
+         break;
+      
+      case CollectibleType.range:
+         player.increaseRange();
+         text = "+ Range!";
+         color = Pallete.azulCla;
+         break;
+      
+      case CollectibleType.shield:
+         player.increaseShield();
+         text = "+ Shield!";
+         color = Pallete.azulCla;
+         break;
+
+      case CollectibleType.healthContainer:
+         player.increaseHp();
+         text = "+ Max HP!";
+         color = Pallete.vermelho;
+         break;
+      
+      case CollectibleType.berserk:
+         player.isBerserk = true;
+         text = "Double Damage when low HP!";
+         color = Pallete.vermelho;
+         break;
+
+      case CollectibleType.chest:
+         // Exemplo: Baú dá muito ouro
+         game.coinsNotifier.value += 50;
+         text = "+ 50\$ (Chest)";
+         color = Pallete.amarelo;
+         break;
+
+      default:
+         text = "";
+         break;
+    }
+
+    return {'text': text, 'color': color};
+  }
 }

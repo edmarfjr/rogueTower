@@ -1,9 +1,10 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../gameObj/wall.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 
 class BouncerEnemy extends Enemy {
   Vector2 _velocity = Vector2.zero();
@@ -22,12 +23,12 @@ class BouncerEnemy extends Enemy {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    
+    originalColor = Pallete.verdeCla;
     // Visual
     children.whereType<GameIcon>().toList().forEach((c) => c.removeFromParent());
     add(GameIcon(
       icon: Icons.sports_baseball, 
-      color: Colors.limeAccent,
+      color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2

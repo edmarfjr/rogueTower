@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
-import '../components/pallete.dart';
+import '../components/core/pallete.dart';
 
 class GameOver extends StatelessWidget {
   final TowerGame game;
@@ -55,47 +55,30 @@ class GameOver extends StatelessWidget {
             const SizedBox(height: 50),
 
             // BOTÃO TENTAR NOVAMENTE
-            SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton(
+            ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.branco,
-                  foregroundColor: Pallete.preto, // Cor do texto
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    side: const BorderSide(color: Pallete.colorDarkest, width: 3),
-                  ),
-                  elevation: 5,
+                  backgroundColor: Pallete.verdeCla,
+                  minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   game.resetGame();
                 },
-                child: const Text(
-                  'TENTAR NOVAMENTE',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: const Text('TENTAR NOVAMENTE', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
-            ),
             
             const SizedBox(height: 20),
 
             // BOTÃO VOLTAR AO MENU
-            TextButton(
-              onPressed: () {
-                game.returnToMenu();
-              },
-              child: const Text(
-                'Voltar ao Menu',
-                style: TextStyle(
-                  color: Pallete.cinzaCla,
-                  fontSize: 16,
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Pallete.vermelho,
+                  minimumSize: const Size(double.infinity, 50),
                 ),
+                onPressed: () {
+                  game.returnToMenu();
+                },
+                child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
-            ),
           ],
         ),
       ),

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import 'player.dart';
 import 'collectible.dart';
-import '../game_icon.dart';
-import '../pallete.dart';
+import '../core/game_icon.dart';
+import '../core/pallete.dart';
 
 class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   bool isOpen = false;
@@ -89,6 +89,10 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.healthContainer:
         iconData = Icons.favorite_outline;
         iconColor = Pallete.vermelho;
+        break;
+      case CollectibleType.nextlevel:
+        iconData = Icons.stairs;
+        iconColor = Pallete.lilas;
         break;
       default:
         iconData = Icons.help_outline;

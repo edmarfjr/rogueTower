@@ -1,10 +1,11 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../gameObj/wall.dart';
 import '../gameObj/projectile.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 
 class SpinnerEnemy extends Enemy {
   // Movimento Aleatório
@@ -23,12 +24,13 @@ class SpinnerEnemy extends Enemy {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    originalColor = Pallete.rosa;
     children.whereType<GameIcon>().toList().forEach((c) => c.removeFromParent());
 
     // Visual: Algo que remete a girar
     add(GameIcon(
       icon: Icons.sync, // Ou Icons.cyclone
-      color: Colors.pinkAccent,
+      color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2
@@ -89,6 +91,7 @@ class SpinnerEnemy extends Enemy {
         position: position + dir * 20,
         direction: dir,
         damage: 1,
+        speed: 200,
         isEnemyProjectile: true,
       ));
     }

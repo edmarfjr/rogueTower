@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import './pallete.dart';
+import 'pallete.dart';
 
 class ArenaBorder extends PositionComponent {
   final double wallThickness;
@@ -8,8 +8,8 @@ class ArenaBorder extends PositionComponent {
 
   ArenaBorder({
     required Vector2 size,
-    this.wallThickness = 64.0,
-    this.radius = 100.0,
+    this.wallThickness = 10.0,
+    this.radius = 220.0,
   }) : super(
           size: size,
           anchor: Anchor.center,

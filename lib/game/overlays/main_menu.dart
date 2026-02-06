@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
-import '../components/pallete.dart';
+import '../components/core/pallete.dart';
 
 class MainMenu extends StatelessWidget {
   final TowerGame game;

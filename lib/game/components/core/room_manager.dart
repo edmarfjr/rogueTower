@@ -1,27 +1,30 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:flame/components.dart';
-import '../tower_game.dart';
-import 'gameObj/door.dart';
-import 'gameObj/collectible.dart';
-import 'gameObj/wall.dart';
-import 'gameObj/chest.dart';
+import '../../tower_game.dart';
+import '../gameObj/door.dart';
+import '../gameObj/collectible.dart';
+import '../gameObj/wall.dart';
+import '../gameObj/chest.dart';
 //importacao de inimigos
-import 'enemies/enemy.dart';
-import 'enemies/enemy_shooter.dart';
-import 'enemies/enemy_bouncer.dart';
-import 'enemies/enemy_dasher.dart';
-import 'enemies/enemy_spinner.dart';
-import 'enemies/enemy_boss1.dart';
+import '../enemies/enemy.dart';
+import '../enemies/enemy_shooter.dart';
+import '../enemies/enemy_bouncer.dart';
+import '../enemies/enemy_dasher.dart';
+import '../enemies/enemy_spinner.dart';
+import '../enemies/enemy_boss1.dart';
 
 typedef EnemyFactory = PositionComponent Function(Vector2 position);
 
 class RoomManager extends Component with HasGameRef<TowerGame> {
   
   bool _levelCleared = false;
-  
   // Timer para evitar que a sala complete no frame 0
   double _checkTimer = 0.0; 
-  final double _minTimeBeforeClear = 1.0; // 1 segundo de espera antes de verificar
+
+  int get bossRoom => gameRef.bossRoom;
+
+  final double _minTimeBeforeClear = 0.2; // 1 segundo de espera antes de verificar
   final List<EnemyFactory> _enemyRoster = [
     (pos) => Enemy(position: pos),         // 0: Segue (Comum)
     (pos) => ShooterEnemy(position: pos),  // 1: Atira (Comportamento de torre/kite)
@@ -58,7 +61,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
     
     // LÓGICA DE SPAWN DO BOSS
-    if (roomNumber % 5 == 0 && roomNumber>0) {
+    if (roomNumber == bossRoom) {
       // É SALA DE CHEFE!
       print("ALERTA: BOSS FIGHT!");
       
@@ -68,7 +71,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         level: roomNumber // Boss fica mais forte em salas avançadas
       ));
       
-      // Opcional: Adicionar 2 minions para ajudar o chefe
       // gameRef.world.add(ShooterEnemy(position: Vector2(-100, -150)));
       // gameRef.world.add(ShooterEnemy(position: Vector2(100, -150)));
 
@@ -130,45 +132,52 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _spawnEnemies(int roomNumber) {
     if (roomNumber == 0) return;
+    
     final rng = Random();
     
-    // Dificuldade: Mais inimigos conforme a sala avança
-    // Sala 1: 2-3 inimigos
-    // Sala 10: 5-7 inimigos
     int baseCount = 2 + (roomNumber ~/ 2); 
-    int enemyCount = baseCount + rng.nextInt(3);
-    if (enemyCount > 12) enemyCount = 12; // Limite para não lotar a tela
+    int targetEnemyCount = baseCount + rng.nextInt(3);
+    if (targetEnemyCount > 12) targetEnemyCount = 12;
 
-    for (int i = 0; i < enemyCount; i++) {
+    int enemiesSpawned = 0;
+    int attempts = 0; 
+
+    while (enemiesSpawned < targetEnemyCount && attempts < 100) {
+      attempts++;
+
       double x = (rng.nextDouble() * 300) - 150;
-      double y = (rng.nextDouble() * 400) - 200;
+      double y = (rng.nextDouble() * 150) - 200;//-50 a - 220
+      final pos = Vector2(x, y);
 
-      // Área segura do player (centro)
-      if (Vector2(x, y).distanceTo(Vector2.zero()) < 140) continue;
+      if (pos.distanceTo(Vector2.zero()) < 140) {
+        continue; 
+      }
 
-      // 2. SORTEIO INTELIGENTE
-      // Se for sala 1, força apenas o inimigo básico (índice 0).
-      // Se for sala > 1, sorteia qualquer um da lista.
-      
       EnemyFactory selectedEnemyFactory;
-      
       if (roomNumber == 1) {
-        selectedEnemyFactory = _enemyRoster[0]; // Só básico
+        selectedEnemyFactory = _enemyRoster[0]; 
       } else {
-        // Sorteia um índice da lista aleatoriamente
         selectedEnemyFactory = _enemyRoster[rng.nextInt(_enemyRoster.length)];
       }
 
-      // Cria e adiciona
-      gameRef.world.add(selectedEnemyFactory(Vector2(x, y)));
+      gameRef.world.add(selectedEnemyFactory(pos));
+      enemiesSpawned++; 
     }
+    
+    print("Tentativa de spawnar: $targetEnemyCount | Spawnados: $enemiesSpawned");
   }
 
 void _spawnDoors(int roomNumber) {
-    if (roomNumber % 5 == 0 && roomNumber > 0) {
+    if (roomNumber == bossRoom-1) {
       gameRef.world.add(Door(
-        position: Vector2(0, -300), // Ajuste a posição Y conforme seu mapa
+        position: Vector2(0, -300), 
         rewardType: CollectibleType.boss,
+      ));
+      return;
+    }else if(roomNumber == bossRoom) {
+      gameRef.world.add(Door(
+        position: Vector2(0, -300), 
+        rewardType: CollectibleType.nextlevel,
       ));
       return;
     }
@@ -180,6 +189,7 @@ void _spawnDoors(int roomNumber) {
     Set<CollectibleType> possibleRewards = {
       CollectibleType.coin,
       CollectibleType.potion,
+      CollectibleType.shield,
     };
 
     // 2. ADICIONAR RECOMPENSAS RARAS (Com base na sorte)
@@ -278,6 +288,58 @@ void _spawnDoors(int roomNumber) {
       ));
   }
 
+  void _generateZeroRoom(){
+    switch (gameRef.currentLevel){
+      case 1:
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, -60),
+          id: 'permanent_shield_1', 
+          type: CollectibleType.shield,
+          soulCost: 200,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 0),
+          id: 'permanent_health_1', 
+          type: CollectibleType.healthContainer,
+          soulCost: 500,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 60),
+          id: 'permanent_fire_rate_1', 
+          type: CollectibleType.fireRate,
+          soulCost: 900,
+        ));
+        break;
+      case 2:
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 0),
+          id: 'permanent_health_2', 
+          type: CollectibleType.healthContainer,
+          soulCost: 800,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, -60),
+          id: 'permanent_shield_2', 
+          type: CollectibleType.shield,
+          soulCost: 500,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 60),
+          id: 'permanent_damage_2', 
+          type: CollectibleType.damage,
+          soulCost: 1200,
+        ));
+        break;
+      default:
+        break;
+    }
+    
+  }
+
   void _unlockDoors() {
     final doors = gameRef.world.children.query<Door>();
     
@@ -289,9 +351,7 @@ void _spawnDoors(int roomNumber) {
     for (final door in doors) {
       door.open();
     }
-    if (gameRef.currentRoom == 0) {
-      return;
-    }
+    
 
    // LÓGICA DE SPAWN DA RECOMPENSA
     if (gameRef.nextRoomReward == CollectibleType.chest) {
@@ -304,6 +364,8 @@ void _spawnDoors(int roomNumber) {
       
     } else if (gameRef.nextRoomReward == CollectibleType.shop){
       _generateShopRoom();
+    }else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
+      _generateZeroRoom();
     }else {
       // Se for Moeda, Poção ou Chave, cria o item direto
       gameRef.world.add(Collectible(

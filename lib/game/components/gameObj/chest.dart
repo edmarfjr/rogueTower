@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import '../pallete.dart';
+import '../core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import 'player.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 import 'collectible.dart';
 
 class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -78,9 +78,10 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     final List<CollectibleType> possibleRewards = [
       CollectibleType.damage,
       CollectibleType.fireRate,
-      CollectibleType.moveSpeed, // Exemplo: seu 3º upgrade
-      CollectibleType.range, // Exemplo: seu 4º upgrade
+      CollectibleType.moveSpeed, 
+      CollectibleType.range,
     ];
+    if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
 
     // 2. Sorteia um índice aleatório da lista (0 até o tamanho da lista - 1)
     // rng.nextInt(N) retorna um número de 0 a N-1.

@@ -6,18 +6,20 @@ import 'dart:math';
 import '../../tower_game.dart'; // Import para acessar as cores e classes do jogo
 import '../enemies/enemy.dart'; 
 import 'projectile.dart';
-import '../game_icon.dart';
-import '../pallete.dart';
+import '../core/game_icon.dart';
+import '../core/pallete.dart';
 import 'wall.dart';
 import '../effects/dust.dart';
 
 class Player extends PositionComponent 
     with HasGameRef<TowerGame>, KeyboardHandler, CollisionCallbacks {
   
-  // ValueNotifier permite que o HUD "escute" mudanças na vida
   int maxHealth = 3;
   late final ValueNotifier<int> healthNotifier;
   ValueNotifier<int> shieldNotifier = ValueNotifier<int>(0);
+
+  int maxDash = 2;
+  late final ValueNotifier<int> dashNotifier;
   
   // I-Frames (Invencibilidade)
   bool _isInvincible = false;
@@ -25,7 +27,7 @@ class Player extends PositionComponent
   double _invincibilityDuration = 1.0; 
   // -----------------------
   double speed = 150;
-  double attackRange = 150; 
+  double attackRange = 200; 
   double _attackTimer = 0;
   double damage = 10.0;
   double fireRate = 0.4; 
@@ -46,6 +48,8 @@ class Player extends PositionComponent
   double dashCooldown = 1.0; 
   Vector2 _dashDirection = Vector2.zero();
 
+  bool isBerserk = false;
+
   // Variáveis de Animação
   double _walkTimer = 0;
   final double _bounceSpeed = 15.0;     // Quão rápido ele quica
@@ -55,6 +59,7 @@ class Player extends PositionComponent
 
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
+    dashNotifier = ValueNotifier<int>(maxDash);
   }
 
   @override
@@ -112,9 +117,15 @@ class Player extends PositionComponent
   void update(double dt) {
     super.update(dt);
     
-    if (_dashCooldownTimer > 0) {
+    if (dashNotifier.value < maxDash){
+      if (_dashCooldownTimer > 0) {
       _dashCooldownTimer -= dt;
+      }else{
+      _dashCooldownTimer = dashCooldown;
+      dashNotifier.value++;
+      }
     }
+    
 
     if (isDashing) {
       _handleDashMovement(dt); 
@@ -194,9 +205,10 @@ class Player extends PositionComponent
   // --------------------------------
 
   void startDash() {
-    if (_dashCooldownTimer > 0 || isDashing) return;
-
+    if (dashNotifier.value <= 0 || isDashing) return;
+    dashNotifier.value--;
     isDashing = true;
+
     _dashTimer = dashDuration;
     _dashCooldownTimer = dashCooldown;
 
@@ -240,7 +252,7 @@ class Player extends PositionComponent
   }
 
   void _keepInBounds() {
-    double limitX = 180 - 16;
+    double limitX = 180- 16;
     double limitY = 320 - 16;
 
     if (position.x < -limitX) position.x = -limitX;
@@ -328,7 +340,11 @@ class Player extends PositionComponent
 
   void _shootAt(Enemy target) {
     final direction = (target.position - position).normalized();
-    gameRef.world.add(Projectile(position: position.clone(), direction: direction));
+    double dmg = damage;
+
+    if(isBerserk && healthNotifier.value == 1) dmg = damage * 2;
+
+    gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
   }
 
   void reset() {
@@ -339,7 +355,7 @@ class Player extends PositionComponent
     velocity = Vector2.zero();
 
     speed = 150;
-    attackRange = 150; 
+    attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;
     fireRate = 0.4; 
@@ -347,6 +363,7 @@ class Player extends PositionComponent
     dashDuration = 0.2; 
     dashSpeed = 450;    
     dashCooldown = 1.0; 
+    isBerserk = false;
 
     children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
   }

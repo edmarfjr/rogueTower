@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -10,13 +11,14 @@ import 'package:flame/camera.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
-import 'package:TowerRogue/game/components/room_manager.dart';
+import 'package:TowerRogue/game/components/core/room_manager.dart';
 import 'package:TowerRogue/game/components/gameObj/projectile.dart';
 import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'components/gameObj/collectible.dart';
-import 'components/pallete.dart';
+import 'components/core/pallete.dart';
 import 'components/gameObj/wall.dart';
-import 'components/arena_border.dart';
+import 'components/core/arena_border.dart';
+import 'components/core/game_progress.dart';
 
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   
@@ -34,17 +36,24 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   // Variável pública para o Player ler
   Vector2 joystickDelta = Vector2.zero();
 
-  // --- CONTADORES ---
   int currentRoom = 0;
+  int currentLevel = 1;
+  final int bossRoom = 5;
+
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
-  CollectibleType nextRoomReward = CollectibleType.coin;
+  
+  CollectibleType nextRoomReward = CollectibleType.nextlevel;
+
+  final GameProgress progress = GameProgress();
 
   @override
   Color backgroundColor() => Pallete.preto;
 
   @override
   Future<void> onLoad() async {
+    await progress.load();
+    debugMode = false;
     // 1. VIEWPORT (Janela do Jogo)
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
@@ -80,8 +89,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     await world.add(ArenaBorder(
       size: Vector2(gameWidth, gameHeight),
-      wallThickness: 64, 
-      radius: 20,       
+      wallThickness: 54, 
+      radius: 40,       
     ));
 
     camera.setBounds(
@@ -208,6 +217,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   void nextLevel(CollectibleType chosenReward) {
     currentRoom++;
+    if (currentRoom > bossRoom){
+      currentRoom = 0;
+      currentLevel++;
+    }
     nextRoomReward = chosenReward;
 
     // Limpeza de componentes
@@ -217,6 +230,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
+    world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
     
     startLevel();
   }
@@ -231,8 +245,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     resumeEngine();
 
     currentRoom = 0;
+    currentLevel = 1;
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
+    nextRoomReward = CollectibleType.nextlevel;
 
     // Limpa tudo
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
@@ -241,6 +257,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
+    world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
 
     player.reset();
     camera.follow(player);

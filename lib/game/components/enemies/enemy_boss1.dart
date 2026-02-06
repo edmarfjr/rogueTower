@@ -1,11 +1,12 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../gameObj/projectile.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 import '../gameObj/collectible.dart';
-import '../floating_text.dart';
+import '../effects/floating_text.dart';
 import '../effects/explosion.dart'; 
 
 class BossEnemy extends Enemy {
@@ -14,12 +15,12 @@ class BossEnemy extends Enemy {
   final double maxHp; 
 
   BossEnemy({required Vector2 position, int level = 1}) 
-      : maxHp = 100.0 + (level * 20),
-        super(position: position) {
-    
-    // Configura a vida inicial igual ao máximo calculado
+    : maxHp = 100.0 + (level * 20),
+    super(position: position) {
     hp = maxHp;
-    speed = 40; 
+    speed = 40;
+    soul = 150; 
+    rotaciona = true;
   }
 
   @override
@@ -40,7 +41,7 @@ class BossEnemy extends Enemy {
     // 4. VISUAL DO CHEFE
     add(GameIcon(
       icon: Icons.bug_report, 
-      color: Colors.purpleAccent,
+      color: Pallete.rosa,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
@@ -68,7 +69,7 @@ class BossEnemy extends Enemy {
     
     canvas.drawRect(
       Rect.fromLTWH(0, yOffset, barWidth * percent, barHeight),
-      Paint()..color = const Color(0xFFFF0000),
+      Paint()..color = Pallete.vermelho,
     );
   }
 
@@ -97,11 +98,11 @@ class BossEnemy extends Enemy {
     final visual = children.whereType<GameIcon>().firstOrNull;
     if (visual != null) {
         // AGORA FUNCIONA: Chamamos o método que acabamos de criar
-        visual.setColor(Colors.white); 
+        visual.setColor(Pallete.branco); 
         
         Future.delayed(const Duration(milliseconds: 100), () {
             if (isMounted) { 
-                 visual.setColor(Colors.purpleAccent); // Volta para a cor original
+                 visual.setColor(Pallete.rosa); // Volta para a cor original
             }
         });
     }
@@ -148,6 +149,7 @@ class BossEnemy extends Enemy {
       position: position + newDir * 40,
       direction: newDir,
       damage: 1, 
+      speed: 200,
       isEnemyProjectile: true,
     ));
   }
@@ -157,7 +159,20 @@ class BossEnemy extends Enemy {
     createExplosion(gameRef.world, position, Colors.purple, count: 50);
     
     // Dropa Loot do Boss
-    gameRef.world.add(Collectible(position: position, type: CollectibleType.key));
+     final rng = Random();
+
+    final List<CollectibleType> possibleRewards = [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.healthContainer, 
+    ];
+    if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
+
+    final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
+
+    gameRef.world.add(Collectible(position: position, type: lootType));
     gameRef.world.add(Collectible(position: position + Vector2(20,0), type: CollectibleType.coin));
     gameRef.world.add(Collectible(position: position + Vector2(-20,0), type: CollectibleType.coin));
 
@@ -167,7 +182,7 @@ class BossEnemy extends Enemy {
         color: Colors.yellow, 
         fontSize: 20
     ));
-
+    gameRef.progress.addSouls(soul);
     removeFromParent();
   }
 }

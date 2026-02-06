@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../pallete.dart';
+import '../core/pallete.dart';
 import 'enemy.dart';
 import '../gameObj/wall.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 
 enum DasherState { aiming, dashing, recovering }
 
@@ -27,12 +27,14 @@ class DasherEnemy extends Enemy {
 
   @override
   Future<void> onLoad() async {
+    
     await super.onLoad();
+    originalColor = Pallete.vermelho;
     children.whereType<GameIcon>().toList().forEach((c) => c.removeFromParent());
     
     add(GameIcon(
       icon: Icons.navigation, 
-      color: Pallete.laranja,
+      color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2

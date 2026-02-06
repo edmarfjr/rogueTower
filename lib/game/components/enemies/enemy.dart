@@ -3,133 +3,160 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../../tower_game.dart'; // Para acessar o player via gameRef
-import '../game_icon.dart';
-import '../pallete.dart';
+import '../../tower_game.dart'; 
+import '../core/game_icon.dart';
+import '../core/pallete.dart';
 import '../gameObj/wall.dart';
-import '../floating_text.dart';
-import '../effects/explosion.dart';
+import '../effects/floating_text.dart';
+//import '../effects/explosion.dart'; // Certifique-se que existe ou remova se não usar
 
 class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
   double hp = 30;
   double speed = 80;
   bool rotaciona = false;
+  int soul = 1;
   
-  // Controle de dano visual
+  // --- CONTROLE DE DANO VISUAL ---
   bool _isHit = false;
   double _hitTimer = 0;
+  late Color originalColor; // <--- 1. Variável para lembrar a cor original
+  // -------------------------------
+
+  // Variáveis de Animação
+  double _animTimer = 0;
+  final double _animSpeed = 12.0;       
+  final double _animAmplitude = 0.1;    
+  Vector2 _lastPosition = Vector2.zero(); 
 
   Enemy({required Vector2 position}) 
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
+    // Define a cor padrão deste inimigo
+    // (Filhos podem sobrescrever isso se setarem a cor antes ou no seu próprio onLoad)
+    originalColor = Pallete.vermelho; 
+
     add(GameIcon(
       icon: Icons.pest_control_rodent,
-      color: Pallete.vermelho,
+      color: originalColor, // <--- Usa a variável
       size: size,
       anchor: Anchor.center,
-      position: size / 2, // <--- O segredo está aqui
+      position: size / 2, 
     ));
 
     add(RectangleHitbox(
-      size: size * 0.8, // Opcional: hitbox um pouco menor
+      size: size * 0.8, 
       anchor: Anchor.center,
-      position: size / 2, // <--- E aqui
+      position: size / 2, 
       isSolid: true,
     ));
+    _lastPosition = position.clone();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     behavior(dt);
+    _animateEnemy(dt);
+    _lastPosition.setFrom(position);
+    
+    // Chama o controle do efeito visual a cada frame
     handleHitEffect(dt);
-
-    // --- NOVA LÓGICA DE FLIP ---
-    final player = gameRef.player;
-    final visual = children.whereType<GameIcon>().first;
-
-    // Se o player está à esquerda (x menor), flipa para esquerda (-1)
-    if (player.position.x < position.x) {
-      visual.scale = Vector2(-1, 1);
-    } else {
-      visual.scale = Vector2(1, 1);
-    }
-    // ---------------------------
   }
 
-  void behavior(double dt) {
-    behaviorFollowPlayer(dt);
-  }
-
+  // ... (behavior e behaviorFollowPlayer mantidos iguais) ...
+  void behavior(double dt) { behaviorFollowPlayer(dt); }
   void behaviorFollowPlayer(double dt) {
-    // Acessa a posição do jogador através do gameRef
-    final player = gameRef.player;
-    
-    // Calcula vetor direção até o player
-    final direction = (player.position - position).normalized();
-
-    if(rotaciona){final visual = children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) 
-      {
-        visual.angle = atan2(direction.y, direction.x) + (pi / 2);
-      }
-    }
-    
-    
-    // Move
-    position += direction * speed * dt;
+     final player = gameRef.player;
+     final direction = (player.position - position).normalized();
+     if(rotaciona){
+       final visual = children.whereType<GameIcon>().firstOrNull;
+       if (visual != null) visual.angle = atan2(direction.y, direction.x) + (pi / 2);
+     }
+     position += direction * speed * dt;
   }
-
+  
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-
     if (other is Wall) {
-      // 1. Colisão com Parede (Empurra para fora)
       final separation = (position - other.position).normalized();
       position += separation * 2.0; 
-    } 
-    else if (other is Enemy) {
-      // 2. Colisão com outro Inimigo (Empurra suavemente para não sobrepor)
-      // Isso cria o efeito de "boids" ou multidão, evitando que fiquem todos no mesmo pixel
+    } else if (other is Enemy) {
       final separation = (position - other.position).normalized();
-      
-      // Empurrão menor (1.0) para ser suave, senão eles ficam tremendo
       position += separation * 1.0; 
     }
   }
 
+  // --- LÓGICA DE DANO ATUALIZADA ---
   void takeDamage(double damage) {
     if (hp <= 0) return;
     hp -= damage;
-    _isHit = true; // Ativa efeito de "piscar"
-    _hitTimer = 0.1; // Tempo que fica branco
+    
+    // 2. ATIVA O FLASH BRANCO
+    if (!_isHit) { // Só aplica se já não estiver piscando (evita travar no branco)
+        _isHit = true; 
+        _hitTimer = 0.1; // Pisca por 100ms
+        
+        // Pinta de Branco
+        children.whereType<GameIcon>().firstOrNull?.setColor(Colors.white);
+    }
 
     gameRef.world.add(FloatingText(
       text: damage.toInt().toString(),
-      position: position.clone() + Vector2(0, -10), // Aparece um pouco acima da cabeça
-      color: Colors.white, // Ou amarelo para Crítico
+      position: position.clone() + Vector2(0, -10), 
+      color: Colors.white, 
       fontSize: 14,
     ));
 
     if (hp <= 0) {
-      createExplosion(gameRef.world, position, Pallete.vermelho, count: 15);
+      // Efeito de Morte
+      // createExplosion(...); 
+      
+      gameRef.progress.addSouls(soul);
+      
       removeFromParent();
-      // Aqui você poderia dropar moedas ou tocar som de morte
     }
   }
 
+  // --- RESTAURAÇÃO DA COR ---
   void handleHitEffect(double dt) {
     if (_isHit) {
       _hitTimer -= dt;
+      
       if (_hitTimer <= 0) {
         _isHit = false;
-        // Retorna a cor normal (se estivéssemos usando TintEffect seria mais elegante, 
-        // mas para MVP, o flash é sutil ou pode ser ignorado por enquanto)
+        // 3. VOLTA PARA A COR ORIGINAL
+        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
       }
+    }
+  }
+
+  // ... (_animateEnemy mantido igual) ...
+  void _animateEnemy(double dt) {
+    // (Sua lógica de animação corrigida anteriormente continua aqui...)
+    final visual = children.whereType<GameIcon>().firstOrNull;
+    if (visual == null) return;
+    
+    final player = gameRef.player;
+    double facing = 1.0;
+    if (!rotaciona) {
+        if (player.position.x < position.x) facing = -1.0; 
+        else facing = 1.0;
+    }
+
+    double displacement = position.distanceTo(_lastPosition);
+    if (displacement > 0.1) {
+      _animTimer += dt * _animSpeed;
+      double wave = sin(_animTimer);
+      double scaleY = 1.0 + (wave * _animAmplitude); 
+      double scaleX = 1.0 - (wave * _animAmplitude * 0.5);
+      visual.scale = Vector2(facing * scaleX, scaleY);
+    } else {
+      _animTimer = 0;
+      visual.scale = Vector2(facing, 1.0);
     }
   }
 }

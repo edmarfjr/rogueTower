@@ -2,9 +2,9 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../game_icon.dart';
+import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
-import '../pallete.dart';
+import '../core/pallete.dart';
 import 'wall.dart';
 import '../../tower_game.dart';
 import 'player.dart';
@@ -12,7 +12,7 @@ import '../effects/explosion.dart';
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
   final Vector2 direction;
-  final double speed = 300; 
+  final double speed; 
   final double damage;
   final bool isEnemyProjectile;
 
@@ -20,6 +20,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
     required Vector2 position, 
     required this.direction,
     this.damage = 10,
+    this.speed = 300,
     this.isEnemyProjectile = false,
   }): super(position: position, size: Vector2.all(10), anchor: Anchor.center);
 
@@ -77,6 +78,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
       removeFromParent();
     }
     if (other is Wall) {
+      other.vida--;
+      if (other.vida <=0) other.removeFromParent();
       createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
       removeFromParent(); 
     }
