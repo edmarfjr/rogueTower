@@ -55,10 +55,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _levelCleared = false;
     _checkTimer = 0.0; 
     
-    if (gameRef.nextRoomReward != CollectibleType.shop) _generateMap(roomNumber);
+    if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
     
     // LÓGICA DE SPAWN DO BOSS
-    if (roomNumber % 5 == 0) {
+    if (roomNumber % 5 == 0 && roomNumber>0) {
       // É SALA DE CHEFE!
       print("ALERTA: BOSS FIGHT!");
       
@@ -82,6 +82,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateMap(int seed) {
+    
     // Limpeza garantida (caso resetGame não tenha rodado por algum motivo)
     gameRef.world.children.query<Wall>().forEach((w) => w.removeFromParent());
 
@@ -128,6 +129,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _spawnEnemies(int roomNumber) {
+    if (roomNumber == 0) return;
     final rng = Random();
     
     // Dificuldade: Mais inimigos conforme a sala avança
@@ -163,7 +165,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
 void _spawnDoors(int roomNumber) {
-    if (roomNumber % 5 == 0) {
+    if (roomNumber % 5 == 0 && roomNumber > 0) {
       gameRef.world.add(Door(
         position: Vector2(0, -300), // Ajuste a posição Y conforme seu mapa
         rewardType: CollectibleType.boss,
@@ -287,6 +289,7 @@ void _spawnDoors(int roomNumber) {
     for (final door in doors) {
       door.open();
     }
+    if (gameRef.currentRoom == 0) return;
 
    // LÓGICA DE SPAWN DA RECOMPENSA
     if (gameRef.nextRoomReward == CollectibleType.chest) {

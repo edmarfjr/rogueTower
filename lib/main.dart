@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'game/tower_game.dart';
 
-// Importe todas as suas Overlays aqui
 import 'game/overlays/hud.dart';
 import 'game/overlays/main_menu.dart';
 import 'game/overlays/pause_menu.dart';
-import 'game/overlays/game_over.dart'; // <--- Import novo
+import 'game/overlays/game_over.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +32,6 @@ class GameEntry extends StatelessWidget {
       body: SafeArea( 
         child:GameWidget<TowerGame>(
           game: TowerGame(),
-          // Mapa de Overlays limpo e profissional
           overlayBuilderMap: {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),
