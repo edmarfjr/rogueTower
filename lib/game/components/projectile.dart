@@ -1,10 +1,9 @@
 import 'dart:math';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:tower/game/components/game_icon.dart';
-import 'enemies/enemy.dart'; // Importante para reconhecer o inimigo
+import 'enemies/enemy.dart'; 
 import 'pallete.dart';
 import 'wall.dart';
 import '../tower_game.dart';
@@ -13,7 +12,7 @@ import 'explosion.dart';
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
   final Vector2 direction;
-  final double speed = 200; // Um pouco mais rápido que antes
+  final double speed = 300; 
   final double damage;
   final bool isEnemyProjectile;
 

@@ -8,6 +8,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/input.dart';
 import 'package:flame/experimental.dart'; // Garante que Rectangle venha daqui
+import 'package:tower/game/components/chest.dart';
 
 import 'package:tower/game/components/player.dart';
 import 'package:tower/game/components/enemies/enemy.dart';
@@ -93,33 +94,21 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     joystick.position = info.eventPosition.widget;
     
     // 2. Adiciona o joystick ao jogo (se ele não estiver lá)
-    if (!contains(joystick)) {
-      // Usamos add() direto no game (Viewport) e não no world, para ser UI
-      add(joystick); 
+    if (!joystick.isMounted) {
+      camera.viewport.add(joystick); 
     }
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    // Quando o dedo arrasta:
-    
-    // Como o joystick foi adicionado depois do toque começar, ele não pega o evento sozinho.
-    // Precisamos calcular a matemática da alavanca manualmente:
-    
-    // 1. Calcula o vetor do centro do joystick até o dedo atual
+    // A matemática continua a mesma, pois widget position é relativo a tela
     final localDelta = info.eventPosition.widget - joystick.position;
     
-    // 2. Limita o movimento ao raio do joystick (não deixar sair da base)
     if (localDelta.length > _joystickRadius) {
-      // Normaliza e multiplica pelo raio
       joystick.knob!.position = localDelta.normalized() * _joystickRadius;
     } else {
       joystick.knob!.position = localDelta;
     }
-
-    // 3. Atualiza o 'relativeDelta' (Isso é o que o Player lê para se mover!)
-    // O valor vai de -1 a 1
-    //joystick.relativeDelta = joystick.knob!.position / _joystickRadius;
   }
 
   @override
@@ -135,12 +124,10 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
   }
 
   void _resetJoystick() {
-    // Remove o joystick da tela
-    if (contains(joystick)) {
-      remove(joystick);
+    // CORREÇÃO: Remove do pai atual (que agora é o viewport)
+    if (joystick.isMounted) {
+      joystick.removeFromParent();
     }
-    // Zera a força do movimento para o player parar
-  //  joystick.relativeDelta = Vector2.zero();
     joystick.knob!.position = Vector2.zero();
   }
 
@@ -209,6 +196,7 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
+    world.children.query<Chest>().forEach((w) => w.removeFromParent());
     
     startLevel();
   }
@@ -231,6 +219,7 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     world.children.query<Door>().forEach((d) => d.removeFromParent());
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
+    world.children.query<Chest>().forEach((w) => w.removeFromParent());
 
     player.reset();
     
