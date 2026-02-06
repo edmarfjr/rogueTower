@@ -92,9 +92,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     final List<Vector2> occupiedPositions = [Vector2.zero()];
     
     // Chance de ter obstáculos
-    if (rng.nextDouble() > 0.5) return; 
+    if (rng.nextDouble() > 0.8) return; 
 
-    int obstacleCount = 4 + rng.nextInt(6); // 4 a 10 paredes
+    int obstacleCount = 3 + rng.nextInt(3); 
     int attempts = 0; // Segurança para não travar o jogo num loop infinito
 
     while (occupiedPositions.length < obstacleCount + 1 && attempts < 100) {
@@ -142,7 +142,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       double y = (rng.nextDouble() * 400) - 200;
 
       // Área segura do player (centro)
-      if (Vector2(x, y).distanceTo(Vector2.zero()) < 100) continue;
+      if (Vector2(x, y).distanceTo(Vector2.zero()) < 140) continue;
 
       // 2. SORTEIO INTELIGENTE
       // Se for sala 1, força apenas o inimigo básico (índice 0).

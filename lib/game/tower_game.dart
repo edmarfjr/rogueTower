@@ -20,7 +20,7 @@ import 'components/pallete.dart';
 import 'components/wall.dart';
 import 'components/arena_border.dart';
 
-class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
+class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   
   late final Player player;
   late JoystickComponent joystick;
