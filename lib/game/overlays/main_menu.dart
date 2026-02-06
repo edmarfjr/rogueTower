@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
+import '../components/pallete.dart';
 
 class MainMenu extends StatelessWidget {
   final TowerGame game;
@@ -16,11 +17,11 @@ class MainMenu extends StatelessWidget {
           children: [
             // Título do Jogo
             const Text(
-              'TOWER SURVIVOR',
+              'ROGUE TOWER',
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Pallete.branco,
                 letterSpacing: 4,
               ),
             ),
@@ -31,7 +32,7 @@ class MainMenu extends StatelessWidget {
               width: 200,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Pallete.branco,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
+import '../components/pallete.dart';
 
 class PauseMenu extends StatelessWidget {
   final TowerGame game;
@@ -15,9 +16,9 @@ class PauseMenu extends StatelessWidget {
           width: 300,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFF1a1a1a),
+            color: Pallete.azulEsc,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: Pallete.branco, width: 2),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -26,7 +27,7 @@ class PauseMenu extends StatelessWidget {
                 'PAUSADO',
                 style: TextStyle(
                   fontSize: 30,
-                  color: Colors.white,
+                  color: Pallete.branco,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -35,26 +36,26 @@ class PauseMenu extends StatelessWidget {
               // Botão Continuar
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Pallete.verdeCla,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   game.resumeGame();
                 },
-                child: const Text('Continuar', style: TextStyle(fontSize: 18, color: Colors.white)),
+                child: const Text('Continuar', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
               const SizedBox(height: 20),
 
               // Botão Sair
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Pallete.vermelho,
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   game.returnToMenu();
                 },
-                child: const Text('Menu Principal', style: TextStyle(fontSize: 18, color: Colors.white)),
+                child: const Text('Menu Principal', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
             ],
           ),

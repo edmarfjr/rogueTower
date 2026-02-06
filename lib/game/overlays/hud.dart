@@ -10,17 +10,18 @@ class Hud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- LADO ESQUERDO: STATUS (Vida, Moedas, Chaves) ---
-            Column(
+      child: Stack(
+        children: [
+          // ---------------------------------------------
+          // 1. CANTO SUPERIOR ESQUERDO: STATUS (Vida, Moedas, Chaves)
+          // ---------------------------------------------
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. VIDA (Corações Reativos)
+                // VIDA
                 ValueListenableBuilder<int>(
                   valueListenable: game.player.healthNotifier,
                   builder: (context, currentHealth, child) {
@@ -35,10 +36,9 @@ class Hud extends StatelessWidget {
                     );
                   },
                 ),
-                
-                const SizedBox(height: 8), // Espaçamento
+                const SizedBox(height: 8),
 
-                // 2. MOEDAS
+                // MOEDAS
                 ValueListenableBuilder<int>(
                   valueListenable: game.coinsNotifier,
                   builder: (context, coins, child) {
@@ -57,7 +57,7 @@ class Hud extends StatelessWidget {
                   },
                 ),
 
-                // 3. CHAVES
+                // CHAVES
                 ValueListenableBuilder<int>(
                   valueListenable: game.keysNotifier,
                   builder: (context, keys, child) {
@@ -66,7 +66,7 @@ class Hud extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Pallete.laranja, // Certifique-se que essa cor existe no Pallete
+                        color: Pallete.laranja,
                         shadows: [
                           Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
                         ],
@@ -77,16 +77,56 @@ class Hud extends StatelessWidget {
                 ),
               ],
             ),
+          ),
 
-            // --- LADO DIREITO: BOTÃO DE PAUSE ---
-            IconButton(
+          // ---------------------------------------------
+          // 2. CANTO SUPERIOR DIREITO: PAUSE
+          // ---------------------------------------------
+          Positioned(
+            top: 10,
+            right: 10,
+            child: IconButton(
               icon: const Icon(Icons.pause_circle_filled, color: Colors.white, size: 40),
               onPressed: () {
-                game.pauseGame(); // Chama a função que criamos no TowerGame
+                game.pauseGame();
               },
             ),
-          ],
-        ),
+          ),
+
+          // ---------------------------------------------
+          // 3. CANTO INFERIOR DIREITO: BOTÃO DE DASH
+          // ---------------------------------------------
+          Positioned(
+            bottom: 40,
+            right: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // Chama a função de dash do player
+                  game.player.startDash();
+                },
+                borderRadius: BorderRadius.circular(40),
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2), // Fundo semi-transparente
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.flash_on, // Ícone de raio
+                      color: Colors.greenAccent,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -13,8 +13,8 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
@@ -30,16 +30,18 @@ class GameEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GameWidget<TowerGame>(
-        game: TowerGame(),
-        // Mapa de Overlays limpo e profissional
-        overlayBuilderMap: {
-          'MainMenu': (context, game) => MainMenu(game: game),
-          'PauseMenu': (context, game) => PauseMenu(game: game),
-          'HUD': (context, game) => Hud(game: game),
-          'GameOver': (context, game) => GameOver(game: game), // <--- Uso da nova classe
-        },
-      ),
+      body: SafeArea( 
+        child:GameWidget<TowerGame>(
+          game: TowerGame(),
+          // Mapa de Overlays limpo e profissional
+          overlayBuilderMap: {
+            'MainMenu': (context, game) => MainMenu(game: game),
+            'PauseMenu': (context, game) => PauseMenu(game: game),
+            'HUD': (context, game) => Hud(game: game),
+            'GameOver': (context, game) => GameOver(game: game), // <--- Uso da nova classe
+          },
+        ),
+      )
     );
   }
 }

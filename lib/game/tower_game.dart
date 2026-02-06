@@ -22,7 +22,8 @@ import 'components/arena_border.dart';
 class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
   
   late final Player player;
-  late final JoystickComponent joystick;
+  late JoystickComponent joystick;
+  final double _joystickRadius = 60.0;
   late final RoomManager roomManager;
   
   int currentRoom = 1;
@@ -38,6 +39,16 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     //debugMode = true;
     // 1. CONFIGURA O VIEWPORT (Tamanho da "Janela")
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
+
+    final knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
+    final backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
+
+    joystick = JoystickComponent(
+      knob: CircleComponent(radius: 20, paint: knobPaint),
+      background: CircleComponent(radius: _joystickRadius, paint: backgroundPaint),
+      // Definimos prioridade alta para ficar em cima de tudo
+      priority: 100, 
+    );
 
     // --- CONFIGURAÇÃO DA ARENA ---
     const double gameWidth = 400;
@@ -64,37 +75,73 @@ class TowerGame extends FlameGame with HasCollisionDetection, HasKeyboardHandler
     roomManager = RoomManager();
     world.add(roomManager);
 
-    player = Player();
+    player = Player(position: Vector2(0, 0));
     world.add(ScreenHitbox()); // Nota: O ScreenHitbox pega o tamanho do Viewport, não da Arena. 
                                // Se quiser colisão na arena toda, talvez precise ajustar isso depois.
     world.add(player);
     
     camera.follow(player);
 
-    // Joystick (Mobile)
-    bool isMobile = false;
-    try {
-      if (Platform.isAndroid || Platform.isIOS) isMobile = true;
-    } catch (e) {}
 
-    if (isMobile) {
-      joystick = JoystickComponent(
-        knob: CircleComponent(radius: 10, paint: Paint()..color = Pallete.colorDarkest),
-        background: CircleComponent(radius: 30, paint: Paint()..color = Pallete.colorLight.withOpacity(0.5)),
-        margin: const EdgeInsets.only(left: 40, bottom: 40),
-      );
-      camera.viewport.add(joystick);
+  }
 
-      final dashButton = HudButtonComponent(
-        button: CircleComponent(radius: 25, paint: Paint()..color = Pallete.colorLight.withOpacity(0.5)),
-        buttonDown: CircleComponent(radius: 25, paint: Paint()..color = Pallete.colorDarkest),
-        margin: const EdgeInsets.only(right: 40, bottom: 40),
-        onPressed: () {
-          player.startDash();
-        },
-      );
-      camera.viewport.add(dashButton);
+  @override
+  void onPanStart(DragStartInfo info) {
+    // Quando o dedo toca na tela:
+    
+    // 1. Move a base do joystick para onde o dedo tocou (Coordenada da Tela/Widget)
+    joystick.position = info.eventPosition.widget;
+    
+    // 2. Adiciona o joystick ao jogo (se ele não estiver lá)
+    if (!contains(joystick)) {
+      // Usamos add() direto no game (Viewport) e não no world, para ser UI
+      add(joystick); 
     }
+  }
+
+  @override
+  void onPanUpdate(DragUpdateInfo info) {
+    // Quando o dedo arrasta:
+    
+    // Como o joystick foi adicionado depois do toque começar, ele não pega o evento sozinho.
+    // Precisamos calcular a matemática da alavanca manualmente:
+    
+    // 1. Calcula o vetor do centro do joystick até o dedo atual
+    final localDelta = info.eventPosition.widget - joystick.position;
+    
+    // 2. Limita o movimento ao raio do joystick (não deixar sair da base)
+    if (localDelta.length > _joystickRadius) {
+      // Normaliza e multiplica pelo raio
+      joystick.knob!.position = localDelta.normalized() * _joystickRadius;
+    } else {
+      joystick.knob!.position = localDelta;
+    }
+
+    // 3. Atualiza o 'relativeDelta' (Isso é o que o Player lê para se mover!)
+    // O valor vai de -1 a 1
+    //joystick.relativeDelta = joystick.knob!.position / _joystickRadius;
+  }
+
+  @override
+  void onPanEnd(DragEndInfo info) {
+    // Quando solta o dedo:
+    _resetJoystick();
+  }
+
+  @override
+  void onPanCancel() {
+    // Se o toque for cancelado (saiu da tela, entrou ligação, etc)
+    _resetJoystick();
+  }
+
+  void _resetJoystick() {
+    // Remove o joystick da tela
+    if (contains(joystick)) {
+      remove(joystick);
+    }
+    // Zera a força do movimento para o player parar
+  //  joystick.relativeDelta = Vector2.zero();
+    joystick.knob!.position = Vector2.zero();
   }
 
   @override

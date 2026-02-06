@@ -46,7 +46,7 @@ class Player extends PositionComponent
 
   
 
-  Player() : super(size: Vector2.all(32), anchor: Anchor.center);
+  Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

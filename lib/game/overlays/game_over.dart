@@ -36,7 +36,7 @@ class GameOver extends StatelessWidget {
               'Você sobreviveu até a Sala ${game.currentRoom}',
               style: const TextStyle(
                 fontSize: 20,
-                color: Colors.white,
+                color: Pallete.branco,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -60,8 +60,8 @@ class GameOver extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black, // Cor do texto
+                  backgroundColor: Pallete.branco,
+                  foregroundColor: Pallete.preto, // Cor do texto
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                     side: const BorderSide(color: Pallete.colorDarkest, width: 3),
@@ -91,7 +91,7 @@ class GameOver extends StatelessWidget {
               child: const Text(
                 'Voltar ao Menu',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Pallete.cinzaCla,
                   fontSize: 16,
                 ),
               ),
