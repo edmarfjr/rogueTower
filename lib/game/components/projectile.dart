@@ -56,27 +56,29 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     final hitPos = intersectionPoints.firstOrNull ?? position;
-    createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
-    // Se bater num inimigo
+    
     if (isEnemyProjectile) {
       if (other is Player) {
+        createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(1); // Jogador toma 1 de dano (1 coração)
         removeFromParent();
       }
     } 
-    // 3. Se for tiro do PLAYER
     else {
       if (other is Enemy) {
+        createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(damage);
         removeFromParent();
       }
     } 
     
     if (other is ScreenHitbox) {
+      createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
       removeFromParent();
     }
     if (other is Wall) {
-      removeFromParent(); // Tiro explode na parede
+      createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
+      removeFromParent(); 
     }
   }
 }

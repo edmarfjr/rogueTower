@@ -16,12 +16,16 @@ enum CollectibleType {
   fireRate,
   moveSpeed,
   range,
+  shield,
+  shop,
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   final CollectibleType type;
 
-  Collectible({required Vector2 position, required this.type}) 
+  int custo;
+
+  Collectible({required Vector2 position, required this.type, this.custo = 0}) 
       : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
@@ -63,6 +67,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         iconData = Icons.gps_fixed; // Setas pra cima
         iconColor = Pallete.azulCla; // Verde
         break;
+      case CollectibleType.shield:
+        iconData = Icons.gpp_bad; // Setas pra cima
+        iconColor = Pallete.azulCla; // Verde
+        break;
+     default:
+        iconData = Icons.gps_fixed; // Setas pra cima
+        iconColor = Pallete.azulCla; // Verde
+          break;
     }
 
     add(GameIcon(
@@ -70,6 +82,21 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
       color: iconColor,
       size: size * 1.5, // Ícones um pouco maiores que o hitbox ficam bonitos
     ));
+
+    if (custo > 0){
+      add(TextComponent(
+        text: "\$ $custo",
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            fontSize: 14,
+            color: Pallete.amarelo,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        anchor: Anchor.topCenter,
+        position: Vector2(size.x / 2, size.y + 5),
+      ));
+    }
 
     add(CircleHitbox());
   }
@@ -79,6 +106,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
     super.onCollisionStart(intersectionPoints, other);
 
     if (other == gameRef.player) {
+
+      if (custo > 0){
+        if (gameRef.coinsNotifier.value < custo){
+          return;
+        }else{
+          gameRef.coinsNotifier.value -= custo;
+        }
+      }
+
       String feedbackText = "";
       Color feedbackColor = Pallete.branco;
 
@@ -126,6 +162,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         case CollectibleType.range:
            gameRef.player.increaseRange();
            feedbackText = "+ Range!";
+           break;
+        
+        case CollectibleType.shield:
+           gameRef.player.increaseShield();
+           feedbackText = "+ Shield!";
            break;
            
         default:

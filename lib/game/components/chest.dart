@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import './pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   @override
   Future<void> onLoad() async {
     // 1. Visual (Baú Fechado)
-    _updateIcon(Icons.lock, const Color(0xFFDAA520)); // Dourado escuro
+    _updateIcon(Icons.lock, Pallete.marrom); // Dourado escuro
 
     // 2. Hitbox Sólida (Player não atravessa o baú)
     add(RectangleHitbox(

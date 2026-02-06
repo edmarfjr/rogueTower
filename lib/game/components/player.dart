@@ -15,7 +15,8 @@ class Player extends PositionComponent
     with HasGameRef<TowerGame>, KeyboardHandler, CollisionCallbacks {
   // ValueNotifier permite que o HUD "escute" mudanças na vida
   int maxHealth = 3;
-  ValueNotifier<int> healthNotifier = ValueNotifier<int>(3);
+  ValueNotifier<int> get healthNotifier => ValueNotifier<int>(maxHealth);
+  ValueNotifier<int> shieldNotifier = ValueNotifier<int>(0);
   
   // I-Frames (Invencibilidade)
   bool _isInvincible = false;
@@ -202,7 +203,12 @@ class Player extends PositionComponent
 
   void takeDamage(int amount) {
     if (healthNotifier.value <= 0) return;
-
+    if (shieldNotifier.value > 0){
+      shieldNotifier.value-- ;
+      _isInvincible = true;
+      _invincibilityTimer = _invincibilityDuration;
+      return;
+    }
     // Reduz vida
     healthNotifier.value -= amount;
     
@@ -402,6 +408,10 @@ class Player extends PositionComponent
   void increaseHp(){
     maxHealth++;
     healthNotifier.value++;
+  }
+
+  void increaseShield(){
+    shieldNotifier.value++;
   }
 
 }

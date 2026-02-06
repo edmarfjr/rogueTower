@@ -1,20 +1,17 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/input.dart';
-import 'package:flame/experimental.dart'; // Garante que Rectangle venha daqui
-import 'package:TowerRogue/game/components/chest.dart';
-
+import 'package:flame/camera.dart'; 
+import 'package:flame/experimental.dart';
 import 'package:TowerRogue/game/components/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/door.dart';
 import 'package:TowerRogue/game/components/room_manager.dart';
 import 'package:TowerRogue/game/components/projectile.dart';
+import 'package:TowerRogue/game/components/chest.dart';
 import 'components/collectible.dart';
 import 'components/pallete.dart';
 import 'components/wall.dart';
@@ -23,171 +20,162 @@ import 'components/arena_border.dart';
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   
   late final Player player;
-  late JoystickComponent joystick;
-  final double _joystickRadius = 80.0;
-  Vector2 joystickDelta = Vector2.zero();
-
   late final RoomManager roomManager;
   
+  // JOYSTICK
+  late JoystickComponent joystick;
+  final double _joystickRadius = 60.0; // Reduzi um pouco para ficar mais confortável
+  Vector2 joystickDelta = Vector2.zero();
+
+  // PAINTS (Controle de Transparência)
+  // Começam visíveis (Alpha 255) para você debugar. 
+  // Mude .withAlpha(0) quando quiser esconder.
+  final _knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
+  final _backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
+
   int currentRoom = 1;
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
   CollectibleType nextRoomReward = CollectibleType.coin;
-
-  final _knobPaint = Paint()..color = Colors.white.withOpacity(0.8);
-  final _backgroundPaint = Paint()..color = Colors.grey.withOpacity(0.3);
 
   @override
   Color backgroundColor() => Pallete.preto;
 
   @override
   Future<void> onLoad() async {
-    //debugMode = true;
-    // 1. CONFIGURA O VIEWPORT (Tamanho da "Janela")
+    // 1. VIEWPORT
     camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
 
-   // _knobPaint.color = _knobPaint.color.withAlpha(0);
-   // _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
-    
+    // 2. CONFIGURAÇÃO DO JOYSTICK
     joystick = JoystickComponent(
       knob: CircleComponent(radius: 20, paint: _knobPaint),
       background: CircleComponent(radius: _joystickRadius, paint: _backgroundPaint),
-      // Definimos prioridade alta para ficar em cima de tudo
-      priority: 100, 
+      priority: 1000, // Prioridade máxima
+      anchor: Anchor.center, // <--- CORREÇÃO 1: Centro no dedo
     );
 
+    // Começa fora da tela para não aparecer no (0,0)
+    joystick.position = Vector2(-1000, -1000);
+
+    // Adiciona ao HUD (Viewport)
     camera.viewport.add(joystick);
 
-    // --- CONFIGURAÇÃO DA ARENA ---
+    // 3. ARENA E BORDAS
     const double gameWidth = 400;
     const double gameHeight = 700;
 
-    // Adiciona as Paredes Visuais
     await world.add(ArenaBorder(
       size: Vector2(gameWidth, gameHeight),
       wallThickness: 64, 
       radius: 20,       
     ));
-    // ----------------------------
 
-    // 2. CONFIGURA OS LIMITES DA CÂMERA (CORRIGIDO)
-    // O limite deve ser do tamanho da ARENA (400x700), não do viewport.
     camera.setBounds(
       Rectangle.fromCenter(
         center: Vector2.zero(),
-        size: Vector2(gameWidth, gameHeight), // <--- USE AS VARIÁVEIS DA ARENA AQUI
+        size: Vector2(gameWidth, gameHeight),
       ),
-      considerViewport: true, // A câmera vai parar exatamente quando a borda da tela tocar a borda da arena
+      considerViewport: true,
     );
 
+    // 4. MUNDO E PLAYER
     roomManager = RoomManager();
     world.add(roomManager);
 
     player = Player(position: Vector2(0, 0));
-    world.add(ScreenHitbox()); // Nota: O ScreenHitbox pega o tamanho do Viewport, não da Arena. 
-                               // Se quiser colisão na arena toda, talvez precise ajustar isso depois.
     world.add(player);
     
+    // Opcional: Se quiser colisão na tela toda. 
+    // Mas ScreenHitbox no mundo pode bugar se a câmera andar. 
+    // Prefira usar as paredes da ArenaBorder.
+    // world.add(ScreenHitbox()); 
+
     camera.follow(player);
-
-
   }
+
+  // --- LÓGICA DO JOYSTICK DINÂMICO ---
 
   @override
   void onPanStart(DragStartInfo info) {
-    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.global);
-    joystick.position = viewportPosition;
+    // CORREÇÃO 2: Conversão Robusta de Coordenadas
+    // Pegamos o pixel exato da tela (.widget) e convertemos para o Viewport (360x640)
+    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
     
-   // _knobPaint.color = _knobPaint.color.withOpacity(0.8);
-   // _backgroundPaint.color = _backgroundPaint.color.withOpacity(0.3);
+    // Move o joystick para lá
+    joystick.position = viewportPosition;
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    // A matemática continua a mesma, pois widget position é relativo a tela
-    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.global);
+    // Mesma conversão para garantir consistência
+    final viewportPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
     final localDelta = viewportPosition - joystick.position;
     
+    // Lógica de limitar o movimento da bolinha (Knob)
     if (localDelta.length > _joystickRadius) {
       joystick.knob!.position = localDelta.normalized() * _joystickRadius;
     } else {
       joystick.knob!.position = localDelta;
     }
+    
+    // Atualiza o Delta que o Player vai ler
     joystickDelta = joystick.relativeDelta;
   }
 
   @override
   void onPanEnd(DragEndInfo info) {
-    // Quando solta o dedo:
     _resetJoystick();
   }
 
   @override
   void onPanCancel() {
-    // Se o toque for cancelado (saiu da tela, entrou ligação, etc)
     _resetJoystick();
   }
 
   void _resetJoystick() {
-   // _knobPaint.color = _knobPaint.color.withAlpha(0);
-   // _backgroundPaint.color = _backgroundPaint.color.withAlpha(0);
-
+    // Joga o joystick para longe novamente (ou use opacidade se preferir)
+    joystick.position = Vector2(-1000, -1000); 
+    
+    // Reseta a bolinha e o movimento
     joystick.knob!.position = Vector2.zero();
     joystickDelta = Vector2.zero();
   }
+
+  // --- MÉTODOS DE FLUXO (Mantidos) ---
 
   @override
   void onMount() {
     super.onMount();
     overlays.add('MainMenu');
-    //startLevel(); 
-    //overlays.add('HUD'); 
   }
+
   void startGame() {
-    // 1. Limpa overlays
     overlays.remove('MainMenu');
     overlays.add('HUD');
-
-    // 2. Garante que o jogo está rodando
     resumeEngine();
-
-    // 3. Reinicia variáveis e cria o player
     resetGame();
   }
 
   void pauseGame() {
-    pauseEngine(); // Congela o Flame
-    overlays.remove('HUD'); // Opcional: esconde o HUD para limpar a tela
+    pauseEngine();
+    overlays.remove('HUD');
     overlays.add('PauseMenu');
   }
 
   void resumeGame() {
     overlays.remove('PauseMenu');
     overlays.add('HUD');
-    resumeEngine(); // Descongela
+    resumeEngine();
   }
 
   void returnToMenu() {
-    // Limpa tudo para não ficar lixo na memória
     overlays.remove('PauseMenu');
     overlays.remove('GameOver');
     overlays.remove('HUD');
-    
-    // Volta para o menu
     overlays.add('MainMenu');
-    
-    // Limpa o mundo visualmente (opcional, mas bom pra não ver o jogo congelado no fundo do menu)
-    // world.removeAll(world.children); 
-    // Mas cuidado para não remover o RoomManager se ele for fixo. 
-    // O ideal é chamar um método de limpeza.
-    
-    // Pausa engine para economizar bateria no menu
-    // (Opcional, se o menu for totalmente opaco)
-    // pauseEngine(); 
   }
 
   void startLevel() {
-    print("Iniciando Sala $currentRoom");
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
   }
@@ -196,12 +184,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     currentRoom++;
     nextRoomReward = chosenReward;
 
+    // Limpeza segura usando query
     world.children.query<Door>().forEach((d) => d.removeFromParent());
     world.children.query<Projectile>().forEach((p) => p.removeFromParent());
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
-    world.children.query<Chest>().forEach((w) => w.removeFromParent());
+    world.children.query<Chest>().forEach((c) => c.removeFromParent());// Adicione ShopItem se tiver criado
     
     startLevel();
   }
@@ -219,16 +208,16 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
 
+    // Limpa tudo
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
     world.children.query<Projectile>().forEach((p) => p.removeFromParent());
     world.children.query<Door>().forEach((d) => d.removeFromParent());
     world.children.query<Collectible>().forEach((c) => c.removeFromParent());
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
-    world.children.query<Chest>().forEach((w) => w.removeFromParent());
+    world.children.query<Chest>().forEach((c) => c.removeFromParent());
+    // Adicione ShopItem na limpeza se necessário
 
     player.reset();
-    
-    // IMPORTANTE: Recalibrar a câmera para seguir o player
     camera.follow(player);
 
     startLevel();

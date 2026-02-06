@@ -28,10 +28,26 @@ class Hud extends StatelessWidget {
                     valueListenable: game.player.healthNotifier,
                     builder: (context, currentHealth, child) {
                       return Row(
-                        children: List.generate(3, (index) {
+                        children: List.generate(game.player.maxHealth, (index) {
                           return Icon(
                             index < currentHealth ? Icons.favorite : Icons.favorite_border,
                             color: Pallete.vermelho,
+                            size: 30,
+                          );
+                        }),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  //shield
+                  ValueListenableBuilder<int>(
+                    valueListenable: game.player.shieldNotifier,
+                    builder: (context, currentShield, child) {
+                      return Row(
+                        children: List.generate(currentShield, (index) {
+                          return const Icon(
+                            Icons.gpp_bad,
+                            color: Pallete.cinzaCla,
                             size: 30,
                           );
                         }),

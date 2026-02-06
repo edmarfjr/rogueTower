@@ -55,8 +55,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _levelCleared = false;
     _checkTimer = 0.0; 
     
-    _generateMap(roomNumber);
-
+    if (gameRef.nextRoomReward != CollectibleType.shop) _generateMap(roomNumber);
+    
     // LÓGICA DE SPAWN DO BOSS
     if (roomNumber % 5 == 0) {
       // É SALA DE CHEFE!
@@ -175,24 +175,22 @@ void _spawnDoors() {
 
     // 2. ADICIONAR RECOMPENSAS RARAS (Com base na sorte)
     
-    // 40% de chance de aparecer uma Chave na seleção
-    if (rng.nextDouble() < 0.40) {
-      possibleRewards.add(CollectibleType.key);
-    }
+    // Chance de Chave
+    if (rng.nextDouble() < 0.40) possibleRewards.add(CollectibleType.key);
     
-    // 25% de chance de aparecer um Baú na seleção (Upgrades)
-    // (Pode aumentar essa chance se o jogador estiver em salas avançadas)
-    if (rng.nextDouble() < 0.25) {
-      possibleRewards.add(CollectibleType.chest);
+    // Chance de Baú
+    if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
+    
+    // --- NOVO: Chance de Loja (15% a 20%) ---
+    // Só aparece se não for a própria loja (para não ter loop de lojas infinitas, se quiser)
+    if (gameRef.nextRoomReward != CollectibleType.shop && rng.nextDouble() < 0.20) {
+      possibleRewards.add(CollectibleType.shop);
     }
 
     // 3. CONVERTER PARA LISTA E COMPLETAR (SEGURANÇA)
     // Precisamos de no mínimo 2 itens diferentes.
     List<CollectibleType> finalPool = possibleRewards.toList();
 
-    // Se por azar o RNG não adicionou chaves nem baús e só temos [coin, potion], 
-    // já temos 2. Mas se no futuro você mudar a lógica e tiver menos de 2,
-    // esse while garante que o jogo não trave.
     while (finalPool.length < 2) {
       // Adiciona tipos forçados se faltar opção
       if (!finalPool.contains(CollectibleType.key)) {
@@ -209,7 +207,7 @@ void _spawnDoors() {
     // 5. PEGAR OS DOIS PRIMEIROS
     // Como a lista foi embaralhada, pegamos o índice 0 e o índice 1.
     // Como são índices diferentes da mesma lista de itens únicos, nunca serão iguais.
-    CollectibleType rewardLeft = finalPool[0];
+    CollectibleType rewardLeft = CollectibleType.shop;//finalPool[0];
     CollectibleType rewardRight = finalPool[1];
 
     // --- CRIA AS PORTAS ---
@@ -227,6 +225,45 @@ void _spawnDoors() {
     ));
     
     print("Portas geradas: $rewardLeft e $rewardRight");
+  }
+
+  void _generateShopRoom(){
+    gameRef.world.add(Collectible(
+        position: Vector2(-80, -50),
+        type: CollectibleType.potion,
+        custo : 15
+      ));
+
+    gameRef.world.add(Collectible(
+        position: Vector2(80, -50),
+        type: CollectibleType.shield,
+        custo : 15
+      ));
+
+    gameRef.world.add(Collectible(
+        position: Vector2(-80, 50),
+        type: CollectibleType.key,
+        custo : 15
+      ));
+
+      final rng = Random();
+
+      final List<CollectibleType> shopPool = [
+        CollectibleType.damage,
+        CollectibleType.fireRate,
+        CollectibleType.moveSpeed,
+        CollectibleType.range,
+      ];
+
+      final selectedType = shopPool[rng.nextInt(shopPool.length)];
+
+      int preco = 50;
+
+      gameRef.world.add(Collectible(
+        position: Vector2(80, 50),
+        type: selectedType,
+        custo : preco
+      ));
   }
 
   void _unlockDoors() {
@@ -250,7 +287,9 @@ void _spawnDoors() {
         position: Vector2(0, 0), // Centro da sala
       ));
       
-    } else {
+    } else if (gameRef.nextRoomReward == CollectibleType.shop){
+      _generateShopRoom();
+    }else {
       // Se for Moeda, Poção ou Chave, cria o item direto
       gameRef.world.add(Collectible(
         position: Vector2(0, 0),
