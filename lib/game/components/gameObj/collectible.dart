@@ -23,6 +23,10 @@ enum CollectibleType {
   range,
   healthContainer,
   berserk,
+  audacious,
+  steroids,
+  cafe,
+  freeze,
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -75,7 +79,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         break;
       case CollectibleType.shield:
         iconData = Icons.gpp_bad; 
-        iconColor = Pallete.lilas; 
+        iconColor = Pallete.cinzaCla; 
         break;
       case CollectibleType.healthContainer:
         iconData = Icons.favorite_outline; 
@@ -89,6 +93,22 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
         iconData = Icons.sentiment_very_satisfied; 
         iconColor = Pallete.vermelho; 
         break;
+      case CollectibleType.audacious:
+        iconData = Icons.mood; 
+        iconColor = Pallete.vermelho; 
+        break;
+      case CollectibleType.steroids:
+        iconData = Icons.medication; 
+        iconColor = Pallete.verdeEsc; 
+        break;
+      case CollectibleType.cafe:
+        iconData = Icons.coffee; 
+        iconColor = Pallete.marrom; 
+        break;
+      case CollectibleType.freeze:
+        iconData = Icons.ac_unit; 
+        iconColor = Pallete.azulCla; 
+        break;
       default:
         iconData = Icons.help_outline; 
         iconColor = Pallete.azulCla; 
@@ -98,7 +118,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
     add(GameIcon(
       icon: iconData,
       color: iconColor,
-      size: size * 1.5, 
+      size: size,
+      anchor: Anchor.center,
+      position: size / 2, 
     ));
 
     if (custo > 0){
@@ -239,7 +261,34 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame>, Collisio
       
       case CollectibleType.berserk:
          player.isBerserk = true;
-         text = "Double Damage when low HP!";
+         text = "+ 40% Damage when low HP!";
+         color = Pallete.vermelho;
+         break;
+
+      case CollectibleType.audacious:
+         player.isAudaz = true;
+         text = "+ 33% Damage when no shield!";
+         color = Pallete.vermelho;
+         break;
+
+      case CollectibleType.steroids:
+         player.damage *= 1.4;
+         player.maxHealth -=1;
+         player.healthNotifier.value -=1;
+         text = "+ 40% Damage, but 1 less Health!";
+         color = Pallete.vermelho;
+         break;
+      
+      case CollectibleType.cafe:
+         player.damage *= 0.3;
+         player.fireRate /= 3;
+         text = "+ 200% Fire rate, but 70% less damage!";
+         color = Pallete.vermelho;
+         break;
+
+      case CollectibleType.freeze:
+         player.isFreeze = true;
+         text = "Can freeze enemy on strike";
          color = Pallete.vermelho;
          break;
 

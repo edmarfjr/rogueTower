@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +16,14 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool rotaciona = false;
   int soul = 1;
   
-  // --- CONTROLE DE DANO VISUAL ---
   bool _isHit = false;
   double _hitTimer = 0;
-  late Color originalColor; // <--- 1. Variável para lembrar a cor original
-  // -------------------------------
+  late Color originalColor;
+
+  bool isFreeze = false;
+  double get speedInicial => speed;
+  double freezeTimer = 0.0;
+  double freezeDur = 5.0;
 
   // Variáveis de Animação
   double _animTimer = 0;
@@ -47,7 +49,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     ));
 
     add(RectangleHitbox(
-      size: size * 0.8, 
+      size: size , 
       anchor: Anchor.center,
       position: size / 2, 
       isSolid: true,
@@ -61,8 +63,17 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     behavior(dt);
     _animateEnemy(dt);
     _lastPosition.setFrom(position);
+
+    if (isFreeze){
+      freezeTimer += dt;
+      if (freezeTimer >= freezeDur){
+        isFreeze = false;
+        freezeTimer = 0.0;
+        speed = speedInicial;
+        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
+      }
+    }
     
-    // Chama o controle do efeito visual a cada frame
     handleHitEffect(dt);
   }
 
@@ -95,13 +106,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (hp <= 0) return;
     hp -= damage;
     
+    if(gameRef.player.isFreeze){
+      final rng = Random();
+      if (rng.nextDouble() <= 0.8){
+        isFreeze = true;
+        speed = speed/4;
+      }
+    }
+
     // 2. ATIVA O FLASH BRANCO
     if (!_isHit) { // Só aplica se já não estiver piscando (evita travar no branco)
         _isHit = true; 
         _hitTimer = 0.1; // Pisca por 100ms
         
         // Pinta de Branco
-        children.whereType<GameIcon>().firstOrNull?.setColor(Colors.white);
+        children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
     }
 
     gameRef.world.add(FloatingText(
@@ -129,7 +148,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (_hitTimer <= 0) {
         _isHit = false;
         // 3. VOLTA PARA A COR ORIGINAL
-        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
+        Color cor = originalColor;
+        if (isFreeze) cor = Pallete.azulCla;
+        children.whereType<GameIcon>().firstOrNull?.setColor(cor);
       }
     }
   }

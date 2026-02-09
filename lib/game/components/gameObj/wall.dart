@@ -34,7 +34,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
     // Hitbox Sólida
     add(RectangleHitbox(
-      size: size,
+      size: size * 0.8,
       anchor: Anchor.center,
       position: size / 2,
       isSolid: true,

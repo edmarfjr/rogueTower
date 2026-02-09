@@ -6,6 +6,8 @@ import '../gameObj/door.dart';
 import '../gameObj/collectible.dart';
 import '../gameObj/wall.dart';
 import '../gameObj/chest.dart';
+import '../effects/explosion.dart';
+import '../core/pallete.dart';
 //importacao de inimigos
 import '../enemies/enemy.dart';
 import '../enemies/enemy_shooter.dart';
@@ -13,6 +15,8 @@ import '../enemies/enemy_bouncer.dart';
 import '../enemies/enemy_dasher.dart';
 import '../enemies/enemy_spinner.dart';
 import '../enemies/enemy_boss1.dart';
+import '../enemies/enemy_laser.dart';
+import '../enemies/enemy_mortar.dart';
 
 typedef EnemyFactory = PositionComponent Function(Vector2 position);
 
@@ -24,13 +28,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   int get bossRoom => gameRef.bossRoom;
 
-  final double _minTimeBeforeClear = 0.2; // 1 segundo de espera antes de verificar
+  final double _minTimeBeforeClear = 0.1; // 1 segundo de espera antes de verificar
   final List<EnemyFactory> _enemyRoster = [
     (pos) => Enemy(position: pos),         // 0: Segue (Comum)
     (pos) => ShooterEnemy(position: pos),  // 1: Atira (Comportamento de torre/kite)
     (pos) => SpinnerEnemy(position: pos),  // 2: Aleatório + 4 Tiros
     (pos) => DasherEnemy(position: pos),   // 3: Mira e Investe
     (pos) => BouncerEnemy(position: pos),  // 4: Rebate
+    (pos) => LaserEnemy(position: pos),  // 5: laser
+    (pos) => MortarEnemy(position: pos),  // 6: morteiro
   ];
 
   @override
@@ -155,7 +161,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       EnemyFactory selectedEnemyFactory;
       if (roomNumber == 1) {
-        selectedEnemyFactory = _enemyRoster[0]; 
+        selectedEnemyFactory = _enemyRoster[6]; 
       } else {
         selectedEnemyFactory = _enemyRoster[rng.nextInt(_enemyRoster.length)];
       }
@@ -184,18 +190,17 @@ void _spawnDoors(int roomNumber) {
     final rng = Random();
 
     // 1. DEFINIR O POOL DE RECOMPENSAS
-    // Começamos com as básicas que queremos que apareçam com frequência
-    // Usamos um Set para garantir que não haja duplicatas na lista inicial
     Set<CollectibleType> possibleRewards = {
       CollectibleType.coin,
       CollectibleType.potion,
       CollectibleType.shield,
+      CollectibleType.key,
     };
 
     // 2. ADICIONAR RECOMPENSAS RARAS (Com base na sorte)
     
     // Chance de Chave
-    if (rng.nextDouble() < 0.40) possibleRewards.add(CollectibleType.key);
+   // if (rng.nextDouble() < 0.40) possibleRewards.add(CollectibleType.key);
     
     // Chance de Baú
     if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
@@ -203,7 +208,7 @@ void _spawnDoors(int roomNumber) {
     // Chance de conteiner de vida
     if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.healthContainer);
     
-    // --- NOVO: Chance de Loja (15% a 20%) ---
+    // ---Chance de Loja (15% a 20%) ---
     // Só aparece se não for a própria loja (para não ter loop de lojas infinitas, se quiser)
     if (gameRef.nextRoomReward != CollectibleType.shop && rng.nextDouble() < 0.20) {
       possibleRewards.add(CollectibleType.shop);
@@ -268,24 +273,9 @@ void _spawnDoors(int roomNumber) {
         custo : 15
       ));
 
-      final rng = Random();
-
-      final List<CollectibleType> shopPool = [
-        CollectibleType.damage,
-        CollectibleType.fireRate,
-        CollectibleType.moveSpeed,
-        CollectibleType.range,
-      ];
-
-      final selectedType = shopPool[rng.nextInt(shopPool.length)];
-
       int preco = 50;
 
-      gameRef.world.add(Collectible(
-        position: Vector2(80, 50),
-        type: selectedType,
-        custo : preco
-      ));
+      _generateItemAleatorio(Vector2(80,50), preco); 
   }
 
   void _generateZeroRoom(){
@@ -344,7 +334,6 @@ void _spawnDoors(int roomNumber) {
     final doors = gameRef.world.children.query<Door>();
     
     if (doors.isEmpty) {
-      print("AVISO: Tentei abrir portas, mas não encontrei nenhuma na lista!");
       return;
     }
 
@@ -352,12 +341,8 @@ void _spawnDoors(int roomNumber) {
       door.open();
     }
     
-
-   // LÓGICA DE SPAWN DA RECOMPENSA
     if (gameRef.nextRoomReward == CollectibleType.chest) {
-      // Se a recompensa da sala é BAÚ, cria o objeto Chest físico
-      print("Criando Baú de Recompensa!");
-      
+      _explosaoCriaItem();
       gameRef.world.add(Chest(
         position: Vector2(0, 0), // Centro da sala
       ));
@@ -366,8 +351,11 @@ void _spawnDoors(int roomNumber) {
       _generateShopRoom();
     }else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
       _generateZeroRoom();
+    }else if (gameRef.nextRoomReward == CollectibleType.boss){
+      _explosaoCriaItem();
+      _generateBossReward();
     }else {
-      // Se for Moeda, Poção ou Chave, cria o item direto
+      _explosaoCriaItem();
       gameRef.world.add(Collectible(
         position: Vector2(0, 0),
         type: gameRef.nextRoomReward,
@@ -375,5 +363,51 @@ void _spawnDoors(int roomNumber) {
     }
 
     print("SALA LIMPA! ${doors.length} PORTAS ABERTAS.");
+  }
+
+  void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
+     final rng = Random();
+
+    final List<CollectibleType> possibleRewards = [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.healthContainer,
+      CollectibleType.steroids,
+      CollectibleType.cafe, 
+    ];
+    if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
+    if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
+    if (!gameRef.player.isFreeze) possibleRewards.add(CollectibleType.freeze);
+
+    final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
+    
+    gameRef.world.add(Collectible(position: pos, type: lootType, custo: preco));
+  }
+  
+  void _generateBossReward() {
+    // Dropa Loot do Boss
+     _generateItemAleatorio(Vector2(0,0));
+    gameRef.world.add(Collectible(position: Vector2(30,0), type: CollectibleType.coin));
+    gameRef.world.add(Collectible(position: Vector2(-30,0), type: CollectibleType.coin));
+  }
+  
+  void _explosaoCriaItem() {
+    final directions = [
+      Vector2(0, 0),
+      Vector2(20, 0),
+      Vector2(-20, 0),
+      Vector2(0, 20),
+      Vector2(0, -20),
+      Vector2(20, 20),
+      Vector2(20, -20),
+      Vector2(-20, -20),
+      Vector2(-20, 20),
+    ];
+
+    for (var dir in directions) {
+     createExplosion(gameRef.world, dir, Pallete.lilas, count: 10);
+    }
   }
 }

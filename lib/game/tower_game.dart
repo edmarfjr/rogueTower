@@ -12,7 +12,7 @@ import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/core/room_manager.dart';
-import 'package:TowerRogue/game/components/gameObj/projectile.dart';
+import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
@@ -21,7 +21,7 @@ import 'components/core/arena_border.dart';
 import 'components/core/game_progress.dart';
 
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-  
+
   late final Player player;
   late final RoomManager roomManager;
   
@@ -38,7 +38,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   int currentRoom = 0;
   int currentLevel = 1;
-  final int bossRoom = 5;
+  final int bossRoom = 10;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
@@ -182,6 +182,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   void onMount() {
     super.onMount();
     overlays.add('MainMenu');
+  }
+  
+  void toggleDebugMode(){
+    debugMode = !debugMode;
   }
 
   void startGame() {

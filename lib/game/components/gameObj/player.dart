@@ -5,7 +5,7 @@ import 'package:flutter/services.dart'; // Para LogicalKeyboardKey
 import 'dart:math';
 import '../../tower_game.dart'; // Import para acessar as cores e classes do jogo
 import '../enemies/enemy.dart'; 
-import 'projectile.dart';
+import '../projectiles/projectile.dart';
 import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import 'wall.dart';
@@ -21,13 +21,13 @@ class Player extends PositionComponent
   int maxDash = 2;
   late final ValueNotifier<int> dashNotifier;
   
-  // I-Frames (Invencibilidade)
   bool _isInvincible = false;
   double _invincibilityTimer = 0;
-  double _invincibilityDuration = 1.0; 
+  double invincibilityDuration = 0.5; 
   // -----------------------
   double speed = 150;
   double attackRange = 200; 
+  late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
   double fireRate = 0.4; 
@@ -36,7 +36,6 @@ class Player extends PositionComponent
   Vector2 velocity = Vector2.zero();
   Vector2 velocityDash = Vector2(1, 0);
   
-  // Variável para armazenar input do teclado
   Vector2 _keyboardInput = Vector2.zero(); 
 
   bool isDashing = false;
@@ -49,6 +48,8 @@ class Player extends PositionComponent
   Vector2 _dashDirection = Vector2.zero();
 
   bool isBerserk = false;
+  bool isAudaz = false;
+  bool isFreeze = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -74,16 +75,16 @@ class Player extends PositionComponent
     ));
 
     // Debug visual do alcance
-    add(CircleComponent(
+    _rangeIndicator=CircleComponent(
       radius: attackRange,
       anchor: Anchor.center,
       position: size / 2,
       paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 1,
-    ));
-    
+    );
+    add(_rangeIndicator);
     // Hitbox
     add(RectangleHitbox(
-      size: size * 0.8,
+      size: Vector2(16,32),
       anchor: Anchor.center, 
       position: size / 2,    
       isSolid: true,
@@ -276,13 +277,13 @@ class Player extends PositionComponent
     if (shieldNotifier.value > 0){
       shieldNotifier.value-- ;
       _isInvincible = true;
-      _invincibilityTimer = _invincibilityDuration;
+      _invincibilityTimer = invincibilityDuration;
       return;
     }
 
     healthNotifier.value -= amount;
     _isInvincible = true;
-    _invincibilityTimer = _invincibilityDuration;
+    _invincibilityTimer = invincibilityDuration;
     
     print("Dano recebido! Vida restante: ${healthNotifier.value}");
 
@@ -342,8 +343,9 @@ class Player extends PositionComponent
     final direction = (target.position - position).normalized();
     double dmg = damage;
 
-    if(isBerserk && healthNotifier.value == 1) dmg = damage * 2;
-
+    if(isBerserk && healthNotifier.value == 1) dmg = dmg * 1.4;
+    if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.33;
+    
     gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
   }
 
@@ -363,6 +365,7 @@ class Player extends PositionComponent
     dashDuration = 0.2; 
     dashSpeed = 450;    
     dashCooldown = 1.0; 
+    invincibilityDuration = 0.5;
     isBerserk = false;
 
     children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
@@ -405,13 +408,31 @@ class Player extends PositionComponent
   }
 
   // UPGRADES
-  void increaseDamage() { damage += 5.0; }
+  void increaseDamage() { 
+    damage *= 1.25; 
+  }
+
   void increaseFireRate() { 
     fireRate *= 0.85; 
     if (fireRate < 0.1) fireRate = 0.1; 
   }
-  void increaseMovementSpeed(){ moveSpeed *= 1.2; speed = moveSpeed; } // Atualiza speed tbm
-  void increaseRange(){ attackRange *= 1.2; }
-  void increaseHp(){ maxHealth++; healthNotifier.value++; }
-  void increaseShield(){ shieldNotifier.value++; }
+
+  void increaseMovementSpeed(){
+    moveSpeed *= 1.2; 
+    speed = moveSpeed; 
+  }
+  
+  void increaseRange(){ 
+    attackRange *= 1.2; 
+    _rangeIndicator.radius = attackRange;
+  }
+
+  void increaseHp(){ 
+    maxHealth++; 
+    healthNotifier.value++; 
+  }
+
+  void increaseShield(){ 
+    shieldNotifier.value++; 
+  }
 }

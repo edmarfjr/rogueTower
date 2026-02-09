@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
 import '../gameObj/wall.dart';
-import '../gameObj/projectile.dart';
+import '../projectiles/projectile.dart';
 import '../core/game_icon.dart';
 
 class SpinnerEnemy extends Enemy {
@@ -13,7 +13,7 @@ class SpinnerEnemy extends Enemy {
   //double _moveTimer = 0;
   
   // Tiro
-  double _shootTimer = 0;
+  double _shootTimer = Random().nextDouble() * 3;
   final double shootInterval = 1.5;
 
   SpinnerEnemy({required Vector2 position}) : super(position: position) {
@@ -92,6 +92,7 @@ class SpinnerEnemy extends Enemy {
         direction: dir,
         damage: 1,
         speed: 200,
+        owner: this,
         isEnemyProjectile: true,
       ));
     }

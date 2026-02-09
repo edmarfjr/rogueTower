@@ -2,11 +2,12 @@ import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'enemy.dart';
-import '../gameObj/projectile.dart';
+import '../projectiles/projectile.dart';
 import '../core/game_icon.dart';
+import 'dart:math';
 
 class ShooterEnemy extends Enemy {
-  double _shootTimer = 0;
+  double _shootTimer = Random().nextDouble()*3.0;
   final double shootInterval = 2.0; 
 
   ShooterEnemy({required Vector2 position}) : super(position: position) {
@@ -76,6 +77,7 @@ class ShooterEnemy extends Enemy {
       direction: direction,
       damage: 1, 
       speed: 200,
+      owner: this,
       isEnemyProjectile: true, 
     ));
   }

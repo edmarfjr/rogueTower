@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
 import '../core/pallete.dart';
-import 'wall.dart';
+import '../gameObj/wall.dart';
 import '../../tower_game.dart';
-import 'player.dart';
+import '../gameObj/player.dart';
 import '../effects/explosion.dart';
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
@@ -16,11 +16,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
   final double damage;
   final bool isEnemyProjectile;
 
+  final PositionComponent? owner;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
     this.damage = 10,
     this.speed = 300,
+    this.owner,
     this.isEnemyProjectile = false,
   }): super(position: position, size: Vector2.all(10), anchor: Anchor.center);
 
@@ -47,6 +50,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (owner != null && !owner!.isMounted) {
+      removeFromParent(); // O tiro some junto
+      return;
+    }
+    
     position += direction * speed * dt;
 
     // Remove o projétil se sair muito da tela (otimização)

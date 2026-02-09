@@ -19,10 +19,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   @override
   Future<void> onLoad() async {
-    // 1. ÍCONE DA PORTA (Estado Inicial: FECHADA)
     _updateDoorIcon(Icons.door_front_door, Pallete.cinzaEsc);
 
-    // 2. HITBOX (Física)
     add(RectangleHitbox(
       size: size,
       anchor: Anchor.center,
@@ -30,8 +28,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       isSolid: true
     ));
 
-    // 3. ÍCONE DA RECOMPENSA
-    _addRewardIcon();
   }
 
   void _updateDoorIcon(IconData icon, Color color) {
@@ -55,53 +51,42 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   void _addRewardIcon() {
     IconData iconData;
-    Color iconColor;
     
     switch (rewardType) {
       case CollectibleType.potion:
         iconData = Icons.favorite;
-        iconColor = Pallete.vermelho;
         break;
       case CollectibleType.coin:
         iconData = Icons.attach_money;
-        iconColor = Pallete.amarelo;
         break;
       case CollectibleType.key:
         iconData = Icons.vpn_key;
-        iconColor = Pallete.laranja;
         break;
       case CollectibleType.chest:
         iconData = Icons.lock;
-        iconColor = Pallete.marrom;
         break;
       case CollectibleType.shop:
         iconData = Icons.store_mall_directory;
-        iconColor = Pallete.lilas;
         break;
       case CollectibleType.shield:
         iconData = Icons.gpp_bad;
-        iconColor = Pallete.cinzaCla;
         break;
       case CollectibleType.boss:
         iconData = Icons.dangerous;
-        iconColor = Pallete.vermelho;
         break;
       case CollectibleType.healthContainer:
         iconData = Icons.favorite_outline;
-        iconColor = Pallete.vermelho;
         break;
       case CollectibleType.nextlevel:
         iconData = Icons.stairs;
-        iconColor = Pallete.lilas;
         break;
       default:
         iconData = Icons.help_outline;
-        iconColor = Colors.white;
     }
     
     add(GameIcon(
       icon: iconData,
-      color: iconColor,
+      color: Pallete.branco,
       size: Vector2(20, 20),
       position: Vector2(size.x / 2, -20), 
       anchor: Anchor.center,
@@ -114,6 +99,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     
     // Troca para porta aberta
     _updateDoorIcon(Icons.meeting_room, Pallete.lilas);
+    
+    _addRewardIcon();
     
     print("Porta destrancada!");
   }
