@@ -388,7 +388,7 @@ class Player extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
 
-    if (_dashCooldownTimer > 0) {
+    if (_dashCooldownTimer > 0 && dashNotifier.value < maxDash) {
       const double barHeight = 4.0;
       final double barWidth = size.x; 
       final double yOffset = size.y + 5; 
