@@ -52,7 +52,7 @@ class Player extends PositionComponent
   bool isAudaz = false;
   bool isFreeze = false;
 
-  bool magicShield = true;
+  bool magicShield = false;
   bool hasShield = false;
 
   // Variáveis de Animação

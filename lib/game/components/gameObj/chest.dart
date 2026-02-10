@@ -88,6 +88,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
     if (!gameRef.player.isFreeze) possibleRewards.add(CollectibleType.freeze);
+    if (!gameRef.player.magicShield) possibleRewards.add(CollectibleType.magicShield);
 
     // 2. Sorteia um índice aleatório da lista (0 até o tamanho da lista - 1)
     // rng.nextInt(N) retorna um número de 0 a N-1.
