@@ -7,105 +7,127 @@ import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import '../gameObj/wall.dart';
 import '../effects/floating_text.dart';
-//import '../effects/explosion.dart'; // Certifique-se que existe ou remova se não usar
+import 'enemy_behaviors.dart'; // Importe os comportamentos
 
 class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
-  double hp = 30;
-  double speed = 80;
-  bool rotaciona = false;
-  int soul = 1;
+  // Status
+  double hp;
+  double speed;
+  int soul;
+  bool rotates;
+  double weight;
   
+  // Controle
+  bool canMove = true; // Behaviors podem travar isso (ex: Laser)
+  late Color originalColor;
+  
+  // Efeitos de Status
   bool _isHit = false;
   double _hitTimer = 0;
-  late Color originalColor;
-
   bool isFreeze = false;
-  double get speedInicial => speed;
+  double get speedInicial => _baseSpeed;
+  late double _baseSpeed;
   double freezeTimer = 0.0;
-  double freezeDur = 5.0;
+  
+  // COMPONENTES DE LÓGICA (Strategy Pattern)
+  late MovementBehavior movementBehavior;
+  late AttackBehavior attackBehavior;
+  final IconData iconData;
 
-  // Variáveis de Animação
-  double _animTimer = 0;
-  final double _animSpeed = 12.0;       
-  final double _animAmplitude = 0.1;    
-  Vector2 _lastPosition = Vector2.zero(); 
-
-  Enemy({required Vector2 position}) 
-      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+  Enemy({
+    required Vector2 position,
+    required this.movementBehavior,
+    required this.attackBehavior,
+    this.hp = 30,
+    this.speed = 80,
+    this.soul = 1,
+    this.weight = 1.0,
+    this.rotates = false,
+    this.iconData = Icons.pest_control_rodent,
+    this.originalColor = Pallete.vermelho,
+  }) : super(position: position, size: Vector2.all(32), anchor: Anchor.center) {
+    _baseSpeed = speed;
+    
+    // Vincula os behaviors a este inimigo
+    movementBehavior.enemy = this;
+    attackBehavior.enemy = this;
+  }
 
   @override
   Future<void> onLoad() async {
-    // Define a cor padrão deste inimigo
-    // (Filhos podem sobrescrever isso se setarem a cor antes ou no seu próprio onLoad)
-    originalColor = Pallete.vermelho; 
-
     add(GameIcon(
-      icon: Icons.pest_control_rodent,
-      color: originalColor, // <--- Usa a variável
+      icon: iconData,
+      color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2, 
     ));
 
     add(RectangleHitbox(
-      size: size , 
+      size: size, 
       anchor: Anchor.center,
       position: size / 2, 
       isSolid: true,
     ));
-    _lastPosition = position.clone();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    behavior(dt);
-    _animateEnemy(dt);
-    _lastPosition.setFrom(position);
-
-    if (isFreeze){
-      freezeTimer += dt;
-      if (freezeTimer >= freezeDur){
-        isFreeze = false;
-        freezeTimer = 0.0;
-        speed = speedInicial;
-        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
-      }
-    }
     
-    handleHitEffect(dt);
+    // 1. Executa Comportamentos
+    movementBehavior.update(dt);
+    attackBehavior.update(dt);
+
+    // 2. Mantém na Arena (Lógica Global)
+    _keepInsideArena();
+
+    // 3. Status Effects (Freeze, Hit Flash)
+    _updateStatus(dt);
   }
 
-  // ... (behavior e behaviorFollowPlayer mantidos iguais) ...
-  void behavior(double dt) { behaviorFollowPlayer(dt); }
-  void behaviorFollowPlayer(double dt) {
-     final player = gameRef.player;
-     final direction = (player.position - position).normalized();
-     if(rotaciona){
-       final visual = children.whereType<GameIcon>().firstOrNull;
-       if (visual != null) visual.angle = atan2(direction.y, direction.x) + (pi / 2);
-     }
-     position += direction * speed * dt;
-  }
-  
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
+    
+    // Repassa colisão para o movimento (Ex: Bouncer precisa saber se bateu)
+    movementBehavior.onCollision(intersectionPoints, other);
+
     if (other is Wall) {
       final separation = (position - other.position).normalized();
-      position += separation * 2.0; 
-    } else if (other is Enemy) {
-      final separation = (position - other.position).normalized();
       position += separation * 1.0; 
+    } 
+    // COLISÃO COM INIMIGOS (Lógica de Peso)
+    else if (other is Enemy) {
+      _handleEnemyCollision(other);
     }
   }
 
-  // --- LÓGICA DE DANO ATUALIZADA ---
+  void _handleEnemyCollision(Enemy other) {
+    // 1. Se eu sou MAIS PESADO que o outro, eu NÃO me movo (sou uma rocha)
+    if (this.weight > other.weight) {
+       return; 
+    }
+
+    // 2. Se temos o MESMO PESO, nos empurramos igualmente
+    if (this.weight == other.weight) {
+      final separation = (position - other.position).normalized();
+      position += separation * 1.0; 
+    }
+
+    // 3. Se sou MAIS LEVE, sou empurrado com força
+    if (this.weight < other.weight) {
+      final separation = (position - other.position).normalized();
+      position += separation * 3.0; // Empurrão forte
+    }
+  }
+
   void takeDamage(double damage) {
     if (hp <= 0) return;
     hp -= damage;
     
+    // Lógica de Freeze
     if(gameRef.player.isFreeze){
       final rng = Random();
       if (rng.nextDouble() <= 0.8){
@@ -114,70 +136,55 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
     }
 
-    // 2. ATIVA O FLASH BRANCO
-    if (!_isHit) { // Só aplica se já não estiver piscando (evita travar no branco)
+    // Flash Branco
+    if (!_isHit) { 
         _isHit = true; 
-        _hitTimer = 0.1; // Pisca por 100ms
-        
-        // Pinta de Branco
+        _hitTimer = 0.1; 
         children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
     }
 
     gameRef.world.add(FloatingText(
       text: damage.toInt().toString(),
-      position: position.clone() + Vector2(0, -10), 
+      position: position + Vector2(0, -10), 
       color: Colors.white, 
       fontSize: 14,
     ));
 
     if (hp <= 0) {
-      // Efeito de Morte
-      // createExplosion(...); 
-      
       gameRef.progress.addSouls(soul);
-      
       removeFromParent();
     }
   }
 
-  // --- RESTAURAÇÃO DA COR ---
-  void handleHitEffect(double dt) {
+  void _keepInsideArena() {
+    double halfWidth = TowerGame.arenaWidth / 2;
+    double halfHeight = TowerGame.arenaHeight / 2;
+    double padding = size.x / 2; 
+
+    position.x = position.x.clamp(-halfWidth + padding, halfWidth - padding);
+    position.y = position.y.clamp(-halfHeight + padding, halfHeight - padding);
+  }
+
+  void _updateStatus(double dt) {
+    // Freeze
+    if (isFreeze){
+      freezeTimer += dt;
+      if (freezeTimer >= 5.0){
+        isFreeze = false;
+        freezeTimer = 0.0;
+        speed = _baseSpeed;
+        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
+      }
+    }
+    // Hit Flash
     if (_isHit) {
       _hitTimer -= dt;
-      
       if (_hitTimer <= 0) {
         _isHit = false;
-        // 3. VOLTA PARA A COR ORIGINAL
         Color cor = originalColor;
         if (isFreeze) cor = Pallete.azulCla;
         children.whereType<GameIcon>().firstOrNull?.setColor(cor);
       }
-    }
-  }
-
-  // ... (_animateEnemy mantido igual) ...
-  void _animateEnemy(double dt) {
-    // (Sua lógica de animação corrigida anteriormente continua aqui...)
-    final visual = children.whereType<GameIcon>().firstOrNull;
-    if (visual == null) return;
-    
-    final player = gameRef.player;
-    double facing = 1.0;
-    if (!rotaciona) {
-        if (player.position.x < position.x) facing = -1.0; 
-        else facing = 1.0;
-    }
-
-    double displacement = position.distanceTo(_lastPosition);
-    if (displacement > 0.1) {
-      _animTimer += dt * _animSpeed;
-      double wave = sin(_animTimer);
-      double scaleY = 1.0 + (wave * _animAmplitude); 
-      double scaleX = 1.0 - (wave * _animAmplitude * 0.5);
-      visual.scale = Vector2(facing * scaleX, scaleY);
-    } else {
-      _animTimer = 0;
-      visual.scale = Vector2(facing, 1.0);
     }
   }
 }

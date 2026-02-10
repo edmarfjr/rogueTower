@@ -1,6 +1,7 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 import 'player.dart';
 import 'collectible.dart';
@@ -72,7 +73,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         iconData = Icons.gpp_bad;
         break;
       case CollectibleType.boss:
-        iconData = Icons.dangerous;
+        iconData = MdiIcons.skull;
         break;
       case CollectibleType.healthContainer:
         iconData = Icons.favorite_outline;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import '../tower_game.dart';
 import '../components/core/pallete.dart'; 
 
@@ -15,7 +16,7 @@ class Hud extends StatelessWidget {
         child: Stack(
           children: [
             // ---------------------------------------------
-            // 1. CANTO SUPERIOR ESQUERDO: STATUS (Vida, Moedas, Chaves, SOULS)
+            // 1. CANTO SUPERIOR ESQUERDO: STATUS
             // ---------------------------------------------
             Positioned(
               top: 10,
@@ -23,57 +24,84 @@ class Hud extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // VIDA
+                  
+                  // --- VIDA (COM MEIO CORAÇÃO) ---
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.healthNotifier,
                     builder: (context, currentHealth, child) {
+                      
+                      // Calcula quantos corações desenhar no total (Ex: 6 HP = 3 Corações)
+                      final int totalHearts = (game.player.maxHealth / 2).ceil();
+
                       return Row(
-                        children: List.generate(game.player.maxHealth, (index) {
+                        children: List.generate(totalHearts, (index) {
+                          // Lógica para saber se o coração é Cheio, Meio ou Vazio
+                          // index 0 -> representa HP 1 e 2
+                          // index 1 -> representa HP 3 e 4
+                          int heartValueTimesTwo = (index + 1) * 2;
+
+                          IconData icon;
+                          if (currentHealth >= heartValueTimesTwo) {
+                             // [CHEIO]
+                             icon = MdiIcons.heart; 
+                          } else if (currentHealth >= heartValueTimesTwo - 1) {
+                             // [METADE]
+                             icon = MdiIcons.heartHalfFull; 
+                          } else {
+                             // [VAZIO]
+                             icon = MdiIcons.heartOutline; 
+                          }
+
                           return Icon(
-                            index < currentHealth ? Icons.favorite : Icons.favorite_border,
+                            icon,
                             color: Pallete.vermelho,
-                            size: 30,
+                            size: 30, // MDI Icons costumam ficar bem nesse tamanho
                           );
                         }),
                       );
                     },
                   ),
+                  
                   const SizedBox(height: 8),
                   
                   // ESCUDO
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.shieldNotifier,
                     builder: (context, currentShield, child) {
-                      if (currentShield == 0) return const SizedBox.shrink(); // Só mostra se tiver escudo
+                      if (currentShield == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentShield, (index) {
-                          return const Icon(
-                            Icons.gpp_bad,
-                            color: Pallete.cinzaCla, // Ou AzulCiano
+                          return  Icon(
+                            MdiIcons.shield,
+                            color: Pallete.cinzaCla,
                             size: 30,
                           );
                         }),
                       );
                     },
                   ),
+                  
                   const SizedBox(height: 2),
-                  // dash
+                  
+                  // DASH
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.dashNotifier,
                     builder: (context, currentDash, child) {
-                      if (currentDash == 0) return const SizedBox.shrink(); // Só mostra se tiver escudo
+                      if (currentDash == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentDash, (index) {
                           return const Icon(
                             Icons.double_arrow,
-                            color: Pallete.verdeCla, // Ou AzulCiano
+                            color: Pallete.verdeCla,
                             size: 30,
                           );
                         }),
                       );
                     },
                   ),
+                  
                   const SizedBox(height: 8),
+                  
                   // MOEDAS
                   ValueListenableBuilder<int>(
                     valueListenable: game.coinsNotifier,
@@ -114,15 +142,15 @@ class Hud extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // --- CONTADOR DE SOULS ---
+                  // SOULS
                   ValueListenableBuilder<int>(
-                    valueListenable: game.progress.soulsNotifier, // Acessa o game.progress
+                    valueListenable: game.progress.soulsNotifier,
                     builder: (context, souls, child) {
                       return Row(
                         children: [
                           const Icon(
-                            Icons.whatshot, // Ícone de Fogo/Alma
-                            color: Pallete.lilas, // Roxo Mágico
+                            Icons.whatshot, // Ou MdiIcons.fire
+                            color: Pallete.lilas,
                             size: 28,
                           ),
                           const SizedBox(width: 4),
@@ -131,7 +159,7 @@ class Hud extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Pallete.lilas, // Roxo Mágico
+                              color: Pallete.lilas,
                               shadows: [
                                 Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
                               ],
@@ -142,7 +170,6 @@ class Hud extends StatelessWidget {
                       );
                     },
                   ),
-                  // -------------------------------
                 ],
               ),
             ),

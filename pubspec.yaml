@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   flame: ^1.23.0
   flame_audio: ^2.1.0
-  ultimate_flutter_icons: ^1.4.0
+  material_design_icons_flutter: ^7.0.7296
   shared_preferences: ^2.2.2
 
 dev_dependencies:

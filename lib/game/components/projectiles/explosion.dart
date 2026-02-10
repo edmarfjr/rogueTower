@@ -11,7 +11,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final bool damagesPlayer; // Se true, machuca player. Se false, machuca inimigos.
 
   double _timer = 0;
-  final double _duration = 0.4; // Explosão rápida
+  final double _duration = 0.2; // Explosão rápida
 
   Explosion({
     required Vector2 position,

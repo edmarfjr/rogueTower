@@ -21,7 +21,8 @@ import 'components/core/arena_border.dart';
 import 'components/core/game_progress.dart';
 
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-
+  static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
+  static const double arenaHeight = 660.0; // Altura total (Cima <-> Baixo)
   late final Player player;
   late final RoomManager roomManager;
   
@@ -109,11 +110,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.add(player);
     
     camera.follow(player);
+
   }
 
-  // ==========================================
-  // LÓGICA DE TOQUE MANUAL (INFALÍVEL)
-  // ==========================================
+
 
   @override
   void onPanStart(DragStartInfo info) {

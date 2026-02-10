@@ -58,7 +58,7 @@ class GameOver extends StatelessWidget {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Pallete.verdeCla,
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {
                   game.resetGame();
@@ -72,7 +72,7 @@ class GameOver extends StatelessWidget {
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Pallete.vermelho,
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {
                   game.returnToMenu();

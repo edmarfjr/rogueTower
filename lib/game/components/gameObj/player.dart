@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ import '../effects/dust.dart';
 class Player extends PositionComponent 
     with HasGameRef<TowerGame>, KeyboardHandler, CollisionCallbacks {
   
-  int maxHealth = 3;
+  int maxHealth = 4;
   late final ValueNotifier<int> healthNotifier;
   ValueNotifier<int> shieldNotifier = ValueNotifier<int>(0);
 
@@ -50,6 +51,9 @@ class Player extends PositionComponent
   bool isBerserk = false;
   bool isAudaz = false;
   bool isFreeze = false;
+
+  bool magicShield = true;
+  bool hasShield = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -145,6 +149,28 @@ class Player extends PositionComponent
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
+  }
+
+  void activateShield() {
+    if (hasShield) return; // Já tem, não faz nada
+
+    hasShield = true;
+    
+    // Adiciona o efeito visual como FILHO do player
+    // Assim ele segue o player automaticamente
+    add(MagicShieldEffect(size: size));
+  }
+
+  // 2. MÉTODO PARA REMOVER (QUEBRAR) O ESCUDO
+  void _breakShield() {
+    hasShield = false;
+    
+    // Remove o visual
+    final effect = children.whereType<MagicShieldEffect>().firstOrNull;
+    effect?.removeFromParent();
+
+    // (Opcional) Adicione um som de vidro quebrando ou particulas aqui
+    print("ESCUDO QUEBRADO!"); 
   }
 
   void _animateMovement(double dt) {
@@ -274,6 +300,14 @@ class Player extends PositionComponent
 
   void takeDamage(int amount) {
     if (healthNotifier.value <= 0) return;
+
+    if (hasShield) {
+      _breakShield(); 
+      // Retorna imediatamente para IGNORAR o dano
+      return; 
+    }
+
+
     if (shieldNotifier.value > 0){
       shieldNotifier.value-- ;
       _isInvincible = true;
@@ -343,15 +377,15 @@ class Player extends PositionComponent
     final direction = (target.position - position).normalized();
     double dmg = damage;
 
-    if(isBerserk && healthNotifier.value == 1) dmg = dmg * 1.4;
+    if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.33;
     
     gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
   }
 
   void reset() {
-    maxHealth = 3;
-    healthNotifier.value = 3;
+    maxHealth = 4;
+    healthNotifier.value = 4;
     _isInvincible = false;
     _invincibilityTimer = 0;
     velocity = Vector2.zero();
@@ -428,8 +462,8 @@ class Player extends PositionComponent
   }
 
   void increaseHp(){ 
-    maxHealth++; 
-    healthNotifier.value++; 
+    maxHealth+=2; 
+    healthNotifier.value+=2; 
   }
 
   void increaseShield(){ 
