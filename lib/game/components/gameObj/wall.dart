@@ -18,7 +18,8 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
     final List<IconData> possibleIcons = [
       Icons.grid_view, 
-      Icons.park, 
+      Icons.park,
+      Icons.terrain, 
     ];
 
     final IconData icon = possibleIcons[rng.nextInt(possibleIcons.length)];

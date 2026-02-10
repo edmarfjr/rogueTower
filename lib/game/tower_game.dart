@@ -40,6 +40,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   int currentRoom = 0;
   int currentLevel = 1;
   final int bossRoom = 10;
+  int maxLevel = 2;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
@@ -188,6 +189,14 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     debugMode = !debugMode;
   }
 
+  void atualizaDebugMode(){
+    for (var component in world.children) {
+        if (component is PositionComponent) {
+          component.debugMode = debugMode;
+        }
+    }
+  }
+
   void startGame() {
     overlays.remove('MainMenu');
     overlays.add('HUD');
@@ -224,6 +233,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     if (currentRoom > bossRoom){
       currentRoom = 0;
       currentLevel++;
+      if (currentLevel > maxLevel) winGame(); 
     }
     nextRoomReward = chosenReward;
 
@@ -244,8 +254,14 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.add('GameOver'); 
   }
 
+   void winGame() {
+    pauseEngine(); 
+    overlays.add('VictoryMenu'); 
+  }
+
   void resetGame() {
     overlays.remove('GameOver');
+    overlays.remove('VictoryMenu'); 
     resumeEngine();
 
     currentRoom = 0;

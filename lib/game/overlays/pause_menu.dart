@@ -57,6 +57,38 @@ class PauseMenu extends StatelessWidget {
                 },
                 child: const Text('Menu Principal', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
+              const SizedBox(height: 20),
+              Positioned(
+              bottom: 40,
+              left: 20,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // Ativa/Desativa o modo de debug do Flame
+                    game.debugMode = !game.debugMode;
+                    game.atualizaDebugMode();
+                  },
+                  borderRadius: BorderRadius.circular(40),
+                  child: Container(
+                    width: 50, // Um pouco menor que o Dash
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.bug_report, // Ícone de Inseto (Bug)
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             ],
           ),
         ),

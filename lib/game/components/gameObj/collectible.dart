@@ -189,11 +189,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.healthContainer:
         return {'name': 'Coração', 'desc': '+ Vida Máxima', 'icon': Icons.favorite_outline, 'color': Pallete.vermelho};
       case CollectibleType.berserk:
-        return {'name': 'Berserk', 'desc': '+Dano com pouca vida', 'icon': Icons.sentiment_very_satisfied, 'color': Pallete.vermelho};
+        return {'name': 'Berserk', 'desc': '+Dano com pouca vida', 'icon': MdiIcons.emoticonAngry, 'color': Pallete.vermelho};
       case CollectibleType.audacious:
-        return {'name': 'Audácia', 'desc': '+Dano sem escudo', 'icon': Icons.mood, 'color': Pallete.vermelho};
+        return {'name': 'Audácia', 'desc': '+Dano sem escudo', 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
       case CollectibleType.steroids:
-        return {'name': 'Esteroides', 'desc': '+Dano, -Vida Max', 'icon': Icons.medication, 'color': Pallete.verdeEsc};
+        return {'name': 'Esteroides', 'desc': '+Dano, -Vida Max', 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
       case CollectibleType.cafe:
         return {'name': 'Café', 'desc': 'Muuuito tiro, pouco dano', 'icon': Icons.coffee, 'color': Pallete.marrom};
       case CollectibleType.freeze:

@@ -1,4 +1,8 @@
 import 'dart:math';
+//import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+
+import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+
 import '../gameObj/wall.dart';
 import 'package:flame/components.dart';
 import '../../tower_game.dart';
@@ -6,10 +10,16 @@ import 'enemy.dart';
 import '../projectiles/projectile.dart';
 import '../projectiles/laser_beam.dart';
 import '../projectiles/mortar_shell.dart';
+import '../projectiles/web.dart';
 import '../effects/target_reticle.dart';
 import '../effects/path_effect.dart';
+import '../effects/explosion.dart';
 import '../core/pallete.dart';
 import '../core/game_icon.dart';
+//import 'enemy_factory.dart';
+
+typedef EnemyBuilder = Enemy Function(Vector2);
+typedef HazardBuilder = PositionComponent Function(Vector2 position);
 
 // --- INTERFACES ---
 
@@ -22,6 +32,12 @@ abstract class MovementBehavior {
 abstract class AttackBehavior {
   late Enemy enemy;
   void update(double dt);
+}
+
+
+abstract class DeathBehavior {
+  late Enemy enemy;
+  void onDeath();
 }
 
 // --- MOVIMENTOS (MOVEMENT BEHAVIORS) ---
@@ -38,7 +54,7 @@ class FollowPlayerBehavior extends MovementBehavior {
     // Rotação visual
     if (enemy.rotates) {
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(direction.y, direction.x) + (pi / 2);
+      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
     }
     
     enemy.position += direction * enemy.speed * dt;
@@ -58,6 +74,12 @@ class KeepDistanceBehavior extends MovementBehavior {
     final player = enemy.gameRef.player;
     final distance = enemy.position.distanceTo(player.position);
     final direction = (player.position - enemy.position).normalized();
+
+    // Rotação visual
+    if (enemy.rotates) {
+      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
+    }
 
     if (distance > maxDistance) {
       // Aproxima
@@ -81,6 +103,13 @@ class RandomWanderBehavior extends MovementBehavior {
     }
 
     final direction = (_target - enemy.position).normalized();
+
+    // Rotação visual
+    if (enemy.rotates) {
+      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
+    }
+
     enemy.position += direction * enemy.speed * dt;
   }
 
@@ -94,7 +123,7 @@ class RandomWanderBehavior extends MovementBehavior {
   
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-     // Se bateu na parede, muda o alvo
+     if (other is Web || other is PoisonPuddle) return;
      _pickNewTarget();
   }
 }
@@ -116,31 +145,43 @@ class BouncerBehavior extends MovementBehavior {
   }
 
   void _checkBounds() {
-    // ... (Seu código de limites da tela continua igual aqui) ...
-    // Apenas certifique-se que o padding/raio está correto
-    double limitX = TowerGame.arenaWidth / 2 - 16; // -16 (metade do inimigo 32px)
-    double limitY = TowerGame.arenaHeight / 2 - 16;
+   // Pegamos o tamanho REAL do inimigo (seja 32, 96 ou 200)
+    double halfWidth = enemy.size.x / 2;
+    double halfHeight = enemy.size.y / 2;
 
-    if (enemy.position.x <= -limitX) {
-      enemy.position.x = -limitX + 1; // Tira da parede
-      if (_velocity.x < 0) _velocity.x = -_velocity.x; // Só inverte se estiver indo contra
+    // Limites da Arena (considerando o tamanho do inimigo)
+    double rightLimit = (TowerGame.arenaWidth / 2) - halfWidth;
+    double leftLimit = -(TowerGame.arenaWidth / 2) + halfWidth;
+    double topLimit = -(TowerGame.arenaHeight / 2) + halfHeight;
+    double bottomLimit = (TowerGame.arenaHeight / 2) - halfHeight;
+
+    bool bounced = false;
+
+    // --- EIXO X ---
+    if (enemy.position.x >= rightLimit) {
+      _velocity.x = -_velocity.x.abs(); // Força ir para Esquerda
+      enemy.position.x = rightLimit;      // Desgruda da parede
+      bounced = true;
     } 
-    else if (enemy.position.x >= limitX) {
-      enemy.position.x = limitX - 1;
-      if (_velocity.x > 0) _velocity.x = -_velocity.x;
+    else if (enemy.position.x <= leftLimit) {
+      _velocity.x = _velocity.x.abs();  // Força ir para Direita
+      enemy.position.x = leftLimit;       // Desgruda da parede
+      bounced = true;
     }
 
-    if (enemy.position.y <= -limitY) {
-      enemy.position.y = -limitY + 1;
-      if (_velocity.y < 0) _velocity.y = -_velocity.y;
+    // --- EIXO Y ---
+    if (enemy.position.y >= bottomLimit) {
+      _velocity.y = -_velocity.y.abs(); // Força ir para Cima
+      enemy.position.y = bottomLimit;     // Desgruda
+      bounced = true;
     } 
-    else if (enemy.position.y >= limitY) {
-      enemy.position.y = limitY - 1;
-      if (_velocity.y > 0) _velocity.y = -_velocity.y;
+    else if (enemy.position.y <= topLimit) {
+      _velocity.y = _velocity.y.abs();  // Força ir para Baixo
+      enemy.position.y = topLimit;        // Desgruda
+      bounced = true;
     }
   }
 
-  // --- ADICIONE ESTE MÉTODO ---
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     if (other is Wall) {
@@ -193,8 +234,16 @@ class NoAttackBehavior extends AttackBehavior {
 class ProjectileAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
+  double speed;
+  late Vector2 size;
 
-  ProjectileAttackBehavior({this.interval = 2.0});
+  ProjectileAttackBehavior({
+    this.interval = 2.0, 
+    this.speed = 200,
+    Vector2? size,
+  }) {
+    this.size = size ?? Vector2.all(10);
+  }
 
   @override
   void update(double dt) {
@@ -207,7 +256,8 @@ class ProjectileAttackBehavior extends AttackBehavior {
         position: enemy.position + direction * 20,
         direction: direction,
         damage: 1,
-        speed: 200,
+        speed: speed,
+        size: size,
         owner: enemy,
         isEnemyProjectile: true,
       ));
@@ -313,8 +363,8 @@ class SpinnerAttackBehavior extends AttackBehavior {
       }
       
       // Gira visualmente
-      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      visual?.angle += pi / 4;
+      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      //visual?.angle += pi / 4;
       
       _timer = 0;
     }
@@ -340,7 +390,7 @@ class DashAttackBehavior extends AttackBehavior {
       if (_timer < 0.5) { 
          final player = enemy.gameRef.player;
          _dashDir = (player.position - enemy.position).normalized();
-         if(visual != null) visual.angle = atan2(_dashDir.y, _dashDir.x) + (pi/2);
+         if(visual != null) visual.angle = atan2(_dashDir.y, _dashDir.x) + enemy.rotateOff;
       } else { 
          if (_timer < 0.6) { 
             enemy.gameRef.world.add(PathEffect(
@@ -421,5 +471,179 @@ class DashAttackBehavior extends AttackBehavior {
     }
 
     return hit;
+  }
+}
+
+class SummonAttackBehavior extends AttackBehavior {
+  final double interval;
+  final int maxMinions;
+  final EnemyBuilder minionBuilder; // <--- A VARIÁVEL MÁGICA
+  
+  double _timer = 0;
+  final List<Enemy> _minions = []; 
+
+  SummonAttackBehavior({
+    required this.minionBuilder, // Agora é obrigatório dizer O QUE ele invoca
+    this.interval = 4.0, 
+    this.maxMinions = 3
+  });
+
+  @override
+  void update(double dt) {
+    _timer += dt;
+    _minions.removeWhere((e) => !e.isMounted);
+
+    if (_timer >= interval) {
+      if (_minions.length < maxMinions) {
+        _summonMinion();
+        _timer = 0;
+      }
+    }
+  }
+
+  void _summonMinion() {
+    // Efeito visual no Invocador (Pisca)
+    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+    visual?.setColor(Pallete.rosa);
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (enemy.isMounted) visual?.setColor(enemy.originalColor);
+    });
+
+    // Posição aleatória
+    final rng = Random();
+    double offsetX = (rng.nextDouble() * 60) - 30; 
+    double offsetY = (rng.nextDouble() * 60) - 30;
+    Vector2 spawnPos = enemy.position + Vector2(offsetX, offsetY);
+
+    // --- AQUI A MÁGICA ACONTECE ---
+    // Usamos a função variável para criar o inimigo específico
+    final minion = minionBuilder(spawnPos);
+    
+    // Configurações extras opcionais (se quiser forçar que minions sejam menores)
+    // minion.scale = Vector2.all(0.8); 
+    
+    enemy.gameRef.world.add(minion);
+    _minions.add(minion);
+
+    createExplosion(enemy.gameRef.world, spawnPos, Pallete.cinzaCla, count: 5);
+  }
+}
+
+class DropHazardBehavior extends AttackBehavior {
+  final double interval;
+  final HazardBuilder hazardBuilder; // A função que cria o objeto
+  double _timer = 0;
+
+  DropHazardBehavior({
+    required this.hazardBuilder, // Obrigatório: O que soltar?
+    this.interval = 3.0,
+  });
+
+  @override
+  void update(double dt) {
+    _timer += dt;
+    
+    if (_timer >= interval) {
+      // Verifica se o inimigo ainda existe antes de tentar soltar algo
+      if (enemy.isMounted) {
+        _dropHazard();
+        _timer = 0;
+      }
+    }
+  }
+
+  void _dropHazard() {
+    // 1. Usa a função builder para criar o objeto na posição atual
+    final hazard = hazardBuilder(enemy.position.clone());
+    
+    // 2. Adiciona ao mundo
+    enemy.gameRef.world.add(hazard);
+  }
+}
+
+// --- MORTES (DEATH BEHAVIORS) ---
+
+// 1. Padrão: Apenas morre (dá almas e somem)
+class NoDeathEffect extends DeathBehavior {
+  @override
+  void onDeath() {
+    // Nada acontece (além da lógica padrão do Enemy)
+  }
+}
+
+// 2. Explosão: Cria dano em área ao morrer (Kamikaze)
+class ExplosionDeathBehavior extends DeathBehavior {
+  final int damage;
+  final double radius;
+
+  ExplosionDeathBehavior({this.damage = 10, this.radius = 60});
+
+  @override
+  void onDeath() {
+    // Efeito Visual
+    createExplosion(enemy.gameRef.world, enemy.position, Pallete.vermelho, count: 20);
+
+    // Lógica de Dano em Área (AOE)
+    // Verifica se o player está perto
+    final player = enemy.gameRef.player;
+    if (player.position.distanceTo(enemy.position) <= radius) {
+       player.takeDamage(damage);
+    }
+    
+    // Opcional: Dano em outros inimigos (Fogo Amigo)
+    // ...
+  }
+}
+
+// 3. Projéteis: Solta tiros em todas as direções (Bullet Hell)
+class ProjectileBurstDeathBehavior extends DeathBehavior {
+  final int projectileCount;
+  
+  ProjectileBurstDeathBehavior({this.projectileCount = 8});
+
+  @override
+  void onDeath() {
+    double step = (2 * pi) / projectileCount;
+
+    for (int i = 0; i < projectileCount; i++) {
+      double angle = step * i;
+      Vector2 dir = Vector2(cos(angle), sin(angle));
+      
+      enemy.gameRef.world.add(Projectile(
+        position: enemy.position,
+        direction: dir,
+        damage: 1,
+        speed: 150,
+        owner: enemy,
+        isEnemyProjectile: true,
+      ));
+    }
+  }
+}
+
+// 4. Invocação: O inimigo se divide em outros (Slime Split)
+class SpawnOnDeathBehavior extends DeathBehavior {
+  final int count;
+  final EnemyBuilder minionBuilder;
+
+  SpawnOnDeathBehavior({required this.minionBuilder, this.count = 2});
+
+  @override
+  void onDeath() {
+    for (int i = 0; i < count; i++) {
+      // Pequena variação na posição para não nascerem empilhados
+      Vector2 offset = Vector2(
+        (Random().nextDouble() - 0.5) * 30,
+        (Random().nextDouble() - 0.5) * 30,
+      );
+      
+      final minion = minionBuilder(enemy.position + offset);
+      
+      // Opcional: Minions nascem menores/mais fracos
+      //minion.scale = Vector2.all(0.7);
+      //minion.hp = minion.hp / 2;
+      
+      enemy.gameRef.world.add(minion);
+    }
   }
 }

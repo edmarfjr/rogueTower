@@ -133,6 +133,7 @@ class BossEnemy extends Enemy {
         soul: 150,
         rotates: true,
         weight: 100,
+        size: Vector2.all(64),
         iconData: Icons.bug_report,
         originalColor: Pallete.rosa,
         // Usamos comportamentos: Seguir Player + Ataque do Boss
@@ -144,13 +145,13 @@ class BossEnemy extends Enemy {
   Future<void> onLoad() async {
     await super.onLoad();
     // O Boss é maior que os inimigos normais
-    size = Vector2.all(64); 
+   // size = Vector2.all(64); 
     
     // Atualiza Hitbox e Ícone para o tamanho novo
-    children.whereType<GameIcon>().forEach((c) {
-      c.size = size;
-      c.position = size / 2;
-    });
+   // children.whereType<GameIcon>().forEach((c) {
+   //   c.size = size;
+    //  c.position = size / 2;
+   // });
     
     // Remove hitbox padrão (32x32) e cria uma grande (64x64)
     children.whereType<ShapeHitbox>().toList().forEach((h) => h.removeFromParent());

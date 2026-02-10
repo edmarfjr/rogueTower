@@ -14,7 +14,7 @@ import '../core/pallete.dart';
 // --- NOVA INTEGRAÇÃO DE INIMIGOS ---
 import '../enemies/enemy.dart'; 
 import '../enemies/enemy_factory.dart'; // <--- O novo arquivo fábrica
-import '../enemies/enemy_boss1.dart';   // Mantemos o Boss separado por ser único
+import '../enemies/enemy_boss2.dart';   // Mantemos o Boss separado por ser único
 
 // Define a assinatura da função que cria inimigos
 typedef EnemyFactoryFunction = Enemy Function(Vector2 position);
@@ -38,6 +38,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos) => EnemyFactory.createBouncer(pos),  // 4: Rebate
     (pos) => EnemyFactory.createLaser(pos),    // 5: Laser
     (pos) => EnemyFactory.createMortar(pos),   // 6: Morteiro
+    (pos) => EnemyFactory.createBeeHive(pos),  // 7: colmeia
+    (pos) => EnemyFactory.createSpider(pos),  // 8: aranha
+    (pos) => EnemyFactory.createSnail(pos),  // 9: caramujo
+    (pos) => EnemyFactory.createSlimeM(pos),  // 10: slime
     // (Opcional) (pos) => EnemyFactory.createCrazyShooter(pos), 
   ];
 
@@ -60,23 +64,29 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void startRoom(int roomNumber) {
+    
     _levelCleared = false;
     _checkTimer = 0.0; 
 
     if (gameRef.player.magicShield) gameRef.player.activateShield();
     
     // Geração do Mapa (Obstáculos)
-    // if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
+    if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
     
     // --- LÓGICA DE SPAWN ---
     if (roomNumber == bossRoom) {
       print("ALERTA: BOSS FIGHT!");
       
       // O Boss ainda usa sua classe própria pois tem lógica complexa de HUD e fases
-      gameRef.world.add(BossEnemy(
-        position: Vector2(0, -150), 
-        level: roomNumber 
-      ));
+      if (gameRef.currentLevel == 1){
+        gameRef.world.add(EnemyFactory.createKingSlime1(Vector2(0, -150)));
+      }else if(gameRef.currentLevel == 2){
+        gameRef.world.add(BossEnemy(
+          position: Vector2(0, -150), 
+          level: roomNumber 
+        ));
+      }
+      
 
     } else {
       _spawnEnemies(roomNumber);
@@ -84,6 +94,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     _spawnDoors(roomNumber);
     print("Sala $roomNumber iniciada...");
+    gameRef.atualizaDebugMode();
   }
 
   void _generateMap(int seed) {
@@ -152,11 +163,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       EnemyFactoryFunction selectedFactory;
       
       //if (roomNumber == 1) {
-        // Sala 1: Apenas Dashers (Tutorial/Exemplo)
-        selectedFactory = _enemyRoster[3]; 
+      //selectedFactory = _enemyRoster[3]; 
       //} else {
-        // Salas Normais: Aleatório
-        selectedFactory = _enemyRoster[rng.nextInt(_enemyRoster.length)];
+      selectedFactory = _enemyRoster[rng.nextInt(_enemyRoster.length)];
       //}
 
       // Criação usando a Factory
@@ -164,7 +173,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       enemiesSpawned++; 
     }
     
-    print("Spawnados: $enemiesSpawned inimigos.");
+    gameRef.atualizaDebugMode();
   }
 
   void _spawnDoors(int roomNumber) {
@@ -191,14 +200,22 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.potion,
       CollectibleType.shield,
       CollectibleType.key,
+      CollectibleType.healthContainer,
     };
 
-    if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
-    if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.healthContainer);
-    
-    if (gameRef.nextRoomReward != CollectibleType.shop && rng.nextDouble() < 0.20) {
-      possibleRewards.add(CollectibleType.shop);
+    if (roomNumber > 1){
+      possibleRewards.add(CollectibleType.chest);
+      if (gameRef.nextRoomReward != CollectibleType.shop){
+        possibleRewards.add(CollectibleType.shop);
+      }
     }
+
+   // if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
+   // if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.healthContainer);
+    
+    //if (gameRef.nextRoomReward != CollectibleType.shop && rng.nextDouble() < 0.20) {
+    //  possibleRewards.add(CollectibleType.shop);
+   // }
 
     List<CollectibleType> finalPool = possibleRewards.toList();
 
@@ -331,7 +348,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       ));
     }
 
-    print("SALA LIMPA!");
+    gameRef.atualizaDebugMode();
   }
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {

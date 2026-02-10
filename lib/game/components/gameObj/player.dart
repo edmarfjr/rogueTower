@@ -26,7 +26,6 @@ class Player extends PositionComponent
   double _invincibilityTimer = 0;
   double invincibilityDuration = 0.5; 
   // -----------------------
-  double speed = 150;
   double attackRange = 200; 
   late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
@@ -217,11 +216,11 @@ class Player extends PositionComponent
     // 1. Tenta Joystick Manual (Nova Lógica)
     // gameRef.joystickDelta é a variável Vector2 que criamos no TowerGame
     if (gameRef.joystickDelta != Vector2.zero()) {
-       velocity = gameRef.joystickDelta * speed;
+       velocity = gameRef.joystickDelta * moveSpeed;
     } 
     // 2. Se não tem input do joystick, usa Teclado
     else if (_keyboardInput != Vector2.zero()) {
-       velocity = _keyboardInput.normalized() * speed;
+       velocity = _keyboardInput.normalized() * moveSpeed;
     }
 
     // Salva a direção para o dash
@@ -293,17 +292,17 @@ class Player extends PositionComponent
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other is Enemy && !_isInvincible) {
+    if (other is Enemy) {
       takeDamage(1);
     }
   }
 
   void takeDamage(int amount) {
+    if(_isInvincible)return;
     if (healthNotifier.value <= 0) return;
 
     if (hasShield) {
       _breakShield(); 
-      // Retorna imediatamente para IGNORAR o dano
       return; 
     }
 
@@ -390,7 +389,6 @@ class Player extends PositionComponent
     _invincibilityTimer = 0;
     velocity = Vector2.zero();
 
-    speed = 150;
     attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;
@@ -453,7 +451,6 @@ class Player extends PositionComponent
 
   void increaseMovementSpeed(){
     moveSpeed *= 1.2; 
-    speed = moveSpeed; 
   }
   
   void increaseRange(){ 

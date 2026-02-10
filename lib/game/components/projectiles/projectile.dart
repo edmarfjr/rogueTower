@@ -15,6 +15,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
   final double speed; 
   final double damage;
   final bool isEnemyProjectile;
+  double _timer = 0.0;
 
   final PositionComponent? owner;
 
@@ -25,12 +26,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
     this.speed = 300,
     this.owner,
     this.isEnemyProjectile = false,
-  }): super(position: position, size: Vector2.all(10), anchor: Anchor.center);
+    Vector2? size,
+  }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     add(GameIcon(
-      icon: isEnemyProjectile ? Icons.navigation : Icons.circle, 
+      icon: Icons.circle, 
       color: isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo,
       size: size,
       anchor: Anchor.center,
@@ -60,6 +62,15 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>,CollisionC
 
     // Remove o projétil se sair muito da tela (otimização)
     if (position.length > 2000) removeFromParent();
+
+    final visual = children.whereType<GameIcon>().firstOrNull;
+    _timer += dt;
+    if (_timer % 0.2 < 0.1){
+      
+      visual?.setColor(Pallete.amarelo);
+    }else{
+      isEnemyProjectile? visual?.setColor(Pallete.vermelho): visual?.setColor(Pallete.azulCla) ;
+    }
   }
 
   @override
