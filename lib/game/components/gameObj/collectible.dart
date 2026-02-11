@@ -11,8 +11,8 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 
 enum CollectibleType { 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, 
-  damage, fireRate, moveSpeed, range, healthContainer,keys, 
+  coin, potion, key, shield, shop, boss, nextlevel, chest,bank, 
+  damage, fireRate, moveSpeed, range, healthContainer,keys,dash, 
   berserk, audacious, steroids, cafe, freeze,magicShield
 }
 
@@ -62,8 +62,6 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
 
-    // Nota: Removi o CollisionHitbox de "pegar", pois agora pegamos via botão.
-    // Se precisar de colisão física (bater e não passar), adicione isSolid: true.
   }
 
   @override
@@ -169,7 +167,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.coin:
         return {'name': 'Moeda', 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
       case CollectibleType.potion:
-        return {'name': 'Poção', 'desc': 'Recupera Vida', 'icon': Icons.favorite, 'color': Pallete.vermelho};
+        return {'name': 'Coração', 'desc': 'Recupera Vida', 'icon': Icons.favorite, 'color': Pallete.vermelho};
       case CollectibleType.key:
         return {'name': 'Chave', 'desc': 'Abre portas', 'icon': Icons.vpn_key, 'color': Pallete.laranja};
       case CollectibleType.keys:
@@ -177,15 +175,17 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.chest:
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:
-        return {'name': 'Força', 'desc': 'Aumenta Dano', 'icon': Icons.gavel, 'color': Pallete.azulCla};
+        return {'name': 'Força', 'desc': 'Aumenta Dano', 'icon': MdiIcons.sword, 'color': Pallete.vermelho};
       case CollectibleType.fireRate:
-        return {'name': 'Gatilho Rápido', 'desc': 'Atira mais rápido', 'icon': Icons.double_arrow, 'color': Pallete.azulCla};
+        return {'name': 'Gatilho Rápido', 'desc': 'Atira mais rápido', 'icon': Icons.double_arrow, 'color': Pallete.vermelho};
       case CollectibleType.moveSpeed:
         return {'name': 'Botas', 'desc': 'Corre mais rápido', 'icon': MdiIcons.shoeSneaker, 'color': Pallete.azulCla};
       case CollectibleType.range:
         return {'name': 'Mira', 'desc': 'Aumenta Alcance', 'icon': Icons.gps_fixed, 'color': Pallete.azulCla};
       case CollectibleType.shield:
         return {'name': 'Escudo', 'desc': 'Protege 1 hit', 'icon': MdiIcons.shield, 'color': Pallete.cinzaCla};
+      case CollectibleType.dash:
+        return {'name': 'Dash', 'desc': '+ Dash', 'icon': MdiIcons.runFast, 'color': Pallete.verdeCla};
       case CollectibleType.healthContainer:
         return {'name': 'Coração', 'desc': '+ Vida Máxima', 'icon': Icons.favorite_outline, 'color': Pallete.vermelho};
       case CollectibleType.berserk:
@@ -273,7 +273,7 @@ class CollectibleOriginalLogic {
           
         case CollectibleType.potion:
           if (player.healthNotifier.value < player.maxHealth) {
-            player.healthNotifier.value+=2; // Ou player.heal() se tiver criado
+            player.curaHp(2); // Ou player.heal() se tiver criado
             text = "Curado!";
             color = Pallete.vermelho; // Rosa/Vermelho
           } else {
@@ -329,6 +329,12 @@ class CollectibleOriginalLogic {
           text = "+ Max HP!";
           color = Pallete.vermelho;
           break;
+
+        case CollectibleType.dash:
+          player.increaseDash();
+          text = "+ Dash!";
+          color = Pallete.vermelho;
+          break; 
         
         case CollectibleType.berserk:
           player.isBerserk = true;

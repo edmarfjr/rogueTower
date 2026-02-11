@@ -236,10 +236,12 @@ class ProjectileAttackBehavior extends AttackBehavior {
   double _timer = 0;
   double speed;
   late Vector2 size;
+  bool isShotgun ;
 
   ProjectileAttackBehavior({
     this.interval = 2.0, 
     this.speed = 200,
+    this.isShotgun = false,
     Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
@@ -252,18 +254,31 @@ class ProjectileAttackBehavior extends AttackBehavior {
       final player = enemy.gameRef.player;
       final direction = (player.position - enemy.position).normalized();
       
-      enemy.gameRef.world.add(Projectile(
-        position: enemy.position + direction * 20,
-        direction: direction,
-        damage: 1,
-        speed: speed,
-        size: size,
-        owner: enemy,
-        isEnemyProjectile: true,
-      ));
+      _fireBullet(direction, 0);
+      if (isShotgun){
+        _fireBullet(direction, 0.3);
+        _fireBullet(direction, -0.3);
+      }
       _timer = 0;
     }
   }
+
+  void _fireBullet(Vector2 baseDir, double angleOffset) {
+    double x = baseDir.x * cos(angleOffset) - baseDir.y * sin(angleOffset);
+    double y = baseDir.x * sin(angleOffset) + baseDir.y * cos(angleOffset);
+    final newDir = Vector2(x, y);
+
+    enemy.gameRef.world.add(Projectile(
+      position: enemy.position + newDir * 20,
+      direction: newDir,
+      damage: 1, 
+      speed: speed,
+      size: size,
+      owner: enemy,
+      isEnemyProjectile: true,
+    ));
+  }
+
 }
 
 class MortarAttackBehavior extends AttackBehavior {
@@ -471,6 +486,116 @@ class DashAttackBehavior extends AttackBehavior {
     }
 
     return hit;
+  }
+}
+
+class ChargeAttackBehavior extends AttackBehavior {
+  // Configurações
+  final double detectRange; // Distância para ativar
+  final double chargeSpeed; // Velocidade da investida
+  final double prepTime;    // Tempo parado avisando que vai atacar
+  
+  // Variáveis de Estado
+  int _state = 0; // 0: Idle, 1: Prep, 2: Charge, 3: Cooldown
+  double _timer = 0;
+  Vector2 _chargeDir = Vector2.zero();
+
+  ChargeAttackBehavior({
+    this.detectRange = 200,
+    this.chargeSpeed = 350,
+    this.prepTime = 0.5,
+  });
+
+  @override
+  void update(double dt) {
+    final player = enemy.gameRef.player;
+    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+
+    // --- ESTADO 0: VIGILÂNCIA ---
+    // O inimigo está andando aleatoriamente (controlado pelo MovementBehavior)
+    if (_state == 0) {
+      double dist = enemy.position.distanceTo(player.position);
+      
+      if (dist <= detectRange) {
+        // PLAYER ENTROU NO ALCANCE!
+        _state = 1;
+        _timer = 0;
+        enemy.canMove = false; // Trava o movimento aleatório
+        
+        // Feedback Visual: Fica Vermelho (Perigo!)
+        visual?.setColor(Pallete.vermelho);
+      }
+    }
+
+    // --- ESTADO 1: PREPARAÇÃO ---
+    // Fica parado "carregando" o ataque
+    else if (_state == 1) {
+      _timer += dt;
+      
+      // Mira no jogador enquanto prepara (opcional, deixa mais difícil)
+      _chargeDir = (player.position - enemy.position).normalized();
+      
+      // Se tiver visual, rotaciona para olhar pro player
+      if (visual != null && !enemy.rotates) {
+         if (player.position.x < enemy.position.x) visual.scale.x = -1;
+         else visual.scale.x = 1;
+      }
+
+      if (_timer >= prepTime) {
+        _state = 2; // INICIA A CARGA
+        _timer = 0;
+      }
+    }
+
+    // --- ESTADO 2: INVESTIDA (CHARGE) ---
+    // Corre na direção travada
+    else if (_state == 2) {
+      _timer += dt;
+      
+      // Move manualmente (ignorando speed base)
+      enemy.position += _chargeDir * chargeSpeed * dt;
+
+      // Duração máxima da investida (ex: 1 segundo ou até bater)
+      if (_timer >= 1.0) {
+        _stopCharge();
+      }
+    }
+
+    // --- ESTADO 3: COOLDOWN ---
+    // Descansa um pouco antes de voltar a andar
+    else if (_state == 3) {
+      _timer += dt;
+      if (_timer >= 1.5) { // 1.5s de descanso
+        _state = 0; // Volta a andar aleatoriamente
+        _timer = 0;
+        enemy.canMove = true; // Libera movimento
+        visual?.setColor(enemy.originalColor); // Cor volta ao normal
+      }
+    }
+  }
+
+  // Se bater na parede ou no player durante a carga, para.
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (_state == 2) { // Só importa se estiver correndo
+      if (other is Wall) {
+        // Empurra um pouco pra trás pra não grudar
+        enemy.position -= _chargeDir * 10;
+        _stopCharge();
+      }
+      // Se bater no player, o player toma dano (lógica já existente no Player/Enemy),
+      // mas podemos parar o dash também:
+      if (other == enemy.gameRef.player) {
+         _stopCharge();
+      }
+    }
+  }
+
+  void _stopCharge() {
+    _state = 3; // Vai para Cooldown
+    _timer = 0;
+    // Opcional: Feedback visual de "tonto" ou "cansado"
+    enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.cinzaEsc);
   }
 }
 

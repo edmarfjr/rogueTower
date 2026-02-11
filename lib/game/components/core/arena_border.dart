@@ -1,8 +1,9 @@
+import 'package:TowerRogue/game/tower_game.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'pallete.dart';
 
-class ArenaBorder extends PositionComponent {
+class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   final double wallThickness;
   final double radius;
 
@@ -16,11 +17,20 @@ class ArenaBorder extends PositionComponent {
           position: Vector2.zero(), // Assume que o mundo é centralizado no 0,0
         );
 
+  Color _getLevelColor(int level) {
+    switch (level) {
+      case 1: return Pallete.marrom;      
+      case 2: return Pallete.cinzaEsc; 
+      default: return Colors.white;
+    }
+  }      
+
   @override
   void render(Canvas canvas) {
+    int currLevel = gameRef.currentLevelNotifier.value;
     // Define a cor e o estilo da borda
     final paint = Paint()
-      ..color = Pallete.cinzaEsc
+      ..color = _getLevelColor(currLevel)
       ..style = PaintingStyle.stroke // Apenas o contorno
       ..strokeWidth = wallThickness;
 

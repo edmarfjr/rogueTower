@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flame/events.dart';
+
 import '../core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -14,6 +16,11 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   
   // Guardamos a referência do ícone para trocar (fechado -> aberto)
   GameIcon? _iconComponent;
+
+  // Controle de Interface
+  bool _isInfoVisible = false;
+  final double _pickupRange = 60.0; // Distância para aparecer o botão
+  late Component _infoGroup; // Grupo que contém texto e botão
 
   Chest({required Vector2 position}) 
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
@@ -46,23 +53,51 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
+  void update(double dt) {
+    super.update(dt);
+    
+    // Calcula distância para o Player
+    final player = gameRef.player;
+    double dist = position.distanceTo(player.position);
 
-    if (_isOpen) return;
-
-    if (other is Player) {
-      // Verifica se o jogador tem chaves
-      if (gameRef.keysNotifier.value > 0) {
-        _openChest();
-      } else {
-        // Opcional: Efeito visual/sonoro de "trancado"
-        print("Precisa de uma chave!");
-      }
+    if (dist <= _pickupRange) {
+      if (!_isInfoVisible) _showInfo();
+    } else {
+      if (_isInfoVisible) _hideInfo();
     }
   }
 
+  void _showInfo() {
+    _isInfoVisible = true;
+   
+
+    // Grupo para facilitar remover tudo de uma vez
+    _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
+
+
+    // 3. Botão de Pegar
+    final btn = PickupButton(
+      onPressed: _openChest,
+      size: Vector2(80, 24),
+    )..position = Vector2(0, -50); 
+
+    _infoGroup.add(btn);
+
+    add(_infoGroup);
+  }
+
+  void _hideInfo() {
+    _isInfoVisible = false;
+    if (contains(_infoGroup)) {
+      remove(_infoGroup);
+    }
+  }
+
+
   void _openChest() {
+    if (gameRef.keysNotifier.value <= 0) {
+      return;
+    }
     _isOpen = true;
     
     // Consome a chave
@@ -84,6 +119,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       CollectibleType.steroids,
       CollectibleType.cafe,  
       CollectibleType.keys,
+      CollectibleType.dash,
     ];
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
@@ -101,5 +137,40 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     ));
 
     print("Baú aberto! Dropou: $lootType");
+  }
+  
+}
+
+// =============================================================================
+// COMPONENTE DO BOTÃO
+// =============================================================================
+class PickupButton extends PositionComponent with TapCallbacks {
+  final VoidCallback onPressed;
+
+  PickupButton({required this.onPressed, required Vector2 size}) 
+    : super(size: size, anchor: Anchor.center);
+
+  @override
+  void render(Canvas canvas) {
+    // Desenha o fundo do botão
+    final paintBg = Paint()..color = Pallete.verdeCla;
+    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBg);
+
+    // Desenha borda
+    final paintBorder = Paint()..color = Pallete.branco..style = PaintingStyle.stroke..strokeWidth = 2;
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBorder);
+
+    // Texto "PEGAR" ou Ícone de Mão
+    const textStyle = TextStyle(color: Pallete.branco, fontSize: 12, fontWeight: FontWeight.bold);
+    const textSpan = TextSpan(text: "PEGAR", style: textStyle);
+    final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+    textPainter.layout();
+    textPainter.paint(canvas, Offset((size.x - textPainter.width) / 2, (size.y - textPainter.height) / 2));
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    onPressed();
   }
 }

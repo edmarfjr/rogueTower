@@ -174,7 +174,7 @@ class Hud extends StatelessWidget {
                 ],
               ),
             ),
-
+        
             // ---------------------------------------------
             // 2. CANTO SUPERIOR DIREITO: PAUSE
             // ---------------------------------------------
@@ -220,7 +220,50 @@ class Hud extends StatelessWidget {
                   ),
                 ),
               ),
-            ),           
+            ),  
+            // ---------------------------------------------
+            // 5. TOPO CENTRO: NÍVEL ATUAL
+            // ---------------------------------------------
+            Positioned(
+              top: 15, // Um pouco mais para baixo
+              left: 0,
+              right: 0,
+              child: Center(
+                // Listenable.merge escuta uma lista de notifiers.
+                // Se o Nível OU a Sala mudar, ele reconstrói o texto.
+                child: ListenableBuilder(
+                  listenable: Listenable.merge([
+                    game.currentLevelNotifier, 
+                    game.currentRoomNotifier
+                  ]),
+                  builder: (context, child) {
+                    final int level = game.currentLevelNotifier.value;
+                    final int room = game.currentRoomNotifier.value;
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "$level - $room", 
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontFamily: 'Pixel', 
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 3.0,
+                            shadows: [
+                              Shadow(blurRadius: 4, color: Colors.black, offset: Offset(3, 3)),
+                              Shadow(blurRadius: 10, color: Colors.black), // Borda suave
+                            ],
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),        
           ],
         ),
       )

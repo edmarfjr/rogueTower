@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:TowerRogue/game/components/core/screen_transition.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -19,6 +20,7 @@ import 'components/core/pallete.dart';
 import 'components/gameObj/wall.dart';
 import 'components/core/arena_border.dart';
 import 'components/core/game_progress.dart';
+import 'overlays/bank_menu.dart';
 
 class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
@@ -37,8 +39,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   // Variável pública para o Player ler
   Vector2 joystickDelta = Vector2.zero();
 
-  int currentRoom = 0;
-  int currentLevel = 1;
+  final ValueNotifier<int> currentRoomNotifier = ValueNotifier<int>(0);
+  int get currentRoom => currentRoomNotifier.value;
+  final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);
+  int get currentLevel => currentLevelNotifier.value;
   final int bossRoom = 10;
   int maxLevel = 2;
 
@@ -48,6 +52,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   CollectibleType nextRoomReward = CollectibleType.nextlevel;
 
   final GameProgress progress = GameProgress();
+
+  late ScreenTransition transitionEffect;
 
   @override
   Color backgroundColor() => Pallete.preto;
@@ -112,9 +118,29 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     
     camera.follow(player);
 
+    transitionEffect = ScreenTransition();
+    camera.viewport.add(transitionEffect);
+
+    overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
   }
 
+  // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
+  void depositCoins(int amount) {
+    if (coinsNotifier.value >= amount) {
+      coinsNotifier.value -= amount; // Tira da mão
+      progress.depositToBank(amount); // Salva no banco
+    }
+  }
 
+  // Tira do Banco (Persistente) -> Põe na Carteira (Atual)
+  void withdrawCoins(int amount) async {
+    // Tenta sacar do banco
+    bool success = await progress.withdrawFromBank(amount);
+    
+    if (success) {
+      coinsNotifier.value += amount; // Põe na mão
+    }
+  }
 
   @override
   void onPanStart(DragStartInfo info) {
@@ -229,10 +255,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   void nextLevel(CollectibleType chosenReward) {
-    currentRoom++;
+    currentRoomNotifier.value++;
     if (currentRoom > bossRoom){
-      currentRoom = 0;
-      currentLevel++;
+      currentRoomNotifier.value = 0;
+      currentLevelNotifier.value++;
       if (currentLevel > maxLevel) winGame(); 
     }
     nextRoomReward = chosenReward;
@@ -264,9 +290,9 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.remove('VictoryMenu'); 
     resumeEngine();
 
-    currentRoom = 0;
-    currentLevel = 1;
-    coinsNotifier.value = 0;
+    currentRoomNotifier.value = 0;
+    currentLevelNotifier.value = 1;
+    coinsNotifier.value = 10;
     keysNotifier.value = 0;
     nextRoomReward = CollectibleType.nextlevel;
 

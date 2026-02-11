@@ -38,10 +38,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double _animTimer = 0;
   final double _animSpeed = 15.0;
   bool animado;
+  bool flipOposto;
   
   // COMPONENTES DE LÓGICA (Strategy Pattern)
   late MovementBehavior movementBehavior;
   late AttackBehavior attackBehavior;
+  AttackBehavior? attack2Behavior;
   late DeathBehavior deathBehavior;
   final IconData iconData;
 
@@ -50,6 +52,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     required this.movementBehavior,
     required this.attackBehavior,
     DeathBehavior? deathBehavior,
+    this.attack2Behavior,
     this.hp = 30,
     this.speed = 80,
     this.soul = 1,
@@ -58,6 +61,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.rotateOff = pi/2,
     this.voa = false,
     this.animado = true,
+    this.flipOposto = false,
     this.iconData = Icons.pest_control_rodent,
     this.originalColor = Pallete.vermelho,
     Vector2? size,
@@ -68,6 +72,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
     this.deathBehavior.enemy = this;
+    if (attack2Behavior != null) {
+      attack2Behavior!.enemy = this;
+    }
   }
 
   @override
@@ -100,6 +107,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // 1. Executa Comportamentos
     movementBehavior.update(dt);
     attackBehavior.update(dt);
+    attack2Behavior?.update(dt);
+    
 
     // 2. Mantém na Arena (Lógica Global)
     _keepInsideArena();
@@ -118,11 +127,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // 1. FLIP (Olhar para o Player)
     // Define a direção base: 1.0 (Direita) ou -1.0 (Esquerda)
     double facingDirection = 1.0;
+    if(flipOposto)facingDirection = -1.0;
     
     if (!rotates) {
       final player = gameRef.player;
       if (player.position.x < position.x) {
-        facingDirection = -1.0; 
+        facingDirection = -1.0;
+        if(flipOposto)facingDirection = 1.0; 
       }
     } else {
       // Se o inimigo rotaciona (ex: Boss/Spinner), ignoramos o flip X

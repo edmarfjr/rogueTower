@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flame/components.dart';
+import 'package:flutter/src/foundation/change_notifier.dart';
 import '../../tower_game.dart';
 
 // --- IMPORTS DE OBJETOS DO JOGO ---
@@ -7,6 +8,7 @@ import '../gameObj/door.dart';
 import '../gameObj/collectible.dart';
 import '../gameObj/wall.dart';
 import '../gameObj/chest.dart';
+import '../gameObj/bank_atm.dart';
 import '../gameObj/unlockable_item.dart';
 import '../effects/explosion.dart';
 import '../core/pallete.dart';
@@ -24,26 +26,32 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   bool _levelCleared = false;
   double _checkTimer = 0.0; 
 
+  bool teveShop = false;
+  bool teveBanco = false;
+
   int get bossRoom => gameRef.bossRoom;
 
   final double _minTimeBeforeClear = 0.5; // Tempo mínimo para evitar clear instantâneo
   
-  // --- LISTA DE INIMIGOS ATUALIZADA ---
-  // Agora usamos a EnemyFactory para criar os comportamentos
-  final List<EnemyFactoryFunction> _enemyRoster = [
-    (pos) => EnemyFactory.createStandard(pos), // 0: Comum
-    (pos) => EnemyFactory.createShooter(pos),  // 1: Atirador
-    (pos) => EnemyFactory.createSpinner(pos),  // 2: Giratório
-    (pos) => EnemyFactory.createDasher(pos),   // 3: Dash
-    (pos) => EnemyFactory.createBouncer(pos),  // 4: Rebate
-    (pos) => EnemyFactory.createLaser(pos),    // 5: Laser
-    (pos) => EnemyFactory.createMortar(pos),   // 6: Morteiro
-    (pos) => EnemyFactory.createBeeHive(pos),  // 7: colmeia
-    (pos) => EnemyFactory.createSpider(pos),  // 8: aranha
-    (pos) => EnemyFactory.createSnail(pos),  // 9: caramujo
-    (pos) => EnemyFactory.createSlimeM(pos),  // 10: slime
-    // (Opcional) (pos) => EnemyFactory.createCrazyShooter(pos), 
+  final List<EnemyFactoryFunction> _enemyRoster1 = [
+    (pos) => EnemyFactory.createRat(pos), 
+    (pos) => EnemyFactory.createFungi(pos),  
+    (pos) => EnemyFactory.createBeeHive(pos),
+    (pos) => EnemyFactory.createBug(pos),    
+    (pos) => EnemyFactory.createSnail(pos),  
+    (pos) => EnemyFactory.createSlimeM(pos),  
   ];
+
+  final List<EnemyFactoryFunction> _enemyRoster2 = [
+    (pos) => EnemyFactory.createBat(pos), 
+    (pos) => EnemyFactory.createSnake(pos),  
+    (pos) => EnemyFactory.createMere(pos),  
+    (pos) => EnemyFactory.createSpider(pos),  
+    (pos) => EnemyFactory.createCoffin(pos),  
+    (pos) => EnemyFactory.createHorseMan(pos),   
+  ];
+
+  ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
   void update(double dt) {
@@ -67,6 +75,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     _levelCleared = false;
     _checkTimer = 0.0; 
+
+    if (gameRef.nextRoomReward == CollectibleType.bank){
+      _spawnBankRoom(); 
+      return;
+    } 
 
     if (gameRef.player.magicShield) gameRef.player.activateShield();
     
@@ -162,11 +175,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       // Escolha do Inimigo
       EnemyFactoryFunction selectedFactory;
       
-      //if (roomNumber == 1) {
-      //selectedFactory = _enemyRoster[3]; 
-      //} else {
-      selectedFactory = _enemyRoster[rng.nextInt(_enemyRoster.length)];
-      //}
+      switch (gameRef.currentLevelNotifier.value){
+        case 1:
+          selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
+        case 2:
+          selectedFactory = _enemyRoster2[rng.nextInt(_enemyRoster2.length)];
+        default:
+          selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
+      }
+      
 
       // Criação usando a Factory
       gameRef.world.add(selectedFactory(pos));
@@ -208,14 +225,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
       }
+      if (gameRef.nextRoomReward != CollectibleType.bank && !teveBanco){
+        possibleRewards.add(CollectibleType.bank);
+      }
     }
-
-   // if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.chest);
-   // if (rng.nextDouble() < 0.25) possibleRewards.add(CollectibleType.healthContainer);
-    
-    //if (gameRef.nextRoomReward != CollectibleType.shop && rng.nextDouble() < 0.20) {
-    //  possibleRewards.add(CollectibleType.shop);
-   // }
 
     List<CollectibleType> finalPool = possibleRewards.toList();
 
@@ -231,6 +244,27 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     CollectibleType rewardLeft = finalPool[0];
     CollectibleType rewardRight = finalPool[1];
 
+   // garantir que tenha shop pelomenos antes do boss
+    if(rewardLeft == CollectibleType.shop || rewardRight == CollectibleType.shop){
+      teveShop = true;
+    }
+
+    if (gameRef.currentRoomNotifier.value == gameRef.bossRoom-2 && !teveShop){
+      rewardLeft = CollectibleType.shop;
+    }
+
+    //garantir que tenha mais de um banco por andar
+    if(rewardLeft == CollectibleType.bank || rewardRight == CollectibleType.bank){
+      teveBanco = true;
+    }
+
+    //limpar as var de sala unica por andar
+
+    if (gameRef.currentRoomNotifier.value == gameRef.bossRoom){
+      teveShop = false;
+      teveBanco = false;
+    } 
+
     gameRef.world.add(Door(
       position: Vector2(-100, -300), 
       rewardType: rewardLeft,
@@ -241,7 +275,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       rewardType: rewardRight,
     ));
   }
-
+  void _spawnBankRoom() {
+      // 1. Cria o ATM no centro
+      gameRef.world.add(BankAtm(position: Vector2(0, 0)));
+      
+    }
   void _generateShopRoom(){
     gameRef.world.add(Collectible(
         position: Vector2(-80, -50),
@@ -363,6 +401,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.steroids,
       CollectibleType.cafe, 
       CollectibleType.keys, 
+      CollectibleType.dash,
     ];
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);

@@ -10,8 +10,10 @@ import 'enemy_behaviors.dart';
 import '../core/pallete.dart';
 
 class EnemyFactory {
+
+  // inimigos fase 1
   
-  static Enemy createStandard(Vector2 pos) {
+  static Enemy createRat(Vector2 pos) {
     return Enemy(
       position: pos,
       hp: 30,
@@ -19,83 +21,49 @@ class EnemyFactory {
       iconData: Icons.pest_control_rodent,
       originalColor: Pallete.vermelho,
       movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: NoAttackBehavior(),       
+      attackBehavior: ProjectileAttackBehavior(interval: 2.0),       
     );
   }
 
-  static Enemy createShooter(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 20,
-      speed: 50,
-      iconData: Icons.adb,
-      originalColor: Pallete.lilas,
-      movementBehavior: KeepDistanceBehavior(minDistance: 150, maxDistance: 220),
-      attackBehavior: ProjectileAttackBehavior(interval: 2.0),
-    );
-  }
-
-  static Enemy createSpinner(Vector2 pos) {
+  static Enemy createFungi(Vector2 pos) {
     return Enemy(
       position: pos,
       hp: 25,
-      speed: 50,
-      iconData: Icons.sync,
+      speed: 0,
+      iconData: MdiIcons.mushroom,
       originalColor: Pallete.rosa,
       movementBehavior: RandomWanderBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 1.5),
     );
   }
   
-  static Enemy createMortar(Vector2 pos) {
+  static Enemy createBug(Vector2 pos) {
     return Enemy(
       position: pos,
       hp: 20,
-      speed: 0,
-      weight: 1000,
-      iconData: Icons.fort,
-      originalColor: Pallete.laranja,
-      movementBehavior: KeepDistanceBehavior(minDistance: 250, maxDistance: 350),
+      speed: 80,
+      rotates: true,
+      iconData: Icons.bug_report,
+      originalColor: Pallete.marrom,
+      movementBehavior: RandomWanderBehavior(),
       attackBehavior: MortarAttackBehavior(interval: 4.0),
     );
   }
 
-  static Enemy createLaser(Vector2 pos) {
+  static Enemy createSnail(Vector2 pos) {
     return Enemy(
       position: pos,
       hp: 40,
-      speed: 0,
-      iconData: MdiIcons.ethereum,
-      originalColor: Pallete.azulCla,
-      movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: LaserAttackBehavior(interval: 3.0),
-    );
-  }
-  
-  static Enemy createBouncer(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 20,
-      speed: 120,
-      weight:10,
-      iconData: Icons.sports_baseball,
+      speed: 60,
+      weight: 1.2,
+      flipOposto: true,
+      iconData: MdiIcons.snail,
       originalColor: Pallete.verdeCla,
-      movementBehavior: BouncerBehavior(),
-      attackBehavior: NoAttackBehavior(), 
-    );
-  }
-
-  static Enemy createDasher(Vector2 pos) {
-     return Enemy(
-      position: pos,
-      hp: 40,
-      speed: 80, 
-      animado: false,
-      iconData: Icons.navigation,
-      originalColor: Pallete.amarelo,
-      // Dasher é especial: o movimento é controlado pelo ataque
-      movementBehavior: FollowPlayerBehavior(), 
-      attackBehavior: DashAttackBehavior(),
+      movementBehavior: RandomWanderBehavior(), 
+      attackBehavior: DropHazardBehavior(
+        interval: 0.8, // Mais rápido
+        hazardBuilder: (p) => PoisonPuddle(position: p, duration: 5.0, damage: 1),
+      ),
     );
   }
 
@@ -131,52 +99,6 @@ class EnemyFactory {
       deathBehavior: SpawnOnDeathBehavior(
         count: 3,
         minionBuilder: (p) => EnemyFactory.createBee(p),
-      ),
-    );
-  }
-
-  static Enemy createCrazyShooter(Vector2 pos) {
-    // Um inimigo que quica na parede (Bouncer) E atira (Shooter)
-    return Enemy(
-      position: pos,
-      hp: 50,
-      speed: 100,
-      iconData: Icons.psychology,
-      originalColor: Pallete.rosa,
-      movementBehavior: BouncerBehavior(),
-      attackBehavior: ProjectileAttackBehavior(interval: 2.0), 
-    );
-  }
-
-  static Enemy createSpider(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 25,
-      speed: 100,
-      weight: 1.2,
-      rotates: true,
-      iconData: MdiIcons.spider,
-      originalColor: Pallete.marrom,
-      movementBehavior: RandomWanderBehavior(), 
-      attackBehavior: DropHazardBehavior(
-        interval: 2.5,
-        hazardBuilder: (p) => Web(position: p, duration: 8.0),
-      ),
-    );
-  }
-
-  static Enemy createSnail(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 40,
-      speed: 60,
-      weight: 1.2,
-      iconData: MdiIcons.snail,
-      originalColor: Pallete.verdeCla,
-      movementBehavior: RandomWanderBehavior(), 
-      attackBehavior: DropHazardBehavior(
-        interval: 0.8, // Mais rápido
-        hazardBuilder: (p) => PoisonPuddle(position: p, duration: 5.0, damage: 1),
       ),
     );
   }
@@ -258,6 +180,90 @@ class EnemyFactory {
      //   count: 2,
      //   minionBuilder: (p) => EnemyFactory.createSlimeP(p),
      // ),    
+    );
+  }
+
+// inimigos fase 2
+
+  static Enemy createBat(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 25,
+      speed: 0,
+      iconData: MdiIcons.bat,
+      originalColor: Pallete.rosa,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: SpinnerAttackBehavior(interval: 1.5),
+    );
+  }
+
+  static Enemy createSpider(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 25,
+      speed: 100,
+      weight: 1.2,
+      rotates: true,
+      iconData: MdiIcons.spider,
+      originalColor: Pallete.marrom,
+      movementBehavior: RandomWanderBehavior(), 
+      attackBehavior: DropHazardBehavior(
+        interval: 2.5,
+        hazardBuilder: (p) => Web(position: p, duration: 8.0),
+      ),
+      attack2Behavior: ProjectileAttackBehavior(interval: 2.5)
+    );
+  }
+
+  static Enemy createSnake(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 40,
+      speed: 100,
+      iconData: MdiIcons.snake,
+      originalColor: Pallete.verdeEsc,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 2.0),
+    );
+  }
+
+  static Enemy createCoffin(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 40,
+      speed: 0,
+      iconData: MdiIcons.coffin,
+      originalColor: Pallete.marrom,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: LaserAttackBehavior(interval: 3.0),
+    );
+  }
+
+  static Enemy createMere(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 40,
+      speed: 100,
+      iconData: MdiIcons.horseVariantFast,
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0, isShotgun: true),
+    );
+  }
+
+  static Enemy createHorseMan(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 40,
+      speed: 100,
+      iconData: MdiIcons.horseHuman,
+      originalColor: Pallete.lilas,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: ChargeAttackBehavior(
+        detectRange: 180, // Só ataca se chegar perto
+        chargeSpeed: 400, // Muito rápido no ataque
+        prepTime: 0.6,    // 0.6s de aviso antes de correr
+      ),
     );
   }
 

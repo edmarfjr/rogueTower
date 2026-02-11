@@ -112,7 +112,9 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     
     if (other is Player) {
       if (isOpen) {
-        gameRef.nextLevel(rewardType);
+        gameRef.transitionEffect.startTransition(() {
+          gameRef.nextLevel(rewardType);
+        });
       }
     }
   }

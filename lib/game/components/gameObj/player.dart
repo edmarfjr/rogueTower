@@ -26,7 +26,7 @@ class Player extends PositionComponent
   double _invincibilityTimer = 0;
   double invincibilityDuration = 0.5; 
   // -----------------------
-  double attackRange = 200; 
+  double attackRange = 150; 
   late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
@@ -44,7 +44,7 @@ class Player extends PositionComponent
   double dashSpeed = 450;    
   
   double _dashCooldownTimer = 0;
-  double dashCooldown = 1.0; 
+  double dashCooldown = 2.5; 
   Vector2 _dashDirection = Vector2.zero();
 
   bool isBerserk = false;
@@ -396,7 +396,7 @@ class Player extends PositionComponent
     moveSpeed = 150.0;
     dashDuration = 0.2; 
     dashSpeed = 450;    
-    dashCooldown = 1.0; 
+    dashCooldown = 2.5; 
     invincibilityDuration = 0.5;
     isBerserk = false;
 
@@ -461,6 +461,16 @@ class Player extends PositionComponent
   void increaseHp(){ 
     maxHealth+=2; 
     healthNotifier.value+=2; 
+  }
+
+  void curaHp([int val = 1]){ 
+    healthNotifier.value+=val;
+    healthNotifier.value = min(healthNotifier.value,maxHealth);
+  }
+
+  void increaseDash([int val = 1]){ 
+    maxDash+=val; 
+    dashNotifier.value+=val; 
   }
 
   void increaseShield(){ 
