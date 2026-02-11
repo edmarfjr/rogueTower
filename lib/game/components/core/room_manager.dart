@@ -82,6 +82,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       return;
     } 
 
+    if (gameRef.nextRoomReward == CollectibleType.shop){
+      _generateShopRoom(); 
+      _spawnDoors(roomNumber);
+      return;
+    } 
+
     if (gameRef.player.magicShield) gameRef.player.activateShield();
     
     // Geração do Mapa (Obstáculos)
@@ -159,7 +165,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     while (enemiesSpawned < targetEnemyCount && attempts < 100) {
       attempts++;
 
-      double x = (rng.nextDouble() * 180) - 130;
+      double x = (rng.nextDouble() * 180) - 180;
       double y = (rng.nextDouble() * 150) - 200;
       final pos = Vector2(x, y);
 
@@ -367,8 +373,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0)));
       
-    } else if (gameRef.nextRoomReward == CollectibleType.shop){
-      _generateShopRoom();
     } else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
       _generateZeroRoom();
     } else if (gameRef.nextRoomReward == CollectibleType.boss){
@@ -399,6 +403,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.keys, 
       CollectibleType.dash, 
       CollectibleType.sanduiche,
+      CollectibleType.alcool,
     ];
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);

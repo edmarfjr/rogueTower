@@ -50,6 +50,7 @@ class Player extends PositionComponent
   bool isBerserk = false;
   bool isAudaz = false;
   bool isFreeze = false;
+  bool isBebado = false;
 
   bool magicShield = false;
   bool hasShield = false;
@@ -65,6 +66,8 @@ class Player extends PositionComponent
     healthNotifier = ValueNotifier<int>(maxHealth);
     dashNotifier = ValueNotifier<int>(maxDash);
   }
+  
+
 
   @override
   Future<void> onLoad() async {
@@ -373,11 +376,18 @@ class Player extends PositionComponent
   }
 
   void _shootAt(Enemy target) {
-    final direction = (target.position - position).normalized();
+    Vector2 direction = (target.position - position).normalized();
     double dmg = damage;
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.33;
+    if(isBebado){
+      double angleOffset = Random().nextDouble() * 0.2;
+      double x = direction.x * cos(angleOffset) - direction.y * sin(angleOffset);
+      double y = direction.x * sin(angleOffset) + direction.y * cos(angleOffset);
+      direction = Vector2(x, y);
+      dmg = dmg * 1.33;
+    }
     
     gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
   }

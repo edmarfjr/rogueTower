@@ -13,7 +13,7 @@ import '../effects/floating_text.dart';
 enum CollectibleType { 
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, 
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, 
-  berserk, audacious, steroids, cafe, freeze,magicShield
+  berserk, audacious, steroids, cafe, freeze,magicShield,alcool
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -198,6 +198,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'Esteroides', 'desc': '+Dano, -Vida Max', 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
       case CollectibleType.cafe:
         return {'name': 'Café', 'desc': 'Muuuito tiro, pouco dano', 'icon': Icons.coffee, 'color': Pallete.marrom};
+      case CollectibleType.alcool:
+        return {'name': 'Alcool', 'desc': 'aumenta dano, mas tiros não vão reto', 'icon': MdiIcons.bottleWine, 'color': Pallete.lilas};
       case CollectibleType.freeze:
         return {'name': 'Gelo', 'desc': 'Congela inimigos', 'icon': Icons.ac_unit, 'color': Pallete.azulCla};
       case CollectibleType.magicShield:
@@ -358,6 +360,12 @@ class CollectibleOriginalLogic {
         case CollectibleType.audacious:
           player.isAudaz = true;
           text = "+ 33% Damage when no shield!";
+          color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.alcool:
+          player.isBebado = true;
+          text = "+ 33% Damage, shots don't go straight!";
           color = Pallete.vermelho;
           break;
 
