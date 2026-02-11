@@ -78,6 +78,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
+      _spawnDoors(roomNumber);
       return;
     } 
 
@@ -88,16 +89,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     // --- LÓGICA DE SPAWN ---
     if (roomNumber == bossRoom) {
-      print("ALERTA: BOSS FIGHT!");
       
-      // O Boss ainda usa sua classe própria pois tem lógica complexa de HUD e fases
       if (gameRef.currentLevel == 1){
         gameRef.world.add(EnemyFactory.createKingSlime1(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 2){
-        gameRef.world.add(BossEnemy(
-          position: Vector2(0, -150), 
-          level: roomNumber 
-        ));
+        gameRef.world.add(EnemyFactory.createHorseManBoss(Vector2(0, -150)));
       }
       
 
@@ -107,7 +103,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     _spawnDoors(roomNumber);
     print("Sala $roomNumber iniciada...");
-    gameRef.atualizaDebugMode();
+  //  gameRef.atualizaDebugMode();
   }
 
   void _generateMap(int seed) {
@@ -401,7 +397,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.steroids,
       CollectibleType.cafe, 
       CollectibleType.keys, 
-      CollectibleType.dash,
+      CollectibleType.dash, 
+      CollectibleType.sanduiche,
     ];
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);

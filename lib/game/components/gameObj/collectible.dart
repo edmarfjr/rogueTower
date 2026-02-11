@@ -11,8 +11,8 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 
 enum CollectibleType { 
-  coin, potion, key, shield, shop, boss, nextlevel, chest,bank, 
-  damage, fireRate, moveSpeed, range, healthContainer,keys,dash, 
+  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, 
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, 
   berserk, audacious, steroids, cafe, freeze,magicShield
 }
 
@@ -168,6 +168,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'Moeda', 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
       case CollectibleType.potion:
         return {'name': 'Coração', 'desc': 'Recupera Vida', 'icon': Icons.favorite, 'color': Pallete.vermelho};
+      case CollectibleType.sanduiche:
+        return {'name': 'Coração', 'desc': 'Recupera muita Vida', 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
       case CollectibleType.key:
         return {'name': 'Chave', 'desc': 'Abre portas', 'icon': Icons.vpn_key, 'color': Pallete.laranja};
       case CollectibleType.keys:
@@ -281,6 +283,17 @@ class CollectibleOriginalLogic {
             color = Pallete.cinzaCla;
           }
           break;
+
+        case CollectibleType.sanduiche:
+          if (player.healthNotifier.value < player.maxHealth) {
+            player.curaHp(6); // Ou player.heal() se tiver criado
+            text = "Curado!";
+            color = Pallete.vermelho; // Rosa/Vermelho
+          } else {
+            text = "Cheio!";
+            color = Pallete.cinzaCla;
+          }
+          break;  
           
         case CollectibleType.key:
           game.keysNotifier.value++;

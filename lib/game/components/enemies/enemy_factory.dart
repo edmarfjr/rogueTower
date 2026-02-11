@@ -46,7 +46,7 @@ class EnemyFactory {
       iconData: Icons.bug_report,
       originalColor: Pallete.marrom,
       movementBehavior: RandomWanderBehavior(),
-      attackBehavior: MortarAttackBehavior(interval: 4.0),
+      attackBehavior: MortarAttackBehavior(interval: 3.0),
     );
   }
 
@@ -142,6 +142,7 @@ class EnemyFactory {
       originalColor: Pallete.vermelho,
       movementBehavior: BouncerBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(30)),
+      attack2Behavior: MortarAttackBehavior(interval: 4.0),
       deathBehavior: SpawnOnDeathBehavior(
         count: 2,
         minionBuilder: (p) => EnemyFactory.createKingSlime2(p),
@@ -159,6 +160,7 @@ class EnemyFactory {
       originalColor: Pallete.vermelho,
       movementBehavior: BouncerBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(20)), 
+      attack2Behavior: MortarAttackBehavior(interval: 4.0),
       deathBehavior: SpawnOnDeathBehavior(
         count: 2,
         minionBuilder: (p) => EnemyFactory.createKingSlime3(p),
@@ -264,6 +266,24 @@ class EnemyFactory {
         chargeSpeed: 400, // Muito rápido no ataque
         prepTime: 0.6,    // 0.6s de aviso antes de correr
       ),
+    );
+  }
+
+  static Enemy createHorseManBoss(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 500,
+      speed: 100,
+      size: Vector2.all(80),
+      iconData: MdiIcons.horseHuman,
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ChargeAttackBehavior(
+        detectRange: 180, // Só ataca se chegar perto
+        chargeSpeed: 400, // Muito rápido no ataque
+        prepTime: 0.6,    // 0.6s de aviso antes de correr
+      ),
+      attack2Behavior: MortarAttackBehavior(interval: 4.0),
     );
   }
 

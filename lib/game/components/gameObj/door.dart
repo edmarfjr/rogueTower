@@ -81,6 +81,9 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.nextlevel:
         iconData = MdiIcons.stairsUp;
         break;
+      case CollectibleType.bank:
+        iconData = MdiIcons.bank;
+        break;
       default:
         iconData = Icons.help_outline;
     }

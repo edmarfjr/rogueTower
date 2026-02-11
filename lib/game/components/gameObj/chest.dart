@@ -120,6 +120,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       CollectibleType.cafe,  
       CollectibleType.keys,
       CollectibleType.dash,
+      CollectibleType.sanduiche,
     ];
     if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
     if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
