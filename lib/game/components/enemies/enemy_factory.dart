@@ -30,6 +30,7 @@ class EnemyFactory {
       position: pos,
       hp: 25,
       speed: 0,
+      weight: 5,
       iconData: MdiIcons.mushroom,
       originalColor: Pallete.rosa,
       movementBehavior: RandomWanderBehavior(),
@@ -193,7 +194,7 @@ class EnemyFactory {
       hp: 25,
       speed: 100,
       iconData: MdiIcons.bat,
-      originalColor: Pallete.rosa,
+      originalColor: Pallete.lilas,
       movementBehavior: RandomWanderBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 1.5),
     );
@@ -203,7 +204,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 25,
-      speed: 100,
+      speed: 80,
       weight: 1.2,
       rotates: true,
       iconData: MdiIcons.spider,
@@ -221,7 +222,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 40,
-      speed: 100,
+      speed: 80,
       hasGhostEffect: true,
       iconData: MdiIcons.ghost,
       originalColor: Pallete.cinzaCla,
@@ -246,7 +247,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 40,
-      speed: 100,
+      speed: 80,
       hasGhostEffect: true,
       iconData: MdiIcons.horseVariantFast,
       originalColor: Pallete.lilas,

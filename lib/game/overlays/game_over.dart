@@ -61,7 +61,9 @@ class GameOver extends StatelessWidget {
                   minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {
-                  game.resetGame();
+                  game.transitionEffect.startTransition(() {
+                      game.resetGame(); 
+                    }); 
                 },
                 child: const Text('TENTAR NOVAMENTE', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
@@ -74,8 +76,10 @@ class GameOver extends StatelessWidget {
                   backgroundColor: Pallete.vermelho,
                   minimumSize: const Size(200, 50),
                 ),
-                onPressed: () {
-                  game.returnToMenu();
+                onPressed: () {                 
+                  game.transitionEffect.startTransition(() {
+                      game.returnToMenu();
+                    }); 
                 },
                 child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),

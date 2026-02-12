@@ -37,7 +37,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     add(RectangleHitbox(
       size: size * 0.8,
       anchor: Anchor.center,
-      position: size / 2,
+      position: Vector2(20,55),
       isSolid: true,
     ));
   }

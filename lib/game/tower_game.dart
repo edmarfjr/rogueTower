@@ -92,7 +92,6 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     camera.viewport.add(joystickBase);
     camera.viewport.add(joystickKnob);
 
-
     // 3. CONFIGURAÇÃO DA ARENA
     const double gameWidth = 400;
     const double gameHeight = 700;
@@ -104,11 +103,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     ));
 
     camera.setBounds(
-      Rectangle.fromCenter(
-        center: Vector2.zero(),
-        size: Vector2(gameWidth, gameHeight),
-      ),
-      considerViewport: true,
+      Rectangle.fromLTWH(-60, -60, 120, 130),
+      considerViewport: false, // Force a parada independente do tamanho da tela
     );
 
     // 4. MUNDO E ENTIDADES
@@ -122,6 +118,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     transitionEffect = ScreenTransition();
     camera.viewport.add(transitionEffect);
+    camera.viewfinder.anchor = Anchor.center;
 
     overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
   }
@@ -295,7 +292,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     currentRoomNotifier.value = 0;
     currentLevelNotifier.value = 1;
-    coinsNotifier.value = 10;
+    coinsNotifier.value = 0;
     keysNotifier.value = 0;
     nextRoomReward = CollectibleType.nextlevel;
 

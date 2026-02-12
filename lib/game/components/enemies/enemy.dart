@@ -124,7 +124,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     
     _ghostTimer += dt;
-    if (_ghostTimer >= 0.025) {
+    if (_ghostTimer >= 0.1) {
       gameRef.world.add(
         GhostParticle(
           icon: visual.icon,

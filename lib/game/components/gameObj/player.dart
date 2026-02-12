@@ -1,5 +1,7 @@
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
+import 'package:TowerRogue/game/components/gameObj/door.dart';
+import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -72,8 +74,6 @@ class Player extends PositionComponent
     dashNotifier = ValueNotifier<int>(maxDash);
   }
   
-
-
   @override
   Future<void> onLoad() async {
     // Visual do Player
@@ -338,7 +338,6 @@ class Player extends PositionComponent
       return; 
     }
 
-
     if (shieldNotifier.value > 0){
       shieldNotifier.value-- ;
       _isInvincible = true;
@@ -350,8 +349,6 @@ class Player extends PositionComponent
     _isInvincible = true;
     _invincibilityTimer = invincibilityDuration;
     
-    print("Dano recebido! Vida restante: ${healthNotifier.value}");
-
     if (healthNotifier.value <= 0) {
       _die();
     }
@@ -454,7 +451,7 @@ class Player extends PositionComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Wall) {
+    if (other is Wall || other is Door && !other.isOpen || other is UnlockableItem) {
       _handleWallCollision(intersectionPoints, other);
     }
   }
