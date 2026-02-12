@@ -425,7 +425,7 @@ class Player extends PositionComponent
     _invincibilityTimer = 0;
     velocity = Vector2.zero();
 
-    attackRange = 200; 
+    attackRange = 150; 
     _attackTimer = 0;
     damage = 10.0;
     critChance = 5;
