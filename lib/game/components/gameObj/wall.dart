@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 import '../core/game_icon.dart';
 
@@ -16,11 +17,17 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
     final rng = Random();
 
-    final List<IconData> possibleIcons = [
+    List<IconData> possibleIcons = [
       Icons.grid_view, 
-      Icons.park,
-      Icons.terrain, 
+      Icons.terrain
     ];
+
+    if (gameRef.currentLevel == 2){
+      possibleIcons = [
+        MdiIcons.graveStone,
+        MdiIcons.skullCrossbones
+      ];
+    }
 
     final IconData icon = possibleIcons[rng.nextInt(possibleIcons.length)];
     

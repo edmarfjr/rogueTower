@@ -191,7 +191,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 25,
-      speed: 0,
+      speed: 100,
       iconData: MdiIcons.bat,
       originalColor: Pallete.rosa,
       movementBehavior: RandomWanderBehavior(),
@@ -217,13 +217,14 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSnake(Vector2 pos) {
+  static Enemy createGhost(Vector2 pos) {
     return Enemy(
       position: pos,
       hp: 40,
       speed: 100,
-      iconData: MdiIcons.snake,
-      originalColor: Pallete.verdeEsc,
+      hasGhostEffect: true,
+      iconData: MdiIcons.ghost,
+      originalColor: Pallete.cinzaCla,
       movementBehavior: RandomWanderBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 2.0),
     );
@@ -246,6 +247,7 @@ class EnemyFactory {
       position: pos,
       hp: 40,
       speed: 100,
+      hasGhostEffect: true,
       iconData: MdiIcons.horseVariantFast,
       originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
@@ -258,6 +260,7 @@ class EnemyFactory {
       position: pos,
       hp: 40,
       speed: 100,
+      hasGhostEffect: true,
       iconData: MdiIcons.horseHuman,
       originalColor: Pallete.lilas,
       movementBehavior: RandomWanderBehavior(),
@@ -274,6 +277,7 @@ class EnemyFactory {
       position: pos,
       hp: 500,
       speed: 100,
+      hasGhostEffect: true,
       size: Vector2.all(80),
       iconData: MdiIcons.horseHuman,
       originalColor: Pallete.lilas,

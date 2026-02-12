@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:flame/events.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -82,9 +83,8 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
 
     // 3. Botão de Pegar
-    final btn = PickupButton(
-      onPressed: _openChest,
-      size: Vector2(80, 24),
+    final btn = InteractButton(
+      onTrigger: _openChest,
     )..position = Vector2(0, -50); 
 
     _infoGroup.add(btn);
@@ -125,45 +125,11 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     // 3. Cria o item sorteado
     gameRef.world.add(Collectible(
-      position: position + Vector2(0, 40),
+      position: position + Vector2(0, -40),
       type: lootType,
     ));
 
     removeFromParent();
   }
   
-}
-
-// =============================================================================
-// COMPONENTE DO BOTÃO
-// =============================================================================
-class PickupButton extends PositionComponent with TapCallbacks {
-  final VoidCallback onPressed;
-
-  PickupButton({required this.onPressed, required Vector2 size}) 
-    : super(size: size, anchor: Anchor.center);
-
-  @override
-  void render(Canvas canvas) {
-    // Desenha o fundo do botão
-    final paintBg = Paint()..color = Pallete.verdeCla;
-    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBg);
-
-    // Desenha borda
-    final paintBorder = Paint()..color = Pallete.branco..style = PaintingStyle.stroke..strokeWidth = 2;
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBorder);
-
-    // Texto "PEGAR" ou Ícone de Mão
-    const textStyle = TextStyle(color: Pallete.branco, fontSize: 12, fontWeight: FontWeight.bold);
-    const textSpan = TextSpan(text: "PEGAR", style: textStyle);
-    final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr);
-    textPainter.layout();
-    textPainter.paint(canvas, Offset((size.x - textPainter.width) / 2, (size.y - textPainter.height) / 2));
-  }
-
-  @override
-  void onTapDown(TapDownEvent event) {
-    onPressed();
-  }
 }

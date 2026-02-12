@@ -1,19 +1,27 @@
 import 'package:TowerRogue/game/components/core/pallete.dart';
+import 'package:TowerRogue/game/components/core/interact_button.dart'; // Import do novo botão
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 import './player.dart';
 import '../core/game_icon.dart';
 import 'collectible.dart';
 import '../effects/floating_text.dart';
 
-class UnlockableItem extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
+class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   final String id;            
   final CollectibleType type;  
   final int soulCost;          
   
   bool _isUnlocked = false;
+  bool _isPicked = false;
+  
+  // Controle de Interface (Igual ao Collectible)
+  bool _isInfoVisible = false;
+  final double _interactRange = 60.0;
+  InteractButton? _currentButton;
 
   UnlockableItem({
     required Vector2 position,
@@ -24,42 +32,87 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame>, Colli
 
   @override
   Future<void> onLoad() async {
-    // Verifica no save se já comprou
     _isUnlocked = gameRef.progress.isUnlocked(id);
-    
-    add(RectangleHitbox(isSolid: true));
     _updateVisuals();
+    add(RectangleHitbox(
+      size: size * 0.8,
+      anchor: Anchor.center,
+      position: size / 2,
+      isSolid: true,
+    ));
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    
+    // Checa distância do player para mostrar/esconder o botão
+    final player = gameRef.player;
+    double dist = position.distanceTo(player.position);
+
+    if (dist <= _interactRange) {
+      if (!_isInfoVisible && !_isPicked) _showButton();
+    } else {
+      if (_isInfoVisible) _hideButton();
+    }
+  }
+
+  void _showButton() {
+    _isInfoVisible = true;
+    _currentButton = InteractButton(
+      //text:"DESBLOQUEAR",
+      onTrigger: () {
+        if (_isUnlocked) {
+          _handleTake();
+        } else {
+          _handleUnlock();
+        }
+      },
+    )..position = Vector2(size.x / 2, -20); // Posiciona acima do item
+    
+    add(_currentButton!);
+  }
+
+  void _hideButton() {
+    _isInfoVisible = false;
+    if (_currentButton != null) {
+      _currentButton!.removeFromParent();
+      _currentButton = null;
+    }
   }
 
   void _updateVisuals() {
-    // Remove visuais antigos para redesenhar
     removeAll(children.whereType<GameIcon>());
     removeAll(children.whereType<TextComponent>());
+    add(GameIcon(
+        icon: MdiIcons.archive,
+        color: Pallete.cinzaEsc,
+        size: size,
+        scale: Vector2.all(1.0), // Adicionado para evitar erro de required
+        anchor: Anchor.center,
+        position: Vector2(20,55),
+      ));
 
-    if (_isUnlocked) {
-      // VISUAL DESBLOQUEADO: Mostra o item normal
+    if (!_isPicked){
       add(GameIcon(
         icon: _getIconForType(type),
-        color: _getColorForType(type), // Cor de item especial
+        color: _getColorForType(type),
         size: size,
+        scale: Vector2.all(1.0), // Adicionado para evitar erro de required
         anchor: Anchor.center,
         position: size / 2,
       ));
+    }
       
-      // Texto "Free" ou "Take"
-      _addText("Take", Colors.white);
-
-    } else {
-      // VISUAL BLOQUEADO: Cadeado ou Interrogação
+    if (!_isUnlocked) {
       add(GameIcon(
         icon: Icons.lock,
         color: Colors.grey,
-        size: size,
+        size: size/2,
+        scale: Vector2.all(1.0),
         anchor: Anchor.center,
-        position: size / 2,
+        position: Vector2(20,55),
       ));
-      
-      // Preço em Almas (Cor Azul para diferenciar de Ouro)
       _addText("$soulCost Souls", Colors.blueAccent);
     }
   }
@@ -69,36 +122,31 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame>, Colli
       text: text,
       textRenderer: TextPaint(style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, size.y + 5),
+      position: Vector2(size.x / 2, size.y + 30),
     ));
   }
 
-  @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
-
-    if (other is Player) {
-      if (_isUnlocked) {
-        // --- JÁ COMPROU: PEGA O ITEM (Lógica de Collectible) ---
-        _giveItem(other);
-        removeFromParent();
-        
-      } else {
-        // --- BLOQUEADO: TENTA COMPRAR COM ALMAS ---
-        _tryUnlock(other);
-      }
+  void _handleTake() {
+    if(!_isPicked){
+      _giveItem(gameRef.player);
+      _isPicked = true;
+      _updateVisuals();
+       _hideButton();
+      //removeFromParent();
     }
+    
   }
 
-  Future<void> _tryUnlock(Player player) async {
-    // Verifica se tem almas suficientes
+  Future<void> _handleUnlock() async {
     bool success = await gameRef.progress.spendSouls(soulCost);
 
     if (success) {
-      // Sucesso!
       await gameRef.progress.unlockItem(id);
       _isUnlocked = true;
-      _updateVisuals(); // Atualiza para mostrar o item
+      
+      // Esconde o botão antigo e atualiza visuais
+      _hideButton();
+      _updateVisuals();
       
       gameRef.world.add(FloatingText(
         text: "Unlocked!",
@@ -106,39 +154,32 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame>, Colli
         color: Colors.blueAccent,
       ));
     } else {
-      // Falha
       gameRef.world.add(FloatingText(
         text: "Need Souls!",
         position: position + Vector2(0, -30),
         color: Pallete.vermelho,
       ));
-      // Empurra player
-      player.position += (player.position - position).normalized() * 20;
     }
   }
 
   void _giveItem(Player player) {
-    Collectible.applyEffect(
-      type: type, 
-      game: gameRef
-    );
+    Collectible.applyEffect(type: type, game: gameRef);
   }
 
+  // --- Helpers de ícone (Pode usar o Collectible.getAttributes se quiser centralizar) ---
   IconData _getIconForType(CollectibleType type) {
-      // Retorne o ícone certo (pode copiar do seu Collectible.dart)
-      if (type == CollectibleType.damage) return Icons.gavel;
+      if (type == CollectibleType.damage) return MdiIcons.flaskRoundBottom;
       if (type == CollectibleType.healthContainer) return Icons.favorite_outline;
       if (type == CollectibleType.shield) return Icons.gpp_bad;
-      if (type == CollectibleType.fireRate) return Icons.double_arrow;
+      if (type == CollectibleType.fireRate) return MdiIcons.flaskRoundBottom;
       return Icons.star;
   }
 
   Color _getColorForType(CollectibleType type) {
-      // Retorne o ícone certo (pode copiar do seu Collectible.dart)
-      if (type == CollectibleType.damage) return Pallete.azulCla;
+      if (type == CollectibleType.damage) return Pallete.vermelho;
       if (type == CollectibleType.healthContainer) return Pallete.vermelho;
       if (type == CollectibleType.shield) return Pallete.lilas;
-      if (type == CollectibleType.fireRate) return Pallete.azulCla;
+      if (type == CollectibleType.fireRate) return Pallete.laranja;
       return Pallete.branco;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -53,7 +54,8 @@ class Player extends PositionComponent
   bool isAudaz = false;
   bool isFreeze = false;
   bool isBebado = false;
-
+  bool hasOrbShield = false;
+  bool hasFoice = false;
   bool magicShield = false;
   bool hasShield = false;
 
@@ -63,6 +65,7 @@ class Player extends PositionComponent
   final double _bounceAmplitude = 0.15; // Quão forte ele estica/esmaga (15%)
 
   double _dustSpawnTimer = 0;
+  double _ghostTimer = 0;
 
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
@@ -228,8 +231,10 @@ class Player extends PositionComponent
        velocity = _keyboardInput.normalized() * moveSpeed;
     }
 
-    // Salva a direção para o dash
-    if(velocity != Vector2.zero()) velocityDash = velocity;
+    if(velocity != Vector2.zero()){
+      velocityDash = velocity;
+      _handleDustEffect(dt);
+    } 
     
     position += velocity * dt;
   }
@@ -254,20 +259,17 @@ class Player extends PositionComponent
     print("DASH!");
   }
 
-  void _handleDashMovement(double dt) {
-    _dashTimer -= dt;
-    position += _dashDirection * dashSpeed * dt;
-
+  void _handleDustEffect(double dt){
     _dustSpawnTimer -= dt;
     if (_dustSpawnTimer <= 0) {
-      // Reinicia o timer (0.05 significa uma nuvem a cada 0.05 segundos)
-      _dustSpawnTimer = 0.025; 
+      
+      _dustSpawnTimer = 0.05; 
       
       // Cria um deslocamento aleatório para a poeira não sair em linha reta perfeita
       final rng = Random();
       final offset = Vector2(
-        (rng.nextDouble() - 0.5) * 10, // -5 a +5 no X
-        (rng.nextDouble() - 0.5) * 10 + 10 // +5 a +15 no Y (Perto do pé)
+        0,//(rng.nextDouble() - 0.5) * 10, // -5 a +5 no X
+        size.y/2//(rng.nextDouble() - 0.5) * 10 + 10 // +5 a +15 no Y (Perto do pé)
       );
 
       // Adiciona a partícula no MUNDO (não dentro do player, senão ela se move junto com ele)
@@ -275,6 +277,31 @@ class Player extends PositionComponent
         position: position + offset,
       ));
     }
+  }
+
+  void _createGhostEffect(double dt) {
+    final visual = children.whereType<GameIcon>().first;
+
+    _ghostTimer += dt;
+    if (_ghostTimer >= 0.025) {
+      gameRef.world.add(
+        GhostParticle(
+          icon: visual.icon,
+          color: Pallete.branco.withOpacity(0.3),
+          position: position.clone(), 
+          size: size,
+          anchor: anchor,
+          scale: visual.scale
+        ),
+      );
+      _ghostTimer = 0;
+    }
+  }
+
+  void _handleDashMovement(double dt) {
+    _dashTimer -= dt;
+    _createGhostEffect(dt);
+    position += _dashDirection * dashSpeed * dt;
 
     if (_dashTimer <= 0) {
       isDashing = false;
@@ -413,6 +440,13 @@ class Player extends PositionComponent
     dashCooldown = 2.5; 
     invincibilityDuration = 0.5;
     isBerserk = false;
+    isAudaz = false;
+    isFreeze = false;
+    isBebado = false;
+    hasOrbShield = false;
+    hasFoice = false;
+    magicShield = false;
+    hasShield = false;
 
     children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
   }

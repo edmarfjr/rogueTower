@@ -1,19 +1,28 @@
 import 'package:flame/components.dart';
+import 'package:flame/src/game/notifying_vector2.dart';
 import 'package:flutter/material.dart';
 
 class GameIcon extends PositionComponent {
   final IconData icon;
-  
-  // Mudança 1: Tornamos a cor privada e mutável (sem 'final')
-  Color _color; 
+  Color color;
 
   GameIcon({
     required this.icon,
-    required Color color, // Recebe a cor inicial
-    super.size,
-    super.position,
-    super.anchor = Anchor.center,
-  }) : _color = color; // Inicializa a variável privada
+    required this.color,
+    required Vector2 size,
+    Vector2? scale, // Agora é opcional (sem o 'required')
+    Anchor anchor = Anchor.center,
+    Vector2? position,
+  }) : super(
+          size: size,
+          anchor: anchor,
+          position: position,
+        ) {
+    // Se um scale foi passado no construtor, aplica ele
+    if (scale != null) {
+      this.scale.setFrom(scale);
+    }
+  } // Inicializa a variável privada
 
   final TextPainter _textPainter = TextPainter(
     textDirection: TextDirection.ltr,
@@ -22,7 +31,7 @@ class GameIcon extends PositionComponent {
 
   // --- MÉTODO NOVO: Necessário para o Boss piscar ao tomar dano ---
   void setColor(Color newColor) {
-    _color = newColor;
+    color = newColor;
     _updatePainter(); // Força o redesenho com a nova cor
   }
 
@@ -35,7 +44,7 @@ class GameIcon extends PositionComponent {
     _textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        color: _color, // Mudança 2: Usa a cor mutável
+        color: color, // Mudança 2: Usa a cor mutável
         fontSize: size.x, 
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,

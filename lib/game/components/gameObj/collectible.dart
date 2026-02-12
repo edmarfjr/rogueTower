@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/interact_button.dart';
+import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart'; // Necessário para o TapCallbacks
@@ -12,8 +14,8 @@ import '../effects/floating_text.dart';
 
 enum CollectibleType { 
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest,
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche,critChance,critDamage, 
-  berserk, audacious, steroids, cafe, freeze,magicShield,alcool
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, 
+  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -26,6 +28,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
   final double _pickupRange = 60.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
+  InteractButton? _currentButton;
 
   Collectible({
     required Vector2 position, 
@@ -106,10 +109,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     );
 
     // 3. Botão de Pegar
-    final btn = PickupButton(
-      onPressed: _collectItem,
-      size: Vector2(80, 24),
-    )..position = Vector2(0, -50); 
+    final btn = InteractButton(
+      onTrigger: _collectItem,
+    )..position = Vector2(0, -50);
 
     _infoGroup.add(textName);
     _infoGroup.add(textDesc);
@@ -159,6 +161,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
     if (!naoEsgota) removeFromParent();
     
+    
   }
 
   // Helper para pegar dados visuais e textos (Nome, Descrição, Ícone, Cor)
@@ -207,7 +210,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.freeze:
         return {'name': 'Gelo', 'desc': 'Congela inimigos', 'icon': Icons.ac_unit, 'color': Pallete.azulCla};
       case CollectibleType.magicShield:
-        return {'name': 'Escudo Magico', 'desc': 'Protege contra um ataque, regenera quando entra em uma nova sala', 'icon': MdiIcons.shieldCrown, 'color': Pallete.amarelo};
+        return {'name': 'Escudo Magico', 'desc': 'Protege contra um ataque, regenera quando entra em uma nova sala', 'icon': MdiIcons.shieldSun, 'color': Pallete.amarelo};
+      case CollectibleType.orbitalShield:
+        return {'name': 'Escudo Orbital', 'desc': 'escudos que destroem projéteis inimigos', 'icon': MdiIcons.shieldRefresh, 'color': Pallete.lilas};
+      case CollectibleType.foice:
+        return {'name': 'Foice Orbital', 'desc': 'foices que ferem inimigos', 'icon': MdiIcons.sickle, 'color': Pallete.lilas};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -246,10 +253,12 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.cafe,  
       CollectibleType.alcool,
     ];
-    if (player.isBerserk) itens.add(CollectibleType.berserk);
-    if (player.isAudaz) itens.add(CollectibleType.audacious);
-    if (player.isFreeze) itens.add(CollectibleType.freeze);
-    if (player.magicShield) itens.add(CollectibleType.magicShield);
+    if (!player.isBerserk) itens.add(CollectibleType.berserk);
+    if (!player.isAudaz) itens.add(CollectibleType.audacious);
+    if (!player.isFreeze) itens.add(CollectibleType.freeze);
+    if (!player.magicShield) itens.add(CollectibleType.magicShield);
+    if (!player.hasOrbShield) itens.add(CollectibleType.orbitalShield);
+    if (!player.hasFoice) itens.add(CollectibleType.foice);
 
     return itens;
   }
@@ -276,46 +285,14 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.cafe,  
       CollectibleType.alcool,
     ];
-    if (player.isBerserk) itRaros.add(CollectibleType.berserk);
-    if (player.isAudaz) itRaros.add(CollectibleType.audacious);
-    if (player.isFreeze) itRaros.add(CollectibleType.freeze);
-    if (player.magicShield) itRaros.add(CollectibleType.magicShield);
+    if (!player.isBerserk) itRaros.add(CollectibleType.berserk);
+    if (!player.isAudaz) itRaros.add(CollectibleType.audacious);
+    if (!player.isFreeze) itRaros.add(CollectibleType.freeze);
+    if (!player.magicShield) itRaros.add(CollectibleType.magicShield);
+    if (!player.hasOrbShield) itRaros.add(CollectibleType.orbitalShield);
+    if (!player.hasFoice) itRaros.add(CollectibleType.foice);
     return itRaros ;
   }
-
-// =============================================================================
-// COMPONENTE DO BOTÃO
-// =============================================================================
-class PickupButton extends PositionComponent with TapCallbacks {
-  final VoidCallback onPressed;
-
-  PickupButton({required this.onPressed, required Vector2 size}) 
-    : super(size: size, anchor: Anchor.center);
-
-  @override
-  void render(Canvas canvas) {
-    // Desenha o fundo do botão
-    final paintBg = Paint()..color = Pallete.verdeCla;
-    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBg);
-
-    // Desenha borda
-    final paintBorder = Paint()..color = Pallete.branco..style = PaintingStyle.stroke..strokeWidth = 2;
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(8)), paintBorder);
-
-    // Texto "PEGAR" ou Ícone de Mão
-    const textStyle = TextStyle(color: Pallete.branco, fontSize: 12, fontWeight: FontWeight.bold);
-    const textSpan = TextSpan(text: "PEGAR", style: textStyle);
-    final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr);
-    textPainter.layout();
-    textPainter.paint(canvas, Offset((size.x - textPainter.width) / 2, (size.y - textPainter.height) / 2));
-  }
-
-  @override
-  void onTapDown(TapDownEvent event) {
-    onPressed();
-  }
-}
 
 // Classe auxiliar apenas para simular a lógica antiga que você já tem
 class CollectibleOriginalLogic {
@@ -465,6 +442,21 @@ class CollectibleOriginalLogic {
           text = "+ 15% Crit. Damage";
           color = Pallete.amarelo;
           break;
+
+        case CollectibleType.orbitalShield:
+          game.world.add(OrbitalShield(angleOffset: 0, owner: player));
+          game.world.add(OrbitalShield(angleOffset: pi, owner: player));
+          text = "Escudos Orbitais!";
+          color = Pallete.azulCla;
+          break;
+
+        case CollectibleType.foice:
+          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFoice: true, radius: 20, speed:5));
+          game.world.add(OrbitalShield(angleOffset: 2*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
+          game.world.add(OrbitalShield(angleOffset: 4*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
+          text = "Foices Orbitais!";
+          color = Pallete.azulCla;
+          break;  
 
         default:
           text = "";

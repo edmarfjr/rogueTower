@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'enemy_behaviors.dart';
 class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
   double _initTimer = 0.5;
+  
   // Status
   double hp;
   double speed;
@@ -39,6 +41,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   final double _animSpeed = 15.0;
   bool animado;
   bool flipOposto;
+  double _ghostTimer = 0;
+  bool hasGhostEffect;
   
   // COMPONENTES DE LÓGICA (Strategy Pattern)
   late MovementBehavior movementBehavior;
@@ -62,6 +66,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.voa = false,
     this.animado = true,
     this.flipOposto = false,
+    this.hasGhostEffect = false,
     this.iconData = Icons.pest_control_rodent,
     this.originalColor = Pallete.vermelho,
     Vector2? size,
@@ -103,23 +108,37 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     super.update(dt);
-    
-    // 1. Executa Comportamentos
     movementBehavior.update(dt);
     attackBehavior.update(dt);
     attack2Behavior?.update(dt);
     
-
-    // 2. Mantém na Arena (Lógica Global)
     _keepInsideArena();
 
-    // 3. Status Effects (Freeze, Hit Flash)
     _updateStatus(dt);
 
     if ( animado )_animateEnemy(dt);
   }
   
-  // Substitua o método antigo por este:
+ void _createGhostEffect(double dt) {
+    final visual = children.whereType<GameIcon>().first;
+
+    
+    _ghostTimer += dt;
+    if (_ghostTimer >= 0.025) {
+      gameRef.world.add(
+        GhostParticle(
+          icon: visual.icon,
+          color: originalColor.withOpacity(0.3),
+          position: position.clone(), 
+          size: size,
+          anchor: anchor,
+          scale: visual.scale
+        ),
+      );
+      _ghostTimer = 0;
+    }
+  }
+  
   void _animateEnemy(double dt) {
     final visual = children.whereType<GameIcon>().firstOrNull;
     if (visual == null) return;
@@ -178,6 +197,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     // Atualiza a posição anterior para o próximo frame
     _lastPosition.setFrom(position);
+
+      if(hasGhostEffect) _createGhostEffect(dt);
   }
 
   @override
@@ -296,5 +317,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         children.whereType<GameIcon>().firstOrNull?.setColor(cor);
       }
     }
+
   }
 }

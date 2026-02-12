@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
+import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
+import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -271,6 +273,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
     world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
+    world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
     
     startLevel();
   }
@@ -304,6 +307,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Wall>().forEach((w) => w.removeFromParent());
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
     world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
+    world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
+     world.children.query<OrbitalShield>().forEach((c) => c.removeFromParent());
 
     player.reset();
     camera.follow(player);

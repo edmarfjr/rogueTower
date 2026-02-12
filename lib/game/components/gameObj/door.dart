@@ -20,7 +20,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   @override
   Future<void> onLoad() async {
-    _updateDoorIcon(Icons.door_front_door, Pallete.cinzaEsc);
+    _updateDoorIcon(MdiIcons.tunnel, Pallete.cinzaEsc);
 
     add(RectangleHitbox(
       size: size,
@@ -64,7 +64,10 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         iconData = Icons.vpn_key;
         break;
       case CollectibleType.chest:
-        iconData = Icons.lock;
+        iconData = MdiIcons.packageVariantClosed;
+        break;
+      case CollectibleType.rareChest:
+        iconData = MdiIcons.treasureChest;
         break;
       case CollectibleType.shop:
         iconData = Icons.store_mall_directory;
@@ -102,7 +105,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     isOpen = true;
     
     // Troca para porta aberta
-    _updateDoorIcon(Icons.meeting_room, Pallete.lilas);
+    _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
     
     _addRewardIcon();
     

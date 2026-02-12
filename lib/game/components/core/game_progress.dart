@@ -19,7 +19,7 @@ class GameProgress {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     // Atualiza o .value do notificador
-    soulsNotifier.value = prefs.getInt(_soulsKey) ?? 0;
+    soulsNotifier.value = 200;//prefs.getInt(_soulsKey) ?? 0;
     bankNotifier.value = prefs.getInt(_bankKey) ?? 0;
     unlockedItems = prefs.getStringList(_unlocksKey) ?? [];
   }

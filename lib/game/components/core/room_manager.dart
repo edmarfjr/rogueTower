@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flame/components.dart';
+// ignore: implementation_imports
 import 'package:flutter/src/foundation/change_notifier.dart';
 import '../../tower_game.dart';
 
@@ -15,8 +16,7 @@ import '../core/pallete.dart';
 
 // --- NOVA INTEGRAÇÃO DE INIMIGOS ---
 import '../enemies/enemy.dart'; 
-import '../enemies/enemy_factory.dart'; // <--- O novo arquivo fábrica
-import '../enemies/enemy_boss2.dart';   // Mantemos o Boss separado por ser único
+import '../enemies/enemy_factory.dart'; 
 
 // Define a assinatura da função que cria inimigos
 typedef EnemyFactoryFunction = Enemy Function(Vector2 position);
@@ -44,7 +44,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   final List<EnemyFactoryFunction> _enemyRoster2 = [
     (pos) => EnemyFactory.createBat(pos), 
-    (pos) => EnemyFactory.createSnake(pos),  
+    (pos) => EnemyFactory.createGhost(pos),  
     (pos) => EnemyFactory.createMere(pos),  
     (pos) => EnemyFactory.createSpider(pos),  
     (pos) => EnemyFactory.createCoffin(pos),  
@@ -165,8 +165,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     while (enemiesSpawned < targetEnemyCount && attempts < 100) {
       attempts++;
 
-      double x = (rng.nextDouble() * 180) - 180;
-      double y = (rng.nextDouble() * 150) - 200;
+      double x = (rng.nextDouble() * 200) - 100;
+      double y = (rng.nextDouble() * 250) - 200;
       final pos = Vector2(x, y);
 
       // Zona segura no centro para o player nascer
@@ -211,8 +211,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       return;
     }
 
-    final rng = Random();
-
     // Pool de Recompensas
     Set<CollectibleType> possibleRewards = {
       CollectibleType.coin,
@@ -225,9 +223,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (roomNumber > 1){
       possibleRewards.add(CollectibleType.rareChest);
+
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
       }
+
       if (gameRef.nextRoomReward != CollectibleType.bank && !teveBanco){
         possibleRewards.add(CollectibleType.bank);
       }
@@ -313,7 +313,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     switch (gameRef.currentLevel){
       case 1:
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, -60),
+          position: Vector2(-80, -100),
           id: 'permanent_shield_1', 
           type: CollectibleType.shield,
           soulCost: 200,
@@ -327,7 +327,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 60),
+          position: Vector2(-80, 100),
           id: 'permanent_fire_rate_1', 
           type: CollectibleType.fireRate,
           soulCost: 900,
@@ -369,7 +369,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       door.open();
     }
     
-    if (gameRef.nextRoomReward == CollectibleType.chest) {
+    if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop){
+      return;
+    } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
