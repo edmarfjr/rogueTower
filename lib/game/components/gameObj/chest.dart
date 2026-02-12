@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flame/events.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../core/pallete.dart';
 import 'package:flame/collisions.dart';
@@ -13,6 +14,7 @@ import 'collectible.dart';
 
 class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   bool _isOpen = false;
+  bool isLock;
   
   // Guardamos a referência do ícone para trocar (fechado -> aberto)
   GameIcon? _iconComponent;
@@ -22,13 +24,17 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   final double _pickupRange = 60.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
 
-  Chest({required Vector2 position}) 
+  Chest({required Vector2 position, this.isLock = false}) 
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     // 1. Visual (Baú Fechado)
-    _updateIcon(Icons.lock, Pallete.marrom); // Dourado escuro
+    if(isLock){
+      _updateIcon(MdiIcons.treasureChest, Pallete.laranja);
+    }else{
+      _updateIcon(MdiIcons.packageVariantClosed, Pallete.marrom);
+    } 
 
     // 2. Hitbox Sólida (Player não atravessa o baú)
     add(RectangleHitbox(
@@ -95,38 +101,23 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
 
   void _openChest() {
-    if (gameRef.keysNotifier.value <= 0) {
+    if (gameRef.keysNotifier.value <= 0 && isLock) {
       return;
     }
     _isOpen = true;
     
     // Consome a chave
-    gameRef.keysNotifier.value--;
+    if(isLock)gameRef.keysNotifier.value--;
     
     // Muda visual
-    _updateIcon(Icons.lock_open, const Color(0xFFF0E68C)); 
+    //_updateIcon(Icons.lock_open, const Color(0xFFF0E68C)); 
     
     final rng = Random();
 
-    // 1. Defina aqui QUAIS itens podem sair do baú
-    // (Coloque os nomes dos seus 5 upgrades aqui dentro)
-    final List<CollectibleType> possibleRewards = [
-      CollectibleType.damage,
-      CollectibleType.fireRate,
-      CollectibleType.moveSpeed, 
-      CollectibleType.range, 
-      CollectibleType.healthContainer,
-      CollectibleType.steroids,
-      CollectibleType.cafe,  
-      CollectibleType.keys,
-      CollectibleType.dash,
-      CollectibleType.sanduiche,
-      CollectibleType.alcool,
-    ];
-    if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
-    if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
-    if (!gameRef.player.isFreeze) possibleRewards.add(CollectibleType.freeze);
-    if (!gameRef.player.magicShield) possibleRewards.add(CollectibleType.magicShield);
+    
+    List<CollectibleType> possibleRewards = retornaItensComuns();
+
+    if(isLock) possibleRewards = retornaItensRaros(game.player);
 
     // 2. Sorteia um índice aleatório da lista (0 até o tamanho da lista - 1)
     // rng.nextInt(N) retorna um número de 0 a N-1.
@@ -138,7 +129,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       type: lootType,
     ));
 
-    print("Baú aberto! Dropou: $lootType");
+    removeFromParent();
   }
   
 }

@@ -11,8 +11,8 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 
 enum CollectibleType { 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, 
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, 
+  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest,
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche,critChance,critDamage, 
   berserk, audacious, steroids, cafe, freeze,magicShield,alcool
 }
 
@@ -177,9 +177,13 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.chest:
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:
-        return {'name': 'Força', 'desc': 'Aumenta Dano', 'icon': MdiIcons.sword, 'color': Pallete.vermelho};
+        return {'name': 'Poção de Força', 'desc': 'Aumenta Dano', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.vermelho};
+      case CollectibleType.critChance:
+        return {'name': 'Poção de Critico', 'desc': 'Aumenta Chance de Critico', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.cinzaCla};
+      case CollectibleType.critDamage:
+        return {'name': 'Poção de Dano Critico', 'desc': 'Aumenta Dano Critico', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.lilas};
       case CollectibleType.fireRate:
-        return {'name': 'Gatilho Rápido', 'desc': 'Atira mais rápido', 'icon': Icons.double_arrow, 'color': Pallete.vermelho};
+        return {'name': 'Poção de taxa de tiro', 'desc': 'Atira mais rápido', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.laranja};
       case CollectibleType.moveSpeed:
         return {'name': 'Botas', 'desc': 'Corre mais rápido', 'icon': MdiIcons.shoeSneaker, 'color': Pallete.azulCla};
       case CollectibleType.range:
@@ -223,7 +227,61 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       // Cole o conteúdo original do seu método applyEffect aqui.
       return CollectibleOriginalLogic.applyEffect(type: type, game: game);
   }
+
 }
+
+List<CollectibleType> retornaItens(player){
+     List<CollectibleType> itens = [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.healthContainer,
+      CollectibleType.keys,
+      CollectibleType.dash,
+      CollectibleType.sanduiche,
+      CollectibleType.critChance,
+      CollectibleType.critDamage,
+      CollectibleType.steroids,
+      CollectibleType.cafe,  
+      CollectibleType.alcool,
+    ];
+    if (player.isBerserk) itens.add(CollectibleType.berserk);
+    if (player.isAudaz) itens.add(CollectibleType.audacious);
+    if (player.isFreeze) itens.add(CollectibleType.freeze);
+    if (player.magicShield) itens.add(CollectibleType.magicShield);
+
+    return itens;
+  }
+
+
+List<CollectibleType> retornaItensComuns(){
+    return [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.healthContainer,
+      CollectibleType.keys,
+      CollectibleType.dash,
+      CollectibleType.sanduiche,
+      CollectibleType.critChance,
+      CollectibleType.critDamage
+    ];
+  }
+
+  List<CollectibleType> retornaItensRaros(player){
+    List<CollectibleType> itRaros =[
+      CollectibleType.steroids,
+      CollectibleType.cafe,  
+      CollectibleType.alcool,
+    ];
+    if (player.isBerserk) itRaros.add(CollectibleType.berserk);
+    if (player.isAudaz) itRaros.add(CollectibleType.audacious);
+    if (player.isFreeze) itRaros.add(CollectibleType.freeze);
+    if (player.magicShield) itRaros.add(CollectibleType.magicShield);
+    return itRaros ;
+  }
 
 // =============================================================================
 // COMPONENTE DO BOTÃO
@@ -300,19 +358,19 @@ class CollectibleOriginalLogic {
         case CollectibleType.key:
           game.keysNotifier.value++;
           text = "Key!";
-          color = Pallete.laranja; // Ciano/Laranja
+          color = Pallete.branco; // Ciano/Laranja
           break;
 
         case CollectibleType.keys:
           game.keysNotifier.value+=10;
           text = "Keys!";
-          color = Pallete.laranja; // Ciano/Laranja
+          color = Pallete.branco; // Ciano/Laranja
           break;
           
         case CollectibleType.damage:
           player.increaseDamage();
           text = "+ Damage!";
-          color = Pallete.azulCla; // Laranja
+          color = Pallete.branco; // Laranja
           break;
           
         case CollectibleType.fireRate:
@@ -396,10 +454,15 @@ class CollectibleOriginalLogic {
           color = Pallete.vermelho;
           break;
 
-        case CollectibleType.chest:
-          // Exemplo: Baú dá muito ouro
-          game.coinsNotifier.value += 50;
-          text = "+ 50\$ (Chest)";
+        case CollectibleType.critChance:
+          player.critChance += 5;
+          text = "+ 5% Crit. Chance";
+          color = Pallete.amarelo;
+          break;
+
+        case CollectibleType.critDamage:
+          player.critDamage *= 1.15;
+          text = "+ 15% Crit. Damage";
           color = Pallete.amarelo;
           break;
 
@@ -407,6 +470,6 @@ class CollectibleOriginalLogic {
           text = "";
           break;
        }
-       return {'text': text, 'color': color};
+       return {'text': text, 'color': Pallete.branco};
    }
 }

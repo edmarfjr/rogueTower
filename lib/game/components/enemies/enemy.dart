@@ -218,7 +218,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void takeDamage(double damage) {
     if (hp <= 0) return;
-    hp -= damage;
+    bool isCrit = false;
+    double dmg = damage;
+    double critChance = Random().nextDouble() * 100;
+
+    if (critChance <= gameRef.player.critChance) {
+      dmg *= gameRef.player.critDamage;
+      isCrit = true;
+    }
+    hp -= dmg;
     
     // Lógica de Freeze
     if(gameRef.player.isFreeze){
@@ -236,11 +244,19 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
     }
 
+    Color cor = Pallete.branco;
+    double fontSize = 14;
+
+    if(isCrit){
+      cor = Pallete.amarelo;
+      fontSize = 18;
+    } 
+
     gameRef.world.add(FloatingText(
-      text: damage.toInt().toString(),
+      text: dmg.toInt().toString(),
       position: position + Vector2(0, -10), 
-      color: Colors.white, 
-      fontSize: 14,
+      color: cor, 
+      fontSize: fontSize,
     ));
 
     if (hp <= 0) {

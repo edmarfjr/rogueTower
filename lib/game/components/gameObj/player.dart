@@ -30,6 +30,8 @@ class Player extends PositionComponent
   late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
+  double critChance = 5;
+  double critDamage = 2.0;
   double fireRate = 0.4; 
   double moveSpeed = 150.0;
 
@@ -402,6 +404,8 @@ class Player extends PositionComponent
     attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;
+    critChance = 5;
+    critDamage = 2.0;
     fireRate = 0.4; 
     moveSpeed = 150.0;
     dashDuration = 0.2; 

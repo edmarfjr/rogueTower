@@ -170,7 +170,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       final pos = Vector2(x, y);
 
       // Zona segura no centro para o player nascer
-      if (pos.distanceTo(Vector2.zero()) < 140) {
+      if (pos.distanceTo(Vector2(0,180)) < 140) {
         continue; 
       }
 
@@ -220,10 +220,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.shield,
       CollectibleType.key,
       CollectibleType.healthContainer,
+      CollectibleType.chest,
     };
 
     if (roomNumber > 1){
-      possibleRewards.add(CollectibleType.chest);
+      possibleRewards.add(CollectibleType.rareChest);
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
       }
@@ -368,11 +369,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       door.open();
     }
     
-    // Cria a recompensa no centro
     if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0)));
-      
+    } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
+      _explosaoCriaItem();
+      gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));
     } else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
       _generateZeroRoom();
     } else if (gameRef.nextRoomReward == CollectibleType.boss){
@@ -392,23 +394,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
      final rng = Random();
 
-    final List<CollectibleType> possibleRewards = [
-      CollectibleType.damage,
-      CollectibleType.fireRate,
-      CollectibleType.moveSpeed, 
-      CollectibleType.range, 
-      CollectibleType.healthContainer,
-      CollectibleType.steroids,
-      CollectibleType.cafe, 
-      CollectibleType.keys, 
-      CollectibleType.dash, 
-      CollectibleType.sanduiche,
-      CollectibleType.alcool,
-    ];
-    if (!gameRef.player.isBerserk) possibleRewards.add(CollectibleType.berserk);
-    if (!gameRef.player.isAudaz) possibleRewards.add(CollectibleType.audacious);
-    if (!gameRef.player.isFreeze) possibleRewards.add(CollectibleType.freeze);
-    if (!gameRef.player.magicShield) possibleRewards.add(CollectibleType.magicShield);
+    final List<CollectibleType> possibleRewards = retornaItens(gameRef.player);
 
     final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
     
