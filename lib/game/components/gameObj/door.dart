@@ -133,7 +133,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         iconData = MdiIcons.bank;
         break;
       case CollectibleType.alquimista:
-        iconData = MdiIcons.flaskEmptyOffOutline;
+        iconData = MdiIcons.flaskEmptyOutline;
         break;
       default:
         iconData = Icons.help_outline;
@@ -234,7 +234,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         
         
         // Esconde o botão após clicar
-        _hideButton();
+        //_hideButton();
       },
     );
 

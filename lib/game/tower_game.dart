@@ -35,7 +35,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   late CircleComponent joystickBase;
   late CircleComponent joystickKnob;
   
-  final double _maxRadius = 60.0; 
+  final double _maxRadius = 40.0; 
   bool _isDragging = false;
   
   // Variável pública para o Player ler

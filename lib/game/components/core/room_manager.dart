@@ -360,8 +360,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       bool isBomba1 = Random().nextBool();
       bool isBomba2 = Random().nextBool();
       bool isBomba3 = Random().nextBool();
-      _generatePocoesAleatorias(Vector2(80,50), 2,isBomba1); 
-      _generatePocoesAleatorias(Vector2(80,0), 2,isBomba2); 
+      _generatePocoesAleatorias(Vector2(-80,-50), 2,isBomba1); 
+      _generatePocoesAleatorias(Vector2(0,-50), 2,isBomba2); 
       _generatePocoesAleatorias(Vector2(80,-50), 2,isBomba3); 
   }
 
@@ -447,7 +447,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       door.open();
     }
     
-    if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop){
+    if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop
+    || gameRef.nextRoomReward == CollectibleType.alquimista){
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
@@ -484,7 +485,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _generatePocoesAleatorias(Vector2 pos, int preco, bool isBomba ) {
      final rng = Random();
 
-    final List<CollectibleType> possibleRewards = retornaItens(gameRef.player);
+    final List<CollectibleType> possibleRewards = retornaPocoes();
 
     final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
 

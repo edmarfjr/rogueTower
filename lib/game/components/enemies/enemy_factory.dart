@@ -137,7 +137,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 200,
-      speed: 100,
+      speed: 80,
       size: Vector2.all(80),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
@@ -155,7 +155,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 100,
-      speed: 150,
+      speed: 100,
       size: Vector2.all(64),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
@@ -173,12 +173,12 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 50,
-      speed: 180,
+      speed: 120,
       size: Vector2.all(32),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
       movementBehavior: BouncerBehavior(),
-      attackBehavior: ProjectileAttackBehavior(interval: 2.0),
+      attackBehavior: NoAttackBehavior(),
     //  deathBehavior: SpawnOnDeathBehavior(
      //   count: 2,
      //   minionBuilder: (p) => EnemyFactory.createSlimeP(p),

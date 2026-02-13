@@ -70,6 +70,28 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
 
+    if (custoKeys > 0){
+      add(TextComponent(
+        text: "Keys: $custoKeys",
+        textRenderer: TextPaint(
+          style: const TextStyle(fontSize: 14, color: Pallete.laranja, fontWeight: FontWeight.bold),
+        ),
+        anchor: Anchor.topCenter,
+        position: Vector2(size.x / 2, size.y + 5),
+      ));
+    }
+
+    if (custoBombs > 0){
+      add(TextComponent(
+        text: "Bombs: $custoBombs",
+        textRenderer: TextPaint(
+          style: const TextStyle(fontSize: 14, color: Pallete.cinzaEsc, fontWeight: FontWeight.bold),
+        ),
+        anchor: Anchor.topCenter,
+        position: Vector2(size.x / 2, size.y + 5),
+      ));
+    }
+
   }
 
   @override
