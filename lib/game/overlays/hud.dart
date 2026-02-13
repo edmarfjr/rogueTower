@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import '../tower_game.dart';
 import '../components/core/pallete.dart'; 
+import '../components/core/i18n.dart';
 
 class Hud extends StatelessWidget {
   final TowerGame game;
@@ -108,13 +109,13 @@ class Hud extends StatelessWidget {
                     valueListenable: game.coinsNotifier,
                     builder: (context, coins, child) {
                       return Text(
-                        "\$ $coins",
+                        "\$ : $coins",
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Pallete.amarelo,
                           shadows: [
-                            Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
+                            Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))
                           ],
                           decoration: TextDecoration.none,
                         ),
@@ -126,17 +127,27 @@ class Hud extends StatelessWidget {
                   ValueListenableBuilder<int>(
                     valueListenable: game.keysNotifier,
                     builder: (context, keys, child) {
-                      return Text(
-                        "Keys $keys",
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Pallete.laranja,
-                          shadows: [
-                            Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
-                          ],
-                          decoration: TextDecoration.none,
-                        ),
+                      return Row(
+                        children: [
+                          const Icon(
+                            Icons.key, // Ou MdiIcons.fire
+                            color: Pallete.laranja,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            ": $keys", 
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Pallete.laranja,
+                              shadows: [
+                                Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))
+                              ],
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -147,17 +158,27 @@ class Hud extends StatelessWidget {
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.bombNotifier,
                     builder: (context, bombs, child) {
-                      return Text(
-                        "Bombs: $bombs",
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Pallete.cinzaEsc,
-                          shadows: [
-                            Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
-                          ],
-                          decoration: TextDecoration.none,
-                        ),
+                      return Row(
+                        children: [
+                           Icon(
+                            MdiIcons.bomb, // Ou MdiIcons.fire
+                            color: Pallete.lilas,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            ": $bombs", 
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Pallete.lilas,
+                              shadows: [
+                                Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))
+                              ],
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -177,13 +198,13 @@ class Hud extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            "$souls", 
+                            ": $souls", 
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Pallete.lilas,
                               shadows: [
-                                Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
+                                Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))
                               ],
                               decoration: TextDecoration.none,
                             ),

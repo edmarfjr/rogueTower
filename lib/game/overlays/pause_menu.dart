@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
+import '../components/core/i18n.dart';
 
 class PauseMenu extends StatelessWidget {
   final TowerGame game;
@@ -37,9 +38,9 @@ class PauseMenu extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'PAUSADO',
-                style: TextStyle(
+              Text(
+                'paused'.tr(),
+                style: const TextStyle(
                   fontSize: 30,
                   color: Pallete.branco,
                   fontWeight: FontWeight.bold,
@@ -58,23 +59,23 @@ class PauseMenu extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildStatRow(Icons.favorite, 'Vida: ', '$hp / $maxHp', Pallete.branco),
+                    _buildStatRow(Icons.favorite, 'health'.tr(), '$hp / $maxHp', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(MdiIcons.sword, 'Dano: ', '$dmg%', Pallete.branco),
+                    _buildStatRow(MdiIcons.sword, 'dmg'.tr(), '$dmg%', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(MdiIcons.sword, 'Taxa de tiro: ', '$fireRate%', Pallete.branco),
+                    _buildStatRow(MdiIcons.sword, 'fire_rate'.tr(), '$fireRate%', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'Alcance: ', '$range%', Pallete.branco),
+                    _buildStatRow(Icons.whatshot, 'range'.tr(), '$range%', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'Chance Crit.: ', '$critChance%', Pallete.branco),
+                    _buildStatRow(Icons.whatshot, 'critChance'.tr(), '$critChance%', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'Dano Crit.: ', '$critDmg%', Pallete.branco),
+                    _buildStatRow(Icons.whatshot, 'critDmg'.tr(), '$critDmg%', Pallete.branco),
                     const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'Velocidade: ', '$speed%', Pallete.branco),
+                    _buildStatRow(Icons.whatshot, 'moveSpeed'.tr(), '$speed%', Pallete.branco),
                     
                     const Divider(color: Colors.white30, height: 20, thickness: 1),
                     
-                    _buildStatRow(Icons.map, 'Local', 'Nvl $level - Sala $room', Pallete.branco),
+                    _buildStatRow(Icons.map, 'location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room', Pallete.branco),
                   ],
                 ),
               ),
@@ -91,7 +92,7 @@ class PauseMenu extends StatelessWidget {
                 onPressed: () {
                   game.resumeGame();
                 },
-                child: const Text('Continuar', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
               const SizedBox(height: 15),
 
@@ -104,7 +105,7 @@ class PauseMenu extends StatelessWidget {
                 onPressed: () {
                   game.returnToMenu();
                 },
-                child: const Text('Menu Principal', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
             ],
           ),

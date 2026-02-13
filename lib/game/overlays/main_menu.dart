@@ -1,3 +1,4 @@
+import '../components/core/i18n.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
@@ -40,9 +41,33 @@ class MainMenu extends StatelessWidget {
                     game.startGame();
                   //});  
                 },
-                child: const Text(
-                  'JOGAR',
-                  style: TextStyle(
+                child: Text(
+                  'play'.tr(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Botão configuracoes
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Pallete.branco,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                onPressed: () {
+                  //game.transitionEffect.startTransition(() {
+                    game.overlays.add('SettingsMenu');
+                  //});  
+                },
+                child: Text(
+                  'settings'.tr(),
+                  style: const TextStyle(
                     fontSize: 20,
                     color: Colors.black,
                     fontWeight: FontWeight.bold,

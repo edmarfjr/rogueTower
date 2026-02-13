@@ -10,7 +10,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
   final VoidCallback onTrigger;
   String text;
 
-  InteractButton({required this.onTrigger, this.text = "PEGAR"}) 
+  InteractButton({required this.onTrigger, this.text = "!"}) 
       : super(size: Vector2(40, 40), anchor: Anchor.center);
 
   @override
@@ -38,7 +38,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
     ));
 
     add(GameIcon(
-      icon: MdiIcons.gestureTap, 
+      icon: MdiIcons.exclamationThick, 
       color: Pallete.amarelo, 
       size: size/2,
       anchor: Anchor.center, 

@@ -392,8 +392,6 @@ class SpinnerAttackBehavior extends AttackBehavior {
         changeDirAux = 0;
       }
 
-
-      
       for (var dir in directions) {
         enemy.gameRef.world.add(Projectile(
           position: enemy.position + dir * 20,
@@ -405,8 +403,7 @@ class SpinnerAttackBehavior extends AttackBehavior {
         ));
 
         if (isChangeDir) changeDirAux++;
-      }
-      
+      }     
       // Gira visualmente
       //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
       //visual?.angle += pi / 4;

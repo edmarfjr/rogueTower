@@ -193,6 +193,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         other.takeDamage(damage);
         kill();
       }
+      if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
+        other.removeFromParent();
+        kill();
+      }
     }
   }
 

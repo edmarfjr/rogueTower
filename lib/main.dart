@@ -8,6 +8,7 @@ import 'game/overlays/main_menu.dart';
 import 'game/overlays/pause_menu.dart';
 import 'game/overlays/game_over.dart';
 import 'game/overlays/victory_menu.dart';
+import 'game/overlays/settings_menu.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +39,8 @@ class GameEntry extends StatelessWidget {
             'PauseMenu': (context, game) => PauseMenu(game: game),
             'HUD': (context, game) => Hud(game: game),
             'GameOver': (context, game) => GameOver(game: game), 
-            'VictoryMenu': (context, game) => VictoryMenu(game: game), 
+            'VictoryMenu': (context, game) => VictoryMenu(game: game),
+            'SettingsMenu': (context, game) => SettingsMenu(game: game), 
           },
         ),
       )

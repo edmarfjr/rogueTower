@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,12 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final double radius;
   final double damage;
   final bool apagaTiros;
-  final bool damagesPlayer; // Se true, machuca player. Se false, machuca inimigos.
+  final bool damagesPlayer; 
   final Color cor;
   final Color corBorda; 
 
   double _timer = 0;
-  final double _duration = 0.2; // Explosão rápida
+  final double _duration = 0.4;
 
   Explosion({
     required Vector2 position,
@@ -52,6 +53,12 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       for(final p in projeteis){
          if (p.position.distanceTo(position) <= radius && p.isEnemyProjectile && apagaTiros) {
             p.removeFromParent(); 
+         }
+      }
+      final door = gameRef.world.children.query<Door>();
+      for(final d in door){
+         if (d.position.distanceTo(position) <= radius && d.bloqueada ) {
+            d.desbloqueia(); 
          }
       }
     }

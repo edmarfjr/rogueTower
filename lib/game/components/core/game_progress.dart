@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:flutter/foundation.dart'; // Necessário para ValueNotifier
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,9 +6,12 @@ class GameProgress {
   static const String _soulsKey = 'player_souls';
   static const String _unlocksKey = 'unlocked_items';
   static const String _bankKey = 'bank_balance';
+  static const String _langKey = 'game_language';
 
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
+
+  final ValueNotifier<String> languageNotifier = ValueNotifier('pt');
 
   int get bankBalance => bankNotifier.value;
   
@@ -22,6 +26,14 @@ class GameProgress {
     soulsNotifier.value = prefs.getInt(_soulsKey) ?? 0;
     bankNotifier.value = prefs.getInt(_bankKey) ?? 0;
     unlockedItems = prefs.getStringList(_unlocksKey) ?? [];
+
+    // --- LÓGICA DO IDIOMA ---
+    // Carrega o idioma salvo ou usa 'pt' como padrão
+    String savedLang = prefs.getString(_langKey) ?? 'pt';
+    languageNotifier.value = savedLang;
+    
+    // Aplica o idioma na classe I18n IMEDIATAMENTE ao carregar o jogo
+    I18n.currentLanguage = savedLang;
   }
 
   Future<void> addSouls(int amount) async {
@@ -75,5 +87,13 @@ class GameProgress {
 
   bool isUnlocked(String itemId) {
     return unlockedItems.contains(itemId);
+  }
+
+  Future<void> changeLanguage(String lang) async {
+    languageNotifier.value = lang;
+    I18n.currentLanguage = lang; // Atualiza a classe de traduções
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_langKey, lang); // Salva no disco
   }
 }

@@ -66,6 +66,7 @@ class Player extends PositionComponent
   bool hasShield = false;
   bool revive = false;
   bool pegouRevive = false;
+  bool hasAntimateria = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -387,7 +388,6 @@ class Player extends PositionComponent
     }else{
       gameRef.onGameOver();
     }
-    
   }
 
   void _handleAutoAttack(double dt) {
@@ -417,22 +417,22 @@ class Player extends PositionComponent
     double dmg = damage;
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
-    if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.33;
+    if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.3;
     if(isBebado){
       double angleOffset = Random().nextDouble() * 0.2;
       double x = direction.x * cos(angleOffset) - direction.y * sin(angleOffset);
       double y = direction.x * sin(angleOffset) + direction.y * cos(angleOffset);
       direction = Vector2(x, y);
-      dmg = dmg * 1.33;
+      dmg = dmg * 1.3;
     }
     
-    gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
+    gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg, apagaTiros: hasAntimateria));
   }
 
   void criaBomba(){
     if (bombNotifier.value > 0){
       bombNotifier.value--;
-      gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, apagaTiros: true));
+      gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, apagaTiros: true, radius:100));
     }else{
       gameRef.world.add(FloatingText(
         text: "Sem Bombas",
@@ -441,7 +441,6 @@ class Player extends PositionComponent
         fontSize: 12,
       ));
     }
-    
   }
 
   void reset() {
@@ -472,6 +471,7 @@ class Player extends PositionComponent
     hasShield = false;
     revive = false;
     pegouRevive = false;
+    hasAntimateria = false;
 
     children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
   }
@@ -479,7 +479,7 @@ class Player extends PositionComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Wall || other is Door && !other.isOpen || other is UnlockableItem) {
+    if (other is Wall || other is Door || other is UnlockableItem) {
       _handleWallCollision(intersectionPoints, other);
     }
   }

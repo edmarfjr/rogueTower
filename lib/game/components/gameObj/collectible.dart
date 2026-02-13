@@ -11,17 +11,20 @@ import '../../tower_game.dart';
 import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import '../effects/floating_text.dart';
+import '../core/i18n.dart';
 
 enum CollectibleType { 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba,
+  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista,
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas,
-  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive
+  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria,
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   final CollectibleType type;
   int custo;
   int souls;
+  int custoKeys;
+  int custoBombs;
   bool naoEsgota;
 
   // Controle de Interface
@@ -35,6 +38,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     required this.type, 
     this.custo = 0, 
     this.souls = 0, 
+    this.custoKeys = 0, 
+    this.custoBombs = 0, 
     this.naoEsgota=false
     }): super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
@@ -94,7 +99,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     // 1. Nome do Item
     final textName = TextComponent(
-      text: name,
+      text: name.toUpperCase(),
       textRenderer: TextPaint(style: const TextStyle(color: Pallete.amarelo, fontSize: 12, fontWeight: FontWeight.bold, backgroundColor: Colors.black54)),
       anchor: Anchor.bottomCenter,
       position: Vector2(0, -15),
@@ -102,7 +107,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     // 2. Descrição do Efeito
     final textDesc = TextComponent(
-      text: desc,
+      text: desc.toLowerCase(),
       textRenderer: TextPaint(style: const TextStyle(color: Pallete.branco, fontSize: 10, backgroundColor: Colors.black54)),
       anchor: Anchor.bottomCenter,
       position: Vector2(0, 0),
@@ -131,7 +136,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // Lógica original de coleta movida para cá
     
     // 1. Verificação de Custo
-    if (custo > 0) {
+    if (custo > 0 ) {
       if (gameRef.coinsNotifier.value < custo) {
         gameRef.world.add(FloatingText(
           text: "Sem dinheiro!",
@@ -145,12 +150,40 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
     }
 
+    if (custoKeys > 0 ) {
+      if (gameRef.keysNotifier.value < custoKeys) {
+        gameRef.world.add(FloatingText(
+          text: "Sem Chaves!",
+          position: position + Vector2(0, -20),
+          color: Pallete.vermelho,
+          fontSize: 10,
+        ));
+        return;
+      } else {
+        gameRef.coinsNotifier.value -= custoKeys;
+      }
+    }
+
+    if (custoBombs > 0 ) {
+      if (gameRef.player.bombNotifier.value < custoBombs) {
+        gameRef.world.add(FloatingText(
+          text: "Sem Bombas!",
+          position: position + Vector2(0, -20),
+          color: Pallete.vermelho,
+          fontSize: 10,
+        ));
+        return;
+      } else {
+        gameRef.coinsNotifier.value -= custoBombs;
+      }
+    }
+
     // 2. Aplica Efeito
     final feedback = Collectible.applyEffect(type: type, game: gameRef);
     String feedbackText = feedback['text'] as String;
     Color feedbackColor = feedback['color'] as Color;
 
-    // 3. Feedback Visual Final
+    /* 3. Feedback Visual Final
     if (feedbackText.isNotEmpty) {
       gameRef.world.add(FloatingText(
         text: feedbackText,
@@ -159,6 +192,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         fontSize: 12,
       ));
     }
+    */
     if (!naoEsgota) removeFromParent();
     
   }
@@ -167,59 +201,61 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   Map<String, dynamic> _getAttributes(CollectibleType t) {
     switch (t) {
       case CollectibleType.coin:
-        return {'name': 'Moeda', 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
+        return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
       case CollectibleType.potion:
-        return {'name': 'Coração', 'desc': 'Recupera Vida', 'icon': Icons.favorite, 'color': Pallete.vermelho};
+        return {'name': 'heart'.tr(), 'desc': 'heartDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
       case CollectibleType.sanduiche:
-        return {'name': 'Coração', 'desc': 'Recupera muita Vida', 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
+        return {'name': 'sanduiche'.tr(), 'desc': 'sanduiche'.tr(), 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
       case CollectibleType.key:
-        return {'name': 'Chave', 'desc': 'Abre portas', 'icon': Icons.vpn_key, 'color': Pallete.laranja};
+        return {'name': 'key'.tr(), 'desc': 'keyDesc'.tr(), 'icon': Icons.vpn_key, 'color': Pallete.laranja};
       case CollectibleType.keys:
-        return {'name': 'Chave', 'desc': 'Um molho de Chaves', 'icon': MdiIcons.keyChain, 'color': Pallete.laranja};
+        return {'name': 'keys'.tr(), 'desc': 'keysDesc'.tr(), 'icon': MdiIcons.keyChain, 'color': Pallete.laranja};
       case CollectibleType.bomba:
-        return {'name': 'Bomba', 'desc': 'Fere inimigos e destroi tiros', 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
+        return {'name': 'bomb'.tr(), 'desc': 'bombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
       case CollectibleType.bombas:
-        return {'name': 'Bombas', 'desc': 'Muitas Bombas', 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
+        return {'name': 'bombs'.tr(), 'desc': 'bombsDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
       case CollectibleType.chest:
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:
-        return {'name': 'Poção de Força', 'desc': 'Aumenta Dano', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.vermelho};
+        return {'name': 'potDmg'.tr(), 'desc': 'potDmgDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.vermelho};
       case CollectibleType.critChance:
-        return {'name': 'Poção de Critico', 'desc': 'Aumenta Chance de Critico', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.cinzaCla};
+        return {'name': 'potChCrit'.tr(), 'desc': 'potChCritDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.cinzaCla};
       case CollectibleType.critDamage:
-        return {'name': 'Poção de Dano Critico', 'desc': 'Aumenta Dano Critico', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.lilas};
+        return {'name': 'potDmgCrit'.tr(), 'desc': 'porDmgCritDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.lilas};
       case CollectibleType.fireRate:
-        return {'name': 'Poção de taxa de tiro', 'desc': 'Atira mais rápido', 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.laranja};
+        return {'name': 'potFireRate'.tr(), 'desc': 'potFireRateDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.laranja};
       case CollectibleType.moveSpeed:
-        return {'name': 'Botas', 'desc': 'Corre mais rápido', 'icon': MdiIcons.shoeSneaker, 'color': Pallete.azulCla};
+        return {'name': 'boots'.tr(), 'desc': 'bootsDesc'.tr(), 'icon': MdiIcons.shoeSneaker, 'color': Pallete.azulCla};
       case CollectibleType.range:
-        return {'name': 'Mira', 'desc': 'Aumenta Alcance', 'icon': Icons.gps_fixed, 'color': Pallete.azulCla};
+        return {'name': 'aim'.tr(), 'desc': 'aimDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.rosa};
       case CollectibleType.shield:
-        return {'name': 'Escudo', 'desc': 'Protege 1 hit', 'icon': MdiIcons.shield, 'color': Pallete.cinzaCla};
+        return {'name': 'shield'.tr(), 'desc': 'shieldDesc'.tr(), 'icon': MdiIcons.shield, 'color': Pallete.cinzaCla};
       case CollectibleType.dash:
-        return {'name': 'Dash', 'desc': '+ Dash', 'icon': MdiIcons.runFast, 'color': Pallete.verdeCla};
+        return {'name': 'dash'.tr(), 'desc': 'dashDesc'.tr(), 'icon': MdiIcons.runFast, 'color': Pallete.verdeCla};
       case CollectibleType.healthContainer:
-        return {'name': 'Coração', 'desc': '+ Vida Máxima', 'icon': Icons.favorite_outline, 'color': Pallete.vermelho};
+        return {'name': 'hpContainer'.tr(), 'desc': 'hpContainerDesc'.tr(), 'icon': Icons.favorite_outline, 'color': Pallete.vermelho};
       case CollectibleType.berserk:
-        return {'name': 'Berserk', 'desc': '+Dano com pouca vida', 'icon': MdiIcons.emoticonAngry, 'color': Pallete.vermelho};
+        return {'name': 'berserk'.tr(), 'desc': 'berserkDesc'.tr(), 'icon': MdiIcons.emoticonAngry, 'color': Pallete.vermelho};
       case CollectibleType.audacious:
-        return {'name': 'Audácia', 'desc': '+Dano sem escudo', 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
+        return {'name': 'audaz'.tr(), 'desc': 'audazDescr'.tr(), 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
       case CollectibleType.steroids:
-        return {'name': 'Esteroides', 'desc': '+Dano, -Vida Max', 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
+        return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
       case CollectibleType.cafe:
-        return {'name': 'Café', 'desc': 'Muuuito tiro, pouco dano', 'icon': Icons.coffee, 'color': Pallete.marrom};
+        return {'name': 'cafe'.tr(), 'desc': 'cafeDesc'.tr(), 'icon': Icons.coffee, 'color': Pallete.marrom};
       case CollectibleType.alcool:
-        return {'name': 'Alcool', 'desc': 'aumenta dano, mas tiros não vão reto', 'icon': MdiIcons.bottleWine, 'color': Pallete.lilas};
+        return {'name': 'alcool'.tr(), 'desc': 'alcoolDesc'.tr(), 'icon': MdiIcons.bottleWine, 'color': Pallete.lilas};
       case CollectibleType.freeze:
-        return {'name': 'Gelo', 'desc': 'Congela inimigos', 'icon': Icons.ac_unit, 'color': Pallete.azulCla};
+        return {'name': 'freeze'.tr(), 'desc': 'freezeDesc'.tr(), 'icon': Icons.ac_unit, 'color': Pallete.azulCla};
       case CollectibleType.magicShield:
-        return {'name': 'Escudo Magico', 'desc': 'Protege contra um ataque, regenera quando entra em uma nova sala', 'icon': MdiIcons.shieldSun, 'color': Pallete.amarelo};
+        return {'name': 'magicShield'.tr(), 'desc': 'magicShieldDesc'.tr(), 'icon': MdiIcons.shieldSun, 'color': Pallete.amarelo};
       case CollectibleType.orbitalShield:
-        return {'name': 'Escudo Orbital', 'desc': 'escudos que destroem projéteis inimigos', 'icon': MdiIcons.shieldRefresh, 'color': Pallete.lilas};
+        return {'name': 'orbShield'.tr(), 'desc': 'orbShieldDesc'.tr(), 'icon': MdiIcons.shieldRefresh, 'color': Pallete.lilas};
       case CollectibleType.foice:
-        return {'name': 'Foice Orbital', 'desc': 'foices que ferem inimigos', 'icon': MdiIcons.sickle, 'color': Pallete.lilas};
+        return {'name': 'foice'.tr(), 'desc': 'foiceDesc'.tr(), 'icon': MdiIcons.sickle, 'color': Pallete.lilas};
       case CollectibleType.revive:
-        return {'name': 'Cruz da Ressurreição', 'desc': 'Revive uma vez com metade da vida maxima', 'icon': MdiIcons.cross, 'color': Pallete.amarelo};
+        return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': MdiIcons.cross, 'color': Pallete.amarelo};
+      case CollectibleType.antimateria:
+        return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': MdiIcons.radioboxMarked, 'color': Pallete.azulEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -262,6 +298,7 @@ List<CollectibleType> retornaItens(player){
     if (!player.hasOrbShield) itens.add(CollectibleType.orbitalShield);
     if (!player.hasFoice) itens.add(CollectibleType.foice);
     if (!player.pegouRevive) itens.add(CollectibleType.revive);
+    if (!player.hasAntimateria) itens.add(CollectibleType.antimateria);
 
     return itens;
   }
@@ -283,6 +320,17 @@ List<CollectibleType> retornaItensComuns(){
     ];
   }
 
+List<CollectibleType> retornaPocoes(){
+    return [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.critChance,
+      CollectibleType.critDamage,
+    ];
+  }
+
   List<CollectibleType> retornaItensRaros(player){
     List<CollectibleType> itRaros =[
       CollectibleType.steroids,
@@ -296,6 +344,7 @@ List<CollectibleType> retornaItensComuns(){
     if (!player.hasOrbShield) itRaros.add(CollectibleType.orbitalShield);
     if (!player.hasFoice) itRaros.add(CollectibleType.foice);
     if (!player.pegouRevive) itRaros.add(CollectibleType.revive);
+    if (!player.hasAntimateria) itRaros.add(CollectibleType.antimateria);
     return itRaros ;
   }
 
@@ -425,8 +474,8 @@ class CollectibleLogic {
 
         case CollectibleType.steroids:
           player.damage *= 1.4;
-          player.maxHealth -=1;
-          player.healthNotifier.value -=1;
+          player.maxHealth -=2;
+          player.healthNotifier.value -=2;
           text = "+ 40% Damage, but 1 less Health!";
           //color = Pallete.vermelho;
           break;
@@ -480,6 +529,12 @@ class CollectibleLogic {
         case CollectibleType.revive:
           player.revive = true;
           text = "Ressurreição";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.antimateria:
+          player.hasAntimateria = true;
+          text = "antimateria";
           //color = Pallete.vermelho;
           break;  
 

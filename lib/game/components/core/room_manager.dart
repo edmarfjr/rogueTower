@@ -28,6 +28,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   bool teveShop = false;
   bool teveBanco = false;
+  bool teveAlquimista = false;
 
   int get bossRoom => gameRef.bossRoom;
 
@@ -93,6 +94,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (gameRef.nextRoomReward == CollectibleType.shop){
       _generateShopRoom(); 
+      _spawnDoors(roomNumber);
+      return;
+    } 
+
+    if (gameRef.nextRoomReward == CollectibleType.alquimista){
+      _generateAlquimistaRoom(); 
       _spawnDoors(roomNumber);
       return;
     } 
@@ -233,6 +240,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (roomNumber > 1){
       possibleRewards.add(CollectibleType.rareChest);
+      
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -240,6 +248,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       if (gameRef.nextRoomReward != CollectibleType.bank && !teveBanco){
         possibleRewards.add(CollectibleType.bank);
+      }
+
+      if (gameRef.nextRoomReward != CollectibleType.alquimista && !teveAlquimista){
+        possibleRewards.add(CollectibleType.alquimista);
       }
     }
 
@@ -266,26 +278,51 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       rewardLeft = CollectibleType.shop;
     }
 
-    //garantir que tenha mais de um banco por andar
-    if(rewardLeft == CollectibleType.bank || rewardRight == CollectibleType.bank){
-      teveBanco = true;
+    //garantir que nao tenha mais de um banco por andar
+    if(rewardLeft == CollectibleType.alquimista || rewardRight == CollectibleType.alquimista){
+      teveAlquimista = true;
     }
 
     //limpar as var de sala unica por andar
-
     if (gameRef.currentRoomNotifier.value == gameRef.bossRoom){
       teveShop = false;
       teveBanco = false;
+      teveAlquimista = false;
     } 
+
+    bool tranca1 = false;
+    bool bloq1 = false;
+
+    bool tranca2 = false;
+    bool bloq2 = false;
+
+    final rng = Random();
+    
+    if (roomNumber > 1 && rng.nextDouble() < 0.20) {
+      bool leftDoorGetsObstacle = rng.nextBool(); // 50% chance pra esquerda ou direita
+      bool isLocked = rng.nextBool(); // 50% chance de ser Tranca (Chave) ou Bloqueio (Bomba)
+
+      if (leftDoorGetsObstacle) {
+        tranca1 = isLocked;
+        bloq1 = !isLocked; // Se não for trancada, é bloqueada
+      } else {
+        tranca2 = isLocked;
+        bloq2 = !isLocked;
+      }
+    }
 
     gameRef.world.add(Door(
       position: Vector2(-100, -300), 
       rewardType: rewardLeft,
+      trancada: tranca1,
+      bloqueada: bloq1,
     ));
 
     gameRef.world.add(Door(
       position: Vector2(100, -300),
       rewardType: rewardRight,
+      trancada: tranca2,
+      bloqueada: bloq2,
     ));
   }
   void _spawnBankRoom() {
@@ -317,6 +354,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       int preco = 30;
       _generateItemAleatorio(Vector2(80,50), preco); 
+  }
+
+  void _generateAlquimistaRoom(){
+      bool isBomba1 = Random().nextBool();
+      bool isBomba2 = Random().nextBool();
+      bool isBomba3 = Random().nextBool();
+      _generatePocoesAleatorias(Vector2(80,50), 2,isBomba1); 
+      _generatePocoesAleatorias(Vector2(80,0), 2,isBomba2); 
+      _generatePocoesAleatorias(Vector2(80,-50), 2,isBomba3); 
   }
 
   void _generateZeroRoom(){
@@ -433,6 +479,25 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
     
     gameRef.world.add(Collectible(position: pos, type: lootType, custo: preco));
+  }
+
+  void _generatePocoesAleatorias(Vector2 pos, int preco, bool isBomba ) {
+     final rng = Random();
+
+    final List<CollectibleType> possibleRewards = retornaItens(gameRef.player);
+
+    final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
+
+    int precoKey = 0;
+    int precoBomb = 0;
+
+    if (isBomba){
+      precoBomb = preco;
+    }else{
+      precoKey = preco;
+    }
+    
+    gameRef.world.add(Collectible(position: pos, type: lootType, custoKeys: precoKey, custoBombs: precoBomb));
   }
   
   void _generateBossReward() {
