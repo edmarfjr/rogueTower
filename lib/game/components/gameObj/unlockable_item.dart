@@ -172,6 +172,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       if (type == CollectibleType.healthContainer) return Icons.favorite_outline;
       if (type == CollectibleType.shield) return Icons.gpp_bad;
       if (type == CollectibleType.fireRate) return MdiIcons.flaskRoundBottom;
+      if (type == CollectibleType.critChance) return MdiIcons.flaskRoundBottom;
       return Icons.star;
   }
 
@@ -180,6 +181,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       if (type == CollectibleType.healthContainer) return Pallete.vermelho;
       if (type == CollectibleType.shield) return Pallete.lilas;
       if (type == CollectibleType.fireRate) return Pallete.laranja;
+      if (type == CollectibleType.critChance) return Pallete.cinzaCla;
       return Pallete.branco;
   }
 }

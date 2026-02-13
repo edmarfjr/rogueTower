@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
@@ -8,7 +9,10 @@ import '../enemies/enemy.dart';
 class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final double radius;
   final double damage;
+  final bool apagaTiros;
   final bool damagesPlayer; // Se true, machuca player. Se false, machuca inimigos.
+  final Color cor;
+  final Color corBorda; 
 
   double _timer = 0;
   final double _duration = 0.2; // Explosão rápida
@@ -18,6 +22,9 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.radius = 60,
     this.damage = 1,
     this.damagesPlayer = true,
+    this.apagaTiros = false,
+    this.cor = Pallete.laranja,
+    this.corBorda = Pallete.vermelho,
   }) : super(position: position, anchor: Anchor.center);
 
   @override
@@ -38,7 +45,13 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       final enemies = gameRef.world.children.query<Enemy>();
       for(final e in enemies){
          if (e.position.distanceTo(position) <= radius) {
-            e.takeDamage(damage * 5); // Explosão dói mais em inimigos
+            e.takeDamage(damage); // Explosão dói mais em inimigos
+         }
+      }
+      final projeteis = gameRef.world.children.query<Projectile>();
+      for(final p in projeteis){
+         if (p.position.distanceTo(position) <= radius && p.isEnemyProjectile && apagaTiros) {
+            p.removeFromParent(); 
          }
       }
     }
@@ -66,13 +79,13 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     if (opacity < 0) opacity = 0;
 
     final paint = Paint()
-      ..color = Pallete.vermelho
+      ..color = cor
       ..style = PaintingStyle.fill;
       
     final paintBorder = Paint()
-      ..color = Pallete.amarelo
+      ..color = corBorda
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = radius / 4;
 
     canvas.drawCircle(Offset.zero, currentRadius, paint);
     canvas.drawCircle(Offset.zero, currentRadius, paintBorder);

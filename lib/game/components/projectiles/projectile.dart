@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final double speed; 
   final double damage;
   final bool isEnemyProjectile;
+  final bool apagaTiros;
   final PositionComponent? owner;
   
   double _timer = 0.0;
@@ -46,6 +48,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.speed = 300,
     this.owner,
     this.isEnemyProjectile = false,
+    this.apagaTiros = false,
     this.dieTimer = 3.0,
     Vector2? size,
     // Novos Parâmetros (com valores padrão 'desligados')
@@ -119,7 +122,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     _isDead = true;
 
     if (triggerEffects) {
-      if (explodes) _doExplosion();
+      if (explodes) gameRef.world.add(Explosion(position: position, damagesPlayer:isEnemyProjectile, damage:damage));
       if (splits) _doSplit();
     }
     
@@ -128,35 +131,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     
     removeFromParent();
   }
-
-  // --- LÓGICA DE EXPLOSÃO ---
-  void _doExplosion() {
-    // 1. Visual da Explosão Grande
-    createExplosion(gameRef.world, position, Colors.orangeAccent, count: 20); // Assumindo que sua função aceita count
-    
-    // 2. Dano em Área (AoE)
-    // Procura todas as entidades colidíveis no mundo
-    final targets = gameRef.world.children.whereType<PositionComponent>();
-    
-    for (final target in targets) {
-      // Ignora a si mesmo ou o dono (opcional: fogo amigo?)
-      if (target == this || target == owner) continue;
-
-      double dist = target.position.distanceTo(position);
-      
-      if (dist <= explosionRadius) {
-        if (isEnemyProjectile && target is Player) {
-           target.takeDamage(1); 
-        } else if (!isEnemyProjectile && target is Enemy) {
-           target.takeDamage(damage * 1.5);
-        } else if (target is Wall) {
-           target.vida -= 3; // Explosão quebra paredes mais rápido
-           if (target.vida <= 0) target.removeFromParent();
-        }
-      }
-    }
-  }
-
   // --- LÓGICA DE CLUSTER (SPLIT) ---
   void _doSplit() {
     for (int i = 0; i < splitCount; i++) {
@@ -215,7 +189,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         kill(); 
       }
     } else {
-      if (other is Enemy) {
+      if (other is Enemy && !other.isInvencivel) {
         other.takeDamage(damage);
         kill();
       }

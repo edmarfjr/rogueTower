@@ -16,6 +16,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   
   // Status
   double hp;
+  bool isInvencivel = false;
+  bool isIntangivel = false;
   double speed;
   int soul;
   bool rotates;

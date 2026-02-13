@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/geometry.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart'; 
@@ -12,9 +13,12 @@ import '../gameObj/wall.dart';
 
 class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
   final double damage;
-  final double length;
-  final double angleRad; // Ângulo do tiro
+  final double maxLength;
+  double currentLength;
+  double angleRad; 
   bool isEnemyProjectile;
+  bool isMoving;
+  double speed;
 
   // Configuração de Tempo
   double _timer = 0;
@@ -24,16 +28,22 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   final PositionComponent? owner;
 
+  RectangleHitbox? _hitbox;
+
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
     this.damage = 1,
-    this.length = 400,
+    double length = 400,
     this.chargeTime = 1,
-    this.fireTime = 0.3,
+    this.fireTime = 1,
     this.owner,
     this.isEnemyProjectile = false,
-  }) : super(position: position, anchor: Anchor.centerLeft);
+    this.isMoving = false,
+    this.speed = 0.01,
+  }): maxLength = length, 
+      currentLength = length, 
+      super(position: position, anchor: Anchor.centerLeft);
 
   @override
   Future<void> onLoad() async {
@@ -57,7 +67,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     // FASE 1: DISPARAR (Acabou o tempo de carga)
     if (_timer >= chargeTime && !_hasFired) {
       _fire();
+      // move o anguloo do feixe de laser
     }
+
+    if(isMoving && _hasFired){
+        angle += speed;
+      }
+
+    _updateLaserLength(); 
 
     // FASE 2: DESTRUIR (Acabou o tempo de fogo)
     if (_timer >= chargeTime + fireTime) {
@@ -65,22 +82,55 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     }
   }
 
+  void _updateLaserLength() {
+    // Cria um raio matemático a partir do laser na direção atual
+    final directionVector = Vector2(cos(absoluteAngle), sin(absoluteAngle));
+    final ray = Ray2(origin: absolutePosition, direction: directionVector);
+
+    // Faz a varredura
+    final result = gameRef.collisionDetection.raycast(
+      ray,
+      maxDistance: maxLength,
+      ignoreHitboxes: [
+        if (_hitbox != null) _hitbox!, // O raio ignora a própria hitbox do laser
+        if (owner != null) ...owner!.children.whereType<ShapeHitbox>(), // Ignora o dono
+      ],
+    );
+
+    // Se o raio bateu em algo...
+    if (result != null && result.hitbox != null) {
+      final hitParent = result.hitbox!.parent;
+      
+      // Se for parede ou o limite da tela, corta o laser ali
+      if (hitParent is Wall || result.hitbox is ScreenHitbox) {
+        currentLength = result.distance!;
+      } else {
+        // Se bateu em outra coisa (Player/Enemy), ignora e atravessa
+        currentLength = maxLength;
+      }
+    } else {
+      currentLength = maxLength; // Nada no caminho
+    }
+
+    // Se a hitbox já foi criada (já disparou), ajustamos o tamanho dela
+    // Isso garante que você não tome dano se estiver atrás de uma parede!
+    if (_hitbox != null) {
+      _hitbox!.size.x = currentLength;
+    }
+  }
+
   void _fire() {
     _hasFired = true;
     
-    // Toca som (se tiver configurado)
-    // AudioManager.playSfx('laser.wav'); 
-    
-    // Adiciona a Hitbox LETAL agora
-    // (A hitbox é um retângulo longo e estreito)
-    add(RectangleHitbox(
-      position: Vector2(0, -10), // Centraliza no Y (se a altura visual for 20)
-      size: Vector2(length, 20), 
+    // Cria a Hitbox usando o tamanho ATUAL
+    _hitbox = RectangleHitbox(
+      position: Vector2(0, -10), 
+      size: Vector2(currentLength, 20), 
       isSolid: true,
-      collisionType: CollisionType.passive, // O player bate nele
-    ));
+      collisionType: CollisionType.passive, 
+    );
+    add(_hitbox!);
     
-    // Screen Shake leve para impacto
     gameRef.camera.viewfinder.position += Vector2(Random().nextDouble() * 2, Random().nextDouble() * 2);
   }
 
@@ -99,7 +149,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         ..strokeWidth = 2;
 
       // Desenha linha da origem (0,0) até o alcance (length, 0)
-      canvas.drawLine(Offset.zero, Offset(length, 0), paintWarning);
+      canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintWarning);
 
     } else {
       // --- VISUAL DE DISPARO (Laser Real) ---
@@ -117,8 +167,8 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         ..style = PaintingStyle.stroke
         ..strokeWidth = 4;
 
-      canvas.drawLine(Offset.zero, Offset(length, 0), paintGlow);
-      canvas.drawLine(Offset.zero, Offset(length, 0), paintCore);
+      canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintGlow);
+      canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintCore);
     }
   }
 
@@ -141,7 +191,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         removeFromParent();
       }
     } 
-    
+    /*
     if (other is ScreenHitbox) {
       createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
       removeFromParent();
@@ -152,5 +202,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
       removeFromParent(); 
     }
+    */
   }
 }

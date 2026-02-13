@@ -1,7 +1,10 @@
 import 'dart:math';
+import 'dart:ui';
 //import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:flutter/material.dart';
 
 import '../gameObj/wall.dart';
 import 'package:flame/components.dart';
@@ -32,6 +35,7 @@ abstract class MovementBehavior {
 abstract class AttackBehavior {
   late Enemy enemy;
   void update(double dt);
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
 }
 
 
@@ -237,11 +241,13 @@ class ProjectileAttackBehavior extends AttackBehavior {
   double speed;
   late Vector2 size;
   bool isShotgun ;
+  bool is2shot ;
 
   ProjectileAttackBehavior({
     this.interval = 2.0, 
     this.speed = 200,
     this.isShotgun = false,
+    this.is2shot = false,
     Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
@@ -254,11 +260,17 @@ class ProjectileAttackBehavior extends AttackBehavior {
       final player = enemy.gameRef.player;
       final direction = (player.position - enemy.position).normalized();
       
-      _fireBullet(direction, 0);
+      if(is2shot){
+        _fireBullet(direction, 0.2);
+        _fireBullet(direction, -0.2);
+      }else{
+        _fireBullet(direction, 0);
       if (isShotgun){
         _fireBullet(direction, 0.3);
         _fireBullet(direction, -0.3);
       }
+      }
+      
       _timer = 0;
     }
   }
@@ -318,8 +330,9 @@ class LaserAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
   bool _isShooting = false;
+  bool isMoving;
   
-  LaserAttackBehavior({this.interval = 3.0});
+  LaserAttackBehavior({this.interval = 3.0, this.isMoving = false});
 
   @override
   void update(double dt) {
@@ -347,6 +360,7 @@ class LaserAttackBehavior extends AttackBehavior {
         position: enemy.position + (dir * 10),
         angleRad: angle,
         owner: enemy,
+        isMoving: isMoving,
         isEnemyProjectile: true,
       ));
     }
@@ -356,15 +370,29 @@ class LaserAttackBehavior extends AttackBehavior {
 class SpinnerAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
+  final bool isDiagonal;
+  final bool isChangeDir;
+  int changeDirAux = 0;
 
-  SpinnerAttackBehavior({this.interval = 1.5});
+  SpinnerAttackBehavior({
+    this.interval = 1.5, 
+    this.isDiagonal = false, 
+    this.isChangeDir = false
+  });
 
   @override
   void update(double dt) {
     _timer += dt;
     if (_timer >= interval) {
       // Atira em cruz
-      final directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
+      List<Vector2> directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
+
+      if (isDiagonal || isChangeDir && changeDirAux>=4){
+        directions = [Vector2(-1, -1), Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1)];
+        changeDirAux = 0;
+      }
+
+
       
       for (var dir in directions) {
         enemy.gameRef.world.add(Projectile(
@@ -375,6 +403,8 @@ class SpinnerAttackBehavior extends AttackBehavior {
           owner: enemy,
           isEnemyProjectile: true,
         ));
+
+        if (isChangeDir) changeDirAux++;
       }
       
       // Gira visualmente
@@ -596,6 +626,139 @@ class ChargeAttackBehavior extends AttackBehavior {
     _timer = 0;
     // Opcional: Feedback visual de "tonto" ou "cansado"
     enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.cinzaEsc);
+  }
+}
+
+class JumpAttackBehavior extends AttackBehavior {
+  final double jumpRange;
+  final double minRange;
+  final double jumpDuration;
+  final double cooldown;
+  final double impactRadius;
+  final double maxJumpHeight; // <--- NOVA CONFIGURAÇÃO: Altura máxima do pulo
+
+  bool _isJumping = false;
+  double _timer = 0;
+  Vector2 _startPos = Vector2.zero();
+  Vector2 _targetPos = Vector2.zero();
+
+  // Referências para os efeitos visuais
+  CircleComponent? _shadow;
+
+  JumpAttackBehavior({
+    this.jumpRange = 250,
+    this.minRange = 50,
+    this.jumpDuration = 0.8,
+    this.cooldown = 2.5,
+    this.impactRadius = 60,
+    this.maxJumpHeight = 120.0, // Altura que ele sobe na tela
+  });
+
+  @override
+  void update(double dt) {
+    if (!enemy.isMounted) return;
+
+    if (_isJumping) {
+      _timer += dt;
+      double progress = (_timer / jumpDuration).clamp(0.0, 1.0);
+
+      // 1. Posição Lógica (Move a "sombra" no chão em linha reta)
+      enemy.position.x = lerpDouble(_startPos.x, _targetPos.x, progress)!;
+      enemy.position.y = lerpDouble(_startPos.y, _targetPos.y, progress)!;
+
+      // 2. Cálculo da Parábola (Senoide vai de 0 -> 1 -> 0)
+      double arc = sin(progress * pi);
+      double heightFactor = sin(progress * pi);
+      
+      // 3. Move o VISUAL para cima (Simulando o eixo Z)
+      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      if (visual != null) {
+        // A posição padrão do ícone é size / 2. Nós subtraímos a altura.
+        visual.position.y = (enemy.size.y / 2) - (arc * maxJumpHeight);
+        enemy.scale = Vector2.all(1.0 + (heightFactor * 0.5));
+      }
+
+      // 4. Efeito na Sombra (Fica menor e mais clara quanto mais alto o inimigo vai)
+      if (_shadow != null) {
+        _shadow!.scale = Vector2.all(1.0 - (arc * 0.6)); // Encolhe até 40%
+        _shadow!.paint.color = Pallete.azulEsc;
+      }
+
+      if (progress >= 1.0) {
+        _land();
+      }
+    } else {
+      _timer += dt;
+
+      if (_timer >= cooldown) {
+        final player = enemy.gameRef.player;
+        double dist = enemy.position.distanceTo(player.position);
+
+        if (dist <= jumpRange && dist >= minRange) {
+          _startJump(player.position);
+        }
+      }
+    }
+  }
+
+  void _startJump(Vector2 target) {
+    _isJumping = true;
+    enemy.isIntangivel = true;
+    _timer = 0;
+    enemy.canMove = false;
+    
+    _startPos = enemy.position.clone();
+    _targetPos = target.clone();
+
+    // 1. Cria a Mira no chão do Mundo
+    enemy.gameRef.world.add(TargetReticle(
+        position: target,
+        duration: jumpDuration,
+        radius: 60,
+      ));
+
+    // 2. Cria a Sombra no Inimigo (Fica no 'chão' relativo a ele)
+    _shadow = CircleComponent(
+      radius: enemy.size.x / 2.5,
+      position: enemy.size / 2, // Fica no centro lógico
+      anchor: Anchor.center,
+      paint: Paint()..color = Colors.black.withOpacity(0.5),
+      priority: -1, // Garante que a sombra fique ATRÁS do corpo do inimigo
+    );
+    // Para criar um oval (sombra realista), achatamos o eixo Y
+    _shadow!.scale.y = 0.5; 
+    enemy.add(_shadow!);
+  }
+
+  void _land() {
+    _isJumping = false;
+    enemy.isIntangivel = false;
+    _timer = 0;
+    enemy.canMove = true;
+
+    // 1. Limpeza Visual (Remove mira, remove sombra, reseta altura do sprite)
+    _shadow?.removeFromParent();
+    
+    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+    if (visual != null) {
+      visual.position.y = enemy.size.y / 2; // Volta pro chão
+    }
+
+    // 2. Impacto e Dano
+    createExplosion(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
+    
+    final player = enemy.gameRef.player;
+    if (enemy.position.distanceTo(player.position) <= impactRadius) {
+      player.takeDamage(1);
+      Vector2 pushDir = (player.position - enemy.position).normalized();
+      player.position += pushDir * 30;
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (_isJumping) return; // Ignora colisões enquanto voa
+    super.onCollision(intersectionPoints, other);
   }
 }
 

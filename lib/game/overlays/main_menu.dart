@@ -36,9 +36,9 @@ class MainMenu extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: () {
-                  game.transitionEffect.startTransition(() {
+                  //game.transitionEffect.startTransition(() {
                     game.startGame();
-                  });  
+                  //});  
                 },
                 child: const Text(
                   'JOGAR',

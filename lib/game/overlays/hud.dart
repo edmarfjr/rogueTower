@@ -143,6 +143,27 @@ class Hud extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
+                  // BOMBAS
+                  ValueListenableBuilder<int>(
+                    valueListenable: game.player.bombNotifier,
+                    builder: (context, bombs, child) {
+                      return Text(
+                        "Bombs: $bombs",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Pallete.cinzaEsc,
+                          shadows: [
+                            Shadow(blurRadius: 2, color: Pallete.colorDarkest, offset: Offset(2, 2))
+                          ],
+                          decoration: TextDecoration.none,
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 8),
+
                   // SOULS
                   ValueListenableBuilder<int>(
                     valueListenable: game.progress.soulsNotifier,
@@ -194,7 +215,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             Positioned(
               bottom: 40,
-              right: 20,
+              right: 90,
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -214,6 +235,38 @@ class Hud extends StatelessWidget {
                       child: Icon(
                         Icons.double_arrow,
                         color: Pallete.verdeCla,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),  
+            // ---------------------------------------------
+            // 4. CANTO INFERIOR DIREITO: BOTÃO DE BOMBA
+            // ---------------------------------------------
+            Positioned(
+              bottom: 130,
+              right: 20,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    game.player.criaBomba();
+                  },
+                  borderRadius: BorderRadius.circular(40),
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Pallete.branco.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                    ),
+                    child:  Center(
+                      child: Icon(
+                        MdiIcons.bomb,
+                        color: Pallete.cinzaEsc,
                         size: 40,
                       ),
                     ),

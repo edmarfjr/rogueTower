@@ -13,9 +13,9 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 
 enum CollectibleType { 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest,
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, 
-  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice
+  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba,
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas,
+  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -161,7 +161,6 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
     if (!naoEsgota) removeFromParent();
     
-    
   }
 
   // Helper para pegar dados visuais e textos (Nome, Descrição, Ícone, Cor)
@@ -177,6 +176,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'Chave', 'desc': 'Abre portas', 'icon': Icons.vpn_key, 'color': Pallete.laranja};
       case CollectibleType.keys:
         return {'name': 'Chave', 'desc': 'Um molho de Chaves', 'icon': MdiIcons.keyChain, 'color': Pallete.laranja};
+      case CollectibleType.bomba:
+        return {'name': 'Bomba', 'desc': 'Fere inimigos e destroi tiros', 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
+      case CollectibleType.bombas:
+        return {'name': 'Bombas', 'desc': 'Muitas Bombas', 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
       case CollectibleType.chest:
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:
@@ -215,6 +218,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'Escudo Orbital', 'desc': 'escudos que destroem projéteis inimigos', 'icon': MdiIcons.shieldRefresh, 'color': Pallete.lilas};
       case CollectibleType.foice:
         return {'name': 'Foice Orbital', 'desc': 'foices que ferem inimigos', 'icon': MdiIcons.sickle, 'color': Pallete.lilas};
+      case CollectibleType.revive:
+        return {'name': 'Cruz da Ressurreição', 'desc': 'Revive uma vez com metade da vida maxima', 'icon': MdiIcons.cross, 'color': Pallete.amarelo};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -228,11 +233,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
   // Mantive seu método estático applyEffect igual (não alterado no exemplo para economizar espaço)
   static Map<String, dynamic> applyEffect({required CollectibleType type, required TowerGame game}) {
-      // ... (Sua lógica existente do applyEffect permanece aqui intacta)
-      // Apenas para compilar o exemplo, vou colocar um retorno simples, 
-      // mas você deve manter o seu código original gigante aqui.
-      // Cole o conteúdo original do seu método applyEffect aqui.
-      return CollectibleOriginalLogic.applyEffect(type: type, game: game);
+      return CollectibleLogic.applyEffect(type: type, game: game);
   }
 
 }
@@ -252,6 +253,7 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.steroids,
       CollectibleType.cafe,  
       CollectibleType.alcool,
+      CollectibleType.bombas,
     ];
     if (!player.isBerserk) itens.add(CollectibleType.berserk);
     if (!player.isAudaz) itens.add(CollectibleType.audacious);
@@ -259,6 +261,7 @@ List<CollectibleType> retornaItens(player){
     if (!player.magicShield) itens.add(CollectibleType.magicShield);
     if (!player.hasOrbShield) itens.add(CollectibleType.orbitalShield);
     if (!player.hasFoice) itens.add(CollectibleType.foice);
+    if (!player.pegouRevive) itens.add(CollectibleType.revive);
 
     return itens;
   }
@@ -275,7 +278,8 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.dash,
       CollectibleType.sanduiche,
       CollectibleType.critChance,
-      CollectibleType.critDamage
+      CollectibleType.critDamage,
+      CollectibleType.bombas,
     ];
   }
 
@@ -291,33 +295,34 @@ List<CollectibleType> retornaItensComuns(){
     if (!player.magicShield) itRaros.add(CollectibleType.magicShield);
     if (!player.hasOrbShield) itRaros.add(CollectibleType.orbitalShield);
     if (!player.hasFoice) itRaros.add(CollectibleType.foice);
+    if (!player.pegouRevive) itRaros.add(CollectibleType.revive);
     return itRaros ;
   }
 
-// Classe auxiliar apenas para simular a lógica antiga que você já tem
-class CollectibleOriginalLogic {
+class CollectibleLogic {
    static Map<String, dynamic> applyEffect({required CollectibleType type, required TowerGame game}) {
       // Lógica placeholder: VOCÊ DEVE MANTER A SUA LÓGICA ORIGINAL AQUI
       // Copiei apenas um exemplo para funcionar
        String text = "";
-       Color color = Pallete.branco;
+       //Color color = Pallete.branco;
        final player = game.player;
 
        switch (type) {
          case CollectibleType.coin:
-          game.coinsNotifier.value += 10;
-          text = "+ 10\$ ";
-          color = Pallete.amarelo;
+          int c = Random().nextInt(20)+5;
+          game.coinsNotifier.value += c;
+          text = "+ $c\$ ";
+          //color = Pallete.amarelo;
           break;
           
         case CollectibleType.potion:
           if (player.healthNotifier.value < player.maxHealth) {
             player.curaHp(2); // Ou player.heal() se tiver criado
             text = "Curado!";
-            color = Pallete.vermelho; // Rosa/Vermelho
+            //color = Pallete.vermelho; // Rosa/Vermelho
           } else {
             text = "Cheio!";
-            color = Pallete.cinzaCla;
+            //color = Pallete.cinzaCla;
           }
           break;
 
@@ -325,83 +330,97 @@ class CollectibleOriginalLogic {
           if (player.healthNotifier.value < player.maxHealth) {
             player.curaHp(6); // Ou player.heal() se tiver criado
             text = "Curado!";
-            color = Pallete.vermelho; // Rosa/Vermelho
+            //color = Pallete.vermelho; // Rosa/Vermelho
           } else {
             text = "Cheio!";
-            color = Pallete.cinzaCla;
+           // color = Pallete.cinzaCla;
           }
           break;  
           
         case CollectibleType.key:
-          game.keysNotifier.value++;
-          text = "Key!";
-          color = Pallete.branco; // Ciano/Laranja
+          int k = Random().nextInt(2)+1;
+          game.keysNotifier.value += k;
+          text = "$k Key(s)!";
+          //color = Pallete.branco; // Ciano/Laranja
           break;
 
         case CollectibleType.keys:
           game.keysNotifier.value+=10;
-          text = "Keys!";
-          color = Pallete.branco; // Ciano/Laranja
+          text = "10 Keys!";
+          //color = Pallete.branco; // Ciano/Laranja
           break;
-          
+        
+        case CollectibleType.bomba:
+          int b = Random().nextInt(2)+1;
+          game.player.bombNotifier.value += b;
+          text = "$b Bombs(s)!";
+          //color = Pallete.branco; // Ciano/Laranja
+          break;
+
+        case CollectibleType.bombas:
+          game.player.bombNotifier.value+=10;
+          text = "10 Bombs!";
+          //color = Pallete.branco; // Ciano/Laranja
+          break;
+
         case CollectibleType.damage:
           player.increaseDamage();
           text = "+ Damage!";
-          color = Pallete.branco; // Laranja
+          //color = Pallete.branco; // Laranja
           break;
           
         case CollectibleType.fireRate:
           player.increaseFireRate();
           text = "+ Fire Rate!";
-          color = Pallete.azulCla; // Amarelo
+          //color = Pallete.azulCla; // Amarelo
           break;
           
         case CollectibleType.moveSpeed:
           player.increaseMovementSpeed();
           text = "+ Speed!";
-          color = Pallete.azulCla;
+         // color = Pallete.azulCla;
           break;
         
         case CollectibleType.range:
           player.increaseRange();
           text = "+ Range!";
-          color = Pallete.azulCla;
+          //color = Pallete.azulCla;
           break;
         
         case CollectibleType.shield:
           player.increaseShield();
           text = "+ Shield!";
-          color = Pallete.azulCla;
+          //color = Pallete.azulCla;
           break;
 
         case CollectibleType.healthContainer:
           player.increaseHp();
           text = "+ Max HP!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
 
         case CollectibleType.dash:
           player.increaseDash();
           text = "+ Dash!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break; 
         
         case CollectibleType.berserk:
           player.isBerserk = true;
           text = "+ 40% Damage when low HP!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
 
         case CollectibleType.audacious:
           player.isAudaz = true;
           text = "+ 33% Damage when no shield!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
 
         case CollectibleType.alcool:
           player.isBebado = true;
           text = "+ 33% Damage, shots don't go straight!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
 
         case CollectibleType.steroids:
@@ -409,45 +428,45 @@ class CollectibleOriginalLogic {
           player.maxHealth -=1;
           player.healthNotifier.value -=1;
           text = "+ 40% Damage, but 1 less Health!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
         
         case CollectibleType.cafe:
           player.damage *= 0.3;
           player.fireRate /= 3;
           text = "+ 200% Fire rate, but 70% less damage!";
-          color = Pallete.vermelho;
+          //color = Pallete.vermelho;
           break;
 
         case CollectibleType.freeze:
           player.isFreeze = true;
           text = "Can freeze enemy on strike";
-          color = Pallete.vermelho;
+         // color = Pallete.vermelho;
           break;
 
         case CollectibleType.magicShield:
           player.magicShield = true;
           text = "Magic Shield";
-          color = Pallete.vermelho;
+        //  color = Pallete.vermelho;
           break;
 
         case CollectibleType.critChance:
           player.critChance += 5;
           text = "+ 5% Crit. Chance";
-          color = Pallete.amarelo;
+        //  color = Pallete.amarelo;
           break;
 
         case CollectibleType.critDamage:
           player.critDamage *= 1.15;
           text = "+ 15% Crit. Damage";
-          color = Pallete.amarelo;
+         // color = Pallete.amarelo;
           break;
 
         case CollectibleType.orbitalShield:
           game.world.add(OrbitalShield(angleOffset: 0, owner: player));
           game.world.add(OrbitalShield(angleOffset: pi, owner: player));
           text = "Escudos Orbitais!";
-          color = Pallete.azulCla;
+         // color = Pallete.azulCla;
           break;
 
         case CollectibleType.foice:
@@ -455,7 +474,13 @@ class CollectibleOriginalLogic {
           game.world.add(OrbitalShield(angleOffset: 2*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
           game.world.add(OrbitalShield(angleOffset: 4*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
           text = "Foices Orbitais!";
-          color = Pallete.azulCla;
+         // color = Pallete.azulCla;
+          break;  
+
+        case CollectibleType.revive:
+          player.revive = true;
+          text = "Ressurreição";
+          //color = Pallete.vermelho;
           break;  
 
         default:

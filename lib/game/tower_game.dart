@@ -20,7 +20,7 @@ import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
 import 'components/gameObj/wall.dart';
-import 'components/core/arena_border.dart';
+import 'components/gameObj/arena_border.dart';
 import 'components/core/game_progress.dart';
 import 'overlays/bank_menu.dart';
 
@@ -46,7 +46,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);
   int get currentLevel => currentLevelNotifier.value;
   final int bossRoom = 10;
-  int maxLevel = 2;
+  int numLevels = 3;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
@@ -258,7 +258,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     if (currentRoom > bossRoom){
       currentRoomNotifier.value = 0;
       currentLevelNotifier.value++;
-      if (currentLevel > maxLevel) winGame(); 
+      if (currentLevel > numLevels) winGame(); 
     }
     nextRoomReward = chosenReward;
 
@@ -305,7 +305,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
     world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
     world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
-     world.children.query<OrbitalShield>().forEach((c) => c.removeFromParent());
+    world.children.query<OrbitalShield>().forEach((c) => c.removeFromParent());
 
     player.reset();
     camera.follow(player);

@@ -1,7 +1,7 @@
 import 'package:TowerRogue/game/tower_game.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'pallete.dart';
+import '../core/pallete.dart';
 
 class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   final double wallThickness;
@@ -21,7 +21,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     switch (level) {
       case 1: return Pallete.marrom;      
       case 2: return Pallete.cinzaEsc; 
-      default: return Colors.white;
+      case 3: return Pallete.azulEsc; 
+      default: return Pallete.azulEsc;
     }
   }      
 

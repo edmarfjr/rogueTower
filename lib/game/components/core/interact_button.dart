@@ -1,7 +1,9 @@
+import 'package:TowerRogue/game/components/core/game_icon.dart';
 import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 
 class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<TowerGame> {
@@ -9,7 +11,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
   String text;
 
   InteractButton({required this.onTrigger, this.text = "PEGAR"}) 
-      : super(size: Vector2(80, 40), anchor: Anchor.center);
+      : super(size: Vector2(40, 40), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -19,7 +21,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
     // Fundo do botão (Estilo Balão de Fala)
     add(RectangleComponent(
       size: size,
-      paint: Paint()..color = Pallete.azulEsc,
+      paint: Paint()..color = Pallete.cinzaEsc,
       anchor: Anchor.center,
       position: size / 2,
     ));
@@ -28,14 +30,21 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
     add(RectangleComponent(
       size: size,
       paint: Paint()
-        ..color = Pallete.lilas
+        ..color = Pallete.cinzaCla
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+        ..strokeWidth = 3,
       anchor: Anchor.center,
       position: size / 2,
     ));
 
-    // Texto "ABRIR" ou Ícone
+    add(GameIcon(
+      icon: MdiIcons.gestureTap, 
+      color: Pallete.amarelo, 
+      size: size/2,
+      anchor: Anchor.center, 
+      position: size / 2 + Vector2(0,-5),    
+    ));
+    /* Texto "ABRIR" ou Ícone
     add(TextComponent(
       text: text,
       textRenderer: TextPaint(
@@ -48,6 +57,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
       anchor: Anchor.center,
       position: size / 2,
     ));
+    */
   }
 
   @override

@@ -34,7 +34,7 @@ class EnemyFactory {
       iconData: MdiIcons.mushroom,
       originalColor: Pallete.rosa,
       movementBehavior: RandomWanderBehavior(),
-      attackBehavior: SpinnerAttackBehavior(interval: 1.5),
+      attackBehavior: SpinnerAttackBehavior(interval: 2),
     );
   }
   
@@ -236,10 +236,11 @@ class EnemyFactory {
       position: pos,
       hp: 40,
       speed: 0,
+      weight: 100,
       iconData: MdiIcons.coffin,
       originalColor: Pallete.marrom,
       movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: LaserAttackBehavior(interval: 3.0),
+      attackBehavior: LaserAttackBehavior(interval: 2.5,),
     );
   }
 
@@ -288,7 +289,101 @@ class EnemyFactory {
         chargeSpeed: 400, // Muito rápido no ataque
         prepTime: 0.6,    // 0.6s de aviso antes de correr
       ),
-      attack2Behavior: MortarAttackBehavior(interval: 4.0),
+      attack2Behavior: MortarAttackBehavior(interval: 3.0),
+    );
+  }
+
+  // inimigos fase 3
+
+  static Enemy createChessKnight(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 45,
+      speed: 80, 
+      weight: 2.0,
+      iconData: MdiIcons.chessKnight, 
+      originalColor: Pallete.cinzaEsc, 
+      movementBehavior: RandomWanderBehavior(), 
+      attackBehavior: JumpAttackBehavior(
+        jumpRange: 200,    
+        minRange: 50,      
+        jumpDuration: 1.0, 
+        cooldown: 2.5,     
+      ),
+    );
+  }
+
+  static Enemy createChessPawn(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 40,
+      speed: 80,
+      iconData: MdiIcons.chessPawn,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0, is2shot: true),
+    );
+  }
+
+  static Enemy createChessRook(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 60,
+      speed: 0,
+      weight: 100,
+      iconData: MdiIcons.chessRook,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: MortarAttackBehavior(interval: 2.0),
+    );
+  }
+
+  static Enemy createChessBishop(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 60,
+      speed: 80,
+      iconData: MdiIcons.chessBishop,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: BouncerBehavior(),
+      attackBehavior: SpinnerAttackBehavior(interval: 2.5, isDiagonal: true),
+    );
+  }
+
+  static Enemy createChessKing(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 60,
+      speed: 60,
+      iconData: MdiIcons.chessKing,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: SpinnerAttackBehavior(interval: 3, isChangeDir: true),
+    );
+  }
+
+  static Enemy createChessQueen(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 50,
+      speed: 80,
+      iconData: MdiIcons.chessKing,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
+    );
+  }
+
+  static Enemy createChessQueenBoss(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 500,
+      speed: 80,
+      iconData: MdiIcons.chessKing,
+      originalColor: Pallete.cinzaEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
+      attack2Behavior: MortarAttackBehavior(interval: 3.0),
     );
   }
 

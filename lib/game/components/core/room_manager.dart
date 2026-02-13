@@ -51,6 +51,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos) => EnemyFactory.createHorseMan(pos),   
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster3 = [
+    (pos) => EnemyFactory.createChessKnight(pos), 
+    (pos) => EnemyFactory.createChessPawn(pos), 
+    (pos) => EnemyFactory.createChessRook(pos), 
+    (pos) => EnemyFactory.createChessBishop(pos), 
+    (pos) => EnemyFactory.createChessKing(pos), 
+    (pos) => EnemyFactory.createChessQueen(pos), 
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -183,7 +192,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         case 2:
           selectedFactory = _enemyRoster2[rng.nextInt(_enemyRoster2.length)];
         default:
-          selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
+          selectedFactory = _enemyRoster3[rng.nextInt(_enemyRoster3.length)];
       }
       
 
@@ -217,6 +226,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.potion,
       CollectibleType.shield,
       CollectibleType.key,
+      CollectibleType.bomba,
       CollectibleType.healthContainer,
       CollectibleType.chest,
     };
@@ -353,6 +363,28 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           id: 'permanent_damage_2', 
           type: CollectibleType.damage,
           soulCost: 1200,
+        ));
+        break;
+      case 3:
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, -100),
+          id: 'permanent_shield_3', 
+          type: CollectibleType.shield,
+          soulCost: 700,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 0),
+          id: 'permanent_health_3', 
+          type: CollectibleType.healthContainer,
+          soulCost: 1000,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 100),
+          id: 'permanent_crit_3', 
+          type: CollectibleType.critChance,
+          soulCost: 1500,
         ));
         break;
       default:

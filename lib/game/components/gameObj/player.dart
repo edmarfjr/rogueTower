@@ -1,7 +1,9 @@
+import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,7 @@ class Player extends PositionComponent
   double _invincibilityTimer = 0;
   double invincibilityDuration = 0.5; 
   // -----------------------
-  double attackRange = 150; 
+  double attackRange = 200; 
   late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
@@ -37,6 +39,8 @@ class Player extends PositionComponent
   double critDamage = 2.0;
   double fireRate = 0.4; 
   double moveSpeed = 150.0;
+
+  ValueNotifier<int> bombNotifier = ValueNotifier<int>(5);
 
   Vector2 velocity = Vector2.zero();
   Vector2 velocityDash = Vector2(1, 0);
@@ -60,6 +64,8 @@ class Player extends PositionComponent
   bool hasFoice = false;
   bool magicShield = false;
   bool hasShield = false;
+  bool revive = false;
+  bool pegouRevive = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -324,7 +330,7 @@ class Player extends PositionComponent
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other is Enemy) {
+    if (other is Enemy && other.isIntangivel) {
       takeDamage(1);
     }
   }
@@ -375,8 +381,13 @@ class Player extends PositionComponent
   }
 
   void _die() {
-    print("GAME OVER");
-    gameRef.onGameOver();
+    if(revive){
+      revive = false;
+      curaHp((maxHealth/2).ceil());
+    }else{
+      gameRef.onGameOver();
+    }
+    
   }
 
   void _handleAutoAttack(double dt) {
@@ -418,6 +429,21 @@ class Player extends PositionComponent
     gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg));
   }
 
+  void criaBomba(){
+    if (bombNotifier.value > 0){
+      bombNotifier.value--;
+      gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, apagaTiros: true));
+    }else{
+      gameRef.world.add(FloatingText(
+        text: "Sem Bombas",
+        position: position.clone(), 
+        color: Pallete.branco,
+        fontSize: 12,
+      ));
+    }
+    
+  }
+
   void reset() {
     maxHealth = 4;
     healthNotifier.value = 4;
@@ -425,7 +451,7 @@ class Player extends PositionComponent
     _invincibilityTimer = 0;
     velocity = Vector2.zero();
 
-    attackRange = 150; 
+    attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;
     critChance = 5;
@@ -444,6 +470,8 @@ class Player extends PositionComponent
     hasFoice = false;
     magicShield = false;
     hasShield = false;
+    revive = false;
+    pegouRevive = false;
 
     children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
   }
