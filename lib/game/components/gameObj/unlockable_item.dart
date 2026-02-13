@@ -131,7 +131,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       _giveItem(gameRef.player);
       _isPicked = true;
       _updateVisuals();
-       _hideButton();
+      //_hideButton();
       //removeFromParent();
     }
     
@@ -145,7 +145,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       _isUnlocked = true;
       
       // Esconde o botão antigo e atualiza visuais
-      _hideButton();
+      //_hideButton();
       _updateVisuals();
       
       gameRef.world.add(FloatingText(
