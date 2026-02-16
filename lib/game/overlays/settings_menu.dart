@@ -124,7 +124,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                   ),
 
                   const Divider(color: Colors.white30, height: 30, thickness: 1),
-
+                /*
                   // --- NOVA SEÇÃO: GRÁFICOS ---
                   Text('graphics'.tr(), style: const TextStyle(fontSize: 20, color: Pallete.amarelo, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
@@ -144,9 +144,9 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       });
                     },
                   ),
-
+                
                   const Divider(color: Colors.white30, height: 30, thickness: 1),
-
+                */
                   // --- SEÇÃO DE IDIOMA ---
                   Text('language'.tr(), style: const TextStyle(fontSize: 20, color: Pallete.amarelo, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 15),

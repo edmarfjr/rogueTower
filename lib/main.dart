@@ -1,9 +1,7 @@
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'game/tower_game.dart';
-
 import 'game/overlays/hud.dart';
 import 'game/overlays/main_menu.dart';
 import 'game/overlays/pause_menu.dart';
@@ -35,8 +33,7 @@ class GameEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea( 
-        child:GameWidget<TowerGame>(
+      body: GameWidget<TowerGame>(
           game: TowerGame(),
           overlayBuilderMap: {
             'MainMenu': (context, game) => MainMenu(game: game),
@@ -47,7 +44,6 @@ class GameEntry extends StatelessWidget {
             'SettingsMenu': (context, game) => SettingsMenu(game: game), 
             'DebugMenu': (context, game) => DebugMenu(game: game), 
           },
-        ),
       )
     );
   }

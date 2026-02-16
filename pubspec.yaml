@@ -18,6 +18,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -27,3 +28,12 @@ flutter:
     - assets/audio/sfx/
   shaders:
     - shaders/crt.frag
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon.png" # Coloque o caminho exato da sua imagem aqui
+  min_sdk_version: 21 
+  web:
+    generate: true
+    image_path: "assets/images/icon.png"

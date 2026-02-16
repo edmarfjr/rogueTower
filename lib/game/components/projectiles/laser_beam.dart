@@ -68,7 +68,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     // FASE 1: DISPARAR (Acabou o tempo de carga)
     if (_timer >= chargeTime && !_hasFired) {
       _fire();
-      AudioManager.playSfx('laserShoot.mp3');
+      AudioManager.playSfx('laser.mp3');
     }
 
     if(isMoving && _hasFired){

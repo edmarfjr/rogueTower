@@ -1,5 +1,6 @@
+import 'dart:ui';
 import 'dart:async';
-
+import 'dart:ui' as ui;
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
 import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
@@ -11,7 +12,6 @@ import 'package:flame/game.dart';
 import 'package:flame/experimental.dart'; 
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
-import 'dart:ui';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
@@ -32,8 +32,9 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   late final RoomManager roomManager;
 
   late final FragmentProgram _crtProgram;
+  double _shaderTime = 0.0;
 
-  bool useCRTEffect = true;
+  bool useCRTEffect = false;
   
   // --- SISTEMA DE JOYSTICK MANUAL ---
   // Em vez de usar JoystickComponent, usamos 2 círculos simples
@@ -141,36 +142,45 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     AudioManager.playBgm('8bit_menu.mp3');
 
     await progress.loadSettings(this);
+    useCRTEffect = false;
   }
 
   @override
+  void update(double dt) {
+    super.update(dt);
+    // Acumula o tempo que passou desde o último frame (se o efeito estiver ligado)
+    if (useCRTEffect) {
+      _shaderTime += dt;
+    }
+  }
+
+@override
   void render(Canvas canvas) {
-    // Se o jogador desligou no menu (ou se o PC não suportar), desenha normal
     if (!useCRTEffect) {
       super.render(canvas);
       return;
     }
 
     try {
-      // 1. Configura o Shader
       final shader = _crtProgram.fragmentShader();
-      shader.setFloat(0, size.x); 
-      shader.setFloat(1, size.y);
 
-      // 2. Aplica o filtro
+      // Pega a densidade real da tela
+      final pixelRatio = ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
+
+      shader.setFloat(0, _shaderTime);
+      
+      // Resolução perfeita usando apenas o tamanho do Flame multiplicado pela densidade
+      shader.setFloat(1, size.x * pixelRatio); 
+      shader.setFloat(2, size.y * pixelRatio);
+
       final paint = Paint()..imageFilter = ImageFilter.shader(shader);
 
-      // 3. Salva a camada, desenha o jogo e aplica o shader
       canvas.saveLayer(size.toRect(), paint);
       super.render(canvas);
       canvas.restore();
-      
+
     } catch (e) {
-      // PLANO B: Se der o erro "UnsupportedError", desliga o efeito e salva o jogo do crash!
-      print("Efeito CRT não suportado neste dispositivo. Desligando... Erro: $e");
       useCRTEffect = false;
-      
-      // Desenha o jogo normal sem o filtro
       super.render(canvas);
     }
   }
