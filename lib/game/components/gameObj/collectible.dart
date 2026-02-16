@@ -183,7 +183,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         ));
         return;
       } else {
-        gameRef.coinsNotifier.value -= custoKeys;
+        gameRef.keysNotifier.value -= custoKeys;
       }
     }
 
@@ -197,7 +197,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         ));
         return;
       } else {
-        gameRef.coinsNotifier.value -= custoBombs;
+        gameRef.player.bombNotifier.value -= custoBombs;
       }
     }
 
