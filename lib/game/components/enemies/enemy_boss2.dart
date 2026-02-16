@@ -7,7 +7,7 @@ import '../../tower_game.dart';
 import '../core/pallete.dart';
 import '../core/game_icon.dart';
 import '../effects/floating_text.dart';
-import '../effects/explosion.dart';
+import '../effects/explosion_effect.dart';
 import '../projectiles/projectile.dart';
 import '../projectiles/laser_beam.dart';
 
@@ -226,7 +226,7 @@ class BossEnemy extends Enemy {
   }
 
   void _die() {
-    createExplosion(gameRef.world, position, Colors.purple, count: 50);
+    createExplosionEffect(gameRef.world, position, Colors.purple, count: 50);
     
     gameRef.world.add(FloatingText(
         text: "BOSS DERROTADO!", 

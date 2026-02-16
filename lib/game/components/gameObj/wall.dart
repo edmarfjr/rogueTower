@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +20,21 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
     List<IconData> possibleIcons = [
       Icons.grid_view, 
-      Icons.terrain
+      Icons.terrain,
+      MdiIcons.mushroomOutline,
     ];
 
     if (gameRef.currentLevel == 2){
       possibleIcons = [
         MdiIcons.graveStone,
-        MdiIcons.skullCrossbones
+        MdiIcons.skullCrossbones,
+        MdiIcons.halloween,
+      ];
+    } else if (gameRef.currentLevel == 3){
+      possibleIcons = [
+        MdiIcons.checkerboard,
+        MdiIcons.crownCircle,
+        MdiIcons.crownCircleOutline,
       ];
     }
 
@@ -34,7 +43,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
     // Visual: Um bloco sólido (ícone de grade ou quadrado)
     add(GameIcon(
       icon: icon, // Parecido com tijolos ou pedras
-      color: Colors.grey,     // Cor de pedra
+      color: Pallete.cinzaEsc,     // Cor de pedra
       size: size,
       anchor: Anchor.center,
       position: size / 2,

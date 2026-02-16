@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +10,9 @@ import 'game/overlays/pause_menu.dart';
 import 'game/overlays/game_over.dart';
 import 'game/overlays/victory_menu.dart';
 import 'game/overlays/settings_menu.dart';
+import 'game/overlays/debug_overlay.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setPreferredOrientations([
@@ -18,6 +20,8 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  
+  await AudioManager.init();
 
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -41,6 +45,7 @@ class GameEntry extends StatelessWidget {
             'GameOver': (context, game) => GameOver(game: game), 
             'VictoryMenu': (context, game) => VictoryMenu(game: game),
             'SettingsMenu': (context, game) => SettingsMenu(game: game), 
+            'DebugMenu': (context, game) => DebugMenu(game: game), 
           },
         ),
       )

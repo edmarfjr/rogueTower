@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 //import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ import '../projectiles/mortar_shell.dart';
 import '../projectiles/web.dart';
 import '../effects/target_reticle.dart';
 import '../effects/path_effect.dart';
-import '../effects/explosion.dart';
+import '../effects/explosion_effect.dart';
 import '../core/pallete.dart';
 import '../core/game_icon.dart';
 //import 'enemy_factory.dart';
@@ -276,6 +277,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
   }
 
   void _fireBullet(Vector2 baseDir, double angleOffset) {
+    AudioManager.playSfx('enemyShot.mp3');
     double x = baseDir.x * cos(angleOffset) - baseDir.y * sin(angleOffset);
     double y = baseDir.x * sin(angleOffset) + baseDir.y * cos(angleOffset);
     final newDir = Vector2(x, y);
@@ -314,7 +316,7 @@ class MortarAttackBehavior extends AttackBehavior {
         duration: flightTime,
         radius: 60,
       ));
-      
+      AudioManager.playSfx('enemyShot.mp3');
       enemy.gameRef.world.add(MortarShell(
         startPos: enemy.position.clone(),
         targetPos: target,
@@ -403,6 +405,7 @@ class SpinnerAttackBehavior extends AttackBehavior {
         ));
 
         if (isChangeDir) changeDirAux++;
+        AudioManager.playSfx('enemyShot.mp3');
       }     
       // Gira visualmente
       //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
@@ -742,7 +745,7 @@ class JumpAttackBehavior extends AttackBehavior {
     }
 
     // 2. Impacto e Dano
-    createExplosion(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
+    createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
     
     final player = enemy.gameRef.player;
     if (enemy.position.distanceTo(player.position) <= impactRadius) {
@@ -810,7 +813,7 @@ class SummonAttackBehavior extends AttackBehavior {
     enemy.gameRef.world.add(minion);
     _minions.add(minion);
 
-    createExplosion(enemy.gameRef.world, spawnPos, Pallete.cinzaCla, count: 5);
+    createExplosionEffect(enemy.gameRef.world, spawnPos, Pallete.cinzaCla, count: 5);
   }
 }
 
@@ -866,7 +869,7 @@ class ExplosionDeathBehavior extends DeathBehavior {
   @override
   void onDeath() {
     // Efeito Visual
-    createExplosion(enemy.gameRef.world, enemy.position, Pallete.vermelho, count: 20);
+    createExplosionEffect(enemy.gameRef.world, enemy.position, Pallete.vermelho, count: 20);
 
     // Lógica de Dano em Área (AOE)
     // Verifica se o player está perto

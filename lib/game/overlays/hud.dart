@@ -298,7 +298,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // 5. TOPO CENTRO: NÍVEL ATUAL
             // ---------------------------------------------
-            Positioned(
+            /*Positioned(
               top: 15, // Um pouco mais para baixo
               left: 0,
               right: 0,
@@ -337,7 +337,7 @@ class Hud extends StatelessWidget {
                   },
                 ),
               ),
-            ),        
+            ),   */     
           ],
         ),
       )

@@ -77,6 +77,11 @@ class I18n {
       'shieldDesc': 'Protege contra 1 ataque',
       'antimat': 'Antimatéria',
       'antimatDesc': 'Seus tiros destroem tiros inimigos',
+      'audio': 'Áudio', 
+      'sfx_volume': 'Efeitos Sonoros', 
+      'bgm_volume': 'Música', 
+      'muteMusic': 'Mudo Musica',
+      'muteSfx': 'Mudo Efeitos Sonoros',
     },
     'en': {
       'paused': 'PAUSED',
@@ -134,7 +139,7 @@ class I18n {
       'cafe': 'Coffee',
       'cafeDesc': '+200% Fire Rate, but -70% de damage',
       'alcool': 'Alcohol',
-      'alcoolDesc': "+30% damage, but bullets don't go straigh",
+      'alcoolDesc': '+30% damage, but bullets don´t go straigh',
       'magicShield': 'Magic Shield',
       'magicShieldDesc': 'Protects one hit, recover on new room',
       'freeze': 'Freezing',
@@ -151,6 +156,11 @@ class I18n {
       'shieldDesc': 'Protect against 1 attack',
       'antimat': 'antimatter',
       'antimatDesc': 'Your shots destroy enemy ones',
+      'audio': 'Audio', 
+      'sfx_volume': 'SFX', 
+      'bgm_volume': 'Music', 
+      'muteMusic': 'Mute Music',
+      'muteSfx': 'Mute SFX',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -225,6 +235,11 @@ class I18n {
       'shieldDesc': 'Protege contra 1 ataque',
       'antimat': 'antimateria',
       'antimatDesc': 'Tus disparos destruyen los del enemigo',
+      'audio': 'Audio', 
+      'sfx_volume': 'Efectos', 
+      'bgm_volume': 'Música', 
+      'muteMusic': 'Silenciar Musica',
+      'muteSfx': 'Silenciar Efectos Sonoros',
     }
   };
 

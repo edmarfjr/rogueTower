@@ -62,7 +62,7 @@ class EnemyFactory {
       originalColor: Pallete.verdeCla,
       movementBehavior: RandomWanderBehavior(), 
       attackBehavior: DropHazardBehavior(
-        interval: 0.8, // Mais rápido
+        interval: 0.5, 
         hazardBuilder: (p) => PoisonPuddle(position: p, duration: 5.0, damage: 1),
       ),
     );
@@ -71,7 +71,7 @@ class EnemyFactory {
   static Enemy createBee(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 10,
+      hp: 15,
       speed: 100,
       voa: true,
       rotates: true,
@@ -86,7 +86,7 @@ class EnemyFactory {
   static Enemy createBeeHive(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 35,
+      hp: 50,
       speed: 0,
       weight: 2.0,
       iconData: MdiIcons.beehiveOutline,
@@ -138,6 +138,7 @@ class EnemyFactory {
       position: pos,
       hp: 200,
       speed: 80,
+      soul: 60,
       size: Vector2.all(80),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
@@ -156,6 +157,7 @@ class EnemyFactory {
       position: pos,
       hp: 100,
       speed: 100,
+      soul: 25,
       size: Vector2.all(64),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
@@ -174,6 +176,7 @@ class EnemyFactory {
       position: pos,
       hp: 50,
       speed: 120,
+      soul: 10,
       size: Vector2.all(32),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
@@ -191,7 +194,7 @@ class EnemyFactory {
   static Enemy createBat(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 25,
+      hp: 45,
       speed: 100,
       iconData: MdiIcons.bat,
       originalColor: Pallete.lilas,
@@ -203,7 +206,7 @@ class EnemyFactory {
   static Enemy createSpider(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 25,
+      hp: 45,
       speed: 80,
       weight: 1.2,
       rotates: true,
@@ -221,7 +224,7 @@ class EnemyFactory {
   static Enemy createGhost(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 40,
+      hp: 60,
       speed: 80,
       hasGhostEffect: true,
       iconData: MdiIcons.ghost,
@@ -234,7 +237,7 @@ class EnemyFactory {
   static Enemy createCoffin(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 40,
+      hp: 70,
       speed: 0,
       weight: 100,
       iconData: MdiIcons.coffin,
@@ -247,7 +250,7 @@ class EnemyFactory {
   static Enemy createMere(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 40,
+      hp: 60,
       speed: 80,
       hasGhostEffect: true,
       iconData: MdiIcons.horseVariantFast,
@@ -260,7 +263,7 @@ class EnemyFactory {
   static Enemy createHorseMan(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 40,
+      hp: 70,
       speed: 100,
       hasGhostEffect: true,
       iconData: MdiIcons.horseHuman,
@@ -277,8 +280,9 @@ class EnemyFactory {
   static Enemy createHorseManBoss(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 500,
+      hp: 700,
       speed: 100,
+      soul: 250, 
       hasGhostEffect: true,
       size: Vector2.all(80),
       iconData: MdiIcons.horseHuman,
@@ -298,7 +302,7 @@ class EnemyFactory {
   static Enemy createChessKnight(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 45,
+      hp: 70,
       speed: 80, 
       weight: 2.0,
       iconData: MdiIcons.chessKnight, 
@@ -316,7 +320,7 @@ class EnemyFactory {
   static Enemy createChessPawn(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 40,
+      hp: 60,
       speed: 80,
       iconData: MdiIcons.chessPawn,
       originalColor: Pallete.cinzaEsc,
@@ -328,7 +332,7 @@ class EnemyFactory {
   static Enemy createChessRook(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 60,
+      hp: 120,
       speed: 0,
       weight: 100,
       iconData: MdiIcons.chessRook,
@@ -341,7 +345,7 @@ class EnemyFactory {
   static Enemy createChessBishop(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 60,
+      hp: 80,
       speed: 80,
       iconData: MdiIcons.chessBishop,
       originalColor: Pallete.cinzaEsc,
@@ -353,7 +357,7 @@ class EnemyFactory {
   static Enemy createChessKing(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 60,
+      hp: 100,
       speed: 60,
       iconData: MdiIcons.chessKing,
       originalColor: Pallete.cinzaEsc,
@@ -365,7 +369,7 @@ class EnemyFactory {
   static Enemy createChessQueen(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 50,
+      hp: 80,
       speed: 80,
       iconData: MdiIcons.chessKing,
       originalColor: Pallete.cinzaEsc,
@@ -377,8 +381,9 @@ class EnemyFactory {
   static Enemy createChessQueenBoss(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 500,
+      hp: 1200,
       speed: 80,
+      soul: 300,
       iconData: MdiIcons.chessKing,
       originalColor: Pallete.cinzaEsc,
       movementBehavior: FollowPlayerBehavior(),

@@ -76,7 +76,7 @@ class VictoryMenu extends StatelessWidget {
                   onPressed: () {
                     // Reinicia o jogo
                     game.transitionEffect.startTransition(() {
-                      game.overlays.remove('victory');
+                      game.overlays.remove('VictoryMenu');
                       game.resetGame(); 
                     }); 
                     

@@ -1,10 +1,12 @@
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
+import 'package:TowerRogue/game/components/gameObj/wall.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart'; // Ajuste imports
-
+import '../effects/explosion_effect.dart';
 import '../enemies/enemy.dart';
 
 class Explosion extends PositionComponent with HasGameRef<TowerGame> {
@@ -24,16 +26,20 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.damage = 1,
     this.damagesPlayer = true,
     this.apagaTiros = false,
-    this.cor = Pallete.laranja,
-    this.corBorda = Pallete.vermelho,
-  }) : super(position: position, anchor: Anchor.center);
+    Color? cor,
+    Color? corBorda,
+  }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
+       corBorda = corBorda ?? Pallete.vermelho.withValues(alpha: 0.6),
+       super(position: position, anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
-    priority = 20; // Fica por cima de tudo
+    priority = 20;
     
-    // Toca som se tiver
-    // AudioManager.playSfx('explosion.wav');
+    AudioManager.playSfx('explosion.mp3');
+
+    createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 30, lifespan: _duration*2, velocity: 300);
+    createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 30, lifespan: _duration*2, velocity: 300);
 
     // VERIFICA DANO INSTANTÂNEO AO NASCER
     if (damagesPlayer) {
@@ -42,23 +48,32 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
         player.takeDamage(damage.toInt());
       }
     } else {
-      // Se quiser que exploda inimigos (fogo amigo), implemente aqui
+      // inimigos
       final enemies = gameRef.world.children.query<Enemy>();
       for(final e in enemies){
-         if (e.position.distanceTo(position) <= radius) {
+         if (e.position.distanceTo(position) <= radius && !e.isInvencivel && !e.isIntangivel) {
             e.takeDamage(damage); // Explosão dói mais em inimigos
          }
       }
+      // Apaga projéteis inimigos
       final projeteis = gameRef.world.children.query<Projectile>();
       for(final p in projeteis){
          if (p.position.distanceTo(position) <= radius && p.isEnemyProjectile && apagaTiros) {
             p.removeFromParent(); 
          }
       }
-      final door = gameRef.world.children.query<Door>();
-      for(final d in door){
+      // Desbloqueia portas
+      final doors = gameRef.world.children.query<Door>();
+      for(final d in doors){
          if (d.position.distanceTo(position) <= radius && d.bloqueada ) {
             d.desbloqueia(); 
+         }
+      }
+      // Apaga projéteis inimigos
+      final walls = gameRef.world.children.query<Wall>();
+      for(final w in walls){
+         if (w.position.distanceTo(position) <= radius) {
+            w.removeFromParent(); 
          }
       }
     }

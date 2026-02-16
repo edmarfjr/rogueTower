@@ -9,7 +9,7 @@ import '../core/pallete.dart';
 import '../gameObj/wall.dart';
 import '../../tower_game.dart';
 import '../gameObj/player.dart';
-import '../effects/explosion.dart'; // Certifique-se que sua explosão visual está aqui
+import '../effects/explosion_effect.dart'; // Certifique-se que sua explosão visual está aqui
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   // --- PROPRIEDADES ORIGINAIS ---
@@ -127,7 +127,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
     
     // Efeito visual padrão de impacto (fagulhas)
-    createExplosion(gameRef.world, position, Pallete.laranja, count: 5);
+    createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 5);
     
     removeFromParent();
   }
@@ -189,7 +189,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         kill(); 
       }
     } else {
-      if (other is Enemy && !other.isInvencivel) {
+      if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {
         other.takeDamage(damage);
         kill();
       }

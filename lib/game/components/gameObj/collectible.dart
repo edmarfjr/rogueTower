@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
@@ -377,7 +378,7 @@ class CollectibleLogic {
        String text = "";
        //Color color = Pallete.branco;
        final player = game.player;
-
+      AudioManager.playSfx('collect.mp3');
        switch (type) {
          case CollectibleType.coin:
           int c = Random().nextInt(20)+5;

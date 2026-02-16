@@ -1,8 +1,10 @@
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
+import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -40,7 +42,7 @@ class Player extends PositionComponent
   double fireRate = 0.4; 
   double moveSpeed = 150.0;
 
-  ValueNotifier<int> bombNotifier = ValueNotifier<int>(5);
+  ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
 
   Vector2 velocity = Vector2.zero();
   Vector2 velocityDash = Vector2(1, 0);
@@ -184,7 +186,7 @@ class Player extends PositionComponent
     effect?.removeFromParent();
 
     // (Opcional) Adicione um som de vidro quebrando ou particulas aqui
-    print("ESCUDO QUEBRADO!"); 
+    //print("ESCUDO QUEBRADO!"); 
   }
 
   void _animateMovement(double dt) {
@@ -252,18 +254,14 @@ class Player extends PositionComponent
     dashNotifier.value--;
     isDashing = true;
 
+    AudioManager.playSfx('dash.mp3');
+
     _dashTimer = dashDuration;
     _dashCooldownTimer = dashCooldown;
 
     _dashDirection = velocityDash.normalized();
-    
-    // Efeito Visual: Usa children query para achar qualquer retângulo (hitbox ou visual debug)
-    // Se não tiver RectangleComponent visual, pode dar erro aqui. 
-    // Sugestão: Alterar a cor do GameIcon se possível, ou ignorar se não tiver rect visual.
-    // children.whereType<GameIcon>().first.setColor(Colors.white); // Exemplo seguro
-    
+  
     _isInvincible = true; 
-    print("DASH!");
   }
 
   void _handleDustEffect(double dt){
@@ -386,6 +384,7 @@ class Player extends PositionComponent
       revive = false;
       curaHp((maxHealth/2).ceil());
     }else{
+      AudioManager.playSfx('game_over.mp3');
       gameRef.onGameOver();
     }
   }
@@ -425,14 +424,14 @@ class Player extends PositionComponent
       direction = Vector2(x, y);
       dmg = dmg * 1.3;
     }
-    
+    AudioManager.playSfx('shoot.mp3');
     gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg, apagaTiros: hasAntimateria));
   }
 
   void criaBomba(){
     if (bombNotifier.value > 0){
       bombNotifier.value--;
-      gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, apagaTiros: true, radius:100));
+      gameRef.world.add(Bomb(position: position.clone()));
     }else{
       gameRef.world.add(FloatingText(
         text: "Sem Bombas",
@@ -446,10 +445,13 @@ class Player extends PositionComponent
   void reset() {
     maxHealth = 4;
     healthNotifier.value = 4;
+    maxDash = 2;
+    dashNotifier.value = 2;
+    _dashCooldownTimer = 0;
     _isInvincible = false;
     _invincibilityTimer = 0;
     velocity = Vector2.zero();
-
+    bombNotifier.value = 5;
     attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;

@@ -11,7 +11,7 @@ import '../gameObj/wall.dart';
 import '../gameObj/chest.dart';
 import '../gameObj/bank_atm.dart';
 import '../gameObj/unlockable_item.dart';
-import '../effects/explosion.dart';
+import '../effects/explosion_effect.dart';
 import '../core/pallete.dart';
 
 // --- NOVA INTEGRAÇÃO DE INIMIGOS ---
@@ -116,6 +116,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         gameRef.world.add(EnemyFactory.createKingSlime1(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 2){
         gameRef.world.add(EnemyFactory.createHorseManBoss(Vector2(0, -150)));
+      }else if(gameRef.currentLevel == 3){
+        gameRef.world.add(EnemyFactory.createChessQueenBoss(Vector2(0, -150)));
       }
       
 
@@ -124,7 +126,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
     
     _spawnDoors(roomNumber);
-    print("Sala $roomNumber iniciada...");
+    //print("Sala $roomNumber iniciada...");
   //  gameRef.atualizaDebugMode();
   }
 
@@ -515,7 +517,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ];
 
     for (var dir in directions) {
-      createExplosion(gameRef.world, dir, Pallete.lilas, count: 10);
+      createExplosionEffect(gameRef.world, dir, Pallete.lilas, count: 10);
     }
   }
 }

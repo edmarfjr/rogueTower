@@ -97,8 +97,8 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       add(GameIcon(
         icon: _getIconForType(type),
         color: _getColorForType(type),
-        size: size,
-        scale: Vector2.all(1.0), // Adicionado para evitar erro de required
+        size: Vector2.all(32),
+       // scale: Vector2.all(1.0), // Adicionado para evitar erro de required
         anchor: Anchor.center,
         position: size / 2,
       ));
@@ -170,7 +170,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   IconData _getIconForType(CollectibleType type) {
       if (type == CollectibleType.damage) return MdiIcons.flaskRoundBottom;
       if (type == CollectibleType.healthContainer) return Icons.favorite_outline;
-      if (type == CollectibleType.shield) return Icons.gpp_bad;
+      if (type == CollectibleType.shield) return MdiIcons.shield;
       if (type == CollectibleType.fireRate) return MdiIcons.flaskRoundBottom;
       if (type == CollectibleType.critChance) return MdiIcons.flaskRoundBottom;
       return Icons.star;

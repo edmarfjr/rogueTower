@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -283,6 +284,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     ));
 
     if (hp <= 0) {
+      AudioManager.playSfx('enemy_die.mp3');
       deathBehavior.onDeath();
       gameRef.progress.addSouls(soul);
       removeFromParent();

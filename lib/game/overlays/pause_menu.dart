@@ -107,6 +107,32 @@ class PauseMenu extends StatelessWidget {
                 },
                 child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
+
+              const SizedBox(height: 15),
+
+              // Botão Settings
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Pallete.lilas,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  game.overlays.add('SettingsMenu');
+                },
+                child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+              ),
+              const SizedBox(height: 20),
+
+              // Botão "Secreto" de Debug
+              IconButton(
+                icon: const Icon(Icons.bug_report, color: Pallete.laranja, size: 30),
+                tooltip: "Menu de Debug",
+                onPressed: () {
+                  // O jogo já está pausado, apenas fechamos o pause e abrimos o debug
+                  game.overlays.remove('PauseMenu');
+                  game.overlays.add('DebugMenu');
+                },
+),
             ],
           ),
         ),

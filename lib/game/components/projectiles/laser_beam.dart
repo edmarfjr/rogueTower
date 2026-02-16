@@ -1,11 +1,12 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart'; 
-import '../effects/explosion.dart';
+import '../effects/explosion_effect.dart';
 import '../enemies/enemy.dart';
 import '../gameObj/player.dart';
 import '../gameObj/wall.dart';
@@ -67,7 +68,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     // FASE 1: DISPARAR (Acabou o tempo de carga)
     if (_timer >= chargeTime && !_hasFired) {
       _fire();
-      // move o anguloo do feixe de laser
+      AudioManager.playSfx('laserShoot.mp3');
     }
 
     if(isMoving && _hasFired){
@@ -179,14 +180,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     
     if (isEnemyProjectile) {
       if (other is Player) {
-        createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(1); // Jogador toma 1 de dano (1 coração)
         removeFromParent();
       }
     } 
     else {
       if (other is Enemy) {
-        createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(damage);
         removeFromParent();
       }
