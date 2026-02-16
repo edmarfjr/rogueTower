@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 import '../core/game_icon.dart';
 import '../core/pallete.dart';
@@ -10,6 +11,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   final Vector2 startPos;
   final Vector2 targetPos;
   final double flightDuration;
+  final PositionComponent? owner;
   
   double _timeElapsed = 0;
   final double _maxHeight = 150.0;
@@ -19,6 +21,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   MortarShell({
     required this.startPos,
     required this.targetPos,
+    this.owner,
     this.flightDuration = 1.2,
   }) : super(position: startPos, size: Vector2.all(16), anchor: Anchor.center);
 
@@ -26,9 +29,9 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   Future<void> onLoad() async {
     // Criamos o visual
     _visualChild = GameIcon(
-      icon: Icons.circle, 
+      icon: MdiIcons.bomb, 
       color: Pallete.lilas,
-      size: Vector2.all(12),
+      size: Vector2.all(24),
       anchor: Anchor.center,
       // Importante: posição relativa ao centro do pai
       position: size / 2, 
@@ -42,6 +45,12 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (owner != null && !owner!.isMounted) {
+      removeFromParent(); // O tiro some junto
+      return;
+    }
+
     _timeElapsed += dt;
 
     double progress = _timeElapsed / flightDuration;
@@ -63,6 +72,8 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     
     // Gira apenas o ícone filho:
     _visualChild.angle += dt * 15; 
+    //_visualChild.angle = atan2(targetPos.y, targetPos.x) + pi/4;
+    
   }
   
   void _explode() {
@@ -90,9 +101,11 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
         width: 12 - (currentHeight * 0.02), // Sombra diminui um pouco com a altura
         height: 8 - (currentHeight * 0.02)
       ), 
-      Paint()..color = Pallete.azulEsc,
+      Paint()..color = Pallete.cinzaEsc,
     );
     
     super.render(canvas); // Desenha o filho (ícone girando) por cima da sombra
   }
+
+
 }

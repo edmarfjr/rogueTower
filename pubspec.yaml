@@ -25,3 +25,5 @@ flutter:
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/
+  shaders:
+    - shaders/crt.frag

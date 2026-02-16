@@ -90,6 +90,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     // Removemos a verificação "owner.isMounted" para que a bala não suma 
     // se o atirador morrer antes dela acertar o alvo.
+    if (owner != null && !owner!.isMounted) {
+      removeFromParent(); // O tiro some junto
+      return;
+    }
     
     // Movimento
     position += direction * speed * dt;

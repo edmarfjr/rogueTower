@@ -121,6 +121,27 @@ class _SettingsMenuState extends State<SettingsMenu> {
 
                   const Divider(color: Colors.white30, height: 30, thickness: 1),
 
+                  // --- NOVA SEÇÃO: GRÁFICOS ---
+                  Text('graphics'.tr(), style: const TextStyle(fontSize: 20, color: Pallete.amarelo, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+
+                  CheckboxListTile(
+                    title: Text('retro_effect'.tr(), style: const TextStyle(color: Colors.white, fontSize: 18)),
+                    // Lê a variável direto do seu jogo!
+                    value: widget.game.useCRTEffect, 
+                    activeColor: Pallete.vermelho,
+                    checkColor: Colors.white,
+                    side: const BorderSide(color: Colors.white54, width: 2),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        // Atualiza a variável no jogo em tempo real
+                        widget.game.useCRTEffect = value ?? true;
+                      });
+                    },
+                  ),
+
+                  const Divider(color: Colors.white30, height: 30, thickness: 1),
+
                   // --- SEÇÃO DE IDIOMA ---
                   Text('language'.tr(), style: const TextStyle(fontSize: 20, color: Pallete.amarelo, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 15),

@@ -6,6 +6,7 @@ import '../core/pallete.dart';
 class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
   final double duration;
   final double radius;
+  final PositionComponent? owner;
   
   double _timer = 0;
 
@@ -13,6 +14,7 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
     required Vector2 position,
     required this.duration,
     this.radius = 60,
+    this.owner,
   }) : super(position: position, size: Vector2.all(radius * 2), anchor: Anchor.center);
 
   @override
@@ -23,6 +25,12 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (owner != null && !owner!.isMounted) {
+      removeFromParent(); // O tiro some junto
+      return;
+    }
+    
     _timer += dt;
     if (_timer >= duration) removeFromParent();
   }

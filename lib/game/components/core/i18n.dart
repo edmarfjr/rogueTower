@@ -82,6 +82,8 @@ class I18n {
       'bgm_volume': 'Música', 
       'muteMusic': 'Mudo Musica',
       'muteSfx': 'Mudo Efeitos Sonoros',
+      'graphics': 'Gráficos', 
+      'retro_effect': 'Efeito Retrô (CRT)',
     },
     'en': {
       'paused': 'PAUSED',
@@ -161,6 +163,8 @@ class I18n {
       'bgm_volume': 'Music', 
       'muteMusic': 'Mute Music',
       'muteSfx': 'Mute SFX',
+      'graphics': 'Graphics', 
+      'retro_effect': 'Retro Effect (CRT)',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -240,6 +244,8 @@ class I18n {
       'bgm_volume': 'Música', 
       'muteMusic': 'Silenciar Musica',
       'muteSfx': 'Silenciar Efectos Sonoros',
+      'graphics': 'Gráficos', 
+      'retro_effect': 'Efecto Retro (CRT)',
     }
   };
 

@@ -8,10 +8,10 @@ import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flame/experimental.dart'; // Para Rectangle
+import 'package:flame/experimental.dart'; 
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
-
+import 'dart:ui';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
@@ -30,6 +30,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   static const double arenaHeight = 660.0; // Altura total (Cima <-> Baixo)
   late final Player player;
   late final RoomManager roomManager;
+
+  late final FragmentProgram _crtProgram;
+
+  bool useCRTEffect = true;
   
   // --- SISTEMA DE JOYSTICK MANUAL ---
   // Em vez de usar JoystickComponent, usamos 2 círculos simples
@@ -63,6 +67,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   @override
   Future<void> onLoad() async {
+
+    _crtProgram = await FragmentProgram.fromAsset('shaders/crt.frag');
 
     try {
       await AudioManager.init();
@@ -132,6 +138,38 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     //musica menu principal
     AudioManager.playBgm('8bit_menu.mp3');
+  }
+
+  @override
+  void render(Canvas canvas) {
+    // Se o jogador desligou no menu (ou se o PC não suportar), desenha normal
+    if (!useCRTEffect) {
+      super.render(canvas);
+      return;
+    }
+
+    try {
+      // 1. Configura o Shader
+      final shader = _crtProgram.fragmentShader();
+      shader.setFloat(0, size.x); 
+      shader.setFloat(1, size.y);
+
+      // 2. Aplica o filtro
+      final paint = Paint()..imageFilter = ImageFilter.shader(shader);
+
+      // 3. Salva a camada, desenha o jogo e aplica o shader
+      canvas.saveLayer(size.toRect(), paint);
+      super.render(canvas);
+      canvas.restore();
+      
+    } catch (e) {
+      // PLANO B: Se der o erro "UnsupportedError", desliga o efeito e salva o jogo do crash!
+      print("Efeito CRT não suportado neste dispositivo. Desligando... Erro: $e");
+      useCRTEffect = false;
+      
+      // Desenha o jogo normal sem o filtro
+      super.render(canvas);
+    }
   }
 
   // Tira da Carteira (Atual) -> Põe no Banco (Persistente)

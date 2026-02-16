@@ -314,12 +314,14 @@ class MortarAttackBehavior extends AttackBehavior {
       enemy.gameRef.world.add(TargetReticle(
         position: target,
         duration: flightTime,
+        owner: enemy,
         radius: 60,
       ));
       AudioManager.playSfx('enemyShot.mp3');
       enemy.gameRef.world.add(MortarShell(
         startPos: enemy.position.clone(),
         targetPos: target,
+        owner: enemy,
         flightDuration: flightTime,
       ));
       
@@ -681,7 +683,7 @@ class JumpAttackBehavior extends AttackBehavior {
       // 4. Efeito na Sombra (Fica menor e mais clara quanto mais alto o inimigo vai)
       if (_shadow != null) {
         _shadow!.scale = Vector2.all(1.0 - (arc * 0.6)); // Encolhe até 40%
-        _shadow!.paint.color = Pallete.azulEsc;
+        _shadow!.paint.color = Pallete.cinzaEsc;
       }
 
       if (progress >= 1.0) {
