@@ -59,6 +59,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   CollectibleType nextRoomReward = CollectibleType.nextlevel;
 
   final GameProgress progress = GameProgress();
+  
 
   late ScreenTransition transitionEffect;
 
@@ -138,6 +139,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     //musica menu principal
     AudioManager.playBgm('8bit_menu.mp3');
+
+    await progress.loadSettings(this);
   }
 
   @override

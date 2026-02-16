@@ -70,6 +70,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       setState(() {
                         _isMutedMusic = value ?? false;
                         AudioManager.toggleMuteMusic(_isMutedMusic);
+                        widget.game.progress.saveSettings(widget.game);
                       });
                     },
                   ),
@@ -85,6 +86,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       setState(() {
                         _isMutedSfx = value ?? false;
                         AudioManager.toggleMuteSfx(_isMutedSfx);
+                        widget.game.progress.saveSettings(widget.game);
                       });
                     },
                   ),
@@ -99,6 +101,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       setState(() {
                         _currentBgmVol = val;
                         AudioManager.updateBgmVolume(val);
+                        widget.game.progress.saveSettings(widget.game);
                       });
                     },
                   ),
@@ -115,6 +118,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                         AudioManager.sfxVolume = val;
                         // Toca um sonzinho rápido pra testar o volume!
                         if (!_isMutedSfx) AudioManager.playSfx('dash.mp3'); 
+                        widget.game.progress.saveSettings(widget.game);
                       });
                     },
                   ),
@@ -136,6 +140,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       setState(() {
                         // Atualiza a variável no jogo em tempo real
                         widget.game.useCRTEffect = value ?? true;
+                        widget.game.progress.saveSettings(widget.game);
                       });
                     },
                   ),

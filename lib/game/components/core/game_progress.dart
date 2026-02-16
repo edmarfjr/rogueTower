@@ -1,4 +1,6 @@
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/tower_game.dart';
 import 'package:flutter/foundation.dart'; // Necessário para ValueNotifier
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -95,5 +97,34 @@ class GameProgress {
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_langKey, lang); // Salva no disco
+  }
+
+  Future<void> loadSettings(TowerGame game) async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Carrega o Áudio (se não existir, usa os valores padrão: 1.0, 0.5, false)
+    AudioManager.sfxVolume = prefs.getDouble('sfxVolume') ?? 1.0;
+    AudioManager.bgmVolume = prefs.getDouble('bgmVolume') ?? 0.5;
+    
+    bool mutedMusic = prefs.getBool('isMutedMusic') ?? false;
+    AudioManager.toggleMuteMusic(mutedMusic);
+
+    bool mutedSfx = prefs.getBool('isMutedSfx') ?? false;
+    AudioManager.toggleMuteSfx(mutedSfx);
+
+    // Carrega os Gráficos
+    game.useCRTEffect = prefs.getBool('useCRTEffect') ?? true;
+  }
+
+  // --- SALVAR CONFIGURAÇÕES ---
+  // Chame isso sempre que o jogador mexer em algum slider ou checkbox
+  Future<void> saveSettings(TowerGame game) async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    await prefs.setDouble('sfxVolume', AudioManager.sfxVolume);
+    await prefs.setDouble('bgmVolume', AudioManager.bgmVolume);
+    await prefs.setBool('isMutedMusic', AudioManager.isMutedMusic);
+    await prefs.setBool('isMutedSfx', AudioManager.isMutedSfx);
+    await prefs.setBool('useCRTEffect', game.useCRTEffect);
   }
 }
