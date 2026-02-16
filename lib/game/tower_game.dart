@@ -129,6 +129,9 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     camera.viewfinder.anchor = Anchor.center;
 
     overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
+
+    //musica menu principal
+    AudioManager.playBgm('8bit_menu.mp3');
   }
 
   // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
@@ -254,11 +257,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
+    AudioManager.playBgm('8bit_menu.mp3');
   }
 
   void startLevel() {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
+    AudioManager.playBgm('funny_bit.mp3');
   }
 
   void nextLevel(CollectibleType chosenReward) {
@@ -284,6 +289,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   void onGameOver() {
+    AudioManager.stopBgm();
     pauseEngine(); 
     overlays.add('GameOver'); 
   }

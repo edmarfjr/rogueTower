@@ -10,6 +10,8 @@ class AudioManager {
   static bool _isMutedSfx = false;
   static bool get isMutedSfx => _isMutedSfx;
 
+  static String currMusic = '';
+
   /// Inicializa e pré-carrega sons importantes para evitar lag na primeira vez
   static Future<void> init() async {
     // CORREÇÃO 1: O cache precisa saber exatamente em qual subpasta o arquivo está!
@@ -23,6 +25,9 @@ class AudioManager {
       'sfx/explosion.mp3',
       'sfx/laser.mp3',
       'sfx/enemyShot.mp3',
+      'music/8bit_menu.mp3',
+      'music/funny_bit.mp3',  
+      'music/retro_plat.mp3',
     ]);
     
     // Configura o loop de música global
@@ -42,6 +47,7 @@ class AudioManager {
     if (_isMutedMusic) return;
     // CORREÇÃO 3: Mudamos de 'sfx/' para 'music/' para as músicas de fundo
     FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
+    currMusic = filename;
   }
 
   static void stopBgm() {
@@ -54,7 +60,7 @@ class AudioManager {
       FlameAudio.bgm.stop();
     } else {
       // Opcional: Coloque o nome da sua música principal aqui para ela voltar a tocar
-      // playBgm('tema_principal.mp3'); 
+       playBgm(currMusic); 
     }
   }
 
