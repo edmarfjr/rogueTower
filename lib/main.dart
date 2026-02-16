@@ -21,7 +21,7 @@ Future<void> main() async {
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   
-  await AudioManager.init();
+ // await AudioManager.init();
 
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,

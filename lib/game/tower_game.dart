@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
 import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
@@ -62,6 +63,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
   @override
   Future<void> onLoad() async {
+
+    try {
+      await AudioManager.init();
+    } catch (e) {
+      print("Erro ao carregar áudio: $e");
+    }
+    
     await progress.load();
     debugMode = false;
     // 1. VIEWPORT (Janela do Jogo)

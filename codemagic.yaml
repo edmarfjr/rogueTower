@@ -1,0 +1,39 @@
+workflows:
+  android-release:
+    name: Build Android Release (Play Store)
+    
+    # Máquina que vai compilar o código (pode ser mac_mini_m1 ou linux)
+    instance_type: mac_mini_m1 
+    max_build_duration: 60
+    
+    environment:
+      flutter: stable
+      # É aqui que o Codemagic puxa a sua assinatura de forma secreta!
+      android_signing:
+        - minha_chave_upload 
+
+    scripts:
+      - name: Criar key.properties no servidor do Codemagic
+        script: |
+          # O Codemagic preenche essas variáveis ($CM_...) automaticamente a partir da chave que você cadastrar no painel deles.
+          echo "storePassword=$CM_KEYSTORE_PASSWORD" >> android/key.properties
+          echo "keyPassword=$CM_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$CM_KEY_ALIAS" >> android/key.properties
+          echo "storeFile=$CM_KEYSTORE_PATH" >> android/key.properties
+          
+      - name: Baixar pacotes do Flutter
+        script: |
+          flutter packages pub get
+          
+      - name: Gerar App Bundle (AAB) para a Play Store e APK
+        script: |
+          # O AAB é o formato exigido pela Google Play
+          flutter build appbundle --release
+          
+          # Geramos o APK também caso você queira mandar direto para o seu celular
+          flutter build apk --release
+
+    # Arquivos finais que o Codemagic vai te entregar para download no final do processo
+    artifacts:
+      - build/app/outputs/bundle/release/**/*.aab
+      - build/app/outputs/flutter-apk/**/*.apk
