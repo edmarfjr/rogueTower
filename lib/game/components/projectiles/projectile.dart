@@ -42,6 +42,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   double _currentAngle = 0; 
   final double orbitalRadius;
 
+  GameIcon? visual;
+
   // Flag para evitar loop de morte (ex: explodir duas vezes no mesmo frame)
   bool _isDead = false;
 
@@ -69,13 +71,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   @override
   Future<void> onLoad() async {
     // Adiciona o Ícone
-    add(GameIcon(
+    visual = GameIcon(
       icon: explodes ? Icons.brightness_high : Icons.circle, // Ícone diferente se for explosivo
       color: isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
-    ));
+    );
+    add(visual!);
     
     // Hitbox um pouco menor que o sprite
     add(CircleHitbox(
@@ -118,7 +121,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
 
     // Visual (Piscar)
-    final visual = children.whereType<GameIcon>().firstOrNull;
+    //final visual = children.whereType<GameIcon>().firstOrNull;
     _timer += dt;
     
     // Pisca mais rápido se estiver perto de expirar

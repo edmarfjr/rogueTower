@@ -333,7 +333,6 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.fireRate,
       CollectibleType.moveSpeed, 
       CollectibleType.range, 
-      CollectibleType.healthContainer,
       CollectibleType.keys,
       CollectibleType.dash,
       CollectibleType.sanduiche,

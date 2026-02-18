@@ -78,6 +78,8 @@ class Player extends PositionComponent
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
 
+  final Vector2 _collisionBuffer = Vector2.zero();
+
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
     dashNotifier = ValueNotifier<int>(maxDash);
@@ -329,7 +331,7 @@ class Player extends PositionComponent
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other is Enemy && other.isIntangivel) {
+    if (other is Enemy && !other.isIntangivel) {
       takeDamage(1);
     }
   }
@@ -487,8 +489,10 @@ class Player extends PositionComponent
   }
 
   void _handleWallCollision(Set<Vector2> points, PositionComponent wall) {
-    final separationVector = (position - wall.position).normalized();
-    position += separationVector * 2.0; 
+      _collisionBuffer.setFrom(position);
+      _collisionBuffer.sub(wall.position);
+      _collisionBuffer.normalize();
+      position.addScaled(_collisionBuffer, 2.0);
   }
 
   @override

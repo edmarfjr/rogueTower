@@ -14,6 +14,8 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   double _damageTickTimer = 0; // Conta o intervalo entre danos
   bool _playerIsInside = false;
 
+  CircleComponent? circle;
+
   PoisonPuddle({
     required Vector2 position, 
     this.duration = 5.0,
@@ -24,12 +26,13 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   @override
   Future<void> onLoad() async {
     // Visual: Círculo Verde
-    add(CircleComponent(
+    circle = CircleComponent(
       radius: size.x / 2,
       paint: Paint()..color = Pallete.verdeCla.withValues(alpha: 0.6), // Transparente
       anchor: Anchor.center,
       position: size / 2,
-    ));
+    );
+    add(circle!);
 
     // Hitbox (Sensor)
     add(CircleHitbox(
@@ -64,16 +67,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
        double currentOpacity = (duration - _lifeTimer).clamp(0.0, 1.0);
        
        // Aplica no CÍRCULO (mantendo o tom base 0.6)
-       final circle = children.whereType<CircleComponent>().firstOrNull;
+      // final circle = children.whereType<CircleComponent>().firstOrNull;
        if (circle != null) {
-         circle.paint.color = Colors.greenAccent.withValues(alpha: 0.6 * currentOpacity);
-       }
-
-       // Aplica no ÍCONE (usando o método setColor do GameIcon)
-       final icon = children.whereType<GameIcon>().firstOrNull;
-       if (icon != null) {
-         // Cor original era Colors.green[900] com alpha 0.5
-         icon.setColor(Colors.green[900]!.withValues(alpha: 0.5 * currentOpacity));
+         circle?.paint.color = Pallete.verdeCla.withValues(alpha: 0.6 * currentOpacity);
        }
     }
 

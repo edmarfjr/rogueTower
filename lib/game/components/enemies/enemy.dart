@@ -57,6 +57,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   final bool hasShield;
 
+  final Vector2 _collisionBuffer = Vector2.zero();
+
   Enemy({
     required Vector2 position,
     required this.movementBehavior,
@@ -233,9 +235,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Repassa colisão para o movimento (Ex: Bouncer precisa saber se bateu)
     movementBehavior.onCollision(intersectionPoints, other);
 
-    if (other is Wall) {
-      final separation = (position - other.position).normalized();
-      position += separation * 1.0; 
+    if (other is Wall && !voa) {
+      _collisionBuffer.setFrom(position);
+      _collisionBuffer.sub(other.position);
+      _collisionBuffer.normalize();
+      position.addScaled(_collisionBuffer, 1.0);
     } 
     // COLISÃO COM INIMIGOS (Lógica de Peso)
     else if (other is Enemy && !voa) {
@@ -244,21 +248,25 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void _handleEnemyCollision(Enemy other) {
-    // 1. Se eu sou MAIS PESADO que o outro, eu NÃO me movo (sou uma rocha)
+    // 1. Se eu sou MAIS PESADO que o outro, eu NÃO me movo
     if (this.weight > other.weight) {
        return; 
     }
 
     // 2. Se temos o MESMO PESO, nos empurramos igualmente
     if (this.weight == other.weight) {
-      final separation = (position - other.position).normalized();
-      position += separation * 1.0; 
+      _collisionBuffer.setFrom(position);
+      _collisionBuffer.sub(other.position);
+      _collisionBuffer.normalize();
+      position.addScaled(_collisionBuffer, 1.0); 
     }
 
     // 3. Se sou MAIS LEVE, sou empurrado com força
     if (this.weight < other.weight) {
-      final separation = (position - other.position).normalized();
-      position += separation * 3.0; // Empurrão forte
+      _collisionBuffer.setFrom(position);
+      _collisionBuffer.sub(other.position);
+      _collisionBuffer.normalize();
+      position.addScaled(_collisionBuffer, 3.0);
     }
   }
 

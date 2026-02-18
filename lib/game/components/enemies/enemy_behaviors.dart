@@ -108,42 +108,94 @@ class KeepDistanceBehavior extends MovementBehavior {
 
 class RandomWanderBehavior extends MovementBehavior {
   Vector2 _target = Vector2.zero();
+  
+  // Vetores reutilizáveis para evitar Garbage Collection (Travamentos)
   final Vector2 _direction = Vector2.zero();
+  final Vector2 _tempCalc = Vector2.zero(); 
+
+  final Random _rng = Random(); // Cache do Random
 
   @override
   void update(double dt) {
     if (!enemy.canMove) return;
 
+    // Se não tem alvo ou chegou perto, escolhe um aleatório total
     if (_target == Vector2.zero() || enemy.position.distanceTo(_target) < 10) {
       _pickNewTarget();
     }
 
+    // Lógica de Movimento Otimizada (Zero Alocação)
     _direction
-      ..setFrom(_target) // Copia posição do player
-      ..sub(enemy.position)      // Subtrai posição do inimigo
-      ..normalize();             // Normaliza
+      ..setFrom(_target)       
+      ..sub(enemy.position)    
+      ..normalize();           
 
     // Rotação visual
     if (enemy.rotates) {
+      // Otimização: Se você implementou a variável '_visual' no Enemy sugerida antes, use-a aqui.
+      // Se não, mantenha o children.firstOrNull
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
+      if (visual != null) {
+        visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
+      }
     }
 
     enemy.position.addScaled(_direction, enemy.speed * dt);
   }
 
-  void _pickNewTarget() {
-    final rng = Random();
-    // Gera alvo aleatório dentro da arena
-    double w = TowerGame.arenaWidth / 2 - 20;
-    double h = TowerGame.arenaHeight / 2 - 20;
-    _target = Vector2((rng.nextDouble() * 2 * w) - w, (rng.nextDouble() * 2 * h) - h);
+  // Agora aceita uma direção opcional de viés (Bias)
+  void _pickNewTarget({Vector2? pushAwayFrom}) {
+    double w = TowerGame.arenaWidth / 2 - 40; // Margem de segurança maior (40)
+    double h = TowerGame.arenaHeight / 2 - 40;
+
+    if (pushAwayFrom != null) {
+      // --- LÓGICA DE COLISÃO INTELIGENTE ---
+      // 1. Pega o ângulo da direção oposta ao objeto
+      double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
+      
+      // 2. Adiciona uma variação aleatória de +/- 60 graus (pi/3)
+      // Isso faz ele não voltar exatamente pra trás, mas sair na diagonal
+      double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
+      double finalAngle = baseAngle + noise;
+
+      // 3. Projeta um ponto longe (ex: 200 pixels) nessa direção segura
+      double dist = 100 + _rng.nextDouble() * 100;
+      
+      _target.setValues(
+        enemy.position.x + cos(finalAngle) * dist,
+        enemy.position.y + sin(finalAngle) * dist,
+      );
+
+    } else {
+      // --- LÓGICA ALEATÓRIA PURA ---
+      _target.setValues(
+        (_rng.nextDouble() * 2 * w) - w, 
+        (_rng.nextDouble() * 2 * h) - h
+      );
+    }
+
+    // IMPORTANTE: Garante que o ponto calculado (seja por colisão ou random)
+    // não caia fora da arena, senão ele tenta atravessar a parede do mundo.
+    _target.x = _target.x.clamp(-w, w);
+    _target.y = _target.y.clamp(-h, h);
   }
   
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+     // Ignora coisas que não são barreiras físicas
      if (other is Web || other is PoisonPuddle) return;
-     _pickNewTarget();
+     
+     // Ignora se o alvo atual JÁ ESTÁ longe do objeto (evita jitter)
+     if (other.position.distanceTo(_target) > other.position.distanceTo(enemy.position)) {
+       return;
+     }
+
+     // 1. Calcula vetor que aponta PARA LONGE do objeto (Inimigo - Objeto)
+     _tempCalc.setFrom(enemy.position);
+     _tempCalc.sub(other.position);
+     
+     // 2. Escolhe novo alvo usando esse vetor como guia
+     _pickNewTarget(pushAwayFrom: _tempCalc);
   }
 }
 

@@ -29,6 +29,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
   static const double arenaHeight = 660.0; // Altura total (Cima <-> Baixo)
   late final Player player;
+  late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
 
   //late final FragmentProgram _crtProgram;
@@ -112,11 +113,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     const double gameWidth = 400;
     const double gameHeight = 700;
 
-    await world.add(ArenaBorder(
+
+    arenaBorder = ArenaBorder(
       size: Vector2(gameWidth, gameHeight),
       wallThickness: 54, 
       radius: 40,       
-    ));
+    );
+    await world.add(arenaBorder);
 
     camera.setBounds(
       Rectangle.fromLTWH(-60, -60, 120, 130),
@@ -125,7 +128,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     // 4. MUNDO E ENTIDADES
     roomManager = RoomManager();
-    world.add(roomManager);
+    add(roomManager);
 
     player = Player(position: Vector2(0, 0));
     world.add(player);
@@ -148,17 +151,17 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     await progress.loadSettings(this);
     useCRTEffect = false;
   }
-
-  //@override
-  //void update(double dt) {
-  //  super.update(dt);
+/*
+  @override
+  void update(double dt) {
+    super.update(dt);
     // Acumula o tempo que passou desde o último frame (se o efeito estiver ligado)
-   // print("Objetos ativos: ${children.length}");
+    print("Entidades no Mundo: ${world.children.length}");
     //if (useCRTEffect) {
     //  _shaderTime += dt;
    // }
-  //}
-/*
+  }
+
 @override
   void render(Canvas canvas) {
     if (!useCRTEffect) {
@@ -332,7 +335,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     }
     nextRoomReward = chosenReward;
 
-    // Limpeza de componentes
+    /* Limpeza de componentes
     world.children.query<Door>().forEach((d) => d.removeFromParent());
     world.children.query<Projectile>().forEach((p) => p.removeFromParent());
     world.children.query<Enemy>().forEach((e) => e.removeFromParent());
@@ -341,6 +344,10 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     world.children.query<Chest>().forEach((c) => c.removeFromParent());
     world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
     world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
+    */
+
+    world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
+    //collisionDetection.items.clear();
     
     startLevel();
   }

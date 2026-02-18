@@ -4,6 +4,7 @@ class AudioManager {
   // Configurações de Volume (0.0 a 1.0)
   static double sfxVolume = 1.0;
   static double bgmVolume = 0.5;
+  static DateTime _lastSfxTime = DateTime.now();
 
   static bool _isMutedMusic = false;
   static bool get isMutedMusic => _isMutedMusic;
@@ -37,9 +38,12 @@ class AudioManager {
   /// Toca um efeito sonoro curto
   static void playSfx(String filename) {
     if (_isMutedSfx) return;
-    // CORREÇÃO 2: Adicionamos o 'sfx/' aqui. 
-    // Assim, se você chamar AudioManager.playSfx('dash.mp3'), ele acha certinho!
-    FlameAudio.play('sfx/$filename', volume: sfxVolume);
+    final now = DateTime.now();
+    // Só toca se passou 50ms desde o último som igual
+    if (now.difference(_lastSfxTime).inMilliseconds > 50) {
+      FlameAudio.play('sfx/$filename');
+      _lastSfxTime = now;
+    }
   }
 
   /// Toca música de fundo em loop
