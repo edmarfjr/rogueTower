@@ -453,6 +453,28 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           soulCost: 1500,
         ));
         break;
+      case 4:
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, -100),
+          id: 'permanent_shield_4', 
+          type: CollectibleType.shield,
+          soulCost: 700,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 0),
+          id: 'permanent_health_4', 
+          type: CollectibleType.healthContainer,
+          soulCost: 1000,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(-80, 100),
+          id: 'permanent_critDmg_4', 
+          type: CollectibleType.critDamage,
+          soulCost: 1500,
+        ));
+        break;
       default:
         break;
     }
