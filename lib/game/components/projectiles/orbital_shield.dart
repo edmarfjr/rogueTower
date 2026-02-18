@@ -27,7 +27,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     this.radius = 45,
     this.speed = 3,
     Vector2? size,
-    }) : super(size: size ?? Vector2.all(12), anchor: Anchor.center);
+    }) : super(size: size ?? Vector2.all(24), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -62,12 +62,15 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     
     // Movimento Circular: x = cos(a) * r, y = sin(a) * r
     _currentAngle += speed * dt;
-    final playerCenter = owner?.position;
+    final double centerX = owner!.size.x / 2;
+    final double centerY = owner!.size.y / 2;
+
+    // Cálculo da nova posição
+    final newX = centerX + cos(_currentAngle) * radius;
+    final newY = centerY + sin(_currentAngle) * radius;
     
-    position = Vector2(
-      playerCenter!.x + cos(_currentAngle) * radius,
-      playerCenter!.y + sin(_currentAngle) * radius,
-    );
+    position.setValues(newX, newY);
+    
   }
 
   @override

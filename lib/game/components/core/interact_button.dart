@@ -42,7 +42,7 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
       color: Pallete.amarelo, 
       size: size/2,
       anchor: Anchor.center, 
-      position: size / 2 + Vector2(0,-5),    
+      position: size / 2,    
     ));
     /* Texto "ABRIR" ou Ícone
     add(TextComponent(

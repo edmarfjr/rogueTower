@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
+import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late double _baseSpeed;
   double freezeTimer = 0.0;
 
-  // --- VARIÁVEIS DE ANIMAÇÃO (RESTAURADAS) ---
+  GameIcon? visual;
   Vector2 _lastPosition = Vector2.zero();
   double _animAmplitude = 0.1;
   double _animTimer = 0;
@@ -53,6 +54,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   AttackBehavior? attack2Behavior;
   late DeathBehavior deathBehavior;
   final IconData iconData;
+
+  final bool hasShield;
 
   Enemy({
     required Vector2 position,
@@ -73,6 +76,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.iconData = Icons.pest_control_rodent,
     this.originalColor = Pallete.vermelho,
     Vector2? size,
+    this.hasShield = false,
   }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
     _baseSpeed = speed;
@@ -87,13 +91,19 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   Future<void> onLoad() async {
-    add(GameIcon(
+    // Cria o componente visual
+    final gameIcon = GameIcon(
       icon: iconData,
       color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2, 
-    ));
+    );
+    
+    add(gameIcon);
+    
+    // 2. GUARDA A REFERÊNCIA AQUI!
+    visual = gameIcon;
 
     add(RectangleHitbox(
       size: size, 
@@ -101,6 +111,19 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       position: size / 2, 
       isSolid: true,
     ));
+
+    if (hasShield) {
+      List<double> angles = [0, pi/2, pi, 3*pi/2];
+      for (var ang in angles) {
+        add(OrbitalShield(
+          owner: this,
+        //radius: size.x, 
+          speed: 4.0,
+          isEnemy: true,
+          angleOffset: ang,
+        ));
+      }
+    }
   }
 
   @override
@@ -123,19 +146,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
   
  void _createGhostEffect(double dt) {
-    final visual = children.whereType<GameIcon>().first;
-
-    
+   // final visual = children.whereType<GameIcon>().first;
+    if (visual == null) return;
     _ghostTimer += dt;
     if (_ghostTimer >= 0.1) {
       gameRef.world.add(
         GhostParticle(
-          icon: visual.icon,
+          icon: visual!.icon,
           color: originalColor.withOpacity(0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
-          scale: visual.scale
+          scale: visual!.scale
         ),
       );
       _ghostTimer = 0;
@@ -143,7 +165,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
   
   void _animateEnemy(double dt) {
-    final visual = children.whereType<GameIcon>().firstOrNull;
+    //final visual = children.whereType<GameIcon>().firstOrNull;
     if (visual == null) return;
 
     // 1. FLIP (Olhar para o Player)
@@ -160,7 +182,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     } else {
       // Se o inimigo rotaciona (ex: Boss/Spinner), ignoramos o flip X
       // Mas precisamos manter a escala X consistente com a animação abaixo
-      facingDirection = visual.scale.x.sign; 
+      facingDirection = visual!.scale.x.sign; 
       if (facingDirection == 0) facingDirection = 1.0;
     }
 
@@ -181,21 +203,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       double squashX = 1.0 - (wave * _animAmplitude); 
 
       // Aplica as transformações
-      visual.scale.y = stretchY;
-      visual.scale.x = facingDirection * squashX; // Multiplica pela direção do Flip
+      visual?.scale.y = stretchY;
+      visual?.scale.x = facingDirection * squashX; // Multiplica pela direção do Flip
       
       // (Opcional) Rotação leve: gingado para os lados (Waddle)
       if (!rotates) {
-         visual.angle = wave * 0.1; // Gira levemente (-0.1 a 0.1 radianos)
+         visual?.angle = wave * 0.1; // Gira levemente (-0.1 a 0.1 radianos)
       }
 
     } else {
       // RESET (IDLE)
       // Se parou, volta ao normal
       _animTimer = 0;
-      visual.scale.y = 1.0;
-      visual.scale.x = facingDirection; // Mantém o lado que estava olhando
-      if (!rotates) visual.angle = 0;
+      visual?.scale.y = 1.0;
+      visual?.scale.x = facingDirection; // Mantém o lado que estava olhando
+      if (!rotates) visual?.angle = 0;
     }
 
     // Atualiza a posição anterior para o próximo frame

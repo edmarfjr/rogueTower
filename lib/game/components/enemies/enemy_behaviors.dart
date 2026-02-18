@@ -3,6 +3,7 @@ import 'dart:ui';
 //import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,6 @@ abstract class AttackBehavior {
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
 }
 
-
 abstract class DeathBehavior {
   late Enemy enemy;
   void onDeath();
@@ -48,27 +48,34 @@ abstract class DeathBehavior {
 // --- MOVIMENTOS (MOVEMENT BEHAVIORS) ---
 
 class FollowPlayerBehavior extends MovementBehavior {
+  final Vector2 _direction = Vector2.zero();
+
   @override
   void update(double dt) {
     // Só anda se o ataque permitir
     if (!enemy.canMove) return;
 
     final player = enemy.gameRef.player;
-    final direction = (player.position - enemy.position).normalized();
+    _direction
+      ..setFrom(player.position) // Copia posição do player
+      ..sub(enemy.position)      // Subtrai posição do inimigo
+      ..normalize();             // Normaliza
     
     // Rotação visual
     if (enemy.rotates) {
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
+      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
     
-    enemy.position += direction * enemy.speed * dt;
+    enemy.position.addScaled(_direction, enemy.speed * dt);
   }
 }
 
 class KeepDistanceBehavior extends MovementBehavior {
   final double minDistance;
   final double maxDistance;
+
+  final Vector2 _direction = Vector2.zero();
 
   KeepDistanceBehavior({this.minDistance = 150, this.maxDistance = 250});
 
@@ -78,26 +85,30 @@ class KeepDistanceBehavior extends MovementBehavior {
 
     final player = enemy.gameRef.player;
     final distance = enemy.position.distanceTo(player.position);
-    final direction = (player.position - enemy.position).normalized();
+    _direction
+      ..setFrom(player.position) // Copia posição do player
+      ..sub(enemy.position)      // Subtrai posição do inimigo
+      ..normalize();             // Normaliza
 
     // Rotação visual
     if (enemy.rotates) {
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
+      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
 
     if (distance > maxDistance) {
       // Aproxima
-      enemy.position += direction * enemy.speed * dt;
+      enemy.position.addScaled(_direction, enemy.speed * dt);
     } else if (distance < minDistance) {
       // Foge
-      enemy.position -= direction * (enemy.speed * 0.8) * dt;
+      enemy.position.addScaled(-_direction, (enemy.speed * 0.8) * dt);
     }
   }
 }
 
 class RandomWanderBehavior extends MovementBehavior {
   Vector2 _target = Vector2.zero();
+  final Vector2 _direction = Vector2.zero();
 
   @override
   void update(double dt) {
@@ -107,15 +118,18 @@ class RandomWanderBehavior extends MovementBehavior {
       _pickNewTarget();
     }
 
-    final direction = (_target - enemy.position).normalized();
+    _direction
+      ..setFrom(_target) // Copia posição do player
+      ..sub(enemy.position)      // Subtrai posição do inimigo
+      ..normalize();             // Normaliza
 
     // Rotação visual
     if (enemy.rotates) {
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(direction.y, direction.x) + enemy.rotateOff;
+      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
 
-    enemy.position += direction * enemy.speed * dt;
+    enemy.position.addScaled(_direction, enemy.speed * dt);
   }
 
   void _pickNewTarget() {
@@ -241,14 +255,35 @@ class ProjectileAttackBehavior extends AttackBehavior {
   double _timer = 0;
   double speed;
   late Vector2 size;
-  bool isShotgun ;
-  bool is2shot ;
+  
+  // Tipos de tiro
+  final bool isShotgun;
+  final bool is2shot;
+  final bool isOrbital;
+  final double orbitalRadius;
+  final bool isStraight;
+
+  // --- NOVAS CONFIGURAÇÕES DE RAJADA (BURST) ---
+  final bool isBurst;
+  final int burstCount;       // Quantos tiros por rajada
+  final double burstDelay;    // Tempo entre os tiros da rajada (ex: 0.1s)
+
+  // Variáveis de controle interno da rajada
+  bool _isBurstActive = false;
+  int _burstShotsFired = 0;
+  double _burstTimer = 0;
 
   ProjectileAttackBehavior({
-    this.interval = 2.0, 
+    this.interval = 2.0,
     this.speed = 200,
     this.isShotgun = false,
     this.is2shot = false,
+    this.isOrbital = false,
+    this.isStraight = true,
+    this.isBurst = false,
+    this.burstCount = 3,
+    this.burstDelay = 0.2,
+    this.orbitalRadius = 50.0,
     Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
@@ -256,51 +291,97 @@ class ProjectileAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
+    if (!enemy.isMounted) return;
+
+    // --- LÓGICA DA RAJADA ATIVA ---
+    if (_isBurstActive) {
+      _burstTimer += dt;
+      
+      if (_burstTimer >= burstDelay) {
+        _triggerShotPattern(); // Atira
+        _burstShotsFired++;
+        _burstTimer = 0; // Reseta timer do tiro rápido
+
+        // Verifica se acabou a rajada
+        if (_burstShotsFired >= burstCount) {
+          _isBurstActive = false;
+          _burstShotsFired = 0;
+          _timer = 0; // Só agora reseta o Cooldown principal
+        }
+      }
+      return; // Se está em rajada, não executa o timer principal
+    }
+
+    // --- LÓGICA DO INTERVALO PRINCIPAL (COOLDOWN) ---
     _timer += dt;
     if (_timer >= interval) {
-      final player = enemy.gameRef.player;
-      final direction = (player.position - enemy.position).normalized();
+      if (isBurst) {
+        // INICIA A RAJADA
+        _isBurstActive = true;
+        _burstShotsFired = 0;
+        _burstTimer = burstDelay; // Força o primeiro tiro a sair imediatamente no próximo frame
+      } else {
+        // TIRO NORMAL (Único)
+        _triggerShotPattern();
+        _timer = 0;
+      }
+    }
+  }
+
+  // Separei a lógica de QUAL tiro sai (Shotgun/Normal/2Shot) para poder reutilizar na rajada
+  void _triggerShotPattern() {
+    // Recalcula direção a cada tiro (para a rajada acompanhar o player se ele se mover)
+    final player = enemy.gameRef.player;
+    final direction = (player.position - enemy.position).normalized();
+
+    if (is2shot) {
+      _fireBullet(direction, 0.2);
+      _fireBullet(direction, -0.2);
+    } else {
+      _fireBullet(direction, 0); // Tiro central
       
-      if(is2shot){
-        _fireBullet(direction, 0.2);
-        _fireBullet(direction, -0.2);
-      }else{
-        _fireBullet(direction, 0);
-      if (isShotgun){
+      if (isShotgun) {
         _fireBullet(direction, 0.3);
         _fireBullet(direction, -0.3);
       }
-      }
-      
-      _timer = 0;
     }
   }
 
   void _fireBullet(Vector2 baseDir, double angleOffset) {
     AudioManager.playSfx('enemyShot.mp3');
+    
     double x = baseDir.x * cos(angleOffset) - baseDir.y * sin(angleOffset);
     double y = baseDir.x * sin(angleOffset) + baseDir.y * cos(angleOffset);
     final newDir = Vector2(x, y);
+    if(!isStraight){
+      double angleOffset = Random().nextDouble() * 0.2;
+      double x = newDir.x * cos(angleOffset) - newDir.y * sin(angleOffset);
+      double y = newDir.x * sin(angleOffset) + newDir.y * cos(angleOffset);
+      newDir.setValues(x, y);
+    }
 
     enemy.gameRef.world.add(Projectile(
       position: enemy.position + newDir * 20,
       direction: newDir,
-      damage: 1, 
+      damage: 1,
       speed: speed,
       size: size,
       owner: enemy,
+      isOrbital: isOrbital,
+      orbitalRadius: orbitalRadius,
       isEnemyProjectile: true,
     ));
   }
-
 }
 
 class MortarAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
   final double minRange = 600;
+  final bool isPoison;
+  final double explosionRadius;
 
-  MortarAttackBehavior({this.interval = 4.0});
+  MortarAttackBehavior({this.interval = 4.0, this.isPoison = false, this.explosionRadius = 60.0});
 
   @override
   void update(double dt) {
@@ -315,7 +396,7 @@ class MortarAttackBehavior extends AttackBehavior {
         position: target,
         duration: flightTime,
         owner: enemy,
-        radius: 60,
+        radius: explosionRadius,
       ));
       AudioManager.playSfx('enemyShot.mp3');
       enemy.gameRef.world.add(MortarShell(
@@ -323,6 +404,8 @@ class MortarAttackBehavior extends AttackBehavior {
         targetPos: target,
         owner: enemy,
         flightDuration: flightTime,
+        isPoison: isPoison,
+        explosionRadius: explosionRadius,
       ));
       
       _timer = 0;
@@ -637,7 +720,15 @@ class JumpAttackBehavior extends AttackBehavior {
   final double jumpDuration;
   final double cooldown;
   final double impactRadius;
-  final double maxJumpHeight; // <--- NOVA CONFIGURAÇÃO: Altura máxima do pulo
+  final double maxJumpHeight; 
+
+  final bool isRandomJump; 
+  final double randomJumpRadius; 
+
+  final bool isExplosionOnLand;
+  final bool is4ShotOnLand;
+
+  late Player _cachedPlayer;
 
   bool _isJumping = false;
   double _timer = 0;
@@ -654,11 +745,16 @@ class JumpAttackBehavior extends AttackBehavior {
     this.cooldown = 2.5,
     this.impactRadius = 60,
     this.maxJumpHeight = 120.0, // Altura que ele sobe na tela
+    this.isRandomJump = false, // Padrão: Comportamento antigo
+    this.randomJumpRadius = 100.0,
+    this.isExplosionOnLand = true, // Se true, cria efeito de explosão ao aterrissar
+    this.is4ShotOnLand = false, // Se true, atira 4 projéteis ao aterrissar
   });
 
   @override
   void update(double dt) {
     if (!enemy.isMounted) return;
+    _cachedPlayer = enemy.gameRef.player;
 
     if (_isJumping) {
       _timer += dt;
@@ -673,10 +769,10 @@ class JumpAttackBehavior extends AttackBehavior {
       double heightFactor = sin(progress * pi);
       
       // 3. Move o VISUAL para cima (Simulando o eixo Z)
-      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) {
+      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      if (enemy.visual != null) {
         // A posição padrão do ícone é size / 2. Nós subtraímos a altura.
-        visual.position.y = (enemy.size.y / 2) - (arc * maxJumpHeight);
+        enemy.visual!.position.y = (enemy.size.y / 2) - (arc * maxJumpHeight);
         enemy.scale = Vector2.all(1.0 + (heightFactor * 0.5));
       }
 
@@ -693,14 +789,41 @@ class JumpAttackBehavior extends AttackBehavior {
       _timer += dt;
 
       if (_timer >= cooldown) {
-        final player = enemy.gameRef.player;
-        double dist = enemy.position.distanceTo(player.position);
+        if (isRandomJump) {
+          // MODO ALEATÓRIO: Pula para um lugar qualquer por perto
+          _startJump(_getRandomTarget());
+        } else {
+          // MODO PADRÃO: Pula no jogador se estiver no alcance
+          final player = enemy.gameRef.player;
+          double dist = enemy.position.distanceTo(player.position);
 
-        if (dist <= jumpRange && dist >= minRange) {
-          _startJump(player.position);
+          if (dist <= jumpRange && dist >= minRange) {
+            _startJump(player.position);
+          }
         }
       }
     }
+  }
+
+  Vector2 _getRandomTarget() {
+    final rng = Random();
+    
+    // Gera ângulo e distância aleatórios
+    double angle = rng.nextDouble() * 2 * pi;
+    double dist = (rng.nextDouble() * randomJumpRadius) + 30; // +30 para evitar pulos muito curtos
+    
+    // Calcula o deslocamento
+    Vector2 offset = Vector2(cos(angle), sin(angle)) * dist;
+    Vector2 target = enemy.position + offset;
+
+    // (Opcional) Clampar para dentro da arena para ele não pular no vazio
+    double halfW = TowerGame.arenaWidth / 2 - 20;
+    double halfH = TowerGame.arenaHeight / 2 - 20;
+    
+    target.x = target.x.clamp(-halfW, halfW);
+    target.y = target.y.clamp(-halfH, halfH);
+
+    return target;
   }
 
   void _startJump(Vector2 target) {
@@ -713,12 +836,15 @@ class JumpAttackBehavior extends AttackBehavior {
     _targetPos = target.clone();
 
     // 1. Cria a Mira no chão do Mundo
-    enemy.gameRef.world.add(TargetReticle(
+    if (!isRandomJump){
+      enemy.gameRef.world.add(TargetReticle(
         position: target,
         duration: jumpDuration,
-        radius: 60,
+        radius: impactRadius,
       ));
 
+    }
+    
     // 2. Cria a Sombra no Inimigo (Fica no 'chão' relativo a ele)
     _shadow = CircleComponent(
       radius: enemy.size.x / 2.5,
@@ -740,21 +866,36 @@ class JumpAttackBehavior extends AttackBehavior {
 
     // 1. Limpeza Visual (Remove mira, remove sombra, reseta altura do sprite)
     _shadow?.removeFromParent();
+    _shadow = null;
     
-    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-    if (visual != null) {
-      visual.position.y = enemy.size.y / 2; // Volta pro chão
+    if (enemy.visual != null) {
+      enemy.visual!.position.y = enemy.size.y / 2; // Volta pro chão
     }
+    enemy.scale = Vector2.all(1.0);
 
     // 2. Impacto e Dano
-    createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
-    
-    final player = enemy.gameRef.player;
-    if (enemy.position.distanceTo(player.position) <= impactRadius) {
-      player.takeDamage(1);
-      Vector2 pushDir = (player.position - enemy.position).normalized();
-      player.position += pushDir * 30;
+    if (isExplosionOnLand){
+      createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
+      
+      if (enemy.position.distanceTo(_cachedPlayer.position) <= impactRadius) {
+        _cachedPlayer.takeDamage(1);
+        Vector2 pushDir = (_cachedPlayer.position - enemy.position).normalized();
+        _cachedPlayer.position += pushDir * 30;
+      }
+    }else if (is4ShotOnLand){
+      List<Vector2> directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
+      for (var dir in directions) {
+        enemy.gameRef.world.add(Projectile(
+          position: enemy.position + dir * 20,
+          direction: dir,
+          damage: 1,
+          speed: 200,
+          owner: enemy,
+          isEnemyProjectile: true,
+        ));
+      } 
     }
+    
   }
 
   @override
@@ -923,8 +1064,8 @@ class SpawnOnDeathBehavior extends DeathBehavior {
     for (int i = 0; i < count; i++) {
       // Pequena variação na posição para não nascerem empilhados
       Vector2 offset = Vector2(
-        (Random().nextDouble() - 0.5) * 30,
-        (Random().nextDouble() - 0.5) * 30,
+        (Random().nextDouble() - 0.5) * 50,
+        (Random().nextDouble() - 0.5) * 50,
       );
       
       final minion = minionBuilder(enemy.position + offset);

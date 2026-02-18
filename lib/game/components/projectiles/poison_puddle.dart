@@ -18,7 +18,8 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     required Vector2 position, 
     this.duration = 5.0,
     this.damage = 1.0, // Dano por tick
-  }) : super(position: position, size: Vector2.all(20), anchor: Anchor.center);
+    Vector2? size,
+  }) : super(position: position, size: size ?? Vector2.all(20), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -26,15 +27,6 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     add(CircleComponent(
       radius: size.x / 2,
       paint: Paint()..color = Pallete.verdeCla.withValues(alpha: 0.6), // Transparente
-      anchor: Anchor.center,
-      position: size / 2,
-    ));
-
-    // Ícone de Bolhas (Opcional, para estilo)
-    add(GameIcon(
-      icon: MdiIcons.water, // Ou Icons.bubble_chart
-      color: Pallete.verdeEsc.withValues(alpha: 0.5),
-      size: size * 0.6,
       anchor: Anchor.center,
       position: size / 2,
     ));

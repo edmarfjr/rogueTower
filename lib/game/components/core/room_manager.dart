@@ -61,6 +61,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos) => EnemyFactory.createChessQueen(pos), 
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster4 = [
+    (pos) => EnemyFactory.createRabbit(pos), 
+    (pos) => EnemyFactory.createUnicorn(pos), 
+    (pos) => EnemyFactory.createElephant(pos), 
+    (pos) => EnemyFactory.createBird(pos), 
+    (pos) => EnemyFactory.createSnake(pos), 
+    (pos) => EnemyFactory.createTortoise(pos), 
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -85,6 +94,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     _levelCleared = false;
     _checkTimer = 0.0; 
+
+    //teste de inimigos
+    //gameRef.world.add(EnemyFactory.createTortoise(Vector2(0, -150)));
 
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
@@ -118,6 +130,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         gameRef.world.add(EnemyFactory.createHorseManBoss(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 3){
         gameRef.world.add(EnemyFactory.createChessQueenBoss(Vector2(0, -150)));
+      }else if(gameRef.currentLevel == 4){
+        gameRef.world.add(EnemyFactory.createRabbitBoss(Vector2(0, -150)));
       }
       
 
@@ -200,8 +214,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
         case 2:
           selectedFactory = _enemyRoster2[rng.nextInt(_enemyRoster2.length)];
-        default:
+        case 3:
           selectedFactory = _enemyRoster3[rng.nextInt(_enemyRoster3.length)];
+        case 4:
+          selectedFactory = _enemyRoster4[rng.nextInt(_enemyRoster4.length)];
+        default:
+          selectedFactory = _enemyRoster3[rng.nextInt(_enemyRoster1.length)];
       }
       
 

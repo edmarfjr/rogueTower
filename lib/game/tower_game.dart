@@ -31,8 +31,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   late final Player player;
   late final RoomManager roomManager;
 
-  late final FragmentProgram _crtProgram;
-  double _shaderTime = 0.0;
+  //late final FragmentProgram _crtProgram;
+  //double _shaderTime = 0.0;
 
   bool useCRTEffect = false;
   
@@ -70,7 +70,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   @override
   Future<void> onLoad() async {
 
-    _crtProgram = await FragmentProgram.fromAsset('shaders/crt.frag');
+   // _crtProgram = await FragmentProgram.fromAsset('shaders/crt.frag');
 
     try {
       await AudioManager.init();
@@ -139,21 +139,26 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
 
     //musica menu principal
-    AudioManager.playBgm('8bit_menu.mp3');
+    try {
+      AudioManager.playBgm('8bit_menu.mp3');
+    } catch (e) {
+      print("O navegador bloqueou o áudio automático: $e");
+    }
 
     await progress.loadSettings(this);
     useCRTEffect = false;
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
+  //@override
+  //void update(double dt) {
+  //  super.update(dt);
     // Acumula o tempo que passou desde o último frame (se o efeito estiver ligado)
-    if (useCRTEffect) {
-      _shaderTime += dt;
-    }
-  }
-
+   // print("Objetos ativos: ${children.length}");
+    //if (useCRTEffect) {
+    //  _shaderTime += dt;
+   // }
+  //}
+/*
 @override
   void render(Canvas canvas) {
     if (!useCRTEffect) {
@@ -184,6 +189,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
       super.render(canvas);
     }
   }
+  */
 
   // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
   void depositCoins(int amount) {

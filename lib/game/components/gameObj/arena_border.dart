@@ -22,6 +22,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       case 1: return Pallete.marrom;      
       case 2: return Pallete.cinzaEsc; 
       case 3: return Pallete.azulEsc; 
+      case 4: return Pallete.verdeEsc; 
       default: return Pallete.azulEsc;
     }
   }      

@@ -94,20 +94,7 @@ class PauseMenu extends StatelessWidget {
                 },
                 child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
-              const SizedBox(height: 15),
-
-              // Botão Sair
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.vermelho,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  game.returnToMenu();
-                },
-                child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
-              ),
-
+              
               const SizedBox(height: 15),
 
               // Botão Settings
@@ -121,6 +108,21 @@ class PauseMenu extends StatelessWidget {
                 },
                 child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
+
+              const SizedBox(height: 15),
+
+              // Botão Sair
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Pallete.vermelho,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  game.returnToMenu();
+                },
+                child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+              ),
+              
               const SizedBox(height: 20),
 
               // Botão "Secreto" de Debug

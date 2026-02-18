@@ -38,6 +38,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final bool splits;
   final int splitCount;
 
+  final bool isOrbital;
+  double _currentAngle = 0; 
+  final double orbitalRadius;
+
   // Flag para evitar loop de morte (ex: explodir duas vezes no mesmo frame)
   bool _isDead = false;
 
@@ -58,6 +62,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.explosionRadius = 60.0,
     this.splits = false,
     this.splitCount = 3,
+    this.isOrbital = false,
+    this.orbitalRadius = 50.0,
   }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center);
 
   @override
@@ -96,7 +102,20 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
     
     // Movimento
-    position += direction * speed * dt;
+   // position += direction * speed * dt;
+    if (isOrbital) {
+      _currentAngle += speed * dt;
+      final double centerX = owner!.position.x ;
+      final double centerY = owner!.position.y ;
+
+      // Cálculo da nova posição
+      final newX = centerX + cos(_currentAngle) * orbitalRadius;
+      final newY = centerY + sin(_currentAngle) * orbitalRadius;
+    
+      position.setValues(newX, newY);
+    } else {
+      position.addScaled(direction, speed * dt);
+    }
 
     // Visual (Piscar)
     final visual = children.whereType<GameIcon>().firstOrNull;

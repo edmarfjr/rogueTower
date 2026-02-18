@@ -181,11 +181,7 @@ class EnemyFactory {
       iconData: MdiIcons.cloud,
       originalColor: Pallete.vermelho,
       movementBehavior: BouncerBehavior(),
-      attackBehavior: NoAttackBehavior(),
-    //  deathBehavior: SpawnOnDeathBehavior(
-     //   count: 2,
-     //   minionBuilder: (p) => EnemyFactory.createSlimeP(p),
-     // ),    
+      attackBehavior: NoAttackBehavior(),  
     );
   }
 
@@ -270,9 +266,9 @@ class EnemyFactory {
       originalColor: Pallete.lilas,
       movementBehavior: RandomWanderBehavior(),
       attackBehavior: ChargeAttackBehavior(
-        detectRange: 180, // Só ataca se chegar perto
-        chargeSpeed: 400, // Muito rápido no ataque
-        prepTime: 0.6,    // 0.6s de aviso antes de correr
+        detectRange: 180, 
+        chargeSpeed: 400, 
+        prepTime: 0.6,
       ),
     );
   }
@@ -289,9 +285,9 @@ class EnemyFactory {
       originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ChargeAttackBehavior(
-        detectRange: 180, // Só ataca se chegar perto
-        chargeSpeed: 400, // Muito rápido no ataque
-        prepTime: 0.6,    // 0.6s de aviso antes de correr
+        detectRange: 180, 
+        chargeSpeed: 400, 
+        prepTime: 0.6,    
       ),
       attack2Behavior: MortarAttackBehavior(interval: 3.0),
     );
@@ -389,6 +385,117 @@ class EnemyFactory {
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
       attack2Behavior: MortarAttackBehavior(interval: 3.0),
+    );
+  }
+
+   // inimigos fase 4
+
+   static Enemy createRabbit(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 0,
+      iconData: MdiIcons.rabbit,
+      originalColor: Pallete.cinzaCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: JumpAttackBehavior(
+        jumpRange: 200,    
+        minRange: 50,      
+        jumpDuration: 1.0, 
+        cooldown: 1.0, 
+        isRandomJump: true,
+        randomJumpRadius: 150.0,
+        isExplosionOnLand: false,
+        is4ShotOnLand: true,    
+      ),
+    );
+  }
+
+  static Enemy createUnicorn(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 100,
+      speed: 100,
+      hasGhostEffect: true,
+      iconData: MdiIcons.unicorn,
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ChargeAttackBehavior(
+        detectRange: 180, 
+        chargeSpeed: 400, 
+        prepTime: 0.6,   
+      ),
+    );
+  }
+
+  static Enemy createBird(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 80,
+      iconData: MdiIcons.bird,
+      originalColor: Pallete.azulCla,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 2.0, is2shot: true),
+    );
+  }
+
+  static Enemy createElephant(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 200,
+      speed: 90,
+      iconData: MdiIcons.elephant,
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: NoAttackBehavior(),
+    );
+  }
+
+  static Enemy createSnake(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 100,
+      speed: 90,
+      iconData: MdiIcons.snake,
+      originalColor: Pallete.verdeEsc,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: MortarAttackBehavior(isPoison: true, interval: 3.0),
+    );
+  }
+
+  static Enemy createTortoise(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 100,
+      speed: 50,
+      hasShield: true,
+      iconData: MdiIcons.tortoise,
+      originalColor: Pallete.marrom,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0, speed:4, isOrbital: true, orbitalRadius: 60.0, isBurst: true, burstCount: 5, burstDelay: 0.3),
+    );
+  }
+
+  static Enemy createRabbitBoss(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 1500,
+      speed: 0,
+      iconData: MdiIcons.rabbit,
+      originalColor: Pallete.vermelho,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: JumpAttackBehavior(
+        jumpRange: 200,    
+        minRange: 50,      
+        jumpDuration: 1.0, 
+        cooldown: 1.0, 
+        isRandomJump: true,
+        randomJumpRadius: 150.0,
+        isExplosionOnLand: false,
+        is4ShotOnLand: true,    
+      ),
+      attack2Behavior: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
     );
   }
 
