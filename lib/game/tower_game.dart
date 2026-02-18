@@ -143,7 +143,7 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     //musica menu principal
     try {
-      AudioManager.playBgm('8bit_menu.mp3');
+      //AudioManager.playBgm('8bit_menu.mp3');
     } catch (e) {
       print("O navegador bloqueou o áudio automático: $e");
     }
@@ -317,13 +317,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-    AudioManager.playBgm('8bit_menu.mp3');
+   // AudioManager.playBgm('8bit_menu.mp3');
   }
 
   void startLevel() {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
-    AudioManager.playBgm('funny_bit.mp3');
+  //  AudioManager.playBgm('funny_bit.mp3');
   }
 
   void nextLevel(CollectibleType chosenReward) {
