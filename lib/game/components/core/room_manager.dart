@@ -80,10 +80,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (_checkTimer < _minTimeBeforeClear) return;
 
     if (!_levelCleared) {
-      // Verifica se ainda existem inimigos vivos
-      final enemies = gameRef.world.children.query<Enemy>();
       
-      if (enemies.isEmpty) {
+      final allEnemies = gameRef.world.children.query<Enemy>();
+      
+    
+      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy);
+      
+      
+      if (realEnemies.isEmpty) {
         _unlockDoors();
         _levelCleared = true;
       }
@@ -95,16 +99,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _levelCleared = false;
     _checkTimer = 0.0; 
 
+    // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      //gameRef.world.add(EnemyFactory.createTortoise(Vector2(0, -150)));
+      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 0)));
 
       //teste de itens
+      //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bumerangue));
       //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.foice));
     }
     
-
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
       _spawnDoors(roomNumber);

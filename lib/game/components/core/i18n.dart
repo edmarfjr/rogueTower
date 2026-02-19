@@ -95,6 +95,8 @@ class I18n {
       'fogoDesc': 'Aplica fogo nos inimigos, causando dano ao longo do tempo (pode acumular 5 vezes)',
       'veneno': 'Veneno',
       'venenoDesc': 'Aplica veneno nos inimigos, causando dano ao longo do tempo (pode acumular 10 vezes)',
+      'sang': 'Sangramento',
+      'sangDesc': 'Aplica sangramento nos inimigos, causando dano ao longo do tempo (pode acumular 15 vezes)',
       'druidScroll': 'Pergaminho do Druida',
       'druidScrollDesc': 'Aumenta 100% do dano ao longo do tempo, mas reduz 40% do dano normal',
       'dotBook': 'Dano ao Longo do Tempo para leigos',
@@ -125,6 +127,9 @@ class I18n {
       'conqCrownDesc':'Aumenta tempo de invulnerabilidade após ser atingido e reduz cooldown da esquiva',
       'flail':'Mangual',
       'flailDesc':'Um mangual que gira ao seu redor, ferindo inimigos',
+      'bumerangue':'Bumerangue',
+      'bumerangueDesc':'Substitui seus tiro por bumerangues',
+      
       
     },
     'en': {
@@ -218,6 +223,8 @@ class I18n {
       'fogoDesc': 'Sets enemies on fire, causing damage over time (can stack up to 5 times).',
       'veneno': 'Poison',
       'venenoDesc': 'Injects poison into enemies, causing damage over time (can stack up to 10 times).',
+      'sang': 'Bleed',
+      'sangDesc': 'Applies bleed to enemies, causing damage over time (can stack up to 15 times).',
       'druidScroll': 'Druid\'s Scroll',
       'druidScrollDesc': 'Increases damage over time by 100%, but reduces normal damage by 40%',
       'dotBook': 'Damage Over Time for Dummies',
@@ -247,7 +254,9 @@ class I18n {
       'conqCrown': 'Crown of Conquest',
       'conqCrownDesc': 'Increases invulnerability time after being hit and reduces dash cooldown',
       'flail': 'Flail',
-      'flailDesc': 'A flail that spins around you, hurting enemies'
+      'flailDesc': 'A flail that spins around you, hurting enemies',
+      'bumerangue':'Boomerang',
+      'bumerangueDesc':'Replace your shots with Boomerang',
       
     },
     'es': {
@@ -341,6 +350,8 @@ class I18n {
       'fogoDesc': 'Incendia a los enemigos, causando daño con el tiempo (se puede acumular hasta 5 veces).',
       'veneno': 'Veneno',
       'venenoDesc': 'Inyecta veneno a los enemigos, causando daño con el tiempo (se puede acumular hasta 10 veces).',
+      'sang': 'Sangrado',
+      'sangDesc': 'Aplica sangrado a los enemigos, causando daño con el tiempo (se puede acumular hasta 15 veces).',
       'druidScroll': 'Pergamino de Druida',
       'druidScrollDesc': 'Aumenta el Daño con el tiempo en un 100%, pero reduce el daño normal en un 40%',
       'dotBook': 'Daño con el tiempo para principiantes',
@@ -370,7 +381,9 @@ class I18n {
       'conqCrown': 'Corona de Conquista',
       'conqCrownDesc': 'Aumenta el tiempo de invulnerabilidad tras ser golpeado y reduce el tiempo de reutilización de esquiva',
       'flail': 'Mayal',
-      'flailDesc': 'Un mayal que gira a tu alrededor, hiriendo a los enemigos'
+      'flailDesc': 'Un mayal que gira a tu alrededor, hiriendo a los enemigos',
+      'bumerangue': 'Boomerang',
+      'bumerangueDesc': 'Reemplaza tus disparos con Boomerang',
     }
   };
 

@@ -67,6 +67,7 @@ class Player extends PositionComponent
   bool isFreeze = false;
   bool isBurn = false;
   bool isPoison = false;
+  bool isBleed = false;
   bool isBebado = false;
   bool hasOrbShield = false;
   bool hasFoice = false;
@@ -527,6 +528,7 @@ class Player extends PositionComponent
     isHeavyShot = false;
     hasCupon = false;
     isBoomerang = false;
+    isBleed = false;
 
     _visual.setColor(Pallete.branco);
   }

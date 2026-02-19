@@ -46,13 +46,19 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double poisonTimer = 0.0;
   double poisonTime = 1.0;
   ValueNotifier<int> poisonStacks = ValueNotifier<int>(0);
+  bool isBleed = false;
+  double bleedTimer = 0.0;
+  double bleedTime = 1.0;
+  ValueNotifier<int> bleedStacks = ValueNotifier<int>(0);
 
   GameIcon? visual;
   GameIcon? burnIcon;
   GameIcon? freezeIcon;
   GameIcon? poisonIcon;
+  GameIcon? bleedIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
+  TextComponent? bleedText;
   Vector2 _lastPosition = Vector2.zero();
   double _animAmplitude = 0.1;
   double _animTimer = 0;
@@ -73,6 +79,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   final Vector2 _collisionBuffer = Vector2.zero();
 
+  final bool isDummy;
+
   Enemy({
     required Vector2 position,
     required this.movementBehavior,
@@ -91,6 +99,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.hasGhostEffect = false,
     this.iconData = Icons.pest_control_rodent,
     this.originalColor = Pallete.vermelho,
+    this.isDummy = false,
     Vector2? size,
     this.hasShield = false,
   }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
@@ -319,6 +328,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
     }
 
+    // Lógica de bleed
+    if(gameRef.player.isBleed){
+      if (bleedStacks.value < 15 + gameRef.player.stackBonus){
+        setBleed();
+      }
+    }
+
     // Flash Branco
     if (!_isHit) { 
         _isHit = true; 
@@ -389,23 +405,54 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       add(burnIcon!);
     }
 
-    
-
-    burnText = TextComponent(
-      text: burnStacks.value.toString(),
-      position: Vector2((size.x/2) - 5, - size.y / 4),
-      anchor: Anchor.center,
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          color: Pallete.laranja,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
+    if (burnText == null){
+      burnText = TextComponent(
+        text: burnStacks.value.toString(),
+        position: Vector2((size.x/2) - 5, - size.y / 4),
+        anchor: Anchor.center,
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Pallete.laranja,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-    );
-    add(burnText!);
+      );
+      add(burnText!);
+    }
   }
   
+
+  void setBleed(){
+    isBleed = true;
+    bleedStacks.value += 1;
+
+    bleedIcon = GameIcon(
+      icon: MdiIcons.heart,
+      color: Pallete.vermelho,
+      size: size/2,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, - size.y / 4), 
+    );
+    
+    add(bleedIcon!);
+
+    if (bleedText == null){
+      bleedText = TextComponent(
+        text: bleedStacks.value.toString(),
+        position: Vector2((size.x/2) - 5, - size.y / 4),
+        anchor: Anchor.center,
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Pallete.vermelho,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      add(bleedText!);
+    }
+  }
 
   void setPoison(){
     isPoisoned = true;
@@ -420,6 +467,22 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     
     add(poisonIcon!);
+
+    if (poisonText == null){
+      poisonText = TextComponent(
+        text: poisonStacks.value.toString(),
+        position: Vector2((size.x/2) - 5, - size.y / 4),
+        anchor: Anchor.center,
+        textRenderer: TextPaint(
+          style: const TextStyle(
+            color: Pallete.verdeCla,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+      add(poisonText!);
+    }
   }
 
   void _updateStatus(double dt) {
@@ -473,6 +536,26 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           visual?.setColor(originalColor);
           if (poisonIcon != null) {
             poisonIcon!.removeFromParent();
+          }
+        }else{
+          takeDamage(3 *gameRef.player.dot);
+        }
+        
+      }
+    }
+     // Bleed
+    if (isBleed){
+      bleedTimer += dt;
+      if (bleedTimer >= bleedTime){
+        bleedStacks.value -= 1;
+        
+        bleedTimer = 0.0;
+        if (bleedStacks.value <= 0) {
+          isBleed = false;
+          if (visual == null) return;
+          visual?.setColor(originalColor);
+          if (bleedIcon != null) {
+            bleedIcon!.removeFromParent();
           }
         }else{
           takeDamage(2 *gameRef.player.dot);

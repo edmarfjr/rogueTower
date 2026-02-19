@@ -11,6 +11,19 @@ import '../core/pallete.dart';
 
 class EnemyFactory {
 
+  static Enemy createDummy(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 1000,
+      speed: 0,
+      isDummy: true,
+      iconData: MdiIcons.humanMale,
+      originalColor: Pallete.bege,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: NoAttackBehavior(),       
+    );
+  }
+
   // inimigos fase 1
   
   static Enemy createRat(Vector2 pos) {

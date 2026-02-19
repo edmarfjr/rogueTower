@@ -19,7 +19,7 @@ enum CollectibleType {
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista,
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
-  fogo,veneno, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
+  fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail 
@@ -77,8 +77,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
 
     if (custoKeys > 0){
+      add(GameIcon(
+        icon: MdiIcons.key,
+        color: Pallete.laranja,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2 -15, size.y + 13),
+      ));
       add(TextComponent(
-        text: "Keys: $custoKeys",
+        text: ": $custoKeys",
         textRenderer: TextPaint(
           style: const TextStyle(fontSize: 14, color: Pallete.laranja, fontWeight: FontWeight.bold),
         ),
@@ -88,8 +95,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
 
     if (custoBombs > 0){
+      add(GameIcon(
+        icon: MdiIcons.bomb,
+        color: Pallete.cinzaEsc,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2 -15, size.y + 13),
+      ));
       add(TextComponent(
-        text: "Bombs: $custoBombs",
+        text: ": $custoBombs",
         textRenderer: TextPaint(
           style: const TextStyle(fontSize: 14, color: Pallete.cinzaEsc, fontWeight: FontWeight.bold),
         ),
@@ -296,7 +310,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'fogo'.tr(), 'desc': 'fogoDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.laranja};
       case CollectibleType.veneno:
         return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': MdiIcons.water, 'color': Pallete.verdeEsc};
-      case CollectibleType.druidScroll:
+      case CollectibleType.sangramento:
+        return {'name': 'sang'.tr(), 'desc': 'sangDesc'.tr(), 'icon': MdiIcons.water, 'color': Pallete.vermelho};
+     case CollectibleType.druidScroll:
         return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': MdiIcons.scriptText, 'color': Pallete.verdeEsc};
       case CollectibleType.dotBook:
         return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': MdiIcons.bookOpenPageVariant, 'color': Pallete.amarelo};
@@ -379,8 +395,9 @@ List<CollectibleType> retornaItens(player){
     if (!player.hasAntimateria) itens.add(CollectibleType.antimateria);
     if (!player.isPiercing) itens.add(CollectibleType.piercing);
     if (!player.isHoming) itens.add(CollectibleType.homing);
-    if (!player.isFogo) itens.add(CollectibleType.fogo);
-    if (!player.isVeneno) itens.add(CollectibleType.veneno);
+    if (!player.isBurn) itens.add(CollectibleType.fogo);
+    if (!player.isPoison) itens.add(CollectibleType.veneno);
+    if (!player.isBleed) itens.add(CollectibleType.sangramento);
     if (!player.hasChaveNegra) itens.add(CollectibleType.chaveNegra);
     if (!player.isConcentration) itens.add(CollectibleType.concentration);
     if (!player.isOrbitalShot) itens.add(CollectibleType.gravitacao);
@@ -415,8 +432,9 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.bloodstone,
     ];
     if (!player.isPiercing) itens.add(CollectibleType.piercing);
-    if (!player.isFogo) itens.add(CollectibleType.fogo);
-    if (!player.isVeneno) itens.add(CollectibleType.veneno);
+    if (!player.isBurn) itens.add(CollectibleType.fogo);
+    if (!player.isPoison) itens.add(CollectibleType.veneno);
+    if (!player.isBleed) itens.add(CollectibleType.sangramento);
     if (!player.hasChaveNegra) itens.add(CollectibleType.chaveNegra);
     if (!player.isOrbitalShot) itens.add(CollectibleType.gravitacao);
     if (!player.isMineShot) itens.add(CollectibleType.mine);
@@ -687,6 +705,12 @@ class CollectibleLogic {
           text = "Poison Shot!";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.sangramento:
+          player.isBleed = true;
+          text = "Bleed Shot!";
+          //color = Pallete.vermelho;
+          break;
 
         case CollectibleType.druidScroll:
           player.dot *= 2;
