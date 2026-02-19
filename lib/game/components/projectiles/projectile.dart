@@ -9,11 +9,11 @@ import '../core/pallete.dart';
 import '../gameObj/wall.dart';
 import '../../tower_game.dart';
 import '../gameObj/player.dart';
-import '../effects/explosion_effect.dart'; // Certifique-se que sua explosão visual está aqui
+import '../effects/explosion_effect.dart';
 
 class Projectile extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   // --- PROPRIEDADES ORIGINAIS ---
-  Vector2 direction; // Removi o 'final' para permitir reflexão (bounce)
+  Vector2 direction; 
   final double speed; 
   final double damage;
   final bool isEnemyProjectile;
@@ -38,13 +38,25 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final bool splits;
   final int splitCount;
 
+  // 4. ORBITAL
   final bool isOrbital;
   double _currentAngle = 0; 
   final double orbitalRadius;
 
-  GameIcon? visual;
+  // 5. TELEGUIDADO (HOMING)
+  final bool isHoming;
+  final double homingTurnSpeed; // Quão rápido ele consegue fazer a curva (ex: 3.0)
+  PositionComponent? _homingTarget; // O alvo atual travado
+  final Vector2 _desiredDirection = Vector2.zero(); // Vetor sem lixo de memória
 
-  // Flag para evitar loop de morte (ex: explodir duas vezes no mesmo frame)
+  // 6. PERFURANTE (PIERCING)
+  final bool isPiercing;
+  // A "Hit List": guarda quem essa bala já machucou para não dar dano duplo
+  final Set<PositionComponent> _hitTargets = {};
+
+  GameIcon? visual;
+  double visualAngle = 0;
+
   bool _isDead = false;
 
   Projectile({
@@ -57,7 +69,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.apagaTiros = false,
     this.dieTimer = 3.0,
     Vector2? size,
-    // Novos Parâmetros (com valores padrão 'desligados')
+    // Novos Parâmetros
     this.canBounce = false,
     this.maxBounces = 2,
     this.explodes = false,
@@ -66,13 +78,25 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.splitCount = 3,
     this.isOrbital = false,
     this.orbitalRadius = 50.0,
+    this.isHoming = false,
+    this.homingTurnSpeed = 4.0, // 4.0 é uma curva ágil, 1.0 é um míssil pesado
+    this.isPiercing = false,
   }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
-    // Adiciona o Ícone
+    IconData icon = Icons.circle;
+    if (explodes) {
+      icon = Icons.brightness_high;
+    } else if (isHoming) {
+      icon = Icons.rocket_launch;
+      visualAngle = -pi / 4; 
+    } else {
+      icon = Icons.circle;
+    }
+
     visual = GameIcon(
-      icon: explodes ? Icons.brightness_high : Icons.circle, // Ícone diferente se for explosivo
+      icon: icon, 
       color: isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo,
       size: size,
       anchor: Anchor.center,
@@ -80,7 +104,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     );
     add(visual!);
     
-    // Hitbox um pouco menor que o sprite
     add(CircleHitbox(
       radius: size.x / 2.5,
       anchor: Anchor.center,
@@ -97,21 +120,37 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     if (_isDead) return;
 
-    // Removemos a verificação "owner.isMounted" para que a bala não suma 
-    // se o atirador morrer antes dela acertar o alvo.
     if (owner != null && !owner!.isMounted) {
-      removeFromParent(); // O tiro some junto
+      removeFromParent(); 
       return;
     }
     
-    // Movimento
-   // position += direction * speed * dt;
+    // --- LÓGICA HOMING (TELEGUIDADO) ---
+    if (isHoming && !isOrbital) {
+      _updateHomingTarget();
+      
+      if (_homingTarget != null && _homingTarget!.isMounted) {
+        // 1. Descobre para onde o alvo está
+        _desiredDirection.setFrom(_homingTarget!.position);
+        _desiredDirection.sub(position);
+        _desiredDirection.normalize();
+
+        // 2. Faz a curva suavemente na direção do alvo (Matemática In-Place sem gerar lixo)
+        direction.x += (_desiredDirection.x - direction.x) * (dt * homingTurnSpeed);
+        direction.y += (_desiredDirection.y - direction.y) * (dt * homingTurnSpeed);
+        direction.normalize();
+
+        // Atualiza a rotação do sprite para ele "olhar" para onde está virando
+        _updateRotation();
+      }
+    }
+
+    // --- MOVIMENTO ---
     if (isOrbital) {
       _currentAngle += speed * dt;
       final double centerX = owner!.position.x ;
       final double centerY = owner!.position.y ;
 
-      // Cálculo da nova posição
       final newX = centerX + cos(_currentAngle) * orbitalRadius;
       final newY = centerY + sin(_currentAngle) * orbitalRadius;
     
@@ -120,11 +159,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       position.addScaled(direction, speed * dt);
     }
 
-    // Visual (Piscar)
-    //final visual = children.whereType<GameIcon>().firstOrNull;
+    // --- VISUAL (PISCAR) ---
     _timer += dt;
-    
-    // Pisca mais rápido se estiver perto de expirar
     double flashSpeed = (_timer > dieTimer - 1) ? 0.1 : 0.2;
     
     if (_timer % flashSpeed < (flashSpeed / 2)){ 
@@ -133,13 +169,36 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       isEnemyProjectile ? visual?.setColor(Pallete.vermelho) : visual?.setColor(Pallete.azulCla);
     }
 
-    // Tempo de vida acabou
     if (_timer >= dieTimer){
-      kill(triggerEffects: true); // Explode se morrer por tempo? (Opcional: true/false)
+      kill(triggerEffects: true); 
     }
     
-    // Longe demais
     if (position.length > 3000) removeFromParent();
+  }
+
+  // --- BUSCA O ALVO DO HOMING ---
+  void _updateHomingTarget() {
+    if (_homingTarget != null && _homingTarget!.isMounted) return;
+
+    if (isEnemyProjectile) {
+      _homingTarget = gameRef.player;
+    } else {
+      final enemies = gameRef.world.children.query<Enemy>();
+      double closestDist = double.infinity;
+      Enemy? bestTarget;
+
+      for (final enemy in enemies) {
+        // Ignora inimigos que a bala já atravessou!
+        if (_hitTargets.contains(enemy)) continue;
+
+        final dist = position.distanceToSquared(enemy.position);
+        if (dist < closestDist) {
+          closestDist = dist;
+          bestTarget = enemy;
+        }
+      }
+      _homingTarget = bestTarget;
+    }
   }
 
   // --- MÉTODO CENTRAL DE MORTE ---
@@ -152,31 +211,29 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (splits) _doSplit();
     }
     
-    // Efeito visual padrão de impacto (fagulhas)
     createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 5);
-    
     removeFromParent();
   }
+
   // --- LÓGICA DE CLUSTER (SPLIT) ---
   void _doSplit() {
     for (int i = 0; i < splitCount; i++) {
-      // Cria vetores em ângulos aleatórios ou fixos
-      double angle = (2 * pi / splitCount) * i; // Distribui em círculo
+      double angle = (2 * pi / splitCount) * i; 
       Vector2 newDir = Vector2(cos(angle), sin(angle));
       
       gameRef.world.add(Projectile(
-        position: position,
+        position: position.clone(), // Adicionei .clone() para evitar bugs de referência de vetores
         direction: newDir,
-        speed: speed * 0.8, // Fragmentos mais lentos
-        damage: damage / 2, // Fragmentos mais fracos
+        speed: speed * 0.8, 
+        damage: damage / 2, 
         isEnemyProjectile: isEnemyProjectile,
         owner: owner,
-        dieTimer: 1.0, // Vida curta
-        size: size / 1.5, // Menores
-        // Importante: Fragmentos não devem se dividir ou explodir de novo para evitar crash
+        dieTimer: 1.0, 
+        size: size / 1.5, 
         canBounce: false,
         explodes: false, 
         splits: false, 
+        isHoming: isHoming, // Fragmentos herdam a habilidade de perseguir!
       ));
     }
   }
@@ -187,41 +244,51 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     super.onCollisionStart(intersectionPoints, other);
     if (_isDead) return;
 
+    // Se o alvo já está na lista de atingidos, ignora completamente a colisão
+    if (_hitTargets.contains(other)) return;
+
     final hitPos = intersectionPoints.firstOrNull ?? position;
 
-    // 1. COLISÃO COM PAREDES (Rebater ou Morrer)
+    // 1. COLISÃO COM PAREDES (Paredes continuam bloqueando/rebatendo tiros perfurantes)
     if (other is Wall || other is ScreenHitbox) {
-      
-      // Se pode rebater e ainda tem "vidas" de rebote
       if (canBounce && _bounceCount < maxBounces) {
         _handleBounce(other, hitPos);
-        if (other is Wall) other.vida--; // Opcional: Rebater também danifica a parede
-        return; // <--- NÃO MORRE, RETORNA
+        if (other is Wall) other.vida--; 
+        return; 
       } 
       
-      // Se não rebater:
       if (other is Wall) {
         other.vida--;
         if (other.vida <= 0) other.removeFromParent();
       }
-      kill(); // Morre (explode/split)
+      kill(); 
       return;
     }
 
     // 2. COLISÃO COM INIMIGOS / PLAYER
     if (isEnemyProjectile) {
       if (other is Player) {
+        _hitTargets.add(other); // Anota na Hit List
         other.takeDamage(1);
-        kill(); 
+        if (!isPiercing) kill(); // Só morre se não for perfurante
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {
+        _hitTargets.add(other); // Anota na Hit List
         other.takeDamage(damage);
-        kill();
+        
+        // Se a bala teleguiada perfurar, ela precisa esquecer esse alvo para buscar o próximo
+        if (isPiercing && _homingTarget == other) {
+          _homingTarget = null;
+        }
+
+        if (!isPiercing) kill();
       }
+      
       if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
+        _hitTargets.add(other);
         other.removeFromParent();
-        kill();
+        if (!isPiercing) kill();
       }
     }
   }
@@ -229,26 +296,23 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   void _handleBounce(PositionComponent obstacle, Vector2 hitPos) {
     _bounceCount++;
 
-    // Lógica simples de reflexão Arcade (Inverter Eixo)
-    // Calcula vetor normal baseado na posição relativa entre o centro da bala e o centro da parede
     Vector2 relativePos = position - obstacle.position;
     
-    // Se a distância X for maior, batemos nas laterais (esquerda/direita) -> Inverte X
-    // Se a distância Y for maior, batemos no topo/baixo -> Inverte Y
     if (relativePos.x.abs() > relativePos.y.abs()) {
       direction.x = -direction.x;
     } else {
       direction.y = -direction.y;
     }
 
-    // Afasta um pouco o projétil da parede para não grudar (tunneling)
     position += direction * 5;
     
-    // Atualiza o ângulo visual
+    // Perde o "lock-on" ao bater na parede (dá chance do inimigo fugir se ele se esconder atrás do muro)
+    _homingTarget = null; 
+
     _updateRotation();
   }
 
   void _updateRotation() {
-    angle = atan2(direction.y, direction.x) + 1.54; // Ajuste do seu sprite
+    angle = atan2(direction.y, direction.x) + 1.54 + visualAngle; 
   }
 }

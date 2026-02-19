@@ -314,6 +314,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
   final bool isOrbital;
   final double orbitalRadius;
   final bool isStraight;
+  final bool isHoming;
 
   // --- NOVAS CONFIGURAÇÕES DE RAJADA (BURST) ---
   final bool isBurst;
@@ -333,6 +334,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
     this.isOrbital = false,
     this.isStraight = true,
     this.isBurst = false,
+    this.isHoming = false,
     this.burstCount = 3,
     this.burstDelay = 0.2,
     this.orbitalRadius = 50.0,
@@ -421,6 +423,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
       owner: enemy,
       isOrbital: isOrbital,
       orbitalRadius: orbitalRadius,
+      isHoming: isHoming,
       isEnemyProjectile: true,
     ));
   }

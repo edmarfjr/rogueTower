@@ -115,7 +115,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     final rng = Random();
 
     
-    List<CollectibleType> possibleRewards = retornaItensComuns();
+    List<CollectibleType> possibleRewards = retornaItensComuns(game.player);
 
     if(isLock) possibleRewards = retornaItensRaros(game.player);
 

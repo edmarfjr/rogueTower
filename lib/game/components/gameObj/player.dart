@@ -9,9 +9,9 @@ import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Para LogicalKeyboardKey
+import 'package:flutter/services.dart'; 
 import 'dart:math';
-import '../../tower_game.dart'; // Import para acessar as cores e classes do jogo
+import '../../tower_game.dart'; 
 import '../enemies/enemy.dart'; 
 import '../projectiles/projectile.dart';
 import '../core/game_icon.dart';
@@ -37,6 +37,7 @@ class Player extends PositionComponent
   late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
+  double dot = 1.0;
   double critChance = 5;
   double critDamage = 2.0;
   double fireRate = 0.4; 
@@ -44,10 +45,13 @@ class Player extends PositionComponent
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
 
-  Vector2 velocity = Vector2.zero();
-  Vector2 velocityDash = Vector2(1, 0);
-  
-  Vector2 _keyboardInput = Vector2.zero(); 
+  // VETORES OTIMIZADOS (Previnem Garbage Collection)
+  final Vector2 velocity = Vector2.zero();
+  final Vector2 velocityDash = Vector2(1, 0);
+  final Vector2 _keyboardInput = Vector2.zero(); 
+  final Vector2 _dashDirection = Vector2.zero();
+  final Vector2 _collisionBuffer = Vector2.zero();
+  final Vector2 _tempDirection = Vector2.zero(); // Usado na mira
 
   bool isDashing = false;
   double _dashTimer = 0;
@@ -56,11 +60,12 @@ class Player extends PositionComponent
   
   double _dashCooldownTimer = 0;
   double dashCooldown = 2.5; 
-  Vector2 _dashDirection = Vector2.zero();
 
   bool isBerserk = false;
   bool isAudaz = false;
   bool isFreeze = false;
+  bool isBurn = false;
+  bool isPoison = false;
   bool isBebado = false;
   bool hasOrbShield = false;
   bool hasFoice = false;
@@ -69,16 +74,25 @@ class Player extends PositionComponent
   bool revive = false;
   bool pegouRevive = false;
   bool hasAntimateria = false;
+  bool isHoming = false;
+  bool canBounce = false;
+  bool isPiercing = false;
+
+  int stackBonus = 0;
 
   // Variáveis de Animação
   double _walkTimer = 0;
-  final double _bounceSpeed = 15.0;     // Quão rápido ele quica
-  final double _bounceAmplitude = 0.15; // Quão forte ele estica/esmaga (15%)
+  final double _bounceSpeed = 15.0;     
+  final double _bounceAmplitude = 0.15; 
 
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
 
-  final Vector2 _collisionBuffer = Vector2.zero();
+  // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
+  late GameIcon _visual;
+  MagicShieldEffect? _shieldVisual;
+  final Paint _dashBgPaint = Paint()..color = Pallete.preto.withOpacity(0.5);
+  final Paint _dashFgPaint = Paint()..color = Pallete.verdeCla;
 
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
@@ -87,14 +101,15 @@ class Player extends PositionComponent
   
   @override
   Future<void> onLoad() async {
-    // Visual do Player
-    add(GameIcon(
+    // Cache do visual para acesso instantâneo
+    _visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
       size: size,
       anchor: Anchor.center, 
       position: size / 2,    
-    ));
+    );
+    add(_visual);
 
     // Debug visual do alcance
     _rangeIndicator=CircleComponent(
@@ -104,6 +119,7 @@ class Player extends PositionComponent
       paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 1,
     );
     add(_rangeIndicator);
+    
     // Hitbox
     add(RectangleHitbox(
       size: Vector2(16,32),
@@ -115,9 +131,8 @@ class Player extends PositionComponent
 
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    _keyboardInput = Vector2.zero();
+    _keyboardInput.setZero();
     
-    // Checa teclas pressionadas para movimento (WASD ou Setas)
     if (keysPressed.contains(LogicalKeyboardKey.arrowUp) || keysPressed.contains(LogicalKeyboardKey.keyW)) {
       _keyboardInput.y = -1;
     }
@@ -142,13 +157,12 @@ class Player extends PositionComponent
     
     if (dashNotifier.value < maxDash){
       if (_dashCooldownTimer > 0) {
-      _dashCooldownTimer -= dt;
-      }else{
-      _dashCooldownTimer = dashCooldown;
-      dashNotifier.value++;
+        _dashCooldownTimer -= dt;
+      } else {
+        _dashCooldownTimer = dashCooldown;
+        dashNotifier.value++;
       }
     }
-    
 
     if (isDashing) {
       _handleDashMovement(dt); 
@@ -156,100 +170,72 @@ class Player extends PositionComponent
       _handleMovement(dt);    
     }
 
-    // Lógica Visual (Virar sprite)
+    // Lógica Visual (Virar sprite) - Acesso direto ao _visual cacheado
     if (velocity.x.abs() > 0.1) {
-      final visual = children.whereType<GameIcon>().first;
-      visual.scale = Vector2(velocity.x < 0 ? -1 : 1, 1);
+      _visual.scale.x = velocity.x < 0 ? -1 : 1;
     }
 
     _animateMovement(dt);
-
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
   }
 
   void activateShield() {
-    if (hasShield) return; // Já tem, não faz nada
+    if (hasShield) return; 
 
     hasShield = true;
-    
-    // Adiciona o efeito visual como FILHO do player
-    // Assim ele segue o player automaticamente
-    add(MagicShieldEffect(size: size));
+    _shieldVisual = MagicShieldEffect(size: size);
+    add(_shieldVisual!);
   }
 
-  // 2. MÉTODO PARA REMOVER (QUEBRAR) O ESCUDO
   void _breakShield() {
     hasShield = false;
-    
-    // Remove o visual
-    final effect = children.whereType<MagicShieldEffect>().firstOrNull;
-    effect?.removeFromParent();
-
-    // (Opcional) Adicione um som de vidro quebrando ou particulas aqui
-    //print("ESCUDO QUEBRADO!"); 
+    _shieldVisual?.removeFromParent();
+    _shieldVisual = null;
   }
 
   void _animateMovement(double dt) {
-    // Pega o componente visual (GameIcon)
-    final visual = children.whereType<GameIcon>().firstOrNull;
-    if (visual == null) return;
-
-    // Lógica de Direção (Esquerda/Direita)
-    // Mantém a direção atual se estiver parado horizontalmente
-    double facingDirection = visual.scale.x.sign; 
+    double facingDirection = _visual.scale.x.sign; 
     if (velocity.x < -0.1) facingDirection = -1.0;
     if (velocity.x > 0.1) facingDirection = 1.0;
 
-    // Se estiver se movendo (velocidade > 0)
     if (!velocity.isZero()) {
       _walkTimer += dt * _bounceSpeed;
 
-      // Cálculo da Onda Senoidal (vai de -1 a 1)
       double wave = sin(_walkTimer);
-
-      // Efeito Squash & Stretch:
-      // Quando Y estica (+), X deve esmagar (-) para manter o volume visual
       double scaleY = 1.0 + (wave * _bounceAmplitude); 
-      double scaleX = 1.0 - (wave * _bounceAmplitude * 0.5); // X varia menos que Y
+      double scaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
 
-      // Aplica a escala combinando com a direção
-      visual.scale = Vector2(facingDirection * scaleX, scaleY);
-      
-      // Opcional: Rotacionar levemente para dar gingado
-      visual.angle = cos(_walkTimer) * 0.1; // Balança 0.1 radianos
+      _visual.scale.setValues(facingDirection * scaleX, scaleY);
+      _visual.angle = cos(_walkTimer) * 0.1; 
       
     } else {
-      // PARADO: Reseta a animação suavemente ou instantaneamente
       _walkTimer = 0;
-      visual.scale = Vector2(facingDirection, 1.0); // Volta ao tamanho normal (1,1)
-      visual.angle = 0; // Zera rotação
+      _visual.scale.setValues(facingDirection, 1.0); 
+      _visual.angle = 0; 
     }
   }
 
-  // --- CORREÇÃO PRINCIPAL AQUI ---
   void _handleMovement(double dt) {
-    velocity = Vector2.zero();
+    velocity.setZero();
 
-    // 1. Tenta Joystick Manual (Nova Lógica)
-    // gameRef.joystickDelta é a variável Vector2 que criamos no TowerGame
     if (gameRef.joystickDelta != Vector2.zero()) {
-       velocity = gameRef.joystickDelta * moveSpeed;
-    } 
-    // 2. Se não tem input do joystick, usa Teclado
-    else if (_keyboardInput != Vector2.zero()) {
-       velocity = _keyboardInput.normalized() * moveSpeed;
+       velocity.setFrom(gameRef.joystickDelta);
+       velocity.scale(moveSpeed);
+    } else if (_keyboardInput != Vector2.zero()) {
+       velocity.setFrom(_keyboardInput);
+       velocity.normalize();
+       velocity.scale(moveSpeed);
     }
 
-    if(velocity != Vector2.zero()){
-      velocityDash = velocity;
+    if (!velocity.isZero()) {
+      velocityDash.setFrom(velocity); // Copia segura
       _handleDustEffect(dt);
     } 
     
-    position += velocity * dt;
+    position.addScaled(velocity, dt); // Otimizado
   }
-  // --------------------------------
 
   void startDash() {
     if (dashNotifier.value <= 0 || isDashing) return;
@@ -261,7 +247,9 @@ class Player extends PositionComponent
     _dashTimer = dashDuration;
     _dashCooldownTimer = dashCooldown;
 
-    _dashDirection = velocityDash.normalized();
+    // Normalização sem gerar lixo
+    _dashDirection.setFrom(velocityDash);
+    _dashDirection.normalize();
   
     _isInvincible = true; 
   }
@@ -269,17 +257,9 @@ class Player extends PositionComponent
   void _handleDustEffect(double dt){
     _dustSpawnTimer -= dt;
     if (_dustSpawnTimer <= 0) {
-      
       _dustSpawnTimer = 0.05; 
       
-      // Cria um deslocamento aleatório para a poeira não sair em linha reta perfeita
-      final rng = Random();
-      final offset = Vector2(
-        0,//(rng.nextDouble() - 0.5) * 10, // -5 a +5 no X
-        size.y/2//(rng.nextDouble() - 0.5) * 10 + 10 // +5 a +15 no Y (Perto do pé)
-      );
-
-      // Adiciona a partícula no MUNDO (não dentro do player, senão ela se move junto com ele)
+      final offset = Vector2(0, size.y / 2);
       gameRef.world.add(Dust(
         position: position + offset,
       ));
@@ -287,18 +267,16 @@ class Player extends PositionComponent
   }
 
   void _createGhostEffect(double dt) {
-    final visual = children.whereType<GameIcon>().first;
-
     _ghostTimer += dt;
     if (_ghostTimer >= 0.025) {
       gameRef.world.add(
         GhostParticle(
-          icon: visual.icon,
+          icon: _visual.icon,
           color: Pallete.branco.withOpacity(0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
-          scale: visual.scale
+          scale: _visual.scale.clone(), // Clonado para não linkar referências
         ),
       );
       _ghostTimer = 0;
@@ -308,7 +286,7 @@ class Player extends PositionComponent
   void _handleDashMovement(double dt) {
     _dashTimer -= dt;
     _createGhostEffect(dt);
-    position += _dashDirection * dashSpeed * dt;
+    position.addScaled(_dashDirection, dashSpeed * dt);
 
     if (_dashTimer <= 0) {
       isDashing = false;
@@ -317,14 +295,11 @@ class Player extends PositionComponent
   }
 
   void _keepInBounds() {
-    double limitX = 180- 16;
+    double limitX = 180 - 16;
     double limitY = 320 - 16;
 
-    if (position.x < -limitX) position.x = -limitX;
-    if (position.x > limitX) position.x = limitX;
-    
-    if (position.y < -limitY) position.y = -limitY;
-    if (position.y > limitY) position.y = limitY;
+    position.x = position.x.clamp(-limitX, limitX);
+    position.y = position.y.clamp(-limitY, limitY);
   }
 
   @override
@@ -337,7 +312,7 @@ class Player extends PositionComponent
   }
 
   void takeDamage(int amount) {
-    if(_isInvincible)return;
+    if(_isInvincible) return;
     if (healthNotifier.value <= 0) return;
 
     if (hasShield) {
@@ -365,18 +340,15 @@ class Player extends PositionComponent
     if (_isInvincible) {
       _invincibilityTimer -= dt;
       
-      final icon = children.whereType<GameIcon>().firstOrNull;
-      if (icon != null) {
-        if (_invincibilityTimer % 0.2 < 0.1) {
-           icon.setColor(Pallete.vermelho.withOpacity(0.5));
-        } else {
-           icon.setColor(Pallete.branco);
-        }
+      if (_invincibilityTimer % 0.2 < 0.1) {
+         _visual.setColor(Pallete.vermelho.withOpacity(0.5));
+      } else {
+         _visual.setColor(Pallete.branco);
       }
 
       if (_invincibilityTimer <= 0) {
         _isInvincible = false;
-        icon?.setColor(Pallete.branco);
+        _visual.setColor(Pallete.branco);
       }
     }
   }
@@ -414,27 +386,41 @@ class Player extends PositionComponent
   }
 
   void _shootAt(Enemy target) {
-    Vector2 direction = (target.position - position).normalized();
+    // Calculo da direção livre de lixo de memória
+    _tempDirection.setFrom(target.position);
+    _tempDirection.sub(position);
+    _tempDirection.normalize();
+
     double dmg = damage;
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.3;
+    
     if(isBebado){
       double angleOffset = Random().nextDouble() * 0.2;
-      double x = direction.x * cos(angleOffset) - direction.y * sin(angleOffset);
-      double y = direction.x * sin(angleOffset) + direction.y * cos(angleOffset);
-      direction = Vector2(x, y);
+      double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
+      double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
+      _tempDirection.setValues(x, y);
       dmg = dmg * 1.3;
     }
+    
     AudioManager.playSfx('shoot.mp3');
-    gameRef.world.add(Projectile(position: position.clone(), direction: direction, damage: dmg, apagaTiros: hasAntimateria));
+    gameRef.world.add(Projectile(
+      position: position.clone(), 
+      direction: _tempDirection.clone(), 
+      damage: dmg, 
+      apagaTiros: hasAntimateria,
+      isHoming: isHoming,
+      canBounce: canBounce,
+      isPiercing: isPiercing,
+    ));
   }
 
   void criaBomba(){
     if (bombNotifier.value > 0){
       bombNotifier.value--;
-      gameRef.world.add(Bomb(position: position.clone()));
-    }else{
+      gameRef.world.add(Bomb(position: position.clone(), damage:30));
+    } else {
       gameRef.world.add(FloatingText(
         text: "Sem Bombas",
         position: position.clone(), 
@@ -452,8 +438,8 @@ class Player extends PositionComponent
     _dashCooldownTimer = 0;
     _isInvincible = false;
     _invincibilityTimer = 0;
-    velocity = Vector2.zero();
-    bombNotifier.value = 5;
+    velocity.setZero();
+    bombNotifier.value = 0;
     attackRange = 200; 
     _attackTimer = 0;
     damage = 10.0;
@@ -476,8 +462,14 @@ class Player extends PositionComponent
     revive = false;
     pegouRevive = false;
     hasAntimateria = false;
+    isHoming = false;
+    canBounce = false;
+    isPiercing = false;
+    stackBonus = 0;
+    isBurn = false;
+    isPoison = false;
 
-    children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
+    _visual.setColor(Pallete.branco);
   }
 
   @override
@@ -499,6 +491,7 @@ class Player extends PositionComponent
   void render(Canvas canvas) {
     super.render(canvas);
 
+    // OTIMIZAÇÃO: Usa as tintas cacheadas em vez de instanciar Paint() a 60FPS
     if (_dashCooldownTimer > 0 && dashNotifier.value < maxDash) {
       const double barHeight = 4.0;
       final double barWidth = size.x; 
@@ -508,12 +501,12 @@ class Player extends PositionComponent
 
       canvas.drawRect(
         Rect.fromLTWH(0, yOffset, barWidth, barHeight),
-        Paint()..color = Pallete.preto.withOpacity(0.5),
+        _dashBgPaint,
       );
 
       canvas.drawRect(
         Rect.fromLTWH(0, yOffset, barWidth * percent, barHeight),
-        Paint()..color = Pallete.verdeCla,
+        _dashFgPaint,
       );
     }
   }

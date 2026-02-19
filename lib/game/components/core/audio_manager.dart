@@ -11,7 +11,8 @@ class AudioManager {
   static bool _isMutedSfx = false;
   static bool get isMutedSfx => _isMutedSfx;
 
-  static String currMusic = '';
+  static bool _isBgmPlaying = false;
+  static String _currentBgm = '';
 
   /// Inicializa e pré-carrega sons importantes para evitar lag na primeira vez
   static Future<void> init() async {
@@ -41,21 +42,39 @@ class AudioManager {
     final now = DateTime.now();
     // Só toca se passou 50ms desde o último som igual
     if (now.difference(_lastSfxTime).inMilliseconds > 50) {
-      FlameAudio.play('sfx/$filename');
+      try {
+        FlameAudio.play('sfx/$filename');
       _lastSfxTime = now;
+      } catch (e) {
+         print("Erro ao tocar SFX: $e");
+      }
     }
   }
 
   /// Toca música de fundo em loop
   static void playBgm(String filename) {
     if (_isMutedMusic) return;
-    // CORREÇÃO 3: Mudamos de 'sfx/' para 'music/' para as músicas de fundo
-    FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
-    currMusic = filename;
+    if (_isBgmPlaying && _currentBgm == filename) {
+      return; 
+    }
+
+    if (_isBgmPlaying) {
+      FlameAudio.bgm.stop();
+    }
+  
+    try {
+      FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
+      _isBgmPlaying = true;
+      _currentBgm = filename;
+    } catch (e) {
+      print("Erro ao tocar BGM: $e");
+    }
   }
 
   static void stopBgm() {
     FlameAudio.bgm.stop();
+    _isBgmPlaying = false;
+    _currentBgm = '';
   }
   
   static void toggleMuteMusic(bool mute) {
@@ -64,7 +83,7 @@ class AudioManager {
       FlameAudio.bgm.stop();
     } else {
       // Opcional: Coloque o nome da sua música principal aqui para ela voltar a tocar
-       playBgm(currMusic); 
+       playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
     }
   }
 

@@ -16,8 +16,8 @@ import '../core/i18n.dart';
 
 enum CollectibleType { 
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista,
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas,
-  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria,
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,fogo,veneno, druidScroll, dotBook,
+  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing, 
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -32,7 +32,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
   final double _pickupRange = 60.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
-  InteractButton? _currentButton;
+  //InteractButton? _currentButton;
 
   Collectible({
     required Vector2 position, 
@@ -241,14 +241,16 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:
         return {'name': 'potDmg'.tr(), 'desc': 'potDmgDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.vermelho};
+      case CollectibleType.dot:
+        return {'name': 'potDot'.tr(), 'desc': 'potDotDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.verdeEsc};
       case CollectibleType.critChance:
         return {'name': 'potChCrit'.tr(), 'desc': 'potChCritDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.cinzaCla};
       case CollectibleType.critDamage:
-        return {'name': 'potDmgCrit'.tr(), 'desc': 'porDmgCritDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.lilas};
+        return {'name': 'potDmgCrit'.tr(), 'desc': 'potDmgCritDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.lilas};
       case CollectibleType.fireRate:
         return {'name': 'potFireRate'.tr(), 'desc': 'potFireRateDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.laranja};
       case CollectibleType.moveSpeed:
-        return {'name': 'boots'.tr(), 'desc': 'bootsDesc'.tr(), 'icon': MdiIcons.shoeSneaker, 'color': Pallete.azulCla};
+        return {'name': 'boots'.tr(), 'desc': 'bootsDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.verdeCla};
       case CollectibleType.range:
         return {'name': 'aim'.tr(), 'desc': 'aimDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.rosa};
       case CollectibleType.shield:
@@ -260,7 +262,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.berserk:
         return {'name': 'berserk'.tr(), 'desc': 'berserkDesc'.tr(), 'icon': MdiIcons.emoticonAngry, 'color': Pallete.vermelho};
       case CollectibleType.audacious:
-        return {'name': 'audaz'.tr(), 'desc': 'audazDescr'.tr(), 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
+        return {'name': 'audaz'.tr(), 'desc': 'audazDesc'.tr(), 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
       case CollectibleType.steroids:
         return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
       case CollectibleType.cafe:
@@ -279,6 +281,18 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': MdiIcons.cross, 'color': Pallete.amarelo};
       case CollectibleType.antimateria:
         return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': MdiIcons.radioboxMarked, 'color': Pallete.azulEsc};
+      case CollectibleType.piercing:
+        return {'name': 'piercing'.tr(), 'desc': 'piercingDesc'.tr(), 'icon': MdiIcons.middlewareOutline, 'color': Pallete.vermelho};
+      case CollectibleType.homing:
+        return {'name': 'homing'.tr(), 'desc': 'homingDesc'.tr(), 'icon': MdiIcons.targetAccount, 'color': Pallete.vermelho};
+      case CollectibleType.fogo:
+        return {'name': 'fogo'.tr(), 'desc': 'fogoDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.laranja};
+      case CollectibleType.veneno:
+        return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': MdiIcons.water, 'color': Pallete.verdeEsc};
+      case CollectibleType.druidScroll:
+        return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': MdiIcons.scriptText, 'color': Pallete.verdeEsc};
+      case CollectibleType.dotBook:
+        return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': MdiIcons.bookOpen, 'color': Pallete.lilas};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -313,6 +327,9 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.cafe,  
       CollectibleType.alcool,
       CollectibleType.bombas,
+      CollectibleType.dot,
+      CollectibleType.dotBook,
+      CollectibleType.druidScroll,
     ];
     if (!player.isBerserk) itens.add(CollectibleType.berserk);
     if (!player.isAudaz) itens.add(CollectibleType.audacious);
@@ -322,13 +339,17 @@ List<CollectibleType> retornaItens(player){
     if (!player.hasFoice) itens.add(CollectibleType.foice);
     if (!player.pegouRevive) itens.add(CollectibleType.revive);
     if (!player.hasAntimateria) itens.add(CollectibleType.antimateria);
+    if (!player.isPiercing) itens.add(CollectibleType.piercing);
+    if (!player.isHoming) itens.add(CollectibleType.homing);
+    if (!player.isFogo) itens.add(CollectibleType.fogo);
+    if (!player.isVeneno) itens.add(CollectibleType.veneno);
 
     return itens;
   }
 
 
-List<CollectibleType> retornaItensComuns(){
-    return [
+List<CollectibleType> retornaItensComuns(player){
+    List<CollectibleType> itens = [
       CollectibleType.damage,
       CollectibleType.fireRate,
       CollectibleType.moveSpeed, 
@@ -339,7 +360,14 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.critChance,
       CollectibleType.critDamage,
       CollectibleType.bombas,
+      CollectibleType.dot,
+      CollectibleType.dotBook,
+      CollectibleType.druidScroll,
     ];
+    if (!player.isPiercing) itens.add(CollectibleType.piercing);
+    if (!player.isFogo) itens.add(CollectibleType.fogo);
+    if (!player.isVeneno) itens.add(CollectibleType.veneno);
+    return itens;
   }
 
 List<CollectibleType> retornaPocoes(){
@@ -350,6 +378,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.range, 
       CollectibleType.critChance,
       CollectibleType.critDamage,
+      CollectibleType.dot,
     ];
   }
 
@@ -367,6 +396,7 @@ List<CollectibleType> retornaPocoes(){
     if (!player.hasFoice) itRaros.add(CollectibleType.foice);
     if (!player.pegouRevive) itRaros.add(CollectibleType.revive);
     if (!player.hasAntimateria) itRaros.add(CollectibleType.antimateria);
+    if (!player.isHoming) itRaros.add(CollectibleType.homing);
     return itRaros ;
   }
 
@@ -437,6 +467,12 @@ class CollectibleLogic {
         case CollectibleType.damage:
           player.increaseDamage();
           text = "+ Damage!";
+          //color = Pallete.branco; // Laranja
+          break;
+
+        case CollectibleType.dot:
+          player.dot += 0.2;
+          text = "+ Dot!";
           //color = Pallete.branco; // Laranja
           break;
           
@@ -558,7 +594,45 @@ class CollectibleLogic {
           player.hasAntimateria = true;
           text = "antimateria";
           //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.piercing:
+          player.isPiercing = true;
+          text = "Piercing Shot!";
+          //color = Pallete.vermelho;
           break;  
+
+        case CollectibleType.homing:
+          player.isHoming = true;
+          text = "Homing Shot!";
+          //color = Pallete.vermelho;
+          break;  
+        
+        case CollectibleType.fogo:
+          player.isBurn = true;
+          text = "Fire Shot!";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.veneno:
+          player.isPoison = true;
+          text = "Poison Shot!";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.druidScroll:
+          player.dot *= 2;
+          player.damage *= 0.6;
+          text = "Druid's Scroll: Dot Doubled!";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.dotBook:
+          player.dot *= 1.5;
+          player.attackRange *= 0.8;
+          text = "Dot Book";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

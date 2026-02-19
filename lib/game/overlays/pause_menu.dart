@@ -15,12 +15,13 @@ class PauseMenu extends StatelessWidget {
     // Busca os valores atuais do jogo/jogador
     final int hp = game.player.healthNotifier.value;
     final int maxHp = game.player.maxHealth;
-    final double dmg = game.player.damage / 10 * 100;
-    final double fireRate = 0.4 / game.player.fireRate  * 100;
-    final double range = game.player.attackRange / 200 * 100;
-    final double critChance = game.player.critChance / 5 * 100;
-    final double critDmg = game.player.critDamage / 2 * 100;
-    final double speed = game.player.moveSpeed / 150 * 100;
+    final int dmg = (game.player.damage / 10 * 100).round();
+    final int dot = (game.player.dot * 100).round();
+    final int fireRate = (0.4 / game.player.fireRate  * 100).round();
+    final int range = (game.player.attackRange / 200 * 100).round();
+    final int critChance = (game.player.critChance).round();
+    final int critDmg = (game.player.critDamage / 2 * 100).round();
+    final int speed = (game.player.moveSpeed / 150 * 100).round();
     final int level = game.currentLevel;
     final int room = game.currentRoom;
 
@@ -62,6 +63,8 @@ class PauseMenu extends StatelessWidget {
                     _buildStatRow(Icons.favorite, 'health'.tr(), '$hp / $maxHp', Pallete.branco),
                     const SizedBox(height: 8),
                     _buildStatRow(MdiIcons.sword, 'dmg'.tr(), '$dmg%', Pallete.branco),
+                    const SizedBox(height: 8),
+                    _buildStatRow(MdiIcons.fire, 'dot'.tr(), '$dot%', Pallete.branco),
                     const SizedBox(height: 8),
                     _buildStatRow(MdiIcons.sword, 'fire_rate'.tr(), '$fireRate%', Pallete.branco),
                     const SizedBox(height: 8),

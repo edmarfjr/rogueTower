@@ -118,7 +118,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         iconData = Icons.store_mall_directory;
         break;
       case CollectibleType.shield:
-        iconData = Icons.gpp_bad;
+        iconData = MdiIcons.shield;
         break;
       case CollectibleType.boss:
         iconData = MdiIcons.skull;

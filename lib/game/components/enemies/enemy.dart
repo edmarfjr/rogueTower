@@ -5,6 +5,7 @@ import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart'; 
 import '../core/game_icon.dart';
 import '../core/pallete.dart';
@@ -34,11 +35,24 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool _isHit = false;
   double _hitTimer = 0;
   bool isFreeze = false;
-  double get speedInicial => _baseSpeed;
   late double _baseSpeed;
+  double speedInicial = 0;
   double freezeTimer = 0.0;
+  bool isBurned = false;
+  double burnTimer = 0.0;
+  double burnTime = 2.0;
+  ValueNotifier<int> burnStacks = ValueNotifier<int>(0);
+  bool isPoisoned = false;
+  double poisonTimer = 0.0;
+  double poisonTime = 1.0;
+  ValueNotifier<int> poisonStacks = ValueNotifier<int>(0);
 
   GameIcon? visual;
+  GameIcon? burnIcon;
+  GameIcon? freezeIcon;
+  GameIcon? poisonIcon;
+  TextComponent? burnText;
+  TextComponent? poisonText;
   Vector2 _lastPosition = Vector2.zero();
   double _animAmplitude = 0.1;
   double _animTimer = 0;
@@ -93,6 +107,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   Future<void> onLoad() async {
+    speedInicial = speed;
     // Cria o componente visual
     final gameIcon = GameIcon(
       icon: iconData,
@@ -286,8 +301,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(gameRef.player.isFreeze){
       final rng = Random();
       if (rng.nextDouble() <= 0.8){
-        isFreeze = true;
-        speed = speed/4;
+        setFreeze();
+      }
+    }
+
+    // Lógica de burn
+    if(gameRef.player.isBurn){
+      if (burnStacks.value < 5 + gameRef.player.stackBonus){
+        setBurn();     
+      }
+    }
+
+    // Lógica de poison
+    if(gameRef.player.isPoison){
+      if (poisonStacks.value < 10 + gameRef.player.stackBonus){
+        setPoison();
       }
     }
 
@@ -295,7 +323,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!_isHit) { 
         _isHit = true; 
         _hitTimer = 0.1; 
-        children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
+        visual!.setColor(Pallete.branco);
     }
 
     Color cor = Pallete.branco;
@@ -330,6 +358,70 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     position.y = position.y.clamp(-halfHeight + padding, halfHeight - padding);
   }
 
+  void setFreeze(){
+    isFreeze = true;
+    speed = speed/4;
+
+    freezeIcon = GameIcon(
+      icon: Icons.ac_unit,
+      color: Pallete.azulCla,
+      size: size/4,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, size.y / 2 - size.y / 4), 
+    );
+    
+    add(freezeIcon!);
+  }
+
+  void setBurn(){
+    isBurned = true;
+    burnStacks.value += 1;
+
+    if (burnIcon == null){
+      burnIcon = GameIcon(
+      icon: MdiIcons.fire,
+      color: Pallete.laranja,
+      size: size/2,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, - size.y / 4), 
+    );
+    
+      add(burnIcon!);
+    }
+
+    
+
+    burnText = TextComponent(
+      text: burnStacks.value.toString(),
+      position: Vector2((size.x/2) - 5, - size.y / 4),
+      anchor: Anchor.center,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Pallete.laranja,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    add(burnText!);
+  }
+  
+
+  void setPoison(){
+    isPoisoned = true;
+    poisonStacks.value += 1;
+
+    poisonIcon = GameIcon(
+      icon: MdiIcons.water,
+      color: Pallete.verdeCla,
+      size: size/2,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, - size.y / 4), 
+    );
+    
+    add(poisonIcon!);
+  }
+
   void _updateStatus(double dt) {
     // Freeze
     if (isFreeze){
@@ -338,7 +430,54 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         isFreeze = false;
         freezeTimer = 0.0;
         speed = _baseSpeed;
-        children.whereType<GameIcon>().firstOrNull?.setColor(originalColor);
+        if (visual == null) return;
+        visual?.setColor(originalColor);
+        if (freezeIcon != null) {
+         freezeIcon!.removeFromParent();
+        }
+      }
+    }
+    // Burn
+    if (isBurned){
+      burnTimer += dt;
+      if (burnTimer >= burnTime){
+        burnStacks.value -= 1;
+        
+        burnTimer = 0.0;
+        if (burnStacks.value <= 0) {
+          isBurned = false;
+          if (visual == null) return;
+          visual?.setColor(originalColor);
+          if (burnIcon != null) {
+            burnIcon!.removeFromParent();
+          }
+          if (burnText != null) {
+            burnText!.removeFromParent();
+          }
+        }else{
+          takeDamage(5 *gameRef.player.dot);
+        }
+        
+      }
+    }
+     // Poison
+    if (isPoisoned){
+      poisonTimer += dt;
+      if (poisonTimer >= poisonTime){
+        poisonStacks.value -= 1;
+        
+        poisonTimer = 0.0;
+        if (poisonStacks.value <= 0) {
+          isPoisoned = false;
+          if (visual == null) return;
+          visual?.setColor(originalColor);
+          if (poisonIcon != null) {
+            poisonIcon!.removeFromParent();
+          }
+        }else{
+          takeDamage(2 *gameRef.player.dot);
+        }
+        
       }
     }
     // Hit Flash
@@ -348,7 +487,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         _isHit = false;
         Color cor = originalColor;
         if (isFreeze) cor = Pallete.azulCla;
-        children.whereType<GameIcon>().firstOrNull?.setColor(cor);
+        if (visual == null) return;
+        visual?.setColor(cor);
       }
     }
 

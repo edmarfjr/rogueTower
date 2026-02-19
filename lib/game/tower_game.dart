@@ -9,7 +9,8 @@ import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flame/experimental.dart'; 
+import 'package:flame/experimental.dart';
+import 'package:flame_audio/flame_audio.dart'; 
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
 import 'package:TowerRogue/game/components/gameObj/player.dart';
@@ -25,7 +26,7 @@ import 'components/gameObj/arena_border.dart';
 import 'components/core/game_progress.dart';
 import 'overlays/bank_menu.dart';
 
-class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
+class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
   static const double arenaHeight = 660.0; // Altura total (Cima <-> Baixo)
   late final Player player;
@@ -43,7 +44,6 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   late CircleComponent joystickKnob;
   
   final double _maxRadius = 40.0; 
-  bool _isDragging = false;
   
   // Variável pública para o Player ler
   Vector2 joystickDelta = Vector2.zero();
@@ -64,6 +64,8 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   
 
   late ScreenTransition transitionEffect;
+
+  int? _joystickPointerId;
 
   @override
   Color backgroundColor() => Pallete.preto;
@@ -141,9 +143,25 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
 
     overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
 
+    await FlameAudio.audioCache.loadAll([
+      'music/8bit_menu.mp3',
+      'music/funny_bit.mp3',
+      'music/retro_plat.mp3',
+      'sfx/collect.mp3',
+      'sfx/dash.mp3',
+      'sfx/enemy_die.mp3',
+      'sfx/enemyShot.mp3',
+      'sfx/explosion.mp3',
+      'sfx/game_over.mp3',
+      'sfx/hit.mp3',
+      'sfx/laser.mp3',
+      'sfx/shoot.mp3',
+    ]);
+
+    FlameAudio.bgm.initialize();
     //musica menu principal
     try {
-      //AudioManager.playBgm('8bit_menu.mp3');
+     // AudioManager.playBgm('8bit_menu.mp3');
     } catch (e) {
       print("O navegador bloqueou o áudio automático: $e");
     }
@@ -213,59 +231,66 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
   }
 
   @override
-  void onPanStart(DragStartInfo info) {
-    // 1. Converte o toque da tela para coordenadas do Viewport (360x640)
+  void onDragStart(int pointerId, DragStartInfo info) {
+    // 2. A MÁGICA: Se já temos um dedo controlando o joystick, ignora esse novo toque!
+    if (_joystickPointerId != null) return;
+    
+    // Grava o ID do dedo que acabou de tocar para ser o "Dono" do joystick
+    _joystickPointerId = pointerId;
+
+    // Converte o toque da tela para coordenadas do Viewport (360x640)
     final screenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
 
-    // 2. Posiciona a BASE e o KNOB exatamente onde tocou
+    // Posiciona a BASE e o KNOB exatamente onde tocou
     joystickBase.position = screenPosition;
     joystickKnob.position = screenPosition;
-    
-    // 3. Marca como arrastando
-    _isDragging = true;
     
     // Zera o movimento inicial
     joystickDelta = Vector2.zero();
   }
 
   @override
-  void onPanUpdate(DragUpdateInfo info) {
-    if (!_isDragging) return;
+  void onDragUpdate(int pointerId, DragUpdateInfo info) {
+    // 3. SEGREGAÇÃO: Se o dedo que está movendo não for o Dono, ignora!
+    if (pointerId != _joystickPointerId) return;
 
-    // 1. Onde o dedo está AGORA (no viewport)
+    // Onde o dedo está AGORA (no viewport)
     final currentScreenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
     
-    // 2. Calcula a distância entre o dedo e o centro da base
+    // Calcula a distância entre o dedo e o centro da base
     final dragVector = currentScreenPosition - joystickBase.position;
     
-    // 3. Limita o movimento ao raio máximo (Matemática de vetores)
+    // Limita o movimento ao raio máximo
     if (dragVector.length > _maxRadius) {
-      // Se esticou demais, prende na borda do círculo
       joystickKnob.position = joystickBase.position + (dragVector.normalized() * _maxRadius);
     } else {
-      // Se está dentro, segue o dedo
       joystickKnob.position = currentScreenPosition;
     }
 
-    // 4. CALCULA O DELTA (Isso é o que o Player usa para andar)
-    // O valor deve ser entre -1 e 1
-    // (Posição do Knob - Posição da Base) / Raio
+    // CALCULA O DELTA (Isso é o que o Player usa para andar)
     final rawDelta = joystickKnob.position - joystickBase.position;
     joystickDelta = rawDelta / _maxRadius;
   }
 
   @override
-  void onPanEnd(DragEndInfo info) {
-    _resetJoystick();
+  void onDragEnd(int pointerId, DragEndInfo info) {
+    // Só reseta o joystick se o dedo que levantou for o Dono
+    if (pointerId == _joystickPointerId) {
+      _resetJoystick();
+    }
   }
 
   @override
-  void onPanCancel() {
-    _resetJoystick();
+  void onDragCancel(int pointerId) {
+    // Só cancela se for o Dono
+    if (pointerId == _joystickPointerId) {
+      _resetJoystick();
+    }
   }
 
   void _resetJoystick() {
-    _isDragging = false;
+    // Libera o joystick para um novo dedo no futuro
+    _joystickPointerId = null; 
     
     // Some com o joystick visualmente
     joystickBase.position = Vector2(-1000, -1000);
@@ -317,13 +342,13 @@ class TowerGame extends FlameGame with PanDetector, HasCollisionDetection, HasKe
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-   // AudioManager.playBgm('8bit_menu.mp3');
+    //AudioManager.playBgm('8bit_menu.mp3');
   }
 
   void startLevel() {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
-  //  AudioManager.playBgm('funny_bit.mp3');
+    //AudioManager.playBgm('funny_bit.mp3');
   }
 
   void nextLevel(CollectibleType chosenReward) {
