@@ -120,14 +120,17 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     final rng = Random();
 
     
-    List<CollectibleType> possibleRewards = retornaItensComuns(game.player);
+    List<CollectibleType> possibleRewards = gameRef.itensComunsPoolCurrent;
 
-    if(isLock) possibleRewards = retornaItensRaros(game.player);
+    if(isLock) possibleRewards = gameRef.itensRarosPoolCurrent;
 
-    // 2. Sorteia um índice aleatório da lista (0 até o tamanho da lista - 1)
-    // rng.nextInt(N) retorna um número de 0 a N-1.
-    final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
+    final CollectibleType lootType = possibleRewards[1];
 
+    if(isLock) {
+      gameRef.itensRarosPoolCurrent.remove(lootType);
+    } else {
+      gameRef.itensComunsPoolCurrent.remove(lootType);
+    }
     // 3. Cria o item sorteado
     gameRef.world.add(Collectible(
       position: position + Vector2(0, -40),

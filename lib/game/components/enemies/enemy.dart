@@ -420,6 +420,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       );
       add(burnText!);
     }
+    burnText?.text = burnStacks.value.toString();
   }
   
 
@@ -452,6 +453,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       );
       add(bleedText!);
     }
+    bleedText?.text = bleedStacks.value.toString();
   }
 
   void setPoison(){
@@ -483,6 +485,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       );
       add(poisonText!);
     }
+    poisonText?.text = poisonStacks.value.toString();
   }
 
   void _updateStatus(double dt) {
@@ -519,6 +522,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           }
         }else{
           takeDamage(5 *gameRef.player.dot);
+          burnText?.text = burnStacks.value.toString();
         }
         
       }
@@ -539,6 +543,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           }
         }else{
           takeDamage(3 *gameRef.player.dot);
+          poisonText?.text = poisonStacks.value.toString();
         }
         
       }
@@ -559,6 +564,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           }
         }else{
           takeDamage(2 *gameRef.player.dot);
+          bleedText?.text = bleedStacks.value.toString();
         }
         
       }

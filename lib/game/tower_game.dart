@@ -67,6 +67,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   int? _joystickPointerId;
 
+  final List<CollectibleType> itensComunsPool = retornaItensComuns();
+  final List<CollectibleType> itensRarosPool = retornaItensRaros();
+  List<CollectibleType> itensComunsPoolCurrent = [];
+  List<CollectibleType> itensRarosPoolCurrent = [];
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -389,6 +394,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void resetGame() {
+    itensComunsPoolCurrent = List.from(itensComunsPool);
+    itensRarosPoolCurrent = List.from(itensRarosPool);
+    itensComunsPoolCurrent.shuffle();
+    itensRarosPoolCurrent.shuffle();
+
+     // Recarrega os áudios para evitar problemas de cache
     overlays.remove('GameOver');
     overlays.remove('VictoryMenu'); 
     resumeEngine();

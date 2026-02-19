@@ -414,7 +414,7 @@ List<CollectibleType> retornaItens(player){
   }
 
 
-List<CollectibleType> retornaItensComuns(player){
+List<CollectibleType> retornaItensComuns(){
     List<CollectibleType> itens = [
       CollectibleType.damage,
       CollectibleType.fireRate,
@@ -431,16 +431,16 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.druidScroll,
       CollectibleType.bloodstone,
     ];
-    if (!player.isPiercing) itens.add(CollectibleType.piercing);
-    if (!player.isBurn) itens.add(CollectibleType.fogo);
-    if (!player.isPoison) itens.add(CollectibleType.veneno);
-    if (!player.isBleed) itens.add(CollectibleType.sangramento);
-    if (!player.hasChaveNegra) itens.add(CollectibleType.chaveNegra);
-    if (!player.isOrbitalShot) itens.add(CollectibleType.gravitacao);
-    if (!player.isMineShot) itens.add(CollectibleType.mine);
-    if (!player.isSpectral) itens.add(CollectibleType.spectral);
-    if (!player.canBounce) itens.add(CollectibleType.bounce);
-    if (!player.hasCupon) itens.add(CollectibleType.cupon);
+    itens.add(CollectibleType.piercing);
+    itens.add(CollectibleType.fogo);
+    itens.add(CollectibleType.veneno);
+    itens.add(CollectibleType.sangramento);
+    itens.add(CollectibleType.chaveNegra);
+    itens.add(CollectibleType.gravitacao);
+    itens.add(CollectibleType.mine);
+    itens.add(CollectibleType.spectral);
+    itens.add(CollectibleType.bounce);
+    itens.add(CollectibleType.cupon);
     return itens;
   }
 
@@ -456,7 +456,7 @@ List<CollectibleType> retornaPocoes(){
     ];
   }
 
-  List<CollectibleType> retornaItensRaros(player){
+  List<CollectibleType> retornaItensRaros(){
     List<CollectibleType> itRaros =[
       CollectibleType.steroids,
       CollectibleType.cafe,  
@@ -464,19 +464,19 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.soda,
       CollectibleType.conqCrown,
     ];
-    if (!player.isBerserk) itRaros.add(CollectibleType.berserk);
-    if (!player.isAudaz) itRaros.add(CollectibleType.audacious);
-    if (!player.isFreeze) itRaros.add(CollectibleType.freeze);
-    if (!player.magicShield) itRaros.add(CollectibleType.magicShield);
-    if (!player.hasOrbShield) itRaros.add(CollectibleType.orbitalShield);
-    if (!player.hasFoice) itRaros.add(CollectibleType.foice);
-    if (!player.pegouRevive) itRaros.add(CollectibleType.revive);
-    if (!player.hasAntimateria) itRaros.add(CollectibleType.antimateria);
-    if (!player.isHoming) itRaros.add(CollectibleType.homing);
-    if (!player.isConcentration) itRaros.add(CollectibleType.concentration);
-    if (!player.defensiveBurst) itRaros.add(CollectibleType.defBurst);
-    if (!player.isKinetic) itRaros.add(CollectibleType.kinetic);
-    if (!player.isHeavyShot) itRaros.add(CollectibleType.heavyShot);
+    itRaros.add(CollectibleType.berserk);
+    itRaros.add(CollectibleType.audacious);
+    itRaros.add(CollectibleType.freeze);
+    itRaros.add(CollectibleType.magicShield);
+    itRaros.add(CollectibleType.orbitalShield);
+    itRaros.add(CollectibleType.foice);
+    itRaros.add(CollectibleType.revive);
+    itRaros.add(CollectibleType.antimateria);
+    itRaros.add(CollectibleType.homing);
+    itRaros.add(CollectibleType.concentration);
+    itRaros.add(CollectibleType.defBurst);
+    itRaros.add(CollectibleType.kinetic);
+    itRaros.add(CollectibleType.heavyShot);
     return itRaros ;
   }
 

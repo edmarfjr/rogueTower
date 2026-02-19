@@ -105,7 +105,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 0)));
 
       //teste de itens
-      //gameRef.world.add(Chest(position: Vector2(0, 0)));
+      gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bumerangue));
       //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.foice));
     }
