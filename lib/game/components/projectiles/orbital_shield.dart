@@ -11,18 +11,25 @@ import '../core/pallete.dart';
 import 'projectile.dart';
 
 class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
-  final double angleOffset; // Diferença de ângulo para os escudos não ficarem um em cima do outro
-  final double radius; // Distância do jogador
-  final double speed ;   // Velocidade da rotação
+  final double angleOffset; 
+  final double radius; 
+  final double speed ;   
   final bool isEnemy;
   final bool isFoice;
+  final bool isFlail;
   final PositionComponent? owner;
   double _currentAngle = 0;
+
+  // --- NOVA VARIÁVEL DE RENDERIZAÇÃO (Zero Lixo) ---
+  final Paint _chainPaint = Paint()
+    ..color = Pallete.cinzaEsc // Ajuste para a cor que preferir (cinza combina com metal)
+    ..style = PaintingStyle.fill;
 
   OrbitalShield({
     required this.angleOffset, 
     this.isEnemy = false,
     this.isFoice = false, 
+    this.isFlail = false,
     this.owner,
     this.radius = 45,
     this.speed = 3,
@@ -42,7 +49,15 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
         anchor: Anchor.center,
         position: size / 2,
       ));
-    }else{
+    }else if(isFlail){
+      add(GameIcon(
+        icon: MdiIcons.mine,
+        color: Pallete.lilas,
+        size: size, 
+        anchor: Anchor.center,
+        position: size / 2,
+      ));
+    } else {
       add(GameIcon(
         icon: MdiIcons.shield,
         color: Pallete.lilas,
@@ -52,32 +67,87 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
       ));
     }
 
-    // Colisor para detectar projéteis inimigos
     add(CircleHitbox());
   }
 
-  @override
+ @override
   void update(double dt) {
     super.update(dt);
     
-    // Movimento Circular: x = cos(a) * r, y = sin(a) * r
+    if (owner == null) return;
+
     _currentAngle += speed * dt;
-    final double centerX = owner!.size.x / 2;
-    final double centerY = owner!.size.y / 2;
+    
+    double centerX;
+    double centerY;
+
+    // A MÁGICA ESTÁ AQUI: Checar quem é o "Pai" (Parent) do escudo
+    if (parent == owner) {
+      // 1. Coordenada Local: O escudo é FILHO do dono (Como os Inimigos fazem)
+      centerX = owner!.size.x / 2;
+      centerY = owner!.size.y / 2;
+    } else {
+      // 2. Coordenada Global: O escudo é FILHO DO MUNDO (Como o Player faz)
+      // Assume que o owner tem a âncora no centro (Anchor.center)
+      centerX = owner!.position.x;
+      centerY = owner!.position.y;
+    }
 
     // Cálculo da nova posição
     final newX = centerX + cos(_currentAngle) * radius;
     final newY = centerY + sin(_currentAngle) * radius;
     
     position.setValues(newX, newY);
-    
+  }
+
+  // --- O DESENHO DA CORRENTE ---
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas); // Garante que a base do Flame rode
+
+    if (isFlail) {
+      // Ponto de partida: O centro exato da bola do Flail
+      final double startX = size.x / 2;
+      final double startY = size.y / 2;
+
+      // Quantos elos a corrente vai ter (Ex: 1 elo a cada 8 pixels de raio)
+      int numLinks = (radius / 8).floor(); 
+
+      // Desenha bolinhas (elos) do centro da bola em direção ao dono
+      for (int i = 1; i < numLinks; i++) {
+        // Porcentagem da distância (0.0 a 1.0)
+        double progress = i / numLinks; 
+
+        // Calcula a posição do elo. 
+        // Usamos subtração (-) porque estamos indo DA bola PARA o dono.
+        double linkX = startX - cos(_currentAngle) * (radius * progress);
+        double linkY = startY - sin(_currentAngle) * (radius * progress);
+
+        // Desenha o elo (um círculo de raio 2.0)
+        canvas.drawCircle(Offset(linkX, linkY), 2.0, _chainPaint);
+      }
+
+      /* // SE PREFERIR UMA LINHA RETA CONTÍNUA EM VEZ DE PONTILHADA,
+      // APAGUE O 'for' ACIMA E DESCOMENTE ESTE CÓDIGO:
+      
+      final targetX = startX - cos(_currentAngle) * radius;
+      final targetY = startY - sin(_currentAngle) * radius;
+      
+      final linePaint = Paint()
+        ..color = Pallete.cinzaEsc
+        ..strokeWidth = 2.0
+        ..style = PaintingStyle.stroke;
+        
+      canvas.drawLine(Offset(startX, startY), Offset(targetX, targetY), linePaint);
+      */
+    }
   }
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if(isFoice){
+    if(isFoice || isFlail){ // <-- Atualizado aqui para o Flail dar dano também!
       if (other is Enemy && !isEnemy && !other.isInvencivel && !other.isIntangivel) {
         other.takeDamage(gameRef.player.damage);
       }else if (other is Player && isEnemy) {
@@ -92,6 +162,5 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
         } 
       }
     }
-    
   }
 }

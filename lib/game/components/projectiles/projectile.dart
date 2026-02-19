@@ -3,6 +3,7 @@ import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
 import '../core/pallete.dart';
@@ -19,40 +20,40 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final bool isEnemyProjectile;
   final bool apagaTiros;
   final PositionComponent? owner;
+
+  late final Vector2 iniPosition;
   
   double _timer = 0.0;
   final double dieTimer;
 
-  // --- NOVOS COMPORTAMENTOS OPCIONAIS ---
-  
-  // 1. REBATER (BOUNCE)
+  // --- COMPORTAMENTOS OPCIONAIS ---
   final bool canBounce;
   final int maxBounces;
   int _bounceCount = 0;
 
-  // 2. EXPLODIR (AREA DAMAGE)
   final bool explodes;
   final double explosionRadius;
 
-  // 3. DIVIDIR (CLUSTER/SPLIT)
   final bool splits;
   final int splitCount;
 
-  // 4. ORBITAL
   final bool isOrbital;
   double _currentAngle = 0; 
   final double orbitalRadius;
 
-  // 5. TELEGUIDADO (HOMING)
   final bool isHoming;
-  final double homingTurnSpeed; // Quão rápido ele consegue fazer a curva (ex: 3.0)
-  PositionComponent? _homingTarget; // O alvo atual travado
-  final Vector2 _desiredDirection = Vector2.zero(); // Vetor sem lixo de memória
+  final double homingTurnSpeed; 
+  PositionComponent? _homingTarget; 
+  final Vector2 _desiredDirection = Vector2.zero(); 
 
-  // 6. PERFURANTE (PIERCING)
   final bool isPiercing;
-  // A "Hit List": guarda quem essa bala já machucou para não dar dano duplo
   final Set<PositionComponent> _hitTargets = {};
+
+  final bool isSpectral;
+
+  // 7. BUMERANGUE (BOOMERANG)
+  final bool isBoomerang;
+  bool _isReturning = false; // Controle de ida e volta
 
   GameIcon? visual;
   double visualAngle = 0;
@@ -69,7 +70,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.apagaTiros = false,
     this.dieTimer = 3.0,
     Vector2? size,
-    // Novos Parâmetros
     this.canBounce = false,
     this.maxBounces = 2,
     this.explodes = false,
@@ -79,25 +79,32 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isOrbital = false,
     this.orbitalRadius = 50.0,
     this.isHoming = false,
-    this.homingTurnSpeed = 4.0, // 4.0 é uma curva ágil, 1.0 é um míssil pesado
+    this.homingTurnSpeed = 4.0, 
     this.isPiercing = false,
-  }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center);
+    this.isSpectral = false,
+    this.isBoomerang = false, // Novo Parâmetro!
+    Vector2? iniPosition,
+  }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
+    this.iniPosition = iniPosition?.clone() ?? position.clone();
+  }
 
   @override
   Future<void> onLoad() async {
     IconData icon = Icons.circle;
+    Color color = isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo;
     if (explodes) {
       icon = Icons.brightness_high;
+    } else if (isBoomerang) {
+      icon = MdiIcons.boomerang; 
+      color = Pallete.marrom;
     } else if (isHoming) {
       icon = Icons.rocket_launch;
       visualAngle = -pi / 4; 
-    } else {
-      icon = Icons.circle;
     }
 
     visual = GameIcon(
       icon: icon, 
-      color: isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo,
+      color: color,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
@@ -117,39 +124,73 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   @override
   void update(double dt) {
     super.update(dt);
-
     if (_isDead) return;
 
+    _timer += dt;
+
     if (owner != null && !owner!.isMounted) {
-      removeFromParent(); 
-      return;
+      if (!isBoomerang) {
+        removeFromParent(); 
+        return;
+      }
+    }
+
+    // --- LÓGICA DO BUMERANGUE ---
+    if (isBoomerang) {
+      visualAngle += 15 * dt; 
+      // Garante que a rotação visual funcione mesmo sem o homing
+      if (!isHoming || _isReturning) _updateRotation();
+
+      if (!_isReturning && _timer >= dieTimer / 2) {
+        _isReturning = true;
+        _hitTargets.clear(); 
+        _homingTarget = null; 
+      }
+
+      if (_isReturning) {
+        Vector2 targetPos = (owner != null && owner!.isMounted) 
+            ? owner!.position 
+            : iniPosition;
+            
+        _desiredDirection.setFrom(targetPos);
+        _desiredDirection.sub(position);
+
+        if (_desiredDirection.length2 < 400) { 
+          removeFromParent();
+          return;
+        }
+
+        _desiredDirection.normalize();
+        
+        // --- AQUI ESTÁ A MUDANÇA ---
+        // Em vez de fazer a curva suave, ele aponta DIRETAMENTE para o alvo
+        // criando uma linha reta de retorno perfeita.
+        direction.setFrom(_desiredDirection);
+      }
     }
     
     // --- LÓGICA HOMING (TELEGUIDADO) ---
-    if (isHoming && !isOrbital) {
+    if (isHoming && !isOrbital && !_isReturning) {
       _updateHomingTarget();
       
       if (_homingTarget != null && _homingTarget!.isMounted) {
-        // 1. Descobre para onde o alvo está
         _desiredDirection.setFrom(_homingTarget!.position);
         _desiredDirection.sub(position);
         _desiredDirection.normalize();
 
-        // 2. Faz a curva suavemente na direção do alvo (Matemática In-Place sem gerar lixo)
         direction.x += (_desiredDirection.x - direction.x) * (dt * homingTurnSpeed);
         direction.y += (_desiredDirection.y - direction.y) * (dt * homingTurnSpeed);
         direction.normalize();
 
-        // Atualiza a rotação do sprite para ele "olhar" para onde está virando
-        _updateRotation();
+        if (!isBoomerang) _updateRotation();
       }
     }
 
     // --- MOVIMENTO ---
     if (isOrbital) {
       _currentAngle += speed * dt;
-      final double centerX = owner!.position.x ;
-      final double centerY = owner!.position.y ;
+      final double centerX = iniPosition.x ;
+      final double centerY = iniPosition.y ;
 
       final newX = centerX + cos(_currentAngle) * orbitalRadius;
       final newY = centerY + sin(_currentAngle) * orbitalRadius;
@@ -160,9 +201,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
 
     // --- VISUAL (PISCAR) ---
-    _timer += dt;
     double flashSpeed = (_timer > dieTimer - 1) ? 0.1 : 0.2;
-    
     if (_timer % flashSpeed < (flashSpeed / 2)){ 
       visual?.setColor(Pallete.amarelo);
     } else {
@@ -176,7 +215,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (position.length > 3000) removeFromParent();
   }
 
-  // --- BUSCA O ALVO DO HOMING ---
   void _updateHomingTarget() {
     if (_homingTarget != null && _homingTarget!.isMounted) return;
 
@@ -188,7 +226,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       Enemy? bestTarget;
 
       for (final enemy in enemies) {
-        // Ignora inimigos que a bala já atravessou!
         if (_hitTargets.contains(enemy)) continue;
 
         final dist = position.distanceToSquared(enemy.position);
@@ -201,7 +238,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
-  // --- MÉTODO CENTRAL DE MORTE ---
   void kill({bool triggerEffects = true}) {
     if (_isDead) return;
     _isDead = true;
@@ -215,14 +251,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     removeFromParent();
   }
 
-  // --- LÓGICA DE CLUSTER (SPLIT) ---
   void _doSplit() {
     for (int i = 0; i < splitCount; i++) {
       double angle = (2 * pi / splitCount) * i; 
       Vector2 newDir = Vector2(cos(angle), sin(angle));
       
       gameRef.world.add(Projectile(
-        position: position.clone(), // Adicionei .clone() para evitar bugs de referência de vetores
+        position: position.clone(), 
         direction: newDir,
         speed: speed * 0.8, 
         damage: damage / 2, 
@@ -233,7 +268,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         canBounce: false,
         explodes: false, 
         splits: false, 
-        isHoming: isHoming, // Fragmentos herdam a habilidade de perseguir!
+        isHoming: isHoming, 
+        isPiercing: isPiercing,
+        isBoomerang: isBoomerang, // Fragmentos bumerangues também ficam muito loucos
       ));
     }
   }
@@ -244,13 +281,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     super.onCollisionStart(intersectionPoints, other);
     if (_isDead) return;
 
-    // Se o alvo já está na lista de atingidos, ignora completamente a colisão
     if (_hitTargets.contains(other)) return;
 
     final hitPos = intersectionPoints.firstOrNull ?? position;
 
-    // 1. COLISÃO COM PAREDES (Paredes continuam bloqueando/rebatendo tiros perfurantes)
-    if (other is Wall || other is ScreenHitbox) {
+    // 1. COLISÃO COM PAREDES
+    if (!isSpectral && (other is Wall || other is ScreenHitbox)) {
       if (canBounce && _bounceCount < maxBounces) {
         _handleBounce(other, hitPos);
         if (other is Wall) other.vida--; 
@@ -268,27 +304,29 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // 2. COLISÃO COM INIMIGOS / PLAYER
     if (isEnemyProjectile) {
       if (other is Player) {
-        _hitTargets.add(other); // Anota na Hit List
+        _hitTargets.add(other); 
         other.takeDamage(1);
-        if (!isPiercing) kill(); // Só morre se não for perfurante
+        
+        // Bumerangue perfura alvos vivos naturalmente!
+        if (!isPiercing && !isBoomerang) kill(); 
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {
-        _hitTargets.add(other); // Anota na Hit List
+        _hitTargets.add(other); 
         other.takeDamage(damage);
         
-        // Se a bala teleguiada perfurar, ela precisa esquecer esse alvo para buscar o próximo
-        if (isPiercing && _homingTarget == other) {
+        if ((isPiercing || isBoomerang) && _homingTarget == other) {
           _homingTarget = null;
         }
 
-        if (!isPiercing) kill();
+        // Bumerangue perfura inimigos para conseguir voltar
+        if (!isPiercing && !isBoomerang) kill();
       }
       
       if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
         _hitTargets.add(other);
         other.removeFromParent();
-        if (!isPiercing) kill();
+        if (!isPiercing && !isBoomerang) kill();
       }
     }
   }
@@ -306,7 +344,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     position += direction * 5;
     
-    // Perde o "lock-on" ao bater na parede (dá chance do inimigo fugir se ele se esconder atrás do muro)
     _homingTarget = null; 
 
     _updateRotation();

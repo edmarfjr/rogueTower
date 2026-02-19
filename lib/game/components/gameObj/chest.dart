@@ -101,13 +101,18 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
 
   void _openChest() {
-    if (gameRef.keysNotifier.value <= 0 && isLock) {
+    if (gameRef.keysNotifier.value <= 0 && isLock && !gameRef.player.hasChaveNegra) {
       return;
     }
     _isOpen = true;
     
     // Consome a chave
-    if(isLock)gameRef.keysNotifier.value--;
+    if(isLock){
+      if(gameRef.keysNotifier.value <=0 && gameRef.player.hasChaveNegra){
+        gameRef.player.takeDamage(1);
+      }
+      gameRef.keysNotifier.value--;
+    }
     
     // Muda visual
     //_updateIcon(Icons.lock_open, const Color(0xFFF0E68C)); 

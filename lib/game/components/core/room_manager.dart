@@ -95,8 +95,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _levelCleared = false;
     _checkTimer = 0.0; 
 
-    //teste de inimigos
-    //gameRef.world.add(EnemyFactory.createTortoise(Vector2(0, -150)));
+    if (roomNumber == 0) {
+      //teste de inimigos
+      //gameRef.world.add(EnemyFactory.createTortoise(Vector2(0, -150)));
+
+      //teste de itens
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bumerangue));
+      //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.foice));
+    }
+    
 
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
@@ -355,24 +362,24 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         position: Vector2(-80, -50),
         type: CollectibleType.potion,
         naoEsgota: true,
-        custo : 15
+        custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
         position: Vector2(80, -50),
         type: CollectibleType.shield,
         naoEsgota: true,
-        custo : 15
+        custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
         position: Vector2(-80, 50),
         type: CollectibleType.key,
         naoEsgota: true,
-        custo : 15
+        custo : game.player.hasCupon ? 10 : 15
       ));
 
-      int preco = 30;
+      int preco = game.player.hasCupon ? 20 : 30;
       _generateItemAleatorio(Vector2(80,50), preco); 
   }
 

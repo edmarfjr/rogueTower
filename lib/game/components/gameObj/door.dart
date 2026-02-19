@@ -212,12 +212,17 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
           if(gameRef.keysNotifier.value>0){
             destranca();
           }else{
-            gameRef.world.add(FloatingText(
-              text: 'trancado'.tr(),
-              position: position.clone(), 
-              color: Pallete.branco,
-              fontSize: 12,
-            ));
+            if(gameRef.player.hasChaveNegra){
+              gameRef.player.takeDamage(1);
+              destranca();
+            }else{
+              gameRef.world.add(FloatingText(
+                text: 'trancado'.tr(),
+                position: position.clone(), 
+                color: Pallete.branco,
+                fontSize: 12,
+              ));
+            }
           }
         }else if(bloqueada){
           gameRef.world.add(FloatingText(

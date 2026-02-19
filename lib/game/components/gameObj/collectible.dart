@@ -14,10 +14,15 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 import '../core/i18n.dart';
 
-enum CollectibleType { 
+enum CollectibleType {
+  //tipos de porta 
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista,
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,fogo,veneno, druidScroll, dotBook,
-  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing, 
+  //itens comuns
+  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
+  fogo,veneno, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
+  //itens raros
+  berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
+  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail 
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -231,6 +236,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'sanduiche'.tr(), 'desc': 'sanduiche'.tr(), 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
       case CollectibleType.key:
         return {'name': 'key'.tr(), 'desc': 'keyDesc'.tr(), 'icon': Icons.vpn_key, 'color': Pallete.laranja};
+      case CollectibleType.chaveNegra:
+        return {'name': 'chaveNegra'.tr(), 'desc': 'chaveNegraDesc'.tr(), 'icon': MdiIcons.keyWireless, 'color': Pallete.cinzaEsc};
       case CollectibleType.keys:
         return {'name': 'keys'.tr(), 'desc': 'keysDesc'.tr(), 'icon': MdiIcons.keyChain, 'color': Pallete.laranja};
       case CollectibleType.bomba:
@@ -292,7 +299,35 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.druidScroll:
         return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': MdiIcons.scriptText, 'color': Pallete.verdeEsc};
       case CollectibleType.dotBook:
-        return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': MdiIcons.bookOpen, 'color': Pallete.lilas};
+        return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': MdiIcons.bookOpenPageVariant, 'color': Pallete.amarelo};
+      case CollectibleType.concentration:
+        return {'name': 'concentration'.tr(), 'desc': 'concentrationDesc'.tr(), 'icon': MdiIcons.meditation, 'color': Pallete.azulCla};
+      case CollectibleType.gravitacao:
+        return {'name': 'gravitacao'.tr(), 'desc': 'gravitacaoDesc'.tr(), 'icon': MdiIcons.autorenew, 'color': Pallete.branco};
+      case CollectibleType.mine:
+        return {'name': 'mine'.tr(), 'desc': 'mineDesc'.tr(), 'icon': MdiIcons.mine, 'color': Pallete.lilas};
+      case CollectibleType.soda:
+         return {'name': 'soda'.tr(), 'desc': 'sodaDesc'.tr(), 'icon': MdiIcons.bottleSodaClassic, 'color': Pallete.cinzaEsc}; 
+      case CollectibleType.bloodstone:
+         return {'name': 'bloodstone'.tr(), 'desc': 'bloodstoneDesc'.tr(), 'icon': MdiIcons.necklace, 'color': Pallete.vermelho}; 
+      case CollectibleType.spectral:
+         return {'name': 'spectral'.tr(), 'desc': 'spectralDesc'.tr(), 'icon': MdiIcons.circleOpacity, 'color': Pallete.lilas}; 
+      case CollectibleType.bounce:
+         return {'name': 'bounce'.tr(), 'desc': 'bounceDesc'.tr(), 'icon': MdiIcons.arrowCollapseUp, 'color': Pallete.vermelho}; 
+      case CollectibleType.defBurst:
+         return {'name': 'defBurst'.tr(), 'desc': 'defBurstDesc'.tr(), 'icon': MdiIcons.shieldStarOutline, 'color': Pallete.vermelho}; 
+      case CollectibleType.kinetic:
+         return {'name': 'kinetic'.tr(), 'desc': 'kineticDesc'.tr(), 'icon': MdiIcons.runFast, 'color': Pallete.vermelho}; 
+      case CollectibleType.heavyShot:
+         return {'name': 'heavyShot'.tr(), 'desc': 'heavyShotDesc'.tr(), 'icon': MdiIcons.dumbbell, 'color': Pallete.cinzaEsc}; 
+      case CollectibleType.cupon:
+         return {'name': 'cupon'.tr(), 'desc': 'cuponDesc'.tr(), 'icon': MdiIcons.ticketPercent, 'color': Pallete.bege};
+      case CollectibleType.conqCrown:
+         return {'name': 'conqCrown'.tr(), 'desc': 'conqCrownDesc'.tr(), 'icon': MdiIcons.crown, 'color': Pallete.amarelo};
+      case CollectibleType.flail:
+         return {'name': 'flail'.tr(), 'desc': 'flailDesc'.tr(), 'icon': MdiIcons.mace, 'color': Pallete.vermelho};
+      case CollectibleType.bumerangue:
+         return {'name': 'bumerangue'.tr(), 'desc': 'bumerangueDesc'.tr(), 'icon': MdiIcons.boomerang, 'color': Pallete.marrom};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -330,6 +365,9 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.dot,
       CollectibleType.dotBook,
       CollectibleType.druidScroll,
+      CollectibleType.soda,
+      CollectibleType.bloodstone,
+      CollectibleType.conqCrown,
     ];
     if (!player.isBerserk) itens.add(CollectibleType.berserk);
     if (!player.isAudaz) itens.add(CollectibleType.audacious);
@@ -343,6 +381,17 @@ List<CollectibleType> retornaItens(player){
     if (!player.isHoming) itens.add(CollectibleType.homing);
     if (!player.isFogo) itens.add(CollectibleType.fogo);
     if (!player.isVeneno) itens.add(CollectibleType.veneno);
+    if (!player.hasChaveNegra) itens.add(CollectibleType.chaveNegra);
+    if (!player.isConcentration) itens.add(CollectibleType.concentration);
+    if (!player.isOrbitalShot) itens.add(CollectibleType.gravitacao);
+    if (!player.isMineShot) itens.add(CollectibleType.mine);
+    if (!player.isSpectral) itens.add(CollectibleType.spectral);
+    if (!player.canBounce) itens.add(CollectibleType.bounce);
+    if (!player.defensiveBurst) itens.add(CollectibleType.defBurst);
+    if (!player.isKinetic) itens.add(CollectibleType.kinetic);
+    if (!player.isHeavyShot) itens.add(CollectibleType.heavyShot);
+    if (!player.hasCupon) itens.add(CollectibleType.cupon);
+      
 
     return itens;
   }
@@ -363,10 +412,17 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.dot,
       CollectibleType.dotBook,
       CollectibleType.druidScroll,
+      CollectibleType.bloodstone,
     ];
     if (!player.isPiercing) itens.add(CollectibleType.piercing);
     if (!player.isFogo) itens.add(CollectibleType.fogo);
     if (!player.isVeneno) itens.add(CollectibleType.veneno);
+    if (!player.hasChaveNegra) itens.add(CollectibleType.chaveNegra);
+    if (!player.isOrbitalShot) itens.add(CollectibleType.gravitacao);
+    if (!player.isMineShot) itens.add(CollectibleType.mine);
+    if (!player.isSpectral) itens.add(CollectibleType.spectral);
+    if (!player.canBounce) itens.add(CollectibleType.bounce);
+    if (!player.hasCupon) itens.add(CollectibleType.cupon);
     return itens;
   }
 
@@ -387,6 +443,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.steroids,
       CollectibleType.cafe,  
       CollectibleType.alcool,
+      CollectibleType.soda,
+      CollectibleType.conqCrown,
     ];
     if (!player.isBerserk) itRaros.add(CollectibleType.berserk);
     if (!player.isAudaz) itRaros.add(CollectibleType.audacious);
@@ -397,6 +455,10 @@ List<CollectibleType> retornaPocoes(){
     if (!player.pegouRevive) itRaros.add(CollectibleType.revive);
     if (!player.hasAntimateria) itRaros.add(CollectibleType.antimateria);
     if (!player.isHoming) itRaros.add(CollectibleType.homing);
+    if (!player.isConcentration) itRaros.add(CollectibleType.concentration);
+    if (!player.defensiveBurst) itRaros.add(CollectibleType.defBurst);
+    if (!player.isKinetic) itRaros.add(CollectibleType.kinetic);
+    if (!player.isHeavyShot) itRaros.add(CollectibleType.heavyShot);
     return itRaros ;
   }
 
@@ -465,7 +527,7 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.damage:
-          player.increaseDamage();
+          player.increaseDamage(1.2);
           text = "+ Damage!";
           //color = Pallete.branco; // Laranja
           break;
@@ -477,19 +539,19 @@ class CollectibleLogic {
           break;
           
         case CollectibleType.fireRate:
-          player.increaseFireRate();
+          player.increaseFireRate(0.85);
           text = "+ Fire Rate!";
           //color = Pallete.azulCla; // Amarelo
           break;
           
         case CollectibleType.moveSpeed:
-          player.increaseMovementSpeed();
+          player.increaseMovementSpeed(1.2);
           text = "+ Speed!";
          // color = Pallete.azulCla;
           break;
         
         case CollectibleType.range:
-          player.increaseRange();
+          player.increaseRange(1.15);
           text = "+ Range!";
           //color = Pallete.azulCla;
           break;
@@ -501,7 +563,7 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.healthContainer:
-          player.increaseHp();
+          player.increaseHp(2);
           text = "+ Max HP!";
           //color = Pallete.vermelho;
           break;
@@ -584,6 +646,12 @@ class CollectibleLogic {
          // color = Pallete.azulCla;
           break;  
 
+        case CollectibleType.flail:
+          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFlail: true, radius: 10, speed:10));
+          text = "Flail Orbitais!";
+         // color = Pallete.azulCla;
+          break; 
+
         case CollectibleType.revive:
           player.revive = true;
           text = "Ressurreição";
@@ -633,6 +701,92 @@ class CollectibleLogic {
           text = "Dot Book";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.chaveNegra:
+          player.hasChaveNegra = true;
+          text = "Chave Negra!";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.concentration:
+          player.isConcentration = true;
+          text = "Concentration!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.gravitacao:
+          player.isOrbitalShot = true;
+          player.fireRate *= 0.5;
+          text = "Gravitation!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.soda:
+          player.increaseMovementSpeed(2);
+          text = "Gravitation!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.mine:
+          player.isMineShot = true;
+          text = "Mine Shot!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.bloodstone:
+          player.stackBonus += 5;
+          text = "Bloodstone Bonus!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.bounce:
+          player.canBounce = true;
+          text = "Bounce Shot!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.spectral:
+          player.isSpectral = true;
+          text = "Spectral Shot!";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.defBurst:
+          player.defensiveBurst = true;
+          text = "Defensive Burst!";
+          //color = Pallete.vermelho;
+          break;
+  
+        case CollectibleType.kinetic:
+          player.isKinetic = true;
+          text = "Kinetico!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.heavyShot:
+          player.isHeavyShot = true;
+          text = "Heavy Shot!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.cupon:
+          player.hasCupon = true;
+          text = "Cupom de Desconto!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.conqCrown:
+          player.invincibilityDuration += 0.5;
+          player.dashCooldown *= 0.75;
+          text = "Coroa de Conquista!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.bumerangue:
+          player.isBoomerang = true;
+          text = "Bumerangue!";
+          //color = Pallete.vermelho;
+          break;
 
         default:
           text = "";

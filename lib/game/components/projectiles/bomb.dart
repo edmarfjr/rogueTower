@@ -17,8 +17,16 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final double damage;
   final bool isMine;
   final bool isEnemy;
-  Bomb({required Vector2 position, this.duration = 2.0, this.damage = 10, this.isMine = false, this.isEnemy = false}) 
-      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+  late final Vector2 direction;
+  Bomb({required Vector2 position, 
+        this.duration = 2.0, 
+        this.damage = 10, 
+        this.isMine = false, 
+        this.isEnemy = false, 
+        Vector2? direction}) 
+      : super(position: position, size: Vector2.all(32), anchor: Anchor.center) {
+    this.direction = direction ?? Vector2.zero();
+  }
 
   @override
   Future<void> onLoad() async {
@@ -47,6 +55,10 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     if (_timer >= duration && !isMine) {
       gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, apagaTiros: true, radius:100));
       removeFromParent();
+    }
+    if (isMine && _timer <= duration/4) {
+      // Movimento Lento
+      position.addScaled(direction, 200 * dt);
     }
   }
 

@@ -41,6 +41,7 @@ class Player extends PositionComponent
   double critChance = 5;
   double critDamage = 2.0;
   double fireRate = 0.4; 
+  double fireRateInicial = 0.4; 
   double moveSpeed = 150.0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
@@ -77,6 +78,18 @@ class Player extends PositionComponent
   bool isHoming = false;
   bool canBounce = false;
   bool isPiercing = false;
+  bool isSpectral = false;
+  bool hasChaveNegra = false;
+  bool isConcentration = false;
+  bool isOrbitalShot = false;
+  bool isMineShot = false;
+  bool defensiveBurst = false;
+  bool isKinetic = false;
+  double kineticTimer = 0.0;
+  int kineticStacks = 0;
+  bool isHeavyShot = false;
+  bool hasCupon = false;
+  bool isBoomerang = false;
 
   int stackBonus = 0;
 
@@ -154,13 +167,20 @@ class Player extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
-    
     if (dashNotifier.value < maxDash){
       if (_dashCooldownTimer > 0) {
         _dashCooldownTimer -= dt;
       } else {
         _dashCooldownTimer = dashCooldown;
         dashNotifier.value++;
+      }
+    }
+
+    if(isKinetic){
+      if(kineticTimer >=0){
+        kineticTimer -= dt;
+      }else{
+        kineticStacks = 0;
       }
     }
 
@@ -232,6 +252,9 @@ class Player extends PositionComponent
     if (!velocity.isZero()) {
       velocityDash.setFrom(velocity); // Copia segura
       _handleDustEffect(dt);
+      if(isConcentration) fireRate = fireRateInicial * 0.5;
+    }else{
+      if(isConcentration) fireRate = fireRateInicial * 1.15;
     } 
     
     position.addScaled(velocity, dt); // Otimizado
@@ -241,6 +264,11 @@ class Player extends PositionComponent
     if (dashNotifier.value <= 0 || isDashing) return;
     dashNotifier.value--;
     isDashing = true;
+
+    if(isKinetic){
+      kineticStacks++;
+      kineticTimer = 3.0;
+    }
 
     AudioManager.playSfx('dash.mp3');
 
@@ -324,6 +352,9 @@ class Player extends PositionComponent
       shieldNotifier.value-- ;
       _isInvincible = true;
       _invincibilityTimer = invincibilityDuration;
+      if(defensiveBurst){
+        gameRef.world.add(Explosion(position: position.clone(), damage: 0, radius: 500, damagesPlayer: false));
+      }
       return;
     }
 
@@ -395,7 +426,12 @@ class Player extends PositionComponent
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.3;
-    
+    if(kineticTimer > 0){
+      dmg = dmg * (1 + (kineticStacks * 0.15));
+    }
+    if(isHeavyShot){
+       dmg = dmg * 1.3;
+    }
     if(isBebado){
       double angleOffset = Random().nextDouble() * 0.2;
       double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
@@ -405,14 +441,26 @@ class Player extends PositionComponent
     }
     
     AudioManager.playSfx('shoot.mp3');
+    if(isMineShot){
+      gameRef.world.add(Bomb(position: position.clone(), damage: dmg*1.5, isMine: true, direction: _tempDirection.clone()));
+      return;
+    }
     gameRef.world.add(Projectile(
+      owner: this,
       position: position.clone(), 
       direction: _tempDirection.clone(), 
       damage: dmg, 
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 150 : 300,
+      size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+      dieTimer: isBoomerang ? 1.0 : 3.0,
       apagaTiros: hasAntimateria,
       isHoming: isHoming,
+      iniPosition: position.clone(),
       canBounce: canBounce,
+      isSpectral: isSpectral,
       isPiercing: isPiercing,
+      isOrbital: isOrbitalShot,
+      isBoomerang: isBoomerang,
     ));
   }
 
@@ -446,6 +494,7 @@ class Player extends PositionComponent
     critChance = 5;
     critDamage = 2.0;
     fireRate = 0.4; 
+    fireRateInicial = 0.4;
     moveSpeed = 150.0;
     dashDuration = 0.2; 
     dashSpeed = 450;    
@@ -465,9 +514,19 @@ class Player extends PositionComponent
     isHoming = false;
     canBounce = false;
     isPiercing = false;
+    isSpectral = false;
     stackBonus = 0;
     isBurn = false;
     isPoison = false;
+    hasChaveNegra = false;
+    isConcentration = false;
+    isOrbitalShot = false;
+    isMineShot = false;
+    defensiveBurst = false;
+    isKinetic = false;
+    isHeavyShot = false;
+    hasCupon = false;
+    isBoomerang = false;
 
     _visual.setColor(Pallete.branco);
   }
@@ -512,27 +571,28 @@ class Player extends PositionComponent
   }
 
   // UPGRADES
-  void increaseDamage() { 
-    damage *= 1.25; 
+  void increaseDamage(double multiplier) { 
+    damage *= multiplier; 
   }
 
-  void increaseFireRate() { 
-    fireRate *= 0.85; 
+  void increaseFireRate(double multiplier) { 
+    fireRate *= multiplier; 
     if (fireRate < 0.1) fireRate = 0.1; 
+    fireRateInicial = fireRate;
   }
 
-  void increaseMovementSpeed(){
-    moveSpeed *= 1.2; 
+  void increaseMovementSpeed(double multiplier){
+    moveSpeed *= multiplier; 
   }
   
-  void increaseRange(){ 
-    attackRange *= 1.2; 
+  void increaseRange(double multiplier){ 
+    attackRange *= multiplier; 
     _rangeIndicator.radius = attackRange;
   }
 
-  void increaseHp(){ 
-    maxHealth+=2; 
-    healthNotifier.value+=2; 
+  void increaseHp(int val){ 
+    maxHealth+=val; 
+    healthNotifier.value+=val; 
   }
 
   void curaHp([int val = 1]){ 
