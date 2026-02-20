@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:TowerRogue/game/components/projectiles/web.dart';
 import 'package:flame/components.dart';
@@ -150,7 +151,7 @@ class EnemyFactory {
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: NoAttackBehavior(),   
       deathBehavior: SpawnOnDeathBehavior(
-        count: 4,
+        count: 3,
         minionBuilder: (p) => EnemyFactory.createSlimeP(p),
       ),    
     );
@@ -684,6 +685,154 @@ class EnemyFactory {
           minRange: 50,      
           jumpDuration: 1.0, 
           cooldown: 3,     
+        ),
+    );
+  }
+
+  // inimigos fase 5
+
+   static Enemy createJellyfish(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 60,
+      hbSize: Vector2(26,26),
+      iconData: MdiIcons.jellyfish,
+      originalColor: Pallete.azulCla,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: SpinnerAttackBehavior(
+        interval: 2.0, 
+        isChangeDir: true,
+        isBoomerang: true,
+      ),
+    );
+  }
+
+  static Enemy createFishBowl(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 0,
+      weight: 3,
+      hbSize: Vector2(26,26),
+      iconData: MdiIcons.fishbowl,
+      originalColor: Pallete.azulCla,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: LaserAttackBehavior(
+        interval: 3.0, 
+        isShotgun: true, 
+      ),
+    );
+  }
+
+  static Enemy createFish(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 80,
+      hbSize: Vector2(26,26),
+      iconData: MdiIcons.fish,
+      originalColor: Pallete.azulCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(
+        interval: 2.5, 
+        isShotgun: true, 
+        isBoomerang: true,
+      ),
+    );
+  }
+
+  static Enemy createDolphin(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 80,
+      hbSize: Vector2(26,26),
+      iconData: MdiIcons.dolphin,
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(
+        interval: 2.5, 
+        isShotgun: true, 
+        size: Vector2.all(20),
+        speed: 150,
+      ),
+    );
+  }
+
+  static Enemy createShark(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 80,
+      hbSize: Vector2(26,26),
+      iconData: MdiIcons.shark,
+      originalColor: Pallete.cinzaCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ChargeAttackBehavior(
+        detectRange: 180, 
+        chargeSpeed: 400, 
+        prepTime: 0.6,   
+      ),
+    );
+  }
+
+  static Enemy createTurtle(Vector2 pos) {
+    return Enemy(
+      position: pos,
+      hp: 80,
+      speed: 80,
+      hbSize: Vector2(26,26),
+      hasShield: true,
+      iconData: MdiIcons.turtle,
+      originalColor: Pallete.marrom,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: ProjectileAttackBehavior(
+        interval: 2.5, 
+        isBurst: true, 
+        burstCount: 5, 
+        burstDelay: 0.2,
+        isStraight: false,
+      ),
+    );
+  }
+
+  static EnemyBoss createMegalodon(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "megalodon".tr(),
+      hp: 1800, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 100,
+      iconData: MdiIcons.shark,
+      hbSize: Vector2(50,50),
+      soul: 350, 
+      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      originalColor: Pallete.cinzaCla,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        movementBehavior: RandomWanderBehavior(),
+        attackBehavior: ChargeAttackBehavior(
+        detectRange: 180, 
+        chargeSpeed: 400, 
+        prepTime: 0.6,   
+      ),
+        attack2Behavior: DropHazardBehavior(
+        interval: 1.5, 
+        hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
+      ),
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movement: FollowPlayerBehavior(),
+          phase2Attack: ChargeAttackBehavior(
+          detectRange: 180, 
+          chargeSpeed: 400, 
+          prepTime: 0.6,   
+        ),
+          phase2Attack2: DropHazardBehavior(
+          interval: 1.5, 
+          hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
         ),
     );
   }

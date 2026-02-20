@@ -315,6 +315,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
   final double orbitalRadius;
   final bool isStraight;
   final bool isHoming;
+  final bool isBoomerang;
 
   // --- NOVAS CONFIGURAÇÕES DE RAJADA (BURST) ---
   final bool isBurst;
@@ -335,6 +336,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
     this.isStraight = true,
     this.isBurst = false,
     this.isHoming = false,
+    this.isBoomerang = false,
     this.burstCount = 3,
     this.burstDelay = 0.2,
     this.orbitalRadius = 50.0,
@@ -424,6 +426,8 @@ class ProjectileAttackBehavior extends AttackBehavior {
       isOrbital: isOrbital,
       orbitalRadius: orbitalRadius,
       isHoming: isHoming,
+      isBoomerang: isBoomerang,
+      dieTimer: isBoomerang ? 1.0 : 3.0,
       isEnemyProjectile: true,
     ));
   }
@@ -473,8 +477,9 @@ class LaserAttackBehavior extends AttackBehavior {
   double _timer = 0;
   bool _isShooting = false;
   bool isMoving;
+  final bool isShotgun;
   
-  LaserAttackBehavior({this.interval = 3.0, this.isMoving = false});
+  LaserAttackBehavior({this.interval = 3.0, this.isMoving = false, this.isShotgun = false});
 
   @override
   void update(double dt) {
@@ -505,6 +510,23 @@ class LaserAttackBehavior extends AttackBehavior {
         isMoving: isMoving,
         isEnemyProjectile: true,
       ));
+      if (isShotgun) {
+        // Tiros adicionais com ângulo levemente diferente
+        enemy.gameRef.world.add(LaserBeam(
+          position: enemy.position + (dir * 10),
+          angleRad: angle + 0.2,
+          owner: enemy,
+          isMoving: isMoving,
+          isEnemyProjectile: true,
+        ));
+        enemy.gameRef.world.add(LaserBeam(
+          position: enemy.position + (dir * 10),
+          angleRad: angle - 0.2,
+          owner: enemy,
+          isMoving: isMoving,
+          isEnemyProjectile: true,
+        ));
+      }
     }
   }
 }
@@ -514,12 +536,14 @@ class SpinnerAttackBehavior extends AttackBehavior {
   double _timer = 0;
   final bool isDiagonal;
   final bool isChangeDir;
+  final bool isBoomerang;
   int changeDirAux = 0;
 
   SpinnerAttackBehavior({
     this.interval = 1.5, 
     this.isDiagonal = false, 
-    this.isChangeDir = false
+    this.isChangeDir = false,
+    this.isBoomerang = false,
   });
 
   @override
@@ -541,6 +565,8 @@ class SpinnerAttackBehavior extends AttackBehavior {
           damage: 1,
           speed: 200,
           owner: enemy,
+          isBoomerang: isBoomerang,
+          dieTimer: isBoomerang ? 1.0 : 3.0,
           isEnemyProjectile: true,
         ));
 

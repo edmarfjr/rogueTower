@@ -42,6 +42,12 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
         MdiIcons.pineTree,
         MdiIcons.tree,
       ];
+    } else if (gameRef.currentLevel == 4){
+      possibleIcons = [
+        Icons.terrain,
+        MdiIcons.sailBoatSink,
+        MdiIcons.tree,
+      ];
     }
 
     final IconData icon = possibleIcons[rng.nextInt(possibleIcons.length)];

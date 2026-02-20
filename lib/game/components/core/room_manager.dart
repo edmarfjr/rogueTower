@@ -70,6 +70,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos) => EnemyFactory.createTortoise(pos), 
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster5 = [
+    (pos) => EnemyFactory.createFish(pos), 
+    (pos) => EnemyFactory.createJellyfish(pos), 
+    (pos) => EnemyFactory.createFishBowl(pos), 
+    (pos) => EnemyFactory.createShark(pos), 
+    (pos) => EnemyFactory.createTurtle(pos), 
+    (pos) => EnemyFactory.createDolphin(pos), 
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -144,6 +153,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         gameRef.world.add(EnemyFactory.createTruQueen(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 4){
         gameRef.world.add(EnemyFactory.createBeast(Vector2(0, -150)));
+      }else if(gameRef.currentLevel == 5){
+        gameRef.world.add(EnemyFactory.createMegalodon(Vector2(0, -150)));
       }
       
 
@@ -230,8 +241,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           selectedFactory = _enemyRoster3[rng.nextInt(_enemyRoster3.length)];
         case 4:
           selectedFactory = _enemyRoster4[rng.nextInt(_enemyRoster4.length)];
+        case 5:
+          selectedFactory = _enemyRoster5[rng.nextInt(_enemyRoster5.length)];  
         default:
-          selectedFactory = _enemyRoster3[rng.nextInt(_enemyRoster1.length)];
+          selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
       }
       
 
@@ -324,22 +337,33 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     bool tranca1 = false;
     bool bloq1 = false;
+    bool bites1 = false;
 
     bool tranca2 = false;
     bool bloq2 = false;
+    bool bites2 = false;
 
     final rng = Random();
     
-    if (roomNumber > 1 && rng.nextDouble() < 0.20) {
-      bool leftDoorGetsObstacle = rng.nextBool(); // 50% chance pra esquerda ou direita
-      bool isLocked = rng.nextBool(); // 50% chance de ser Tranca (Chave) ou Bloqueio (Bomba)
-
+    if (roomNumber > 1 && rng.nextDouble() < 0.90) {
+      bool leftDoorGetsObstacle = rng.nextBool(); 
+      int obstacleType = rng.nextInt(3); 
       if (leftDoorGetsObstacle) {
-        tranca1 = isLocked;
-        bloq1 = !isLocked; // Se não for trancada, é bloqueada
+        if (obstacleType == 0) {
+          tranca1 = true;
+        } else if (obstacleType == 1) {
+          bloq1 = true;
+        } else {
+          bites1 = true;
+        }
       } else {
-        tranca2 = isLocked;
-        bloq2 = !isLocked;
+        if (obstacleType == 0) {
+          tranca2 = true;
+        } else if (obstacleType == 1) {
+          bloq2 = true;
+        } else {
+          bites2 = true;
+        }
       }
     }
 
@@ -348,6 +372,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
+      bites: bites1,
     ));
 
     gameRef.world.add(Door(
@@ -355,6 +380,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
+      bites: bites2,
     ));
   }
   void _spawnBankRoom() {

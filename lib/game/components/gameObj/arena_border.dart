@@ -7,6 +7,16 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   final double wallThickness;
   final double radius;
 
+  // 1. CACHE DA TINTA: Criada apenas uma vez na vida útil do objeto
+  final Paint _borderPaint = Paint()..style = PaintingStyle.stroke;
+
+  // 2. CACHE DAS FORMAS: Calculadas apenas uma vez
+  late final Rect _rect;
+  late final RRect _rRect;
+
+  // Variável de controle para não atualizar a cor à toa
+  int _lastLevel = -1;
+
   ArenaBorder({
     required Vector2 size,
     this.wallThickness = 10.0,
@@ -15,7 +25,19 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
           size: size,
           anchor: Anchor.center,
           position: Vector2.zero(), // Assume que o mundo é centralizado no 0,0
-        );
+        ) {
+    // Configura a espessura da linha
+    _borderPaint.strokeWidth = wallThickness;
+
+    // Pré-calcula a matemática geométrica na hora que a arena é criada
+    _rect = Rect.fromCenter(
+      center: Offset(size.x / 2, size.y / 2),
+      width: size.x,
+      height: size.y,
+    );
+    
+    _rRect = RRect.fromRectAndRadius(_rect, Radius.circular(radius));
+  }
 
   Color _getLevelColor(int level) {
     switch (level) {
@@ -23,29 +45,28 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       case 2: return Pallete.cinzaEsc; 
       case 3: return Pallete.azulEsc; 
       case 4: return Pallete.verdeEsc; 
+      case 5: return Pallete.azulCla; 
       default: return Pallete.azulEsc;
     }
   }      
 
   @override
+  void update(double dt) {
+    super.update(dt);
+    
+    // 3. ATUALIZAÇÃO CONDICIONAL: 
+    // Muda a cor da tinta apenas se o nível tiver mudado, sem recriar o Paint()
+    final int currLevel = gameRef.currentLevelNotifier.value;
+    if (currLevel != _lastLevel) {
+      _lastLevel = currLevel;
+      _borderPaint.color = _getLevelColor(currLevel);
+    }
+  }
+
+  @override
   void render(Canvas canvas) {
-    int currLevel = gameRef.currentLevelNotifier.value;
-    // Define a cor e o estilo da borda
-    final paint = Paint()
-      ..color = _getLevelColor(currLevel)
-      ..style = PaintingStyle.stroke // Apenas o contorno
-      ..strokeWidth = wallThickness;
-
-    // Cria o retângulo arredondado (RRect)
-    // Ajustamos o rect para considerar a grossura da borda, para ela crescer "para fora" ou alinhar corretamente
-    final rect = Rect.fromCenter(
-      center: Offset(size.x / 2, size.y / 2),
-      width: size.x,
-      height: size.y,
-    );
-
-    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-
-    canvas.drawRRect(rrect, paint);
+    // 4. RENDERIZAÇÃO LIMPA: 
+    // Agora o render só faz o que ele deve fazer: desenhar! (Zero alocação de memória)
+    canvas.drawRRect(_rRect, _borderPaint);
   }
 }

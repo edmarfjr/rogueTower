@@ -53,7 +53,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);
   int get currentLevel => currentLevelNotifier.value;
   final int bossRoom = 10;
-  int numLevels = 4;
+  int numLevels = 5;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);

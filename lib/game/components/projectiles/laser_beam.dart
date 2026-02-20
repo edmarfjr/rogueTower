@@ -182,14 +182,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       if (other is Player) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(1); // Jogador toma 1 de dano (1 coração)
-        removeFromParent();
+        //removeFromParent();
       }
     } 
     else {
       if (other is Enemy) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(damage);
-        removeFromParent();
+        //removeFromParent();
       }
     } 
     /*

@@ -15,6 +15,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   bool isOpen = false;
   bool trancada;
   bool bloqueada;
+  bool bites;
   final CollectibleType rewardType;
   final double raioBotao = 60;
   bool botaoAtivo = false;
@@ -23,6 +24,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   GameIcon? _doorIcon;
   GameIcon? _lockIcon;
   GameIcon? _blockIcon;
+  GameIcon? _bitesIcon;
 
   InteractButton? _currentButton;
 
@@ -31,6 +33,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     required this.rewardType,
     this.trancada = false,
     this.bloqueada = false,
+    this.bites = false,
   }): super(position: position, size: Vector2(60, 40), anchor: Anchor.center);
 
   @override
@@ -89,6 +92,18 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       );
       
       add(_blockIcon!);
+    }
+
+      if(bites){
+      _bitesIcon = GameIcon(
+        icon: MdiIcons.octagramOutline,
+        color: Pallete.vermelho,
+        size: size/2, 
+        anchor: Anchor.center,
+        position: size / 2 + Vector2(0,7)
+      );
+      
+      add(_bitesIcon!);
     }
   }
 
@@ -171,7 +186,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   void update(double dt) {
     double dist = position.distanceTo(gameRef.player.position);
-    if (dist <= raioBotao && !botaoAtivo){
+    if (dist <= raioBotao && !botaoAtivo && !trancada && !bloqueada && isOpen) {
       _showButton();
       botaoAtivo = true;
     }else if (dist > raioBotao && botaoAtivo){
@@ -232,6 +247,9 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               fontSize: 12,
             ));
         }else{
+          if(bites){
+            gameRef.player.takeDamage(1);
+          }
           gameRef.transitionEffect.startTransition(() {
             gameRef.nextLevel(rewardType);
           });
