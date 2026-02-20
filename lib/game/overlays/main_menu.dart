@@ -28,7 +28,7 @@ class MainMenu extends StatelessWidget {
             children: [
               // Título do Jogo
               const Padding(
-                padding: EdgeInsets.only(top: 50.0, bottom: 30.0),
+                padding: EdgeInsets.only(top: 20.0, bottom: 30.0),
                 child: Text(
                   'ROGUE TOWER',
                   style: TextStyle(
@@ -43,6 +43,7 @@ class MainMenu extends StatelessWidget {
               ),
 
               // --- NOVA ÁREA DE ARTE FLEXÍVEL ---
+              const SizedBox(height: 60),
               _buildFlexibleBackgroundArt(context),
 
               const SizedBox(height: 40),
@@ -117,7 +118,7 @@ class MainMenu extends StatelessWidget {
           // ========================================================
           
           Positioned(
-            top: -20,
+            top: -120,
             right: MediaQuery.of(context).size.width / 2 - 80,
             child: Icon(MdiIcons.moonWaxingCrescent, color: Pallete.amarelo.withOpacity(0.3), size: 100),
           ),
@@ -140,10 +141,10 @@ class MainMenu extends StatelessWidget {
             bottom: 20, // Sentada na linha do chão
             // Dica: Para centralizar, você pode usar um cálculo ou ajustar 'right' visualmente.
             // Se quiser ela mais para a direita, aumente este valor.
-            right: MediaQuery.of(context).size.width / 2 - 150, 
+            right: MediaQuery.of(context).size.width / 2 - 200, 
             child:  Icon(
               MdiIcons.chessRook,
-              size: 300,
+              size: 400,
               color: Pallete.cinzaEsc,
             ),
           ),

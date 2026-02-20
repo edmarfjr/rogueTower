@@ -2,6 +2,7 @@ import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
@@ -20,7 +21,9 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final double raioBotao = 60;
   bool botaoAtivo = false;
 
-  // CORREÇÃO 1: Mudamos de 'late GameIcon' para 'GameIcon?' (pode ser nulo)
+  // --- NOVA VARIÁVEL DE CONTROLE DE ZOOM ---
+  bool _isEntering = false;
+
   GameIcon? _doorIcon;
   GameIcon? _lockIcon;
   GameIcon? _blockIcon;
@@ -46,7 +49,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       position: size / 2,
       isSolid: true
     ));
-
   }
 
   void _updateDoorIcon(IconData icon, Color color) {
@@ -78,7 +80,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         anchor: Anchor.center,
         position: size / 2,
       );
-      
       add(_lockIcon!);
     }
 
@@ -90,7 +91,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         anchor: Anchor.center,
         position: size / 2 + Vector2(0,15),
       );
-      
       add(_blockIcon!);
     }
 
@@ -102,7 +102,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         anchor: Anchor.center,
         position: size / 2 + Vector2(0,7)
       );
-      
       add(_bitesIcon!);
     }
   }
@@ -111,47 +110,20 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     IconData iconData;
     
     switch (rewardType) {
-      case CollectibleType.potion:
-        iconData = Icons.favorite;
-        break;
-      case CollectibleType.coin:
-        iconData = Icons.attach_money;
-        break;
-      case CollectibleType.key:
-        iconData = Icons.vpn_key;
-        break;
-      case CollectibleType.bomba:
-        iconData = MdiIcons.bomb;
-        break;
-      case CollectibleType.chest:
-        iconData = MdiIcons.packageVariantClosed;
-        break;
-      case CollectibleType.rareChest:
-        iconData = MdiIcons.treasureChest;
-        break;
-      case CollectibleType.shop:
-        iconData = Icons.store_mall_directory;
-        break;
-      case CollectibleType.shield:
-        iconData = MdiIcons.shield;
-        break;
-      case CollectibleType.boss:
-        iconData = MdiIcons.skull;
-        break;
-      case CollectibleType.healthContainer:
-        iconData = Icons.favorite_outline;
-        break;
-      case CollectibleType.nextlevel:
-        iconData = MdiIcons.stairsUp;
-        break;
-      case CollectibleType.bank:
-        iconData = MdiIcons.bank;
-        break;
-      case CollectibleType.alquimista:
-        iconData = MdiIcons.flaskEmptyOutline;
-        break;
-      default:
-        iconData = Icons.help_outline;
+      case CollectibleType.potion: iconData = Icons.favorite; break;
+      case CollectibleType.coin: iconData = Icons.attach_money; break;
+      case CollectibleType.key: iconData = Icons.vpn_key; break;
+      case CollectibleType.bomba: iconData = MdiIcons.bomb; break;
+      case CollectibleType.chest: iconData = MdiIcons.packageVariantClosed; break;
+      case CollectibleType.rareChest: iconData = MdiIcons.treasureChest; break;
+      case CollectibleType.shop: iconData = Icons.store_mall_directory; break;
+      case CollectibleType.shield: iconData = MdiIcons.shield; break;
+      case CollectibleType.boss: iconData = MdiIcons.skull; break;
+      case CollectibleType.healthContainer: iconData = Icons.favorite_outline; break;
+      case CollectibleType.nextlevel: iconData = MdiIcons.stairsUp; break;
+      case CollectibleType.bank: iconData = MdiIcons.bank; break;
+      case CollectibleType.alquimista: iconData = MdiIcons.flaskEmptyOutline; break;
+      default: iconData = Icons.help_outline;
     }
     
     add(GameIcon(
@@ -176,54 +148,38 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   void open() {
     if (isOpen) return;
     isOpen = true;
-    
-    // Troca para porta aberta
     _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
-    
     _addRewardIcon();
-    
   }  
 
+  @override
   void update(double dt) {
+    super.update(dt); 
+
+    if (_isEntering) {
+      if (gameRef.camera.viewfinder.zoom < 3.0) {
+        gameRef.camera.viewfinder.zoom += dt * 2.0; 
+      }
+    }
+
     double dist = position.distanceTo(gameRef.player.position);
+    
     if (dist <= raioBotao && !botaoAtivo && !trancada && !bloqueada && isOpen) {
       _showButton();
       botaoAtivo = true;
-    }else if (dist > raioBotao && botaoAtivo){
+    } else if (dist > raioBotao && botaoAtivo) {
       _hideButton();
       botaoAtivo = false;
     }
   }
-
-/*
- @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
-    
-    // Se o jogador chegou perto e a porta está pronta para ser usada
-    if (other is Player && isOpen) {
-      _showButton();
-    }
-  }
-
-  @override
-  void onCollisionEnd(PositionComponent other) {
-    super.onCollisionEnd(other);
-    
-    // Se o jogador se afastar da porta, esconde o botão
-    if (other is Player) {
-      _hideButton();
-    }
-  }
-*/
 
   void _showButton() {
     if (_currentButton != null) return;
 
     _currentButton = InteractButton(
       onTrigger: () {
-        // Lógica original de mudar de sala
         if(trancada){
+          // ... (Sua lógica da chave se mantém igualzinha aqui) ...
           if(gameRef.keysNotifier.value>0){
             destranca();
           }else{
@@ -239,35 +195,51 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               ));
             }
           }
-        }else if(bloqueada){
+        } else if(bloqueada){
+          // ... (Sua lógica da bomba se mantém igual) ...
           gameRef.world.add(FloatingText(
               text: 'bloqueado'.tr(),
               position: position.clone(), 
               color: Pallete.branco,
               fontSize: 12,
             ));
-        }else{
+        } else {
+          // ==========================================
+          // O JOGADOR VAI ENTRAR NA PORTA
+          // ==========================================
           if(bites){
             gameRef.player.takeDamage(1);
           }
+          
+          _hideButton(); 
+          _isEntering = true; 
+          
+          // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
+          gameRef.camera.setBounds(
+            Rectangle.fromLTWH(-2000, -2000, 4000, 4000),
+            considerViewport: false,
+          );
+          
           gameRef.transitionEffect.startTransition(() {
+            _isEntering = false; 
+            
+            // RESET DO ZOOM E POSIÇÃO
+            gameRef.camera.viewfinder.zoom = 1.0; 
+            gameRef.camera.viewfinder.position = Vector2.zero(); 
+            
+            // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
+            gameRef.camera.setBounds(
+              Rectangle.fromLTWH(-60, -60, 120, 130),
+              considerViewport: false,
+            );
+            
             gameRef.nextLevel(rewardType);
           });
         }
-        
-        
-        // Esconde o botão após clicar
-        //_hideButton();
       },
     );
 
-    // Posiciona o botão acima da porta
     _currentButton!.position = Vector2(size.x / 2, -40); 
-    
-    // OPCIONAL: Se quiser mudar o texto para "ENTRAR" no InteractButton
-    // (Caso você tenha adicionado uma propriedade 'text' no construtor dele)
-    // _currentButton!.text = "ENTRAR"; 
-    
     add(_currentButton!);
   }
 

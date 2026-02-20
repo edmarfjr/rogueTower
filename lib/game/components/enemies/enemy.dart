@@ -284,7 +284,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       _collisionBuffer.normalize();
       position.addScaled(_collisionBuffer, 1.0);
     } 
-    else if (other is Enemy && !voa) {
+    else if (other is Enemy && !voa && !other.voa|| (other is Enemy && voa && !other.voa)) {
       _handleEnemyCollision(other);
     }
   }

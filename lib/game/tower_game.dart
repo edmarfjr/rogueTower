@@ -165,11 +165,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     FlameAudio.bgm.initialize();
     //musica menu principal
-    try {
-      AudioManager.playBgm('8bit_menu.mp3');
-    } catch (e) {
-      print("O navegador bloqueou o áudio automático: $e");
-    }
+    
 
     await progress.loadSettings(this);
     useCRTEffect = false;
@@ -353,7 +349,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   void startLevel() {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
-    AudioManager.playBgm('funny_bit.mp3');
   }
 
   void nextLevel(CollectibleType chosenReward) {
@@ -411,19 +406,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     nextRoomReward = CollectibleType.nextlevel;
 
     // Limpa tudo
-    world.children.query<Enemy>().forEach((e) => e.removeFromParent());
-    world.children.query<Projectile>().forEach((p) => p.removeFromParent());
-    world.children.query<Door>().forEach((d) => d.removeFromParent());
-    world.children.query<Collectible>().forEach((c) => c.removeFromParent());
-    world.children.query<Wall>().forEach((w) => w.removeFromParent());
-    world.children.query<Chest>().forEach((c) => c.removeFromParent());
-    world.children.query<UnlockableItem>().forEach((c) => c.removeFromParent());
-    world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
-    world.children.query<OrbitalShield>().forEach((c) => c.removeFromParent());
+    world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
 
     player.reset();
     camera.follow(player);
-
+    
+    AudioManager.playBgm('funny_bit.mp3');
     startLevel();
   }
 }
