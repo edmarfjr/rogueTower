@@ -108,6 +108,9 @@ class Player extends PositionComponent
   final Paint _dashBgPaint = Paint()..color = Pallete.preto.withOpacity(0.5);
   final Paint _dashFgPaint = Paint()..color = Pallete.verdeCla;
 
+  //lista de itens
+  List<AcquiredItemData> items = [];
+
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
     dashNotifier = ValueNotifier<int>(maxDash);
@@ -136,9 +139,9 @@ class Player extends PositionComponent
     
     // Hitbox
     add(RectangleHitbox(
-      size: Vector2(16,32),
+      size: Vector2(12,24),
       anchor: Anchor.center, 
-      position: size / 2,    
+      position: size / 2 + Vector2(0,4),    
       isSolid: true,
     ));
   }
@@ -253,9 +256,9 @@ class Player extends PositionComponent
     if (!velocity.isZero()) {
       velocityDash.setFrom(velocity); // Copia segura
       _handleDustEffect(dt);
-      if(isConcentration) fireRate = fireRateInicial * 0.5;
-    }else{
       if(isConcentration) fireRate = fireRateInicial * 1.15;
+    }else{
+      if(isConcentration) fireRate = fireRateInicial * 0.5;
     } 
     
     position.addScaled(velocity, dt); // Otimizado
@@ -610,4 +613,31 @@ class Player extends PositionComponent
   void increaseShield(){ 
     shieldNotifier.value++; 
   }
+
+  List<AcquiredItemData> getAcquiredItemsList() {
+    return items;
+  }
+
+  void setAcquiredItemsList(String name, String description, IconData icon, Color color) {
+    items.add(AcquiredItemData(
+      name: name,
+      description: description,
+      icon: icon,
+      color: color,
+    ));
+  }
+}
+
+class AcquiredItemData {
+  final IconData icon;
+  final String name;
+  final String description;
+  final Color color;
+
+  AcquiredItemData({
+    required this.icon, 
+    required this.name, 
+    required this.description, 
+    required this.color
+  });
 }

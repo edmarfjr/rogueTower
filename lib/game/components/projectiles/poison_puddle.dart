@@ -53,11 +53,11 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
 
     // 1. Lógica de Dano Contínuo
     if (_playerIsInside) {
-      //_damageTickTimer += dt;
-      //if (_damageTickTimer >= 0.5) {
+      _damageTickTimer += dt;
+      if (_damageTickTimer >= 0.5) {
         gameRef.player.takeDamage(1);
-      //  _damageTickTimer = 0; 
-      //}
+        _damageTickTimer = 0; 
+      }
     }
 
     // 2. Lógica de Desaparecer (Fade Out)

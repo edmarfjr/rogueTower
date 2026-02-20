@@ -14,37 +14,52 @@ class AudioManager {
   static bool _isBgmPlaying = false;
   static String _currentBgm = '';
 
+  // --- O SEGREDO DA PERFORMANCE: POOLS DE ÁUDIO ---
+  // Guarda os sons rápidos pré-carregados na memória
+  static final Map<String, AudioPool> _sfxPools = {};
+
   /// Inicializa e pré-carrega sons importantes para evitar lag na primeira vez
   static Future<void> init() async {
-    // CORREÇÃO 1: O cache precisa saber exatamente em qual subpasta o arquivo está!
+    // 1. Configura o loop de música global PRIMEIRO
+    FlameAudio.bgm.initialize();
+
+    // 2. Cria os "Pools" para sons que tocam muito rápido/várias vezes.
+    // maxPlayers: 4 significa que no máximo 4 tiros tocam no mesmo milissegundo. 
+    // Isso impede estourar o limite de áudio do Android e desligar a música.
+    _sfxPools['shoot.mp3'] = await FlameAudio.createPool('sfx/shoot.mp3', minPlayers: 1, maxPlayers: 4);
+    _sfxPools['hit.mp3'] = await FlameAudio.createPool('sfx/hit.mp3', minPlayers: 1, maxPlayers: 3);
+    _sfxPools['dash.mp3'] = await FlameAudio.createPool('sfx/dash.mp3', minPlayers: 1, maxPlayers: 2);
+    _sfxPools['collect.mp3'] = await FlameAudio.createPool('sfx/collect.mp3', minPlayers: 1, maxPlayers: 2);
+    _sfxPools['explosion.mp3'] = await FlameAudio.createPool('sfx/explosion.mp3', minPlayers: 1, maxPlayers: 3);
+    _sfxPools['laser.mp3'] = await FlameAudio.createPool('sfx/laser.mp3', minPlayers: 1, maxPlayers: 4);
+    _sfxPools['enemyShot.mp3'] = await FlameAudio.createPool('sfx/enemyShot.mp3', minPlayers: 1, maxPlayers: 4);
+    _sfxPools['enemy_die.mp3'] = await FlameAudio.createPool('sfx/enemy_die.mp3', minPlayers: 1, maxPlayers: 3);
+
+    // 3. Carrega o resto normalmente (músicas e sons raros como morte do boss)
     await FlameAudio.audioCache.loadAll([
-      'sfx/shoot.mp3',
-      'sfx/hit.mp3',
-      'sfx/dash.mp3',
-      'sfx/collect.mp3',
-      'sfx/enemy_die.mp3',
       'sfx/game_over.mp3',
-      'sfx/explosion.mp3',
-      'sfx/laser.mp3',
-      'sfx/enemyShot.mp3',
       'music/8bit_menu.mp3',
       'music/funny_bit.mp3',  
       'music/retro_plat.mp3',
     ]);
-    
-    // Configura o loop de música global
-    FlameAudio.bgm.initialize();
   }
 
   /// Toca um efeito sonoro curto
   static void playSfx(String filename) {
     if (_isMutedSfx) return;
+    
     final now = DateTime.now();
-    // Só toca se passou 50ms desde o último som igual
+    // Só toca se passou 50ms desde o último som (Evita estouro de áudio se 10 inimigos morrerem no mesmo frame)
     if (now.difference(_lastSfxTime).inMilliseconds > 50) {
       try {
-        FlameAudio.play('sfx/$filename');
-      _lastSfxTime = now;
+        // Se o som estiver no nosso Pool de alta performance, usa o Pool!
+        if (_sfxPools.containsKey(filename)) {
+          _sfxPools[filename]!.start(volume: sfxVolume);
+        } else {
+          // Se for um som mais raro, toca da forma tradicional (adicionando o volume que faltava)
+          FlameAudio.play('sfx/$filename', volume: sfxVolume);
+        }
+        _lastSfxTime = now;
       } catch (e) {
          print("Erro ao tocar SFX: $e");
       }
@@ -82,7 +97,6 @@ class AudioManager {
     if (_isMutedMusic) {
       FlameAudio.bgm.stop();
     } else {
-      // Opcional: Coloque o nome da sua música principal aqui para ela voltar a tocar
        playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
     }
   }
@@ -91,7 +105,6 @@ class AudioManager {
     _isMutedSfx = mute;
   }
 
-  // Função para mudar o volume da música e já aplicar na música tocando agora
   static void updateBgmVolume(double volume) {
     bgmVolume = volume;
     if (FlameAudio.bgm.isPlaying) {
@@ -101,6 +114,7 @@ class AudioManager {
 
   static void updateSfxVolume(double volume) {
     sfxVolume = volume;
+    // Opcional: Atualizar o volume base de todos os pools não é estritamente necessário 
+    // porque nós passamos o sfxVolume no método .start() do pool ali em cima!
   }
-  
 }

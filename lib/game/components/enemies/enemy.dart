@@ -27,8 +27,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double rotateOff;
   double weight;
   bool voa;
+  bool isBoss;
   // Controle
-  bool canMove = true; // Behaviors podem travar isso (ex: Laser)
+  bool canMove = true; 
   late Color originalColor;
   
   // Efeitos de Status
@@ -38,6 +39,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late double _baseSpeed;
   double speedInicial = 0;
   double freezeTimer = 0.0;
+  double freezeDuration = 3.0;
   bool isBurned = false;
   double burnTimer = 0.0;
   double burnTime = 2.0;
@@ -50,6 +52,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double bleedTimer = 0.0;
   double bleedTime = 1.0;
   ValueNotifier<int> bleedStacks = ValueNotifier<int>(0);
+  int numCondicoes = 0;
+
+  // --- VARIÁVEIS DA AURA VISUAL ---
+  double _auraTimer = 0; // Timer para a aura "pulsar"
+  
+  // CACHE DE TINTAS PARA A AURA (Evita lags por Garbage Collection)
+  final Paint _burnAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  final Paint _poisonAuraPaint = Paint()..color = Pallete.verdeCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameIcon? visual;
   GameIcon? burnIcon;
@@ -68,7 +80,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double _ghostTimer = 0;
   bool hasGhostEffect;
   
-  // COMPONENTES DE LÓGICA (Strategy Pattern)
+  // COMPONENTES DE LÓGICA
   late MovementBehavior movementBehavior;
   late AttackBehavior attackBehavior;
   AttackBehavior? attack2Behavior;
@@ -76,10 +88,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   final IconData iconData;
 
   final bool hasShield;
-
   final Vector2 _collisionBuffer = Vector2.zero();
-
   final bool isDummy;
+
+  late final Vector2 hbSize;
+  late final Vector2 hbOffset;
 
   Enemy({
     required Vector2 position,
@@ -101,23 +114,28 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.originalColor = Pallete.vermelho,
     this.isDummy = false,
     Vector2? size,
+    Vector2? hbSize,
+    Vector2? hbOffset,
     this.hasShield = false,
+    this.isBoss = false,
   }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
     _baseSpeed = speed;
-    // Vincula os behaviors a este inimigo
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
     this.deathBehavior.enemy = this;
     if (attack2Behavior != null) {
       attack2Behavior!.enemy = this;
     }
+    this.hbSize = hbSize ?? this.size;
+    this.hbOffset = hbOffset ?? Vector2.zero();
+    
   }
 
   @override
   Future<void> onLoad() async {
     speedInicial = speed;
-    // Cria o componente visual
+    
     final gameIcon = GameIcon(
       icon: iconData,
       color: originalColor,
@@ -125,16 +143,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       anchor: Anchor.center,
       position: size / 2, 
     );
-    
     add(gameIcon);
-    
-    // 2. GUARDA A REFERÊNCIA AQUI!
     visual = gameIcon;
 
     add(RectangleHitbox(
-      size: size, 
+      size: hbSize , 
       anchor: Anchor.center,
-      position: size / 2, 
+      position: size / 2 + hbOffset, 
       isSolid: true,
     ));
 
@@ -143,7 +158,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       for (var ang in angles) {
         add(OrbitalShield(
           owner: this,
-        //radius: size.x, 
           speed: 4.0,
           isEnemy: true,
           angleOffset: ang,
@@ -154,25 +168,51 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   void update(double dt) {
+    if (gameRef.currentRoom == 0) return; 
     if(_initTimer > 0){
       _initTimer -= dt;
       return;
     }
 
     super.update(dt);
+    
+    // Atualiza o timer da aura visual
+    _auraTimer += dt * 5; 
+
     movementBehavior.update(dt);
     attackBehavior.update(dt);
     attack2Behavior?.update(dt);
     
     _keepInsideArena();
-
     _updateStatus(dt);
 
-    if ( animado )_animateEnemy(dt);
+    if (animado) _animateEnemy(dt);
+  }
+
+  // --- LÓGICA DE RENDERIZAÇÃO DA AURA ---
+  @override
+  void render(Canvas canvas) {
+    // 1. Desenha as auras PRIMEIRO para ficarem atrás do inimigo
+    if (isBurned || isPoisoned || isBleed || isFreeze) {
+      // Cria uma pulsação matemática suave que vai de 0.9 a 1.1x do tamanho
+      double pulse = sin(_auraTimer) * 0.1 + 1.0; 
+      double baseRadius = size.x / 2;
+      final center = Offset(size.x / 2, size.y / 2);
+
+      // Usamos multiplicadores levemente diferentes (1.0, 0.9, 1.1) 
+      // para que, se o inimigo tomar todas as condições juntas, as auras
+      // não sobreponham perfeitamente umas as outras, mesclando as cores.
+      if (isBurned) canvas.drawCircle(center, baseRadius * pulse, _burnAuraPaint);
+      if (isBleed) canvas.drawCircle(center, (baseRadius * 1.1) * pulse, _bleedAuraPaint);
+      if (isPoisoned) canvas.drawCircle(center, (baseRadius * 0.9) * pulse, _poisonAuraPaint);
+      if (isFreeze) canvas.drawCircle(center, (baseRadius * 0.8) * pulse, _freezeAuraPaint);
+    }
+
+    // 2. Chama o método original para desenhar o Ícone e as TextComponents do Flame por cima
+    super.render(canvas); 
   }
   
  void _createGhostEffect(double dt) {
-   // final visual = children.whereType<GameIcon>().first;
     if (visual == null) return;
     _ghostTimer += dt;
     if (_ghostTimer >= 0.1) {
@@ -191,13 +231,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
   
   void _animateEnemy(double dt) {
-    //final visual = children.whereType<GameIcon>().firstOrNull;
     if (visual == null) return;
 
-    // 1. FLIP (Olhar para o Player)
-    // Define a direção base: 1.0 (Direita) ou -1.0 (Esquerda)
     double facingDirection = 1.0;
-    if(flipOposto)facingDirection = -1.0;
+    if(flipOposto) facingDirection = -1.0;
     
     if (!rotates) {
       final player = gameRef.player;
@@ -206,57 +243,39 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         if(flipOposto)facingDirection = 1.0; 
       }
     } else {
-      // Se o inimigo rotaciona (ex: Boss/Spinner), ignoramos o flip X
-      // Mas precisamos manter a escala X consistente com a animação abaixo
       facingDirection = visual!.scale.x.sign; 
       if (facingDirection == 0) facingDirection = 1.0;
     }
 
-    // 2. DETECTAR SE ESTÁ SE MOVENDO
     double displacement = position.distanceTo(_lastPosition);
-    bool isMoving = displacement > 0.5; // Limiar de movimento
+    bool isMoving = displacement > 0.5;
 
-    // 3. ANIMAÇÃO DE CAMINHADA (SQUASH & STRETCH)
     if (isMoving) {
-      _animTimer += dt * _animSpeed; // Velocidade da animação (12.0)
-
-      // Senoide que vai de -1 a 1 suavemente
+      _animTimer += dt * _animSpeed;
       double wave = sin(_animTimer);
-
-      // Efeito de "Respirar/Correr":
-      // Quando Y estica, X encolhe (preservação de volume visual)
-      double stretchY = 1.0 + (wave * _animAmplitude); // Ex: vai de 0.9 a 1.1
+      double stretchY = 1.0 + (wave * _animAmplitude);
       double squashX = 1.0 - (wave * _animAmplitude); 
 
-      // Aplica as transformações
       visual?.scale.y = stretchY;
-      visual?.scale.x = facingDirection * squashX; // Multiplica pela direção do Flip
+      visual?.scale.x = facingDirection * squashX; 
       
-      // (Opcional) Rotação leve: gingado para os lados (Waddle)
       if (!rotates) {
-         visual?.angle = wave * 0.1; // Gira levemente (-0.1 a 0.1 radianos)
+         visual?.angle = wave * 0.1; 
       }
-
     } else {
-      // RESET (IDLE)
-      // Se parou, volta ao normal
       _animTimer = 0;
       visual?.scale.y = 1.0;
-      visual?.scale.x = facingDirection; // Mantém o lado que estava olhando
+      visual?.scale.x = facingDirection; 
       if (!rotates) visual?.angle = 0;
     }
 
-    // Atualiza a posição anterior para o próximo frame
     _lastPosition.setFrom(position);
-
-      if(hasGhostEffect) _createGhostEffect(dt);
+    if(hasGhostEffect) _createGhostEffect(dt);
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    
-    // Repassa colisão para o movimento (Ex: Bouncer precisa saber se bateu)
     movementBehavior.onCollision(intersectionPoints, other);
 
     if (other is Wall && !voa) {
@@ -265,19 +284,14 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       _collisionBuffer.normalize();
       position.addScaled(_collisionBuffer, 1.0);
     } 
-    // COLISÃO COM INIMIGOS (Lógica de Peso)
     else if (other is Enemy && !voa) {
       _handleEnemyCollision(other);
     }
   }
 
   void _handleEnemyCollision(Enemy other) {
-    // 1. Se eu sou MAIS PESADO que o outro, eu NÃO me movo
-    if (this.weight > other.weight) {
-       return; 
-    }
+    if (this.weight > other.weight) return; 
 
-    // 2. Se temos o MESMO PESO, nos empurramos igualmente
     if (this.weight == other.weight) {
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(other.position);
@@ -285,7 +299,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       position.addScaled(_collisionBuffer, 1.0); 
     }
 
-    // 3. Se sou MAIS LEVE, sou empurrado com força
     if (this.weight < other.weight) {
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(other.position);
@@ -294,7 +307,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
   }
 
-  void takeDamage(double damage) {
+  void takeDamage(double damage, {bool isDot = false}) { // <-- ADICIONADO AQUI
     if (hp <= 0) return;
     bool isCrit = false;
     double dmg = damage;
@@ -306,36 +319,35 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
     hp -= dmg;
     
-    // Lógica de Freeze
-    if(gameRef.player.isFreeze){
-      final rng = Random();
-      if (rng.nextDouble() <= 0.8){
-        setFreeze();
+    // --- A CORREÇÃO ESTÁ AQUI ---
+    // Só aplica novos status se NÃO for um dano de Veneno/Fogo/Sangramento
+    if (!isDot) {
+      if(gameRef.player.isFreeze){
+        final rng = Random();
+        if (rng.nextDouble() <= 0.2){
+          setFreeze();
+        }
+      }
+
+      if(gameRef.player.isBurn){
+        if (burnStacks.value < 5 + gameRef.player.stackBonus){
+          setBurn();     
+        }
+      }
+
+      if(gameRef.player.isPoison){
+        if (poisonStacks.value < 10 + gameRef.player.stackBonus){
+          setPoison();
+        }
+      }
+
+      if(gameRef.player.isBleed){
+        if (bleedStacks.value < 15 + gameRef.player.stackBonus){
+          setBleed();
+        }
       }
     }
 
-    // Lógica de burn
-    if(gameRef.player.isBurn){
-      if (burnStacks.value < 5 + gameRef.player.stackBonus){
-        setBurn();     
-      }
-    }
-
-    // Lógica de poison
-    if(gameRef.player.isPoison){
-      if (poisonStacks.value < 10 + gameRef.player.stackBonus){
-        setPoison();
-      }
-    }
-
-    // Lógica de bleed
-    if(gameRef.player.isBleed){
-      if (bleedStacks.value < 15 + gameRef.player.stackBonus){
-        setBleed();
-      }
-    }
-
-    // Flash Branco
     if (!_isHit) { 
         _isHit = true; 
         _hitTimer = 0.1; 
@@ -358,11 +370,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     ));
 
     if (hp <= 0) {
-      AudioManager.playSfx('enemy_die.mp3');
-      deathBehavior.onDeath();
-      gameRef.progress.addSouls(soul);
-      removeFromParent();
+      die();
     }
+  }
+
+  void die() {
+    AudioManager.playSfx('enemy_die.mp3');
+    deathBehavior.onDeath();
+    gameRef.progress.addSouls(soul);
+    removeFromParent();
   }
 
   void _keepInsideArena() {
@@ -375,21 +391,29 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setFreeze(){
+    if (isFreeze) return;
+    numCondicoes ++;
     isFreeze = true;
-    speed = speed/4;
+    if (isBoss){
+        speed = speed/2;
+    }else{
+      speed = speed/4;
+    }
 
     freezeIcon = GameIcon(
       icon: Icons.ac_unit,
       color: Pallete.azulCla,
       size: size/4,
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, size.y / 2 - size.y / 4), 
+      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
     );
     
     add(freezeIcon!);
+
   }
 
   void setBurn(){
+    if(!isBurned) numCondicoes ++;
     isBurned = true;
     burnStacks.value += 1;
 
@@ -399,16 +423,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       color: Pallete.laranja,
       size: size/2,
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, - size.y / 4), 
+      position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
     );
-    
       add(burnIcon!);
     }
 
     if (burnText == null){
       burnText = TextComponent(
         text: burnStacks.value.toString(),
-        position: Vector2((size.x/2) - 5, - size.y / 4),
+        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -423,25 +446,27 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     burnText?.text = burnStacks.value.toString();
   }
   
-
   void setBleed(){
+    if(!isBleed) numCondicoes ++;
     isBleed = true;
     bleedStacks.value += 1;
 
-    bleedIcon = GameIcon(
-      icon: MdiIcons.heart,
-      color: Pallete.vermelho,
-      size: size/2,
-      anchor: Anchor.center,
-      position: Vector2(size.x / 2, - size.y / 4), 
-    );
-    
-    add(bleedIcon!);
+    // Garante recriação se já tivesse sido apagado (Correção similar ao burnIcon)
+    if (bleedIcon == null) {
+      bleedIcon = GameIcon(
+        icon: MdiIcons.heart,
+        color: Pallete.vermelho,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
+      );
+      add(bleedIcon!);
+    }
 
     if (bleedText == null){
       bleedText = TextComponent(
         text: bleedStacks.value.toString(),
-        position: Vector2((size.x/2) - 5, - size.y / 4),
+        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -457,23 +482,25 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setPoison(){
+    if(!isPoisoned) numCondicoes ++;
     isPoisoned = true;
     poisonStacks.value += 1;
 
-    poisonIcon = GameIcon(
-      icon: MdiIcons.water,
-      color: Pallete.verdeCla,
-      size: size/2,
-      anchor: Anchor.center,
-      position: Vector2(size.x / 2, - size.y / 4), 
-    );
-    
-    add(poisonIcon!);
+    if (poisonIcon == null) {
+      poisonIcon = GameIcon(
+        icon: MdiIcons.water,
+        color: Pallete.verdeCla,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
+      );
+      add(poisonIcon!);
+    }
 
     if (poisonText == null){
       poisonText = TextComponent(
         text: poisonStacks.value.toString(),
-        position: Vector2((size.x/2) - 5, - size.y / 4),
+        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -492,17 +519,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Freeze
     if (isFreeze){
       freezeTimer += dt;
-      if (freezeTimer >= 5.0){
+      double freezeDurationEffective = isBoss ? freezeDuration / 2 : freezeDuration;
+      if (freezeTimer >= freezeDurationEffective){
         isFreeze = false;
+        numCondicoes --;
         freezeTimer = 0.0;
         speed = _baseSpeed;
         if (visual == null) return;
         visual?.setColor(originalColor);
         if (freezeIcon != null) {
          freezeIcon!.removeFromParent();
+         freezeIcon = null; // IMPORTANTE
         }
       }
     }
+    
     // Burn
     if (isBurned){
       burnTimer += dt;
@@ -512,22 +543,25 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         burnTimer = 0.0;
         if (burnStacks.value <= 0) {
           isBurned = false;
+          numCondicoes --;
           if (visual == null) return;
           visual?.setColor(originalColor);
           if (burnIcon != null) {
             burnIcon!.removeFromParent();
+            burnIcon = null; // IMPORTANTE
           }
           if (burnText != null) {
             burnText!.removeFromParent();
+            burnText = null; // IMPORTANTE
           }
         }else{
-          takeDamage(5 *gameRef.player.dot);
+          takeDamage(5 *gameRef.player.dot, isDot: true);
           burnText?.text = burnStacks.value.toString();
         }
-        
       }
     }
-     // Poison
+    
+    // Poison
     if (isPoisoned){
       poisonTimer += dt;
       if (poisonTimer >= poisonTime){
@@ -536,19 +570,25 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         poisonTimer = 0.0;
         if (poisonStacks.value <= 0) {
           isPoisoned = false;
+          numCondicoes --;
           if (visual == null) return;
           visual?.setColor(originalColor);
           if (poisonIcon != null) {
             poisonIcon!.removeFromParent();
+            poisonIcon = null; // IMPORTANTE
+          }
+          if (poisonText != null) {
+            poisonText!.removeFromParent();
+            poisonText = null; // IMPORTANTE
           }
         }else{
-          takeDamage(3 *gameRef.player.dot);
+          takeDamage(3 *gameRef.player.dot, isDot: true);
           poisonText?.text = poisonStacks.value.toString();
         }
-        
       }
     }
-     // Bleed
+    
+    // Bleed
     if (isBleed){
       bleedTimer += dt;
       if (bleedTimer >= bleedTime){
@@ -557,29 +597,33 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         bleedTimer = 0.0;
         if (bleedStacks.value <= 0) {
           isBleed = false;
+          numCondicoes --;
           if (visual == null) return;
           visual?.setColor(originalColor);
           if (bleedIcon != null) {
             bleedIcon!.removeFromParent();
+            bleedIcon = null; // IMPORTANTE
+          }
+          if (bleedText != null) {
+            bleedText!.removeFromParent();
+            bleedText = null; // IMPORTANTE
           }
         }else{
-          takeDamage(2 *gameRef.player.dot);
+          takeDamage(2 *gameRef.player.dot, isDot: true);
           bleedText?.text = bleedStacks.value.toString();
         }
-        
       }
     }
+    
     // Hit Flash
     if (_isHit) {
       _hitTimer -= dt;
       if (_hitTimer <= 0) {
         _isHit = false;
         Color cor = originalColor;
-        if (isFreeze) cor = Pallete.azulCla;
         if (visual == null) return;
         visual?.setColor(cor);
       }
     }
-
   }
 }

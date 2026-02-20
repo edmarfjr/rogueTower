@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:TowerRogue/game/components/projectiles/web.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'enemy.dart';
+import 'enemy_boss.dart';
 import 'enemy_behaviors.dart';
 import '../core/pallete.dart';
 
@@ -17,6 +19,7 @@ class EnemyFactory {
       hp: 1000,
       speed: 0,
       isDummy: true,
+      hbSize: Vector2(16,32),
       iconData: MdiIcons.humanMale,
       originalColor: Pallete.bege,
       movementBehavior: FollowPlayerBehavior(),
@@ -31,6 +34,8 @@ class EnemyFactory {
       position: pos,
       hp: 30,
       speed: 100,
+      hbSize: Vector2(24,18),
+      hbOffset: Vector2(0, 4),
       iconData: Icons.pest_control_rodent,
       originalColor: Pallete.vermelho,
       movementBehavior: FollowPlayerBehavior(),
@@ -56,6 +61,7 @@ class EnemyFactory {
       position: pos,
       hp: 20,
       speed: 80,
+      hbSize: Vector2(24,24),
       rotates: true,
       iconData: Icons.bug_report,
       originalColor: Pallete.marrom,
@@ -70,6 +76,7 @@ class EnemyFactory {
       hp: 40,
       speed: 60,
       weight: 1.2,
+      hbSize: Vector2(26,26),
       flipOposto: true,
       iconData: MdiIcons.snail,
       originalColor: Pallete.verdeCla,
@@ -88,6 +95,7 @@ class EnemyFactory {
       speed: 100,
       voa: true,
       rotates: true,
+      hbSize: Vector2(16,16),
       rotateOff: pi/4,
       iconData: MdiIcons.bee,
       originalColor: Pallete.amarelo,
@@ -123,6 +131,7 @@ class EnemyFactory {
       hp: 20,
       speed: 120,
       size: Vector2.all(24),
+      hbSize: Vector2(20,18),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.verdeCla,
       movementBehavior: FollowPlayerBehavior(),
@@ -135,6 +144,7 @@ class EnemyFactory {
       position: pos,
       hp: 50,
       speed: 80,
+      hbSize: Vector2(28,24),
       iconData: MdiIcons.cloud,
       originalColor: Pallete.verdeCla,
       movementBehavior: FollowPlayerBehavior(),
@@ -143,6 +153,37 @@ class EnemyFactory {
         count: 4,
         minionBuilder: (p) => EnemyFactory.createSlimeP(p),
       ),    
+    );
+  }
+
+  static EnemyBoss createRatKing(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "reiRato".tr(),
+      hp: 500, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 80,
+      soul: 100,
+      iconData: Icons.pest_control_rodent,
+      size: Vector2.all(64),
+      hbSize: Vector2(56,36),
+      hbOffset: Vector2(0, 8), 
+      originalColor: Pallete.vermelho,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        movementBehavior: RandomWanderBehavior(),
+        attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true),
+        
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movement: FollowPlayerBehavior(),
+        phase2Attack: ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+        phase2Attack2: SummonAttackBehavior(
+          minionBuilder: (p) => EnemyFactory.createRat(p), 
+          interval: 3.0, 
+          maxMinions: 4,
+        ),
     );
   }
 
@@ -205,6 +246,7 @@ class EnemyFactory {
       position: pos,
       hp: 45,
       speed: 100,
+      hbSize: Vector2(28,16),
       voa: true,
       iconData: MdiIcons.bat,
       originalColor: Pallete.lilas,
@@ -220,6 +262,7 @@ class EnemyFactory {
       speed: 80,
       weight: 1.2,
       rotates: true,
+      hbSize: Vector2(28,28),
       iconData: MdiIcons.spider,
       originalColor: Pallete.marrom,
       movementBehavior: RandomWanderBehavior(), 
@@ -237,6 +280,7 @@ class EnemyFactory {
       hp: 60,
       speed: 80,
       voa: true,
+      hbSize: Vector2(26,28),
       hasGhostEffect: true,
       iconData: MdiIcons.ghost,
       originalColor: Pallete.cinzaCla,
@@ -251,6 +295,7 @@ class EnemyFactory {
       hp: 70,
       speed: 0,
       weight: 100,
+      hbSize: Vector2(16,28),
       iconData: MdiIcons.coffin,
       originalColor: Pallete.marrom,
       movementBehavior: FollowPlayerBehavior(),
@@ -263,6 +308,7 @@ class EnemyFactory {
       position: pos,
       hp: 60,
       speed: 80,
+      hbSize: Vector2(28,28),
       hasGhostEffect: true,
       iconData: MdiIcons.horseVariantFast,
       originalColor: Pallete.lilas,
@@ -277,6 +323,7 @@ class EnemyFactory {
       hp: 70,
       speed: 100,
       hasGhostEffect: true,
+      hbSize: Vector2(28,28),
       iconData: MdiIcons.horseHuman,
       originalColor: Pallete.lilas,
       movementBehavior: RandomWanderBehavior(),
@@ -308,6 +355,41 @@ class EnemyFactory {
     );
   }
 
+  static EnemyBoss createGhostKnight(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "ghostKnight".tr(),
+      hp: 700, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 100,
+      soul: 250, 
+      iconData: MdiIcons.horseHuman,
+      hasGhostEffect: true,
+      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      originalColor: Pallete.vermelho,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        movementBehavior: FollowPlayerBehavior(),
+        attackBehavior: ChargeAttackBehavior(
+          detectRange: 180, 
+          chargeSpeed: 400, 
+          prepTime: 0.6,    
+        ),
+        attack2Behavior: MortarAttackBehavior(interval: 3.0),
+        
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movement: FollowPlayerBehavior(),
+        phase2Attack: ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+        phase2Attack2: ChargeAttackBehavior(
+          detectRange: 360, 
+          chargeSpeed: 400, 
+          prepTime: 0.6,    
+        ),
+    );
+  }
+
   // inimigos fase 3
 
   static Enemy createChessKnight(Vector2 pos) {
@@ -316,8 +398,9 @@ class EnemyFactory {
       hp: 70,
       speed: 80, 
       weight: 2.0,
+      hbSize: Vector2(16,28),
       iconData: MdiIcons.chessKnight, 
-      originalColor: Pallete.cinzaEsc, 
+      originalColor: Pallete.lilas, 
       movementBehavior: RandomWanderBehavior(), 
       attackBehavior: JumpAttackBehavior(
         jumpRange: 200,    
@@ -333,8 +416,9 @@ class EnemyFactory {
       position: pos,
       hp: 60,
       speed: 80,
+      hbSize: Vector2(16,28),
       iconData: MdiIcons.chessPawn,
-      originalColor: Pallete.cinzaEsc,
+      originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 3.0, is2shot: true),
     );
@@ -345,9 +429,10 @@ class EnemyFactory {
       position: pos,
       hp: 120,
       speed: 0,
+      hbSize: Vector2(16,28),
       weight: 100,
       iconData: MdiIcons.chessRook,
-      originalColor: Pallete.cinzaEsc,
+      originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: MortarAttackBehavior(interval: 2.0),
     );
@@ -358,8 +443,9 @@ class EnemyFactory {
       position: pos,
       hp: 80,
       speed: 80,
+      hbSize: Vector2(16,28),
       iconData: MdiIcons.chessBishop,
-      originalColor: Pallete.cinzaEsc,
+      originalColor: Pallete.lilas,
       movementBehavior: BouncerBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 2.5, isDiagonal: true),
     );
@@ -369,9 +455,10 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 100,
+      hbSize: Vector2(16,28),
       speed: 60,
       iconData: MdiIcons.chessKing,
-      originalColor: Pallete.cinzaEsc,
+      originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 3, isChangeDir: true),
     );
@@ -382,8 +469,9 @@ class EnemyFactory {
       position: pos,
       hp: 80,
       speed: 80,
-      iconData: MdiIcons.chessKing,
-      originalColor: Pallete.cinzaEsc,
+      hbSize: Vector2(16,28),
+      iconData: MdiIcons.chessQueen,
+      originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
     );
@@ -397,10 +485,43 @@ class EnemyFactory {
       soul: 300,
       size: Vector2.all(80),
       iconData: MdiIcons.chessKing,
-      originalColor: Pallete.cinzaEsc,
+      originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
       attack2Behavior: MortarAttackBehavior(interval: 3.0),
+    );
+  }
+
+  static EnemyBoss createTruQueen(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "truQueen".tr(),
+      hp: 1200, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 80,
+      soul: 300, 
+      hbSize: Vector2(34,54),
+      iconData: MdiIcons.chessQueen,
+      hasGhostEffect: true,
+      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      originalColor: Pallete.bege,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        movementBehavior: FollowPlayerBehavior(),
+        attackBehavior: SpinnerAttackBehavior(interval: 2.5),
+        attack2Behavior: MortarAttackBehavior(interval: 3.0),
+        
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movement: BouncerBehavior(),
+        phase2Attack: SpinnerAttackBehavior(interval: 2, isChangeDir: true),
+        phase2Attack2: JumpAttackBehavior(
+          jumpRange: 300,    
+          minRange: 50,      
+          jumpDuration: 1.0, 
+          cooldown: 3,     
+        ),
     );
   }
 
@@ -411,6 +532,7 @@ class EnemyFactory {
       position: pos,
       hp: 80,
       speed: 0,
+      hbSize: Vector2(26,26),
       iconData: MdiIcons.rabbit,
       originalColor: Pallete.cinzaCla,
       movementBehavior: FollowPlayerBehavior(),
@@ -433,6 +555,7 @@ class EnemyFactory {
       hp: 100,
       speed: 100,
       hasGhostEffect: true,
+      hbSize: Vector2(24,24),
       iconData: MdiIcons.unicorn,
       originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
@@ -451,6 +574,7 @@ class EnemyFactory {
       speed: 80,
       voa: true,
       iconData: MdiIcons.bird,
+      hbSize: Vector2(24,24),
       originalColor: Pallete.azulCla,
       movementBehavior: RandomWanderBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 2.0, is2shot: true),
@@ -462,6 +586,8 @@ class EnemyFactory {
       position: pos,
       hp: 200,
       speed: 90,
+      hbSize: Vector2(24,20),
+      weight: 3.0,
       iconData: MdiIcons.elephant,
       originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
@@ -474,6 +600,7 @@ class EnemyFactory {
       position: pos,
       hp: 100,
       speed: 90,
+      hbSize: Vector2(26,30),
       iconData: MdiIcons.snake,
       originalColor: Pallete.verdeEsc,
       movementBehavior: RandomWanderBehavior(),
@@ -486,6 +613,7 @@ class EnemyFactory {
       position: pos,
       hp: 100,
       speed: 50,
+      hbSize: Vector2(26,20),
       hasShield: true,
       iconData: MdiIcons.tortoise,
       originalColor: Pallete.marrom,
@@ -515,6 +643,48 @@ class EnemyFactory {
         is4ShotOnLand: true,    
       ),
       attack2Behavior: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
+    );
+  }
+
+  static EnemyBoss createBeast(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "beast".tr(),
+      hp: 1500, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 0,
+      iconData: MdiIcons.rabbit,
+      hbSize: Vector2(50,50),
+      soul: 300, 
+      hasGhostEffect: true,
+      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      originalColor: Pallete.bege,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        movementBehavior: FollowPlayerBehavior(),
+        attackBehavior: JumpAttackBehavior(
+          jumpRange: 200,    
+          minRange: 50,      
+          jumpDuration: 1.0, 
+          cooldown: 1.0, 
+          isRandomJump: true,
+          randomJumpRadius: 150.0,
+          isExplosionOnLand: false,
+          is4ShotOnLand: true,    
+        ),
+        attack2Behavior: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
+        
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movement: BouncerBehavior(),
+        phase2Attack: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
+        phase2Attack2: JumpAttackBehavior(
+          jumpRange: 300,    
+          minRange: 50,      
+          jumpDuration: 1.0, 
+          cooldown: 3,     
+        ),
     );
   }
 

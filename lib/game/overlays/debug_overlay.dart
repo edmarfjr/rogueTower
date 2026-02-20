@@ -54,7 +54,7 @@ class _DebugMenuState extends State<DebugMenu> {
               Slider(
                 value: _selectedLevel.toDouble(),
                 min: 1,
-                max: 3, // Máximo de níveis do seu jogo
+                max: widget.game.numLevels.toDouble(), // Máximo de níveis do seu jogo
                 divisions: 9,
                 activeColor: Pallete.azulCla,
                 onChanged: (val) {

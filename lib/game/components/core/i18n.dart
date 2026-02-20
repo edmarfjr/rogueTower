@@ -129,8 +129,10 @@ class I18n {
       'flailDesc':'Um mangual que gira ao seu redor, ferindo inimigos',
       'bumerangue':'Bumerangue',
       'bumerangueDesc':'Substitui seus tiro por bumerangues',
-      
-      
+      'reiRato': 'Rei Rato',
+      'ghostKnight': 'O Cavaleiro Fantasma',
+      'truQueen': 'A Rainha Verdadeira',
+      'beast': 'A Besta de Caerbannog',
     },
     'en': {
       'paused': 'PAUSED',
@@ -257,6 +259,10 @@ class I18n {
       'flailDesc': 'A flail that spins around you, hurting enemies',
       'bumerangue':'Boomerang',
       'bumerangueDesc':'Replace your shots with Boomerang',
+      'reiRato': 'The Rat King',
+      'ghostKnight': 'The Ghost Knight',
+      'truQueen': 'The True Queen',
+      'beast': 'The Beast of Caerbannog',
       
     },
     'es': {
@@ -384,6 +390,10 @@ class I18n {
       'flailDesc': 'Un mayal que gira a tu alrededor, hiriendo a los enemigos',
       'bumerangue': 'Boomerang',
       'bumerangueDesc': 'Reemplaza tus disparos con Boomerang',
+      'reiRato': 'El Rey Rata',
+      'ghostKnight': 'El Caballero Fantasma',
+      'truQueen': 'La Reina Verdadera',
+      'beast': 'La Bestia de Caerbannog',
     }
   };
 

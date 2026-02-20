@@ -235,6 +235,28 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
     */
+    // --- NOVA LÓGICA DE INVENTÁRIO ---
+    // 3. Define quais itens são consumíveis ou mapa (NÃO vão pro inventário)
+    final List<CollectibleType> consumiveis = [
+      CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+      CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+      CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+      CollectibleType.shop, CollectibleType.boss
+    ];
+
+    // Se o item NÃO FOR consumível, adiciona na lista de adquiridos do Player
+    if (!consumiveis.contains(type)) {
+      final attrs = _getAttributes(type);
+      
+      gameRef.player.setAcquiredItemsList(
+        attrs['name'] as String,
+        attrs['desc'] as String,
+        attrs['icon'] as IconData,
+        attrs['color'] as Color,
+      );
+    }
+    
     if (!naoEsgota) removeFromParent();
     
   }

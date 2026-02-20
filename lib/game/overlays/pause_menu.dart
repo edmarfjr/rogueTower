@@ -12,7 +12,6 @@ class PauseMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Busca os valores atuais do jogo/jogador
     final int hp = game.player.healthNotifier.value;
     final int maxHp = game.player.maxHealth;
     final int dmg = (game.player.damage / 10 * 100).round();
@@ -25,146 +24,260 @@ class PauseMenu extends StatelessWidget {
     final int level = game.currentLevel;
     final int room = game.currentRoom;
 
+    // Busca a lista de itens adquiridos do jogador
+    final itemsList = game.player.getAcquiredItemsList();
+
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.5), // Fundo semi-transparente
+      backgroundColor: Colors.black.withOpacity(0.5),
       body: Center(
         child: Container(
-          width: 320, // Aumentei um pouquinho a largura para acomodar bem os textos
+          width: 320, 
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Pallete.azulEsc,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Pallete.branco, width: 2),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'paused'.tr(),
-                style: const TextStyle(
-                  fontSize: 30,
-                  color: Pallete.branco,
-                  fontWeight: FontWeight.bold,
+          // SingleChildScrollView evita o erro de Pixel Overflow se a tela for pequena!
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'paused'.tr(),
+                  style: const TextStyle(
+                    fontSize: 30,
+                    color: Pallete.branco,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // -----------------------------------------
-              // CAIXA DE STATUS DO JOGADOR
-              // -----------------------------------------
-              Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3), // Fundo mais escuro para destacar
-                  borderRadius: BorderRadius.circular(10),
+                // -----------------------------------------
+                // CAIXA DE STATUS DO JOGADOR
+                // -----------------------------------------
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildStatRow(Icons.favorite, 'health'.tr(), '$hp / $maxHp', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(MdiIcons.sword, 'dmg'.tr(), '$dmg%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(MdiIcons.fire, 'dot'.tr(), '$dot%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(MdiIcons.sword, 'fire_rate'.tr(), '$fireRate%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(Icons.whatshot, 'range'.tr(), '$range%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(Icons.whatshot, 'critChance'.tr(), '$critChance%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(Icons.whatshot, 'critDmg'.tr(), '$critDmg%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(Icons.whatshot, 'moveSpeed'.tr(), '$speed%', Pallete.branco),
+                      
+                      const Divider(color: Colors.white30, height: 20, thickness: 1),
+                      
+                      _buildStatRow(Icons.map, 'location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room', Pallete.branco),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    _buildStatRow(Icons.favorite, 'health'.tr(), '$hp / $maxHp', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(MdiIcons.sword, 'dmg'.tr(), '$dmg%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(MdiIcons.fire, 'dot'.tr(), '$dot%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(MdiIcons.sword, 'fire_rate'.tr(), '$fireRate%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'range'.tr(), '$range%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'critChance'.tr(), '$critChance%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'critDmg'.tr(), '$critDmg%', Pallete.branco),
-                    const SizedBox(height: 8),
-                    _buildStatRow(Icons.whatshot, 'moveSpeed'.tr(), '$speed%', Pallete.branco),
-                    
-                    const Divider(color: Colors.white30, height: 20, thickness: 1),
-                    
-                    _buildStatRow(Icons.map, 'location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room', Pallete.branco),
-                  ],
-                ),
-              ),
-              // -----------------------------------------
-              
-              const SizedBox(height: 30),
-              
-              // Botão Continuar
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.verdeCla,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                onPressed: () {
-                  game.resumeGame();
-                },
-                child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
-              ),
-              
-              const SizedBox(height: 15),
+                
+                const SizedBox(height: 20),
 
-              // Botão Settings
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.lilas,
-                  minimumSize: const Size(double.infinity, 50),
+                // -----------------------------------------
+                // CARROSSEL DE ITENS ADQUIRIDOS
+                // -----------------------------------------
+                AcquiredItemsCarousel(items: itemsList),
+
+                const SizedBox(height: 30),
+                
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Pallete.verdeCla,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    game.resumeGame();
+                  },
+                  child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
                 ),
-                onPressed: () {
-                  game.overlays.add('SettingsMenu');
-                },
-                child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
-              ),
+                
+                const SizedBox(height: 15),
 
-              const SizedBox(height: 15),
-
-              // Botão Sair
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.vermelho,
-                  minimumSize: const Size(double.infinity, 50),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Pallete.lilas,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    game.overlays.add('SettingsMenu');
+                  },
+                  child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
                 ),
-                onPressed: () {
-                  game.returnToMenu();
-                },
-                child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
-              ),
-              
-              const SizedBox(height: 20),
 
-              // Botão "Secreto" de Debug
-              IconButton(
-                icon: const Icon(Icons.bug_report, color: Pallete.laranja, size: 30),
-                tooltip: "Menu de Debug",
-                onPressed: () {
-                  // O jogo já está pausado, apenas fechamos o pause e abrimos o debug
-                  game.overlays.remove('PauseMenu');
-                  game.overlays.add('DebugMenu');
-                },
-),
-            ],
+                const SizedBox(height: 15),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Pallete.vermelho,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    game.returnToMenu();
+                  },
+                  child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+                ),
+                
+                const SizedBox(height: 20),
+
+                IconButton(
+                  icon: const Icon(Icons.bug_report, color: Pallete.laranja, size: 30),
+                  tooltip: "Menu de Debug",
+                  onPressed: () {
+                    game.overlays.remove('PauseMenu');
+                    game.overlays.add('DebugMenu');
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Método auxiliar para criar as linhas de status uniformemente
   Widget _buildStatRow(IconData icon, String label, String value, Color iconColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            //Icon(icon, color: iconColor, size: 20),
             const SizedBox(width: 8),
-            Text(
-              label, 
-              style: const TextStyle(color: Pallete.branco, fontSize: 16)
-            ),
+            Text(label, style: const TextStyle(color: Pallete.branco, fontSize: 16)),
           ],
         ),
-        Text(
-          value, 
-          style: const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold)
-        ),
+        Text(value, style: const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold)),
       ],
+    );
+  }
+}
+
+// ============================================================================
+// WIDGET DO CARROSSEL DE ITENS (Pode ficar neste mesmo arquivo)
+// ============================================================================
+class AcquiredItemsCarousel extends StatefulWidget {
+  final List<AcquiredItemData> items;
+
+  const AcquiredItemsCarousel({Key? key, required this.items}) : super(key: key);
+
+  @override
+  State<AcquiredItemsCarousel> createState() => _AcquiredItemsCarouselState();
+}
+
+class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
+  int currentIndex = 0;
+
+  void _nextItem() {
+    if (currentIndex < widget.items.length - 1) {
+      setState(() {
+        currentIndex++;
+      });
+    }
+  }
+
+  void _prevItem() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.items.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: Text(
+            "Nenhum item especial adquirido.",
+            style: TextStyle(color: Colors.white70, fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    final item = widget.items[currentIndex];
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: item.color.withOpacity(0.5), width: 1.5),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            "Inventário",
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                onPressed: currentIndex > 0 ? _prevItem : null,
+                disabledColor: Colors.white24,
+              ),
+              
+              // Ícone do Item
+              Icon(item.icon, size: 40, color: item.color),
+
+              IconButton(
+                icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                onPressed: currentIndex < widget.items.length - 1 ? _nextItem : null,
+                disabledColor: Colors.white24,
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          Text(
+            item.name,
+            style: TextStyle(color: item.color, fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          
+          Text(
+            item.description,
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          
+          const SizedBox(height: 8),
+          Text(
+            "${currentIndex + 1} / ${widget.items.length}",
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

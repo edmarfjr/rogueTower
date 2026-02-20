@@ -53,7 +53,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);
   int get currentLevel => currentLevelNotifier.value;
   final int bossRoom = 10;
-  int numLevels = 3;
+  int numLevels = 4;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
@@ -166,7 +166,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     FlameAudio.bgm.initialize();
     //musica menu principal
     try {
-     // AudioManager.playBgm('8bit_menu.mp3');
+      AudioManager.playBgm('8bit_menu.mp3');
     } catch (e) {
       print("O navegador bloqueou o áudio automático: $e");
     }
@@ -347,13 +347,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-    //AudioManager.playBgm('8bit_menu.mp3');
+    AudioManager.playBgm('8bit_menu.mp3');
   }
 
   void startLevel() {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom);
-    //AudioManager.playBgm('funny_bit.mp3');
+    AudioManager.playBgm('funny_bit.mp3');
   }
 
   void nextLevel(CollectibleType chosenReward) {

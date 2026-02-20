@@ -102,12 +102,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 0)));
+      //gameRef.world.add(EnemyFactory.createBeast(Vector2(50, 0)));
 
       //teste de itens
-      gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bumerangue));
-      //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.foice));
+      //gameRef.world.add(Chest(position: Vector2(0, 0)));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.fogo));
+      //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.veneno));
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){
@@ -137,13 +137,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == bossRoom) {
       
       if (gameRef.currentLevel == 1){
-        gameRef.world.add(EnemyFactory.createKingSlime1(Vector2(0, -150)));
+        gameRef.world.add(EnemyFactory.createRatKing(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 2){
-        gameRef.world.add(EnemyFactory.createHorseManBoss(Vector2(0, -150)));
+        gameRef.world.add(EnemyFactory.createGhostKnight(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 3){
-        gameRef.world.add(EnemyFactory.createChessQueenBoss(Vector2(0, -150)));
+        gameRef.world.add(EnemyFactory.createTruQueen(Vector2(0, -150)));
       }else if(gameRef.currentLevel == 4){
-        gameRef.world.add(EnemyFactory.createRabbitBoss(Vector2(0, -150)));
+        gameRef.world.add(EnemyFactory.createBeast(Vector2(0, -150)));
       }
       
 
