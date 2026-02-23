@@ -26,6 +26,7 @@ import 'components/gameObj/wall.dart';
 import 'components/gameObj/arena_border.dart';
 import 'components/core/game_progress.dart';
 import 'overlays/bank_menu.dart';
+import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
@@ -158,23 +159,26 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     useCRTEffect = false;
   }
 
-  @override
+ @override
   void update(double dt) {
-    // IMPORTANTE: O super.update(dt) deve vir PRIMEIRO. 
-    // Ele faz a câmera focar no player perfeitamente.
     super.update(dt); 
 
-    // 3. Aplica o tremor por cima da posição já calculada
+    // --- NOVA LÓGICA DO TREMOR (À PROVA DE FALHAS) ---
     if (_shakeTimer > 0) {
       _shakeTimer -= dt;
       
       final rng = Random();
-      // Gera um valor aleatório entre -intensity e +intensity
       double offsetX = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       double offsetY = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       
-      // Empurra a câmera levemente para o lado apenas neste frame
-      camera.viewfinder.position.add(Vector2(offsetX, offsetY));
+      // O PULO DO GATO: Nós trememos a tela do celular (viewport), 
+      // e não o mundo virtual do jogo. Assim não briga com o camera.follow()!
+      camera.viewport.position = Vector2(offsetX, offsetY);
+
+      // Quando o tempo acabar, temos que garantir que a tela volta para o centro
+      if (_shakeTimer <= 0) {
+        camera.viewport.position = Vector2.zero();
+      }
     }
   }
 
@@ -213,6 +217,16 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   void shakeCamera({double intensity = 5.0, double duration = 0.3}) {
     _shakeIntensity = intensity;
     _shakeTimer = duration;
+
+    // --- LÓGICA DE VIBRAÇÃO FÍSICA NO CELULAR ---
+    // Se o tremor for forte (como o do Boss), dá um "Tranco" pesado
+    if (intensity >= 6.0) {
+      HapticFeedback.heavyImpact();
+    } 
+    // Se for um tremor mais fraco (dano comum), vibra mais suave
+    else {
+      HapticFeedback.vibrate(); 
+    }
   }
   // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
   void depositCoins(int amount) {

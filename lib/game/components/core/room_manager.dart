@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/foundation/change_notifier.dart';
@@ -144,20 +145,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     // --- LÓGICA DE SPAWN ---
     if (roomNumber == bossRoom) {
-      
-      if (gameRef.currentLevel == 1){
-        gameRef.world.add(EnemyFactory.createRatKing(Vector2(0, -150)));
-      }else if(gameRef.currentLevel == 2){
-        gameRef.world.add(EnemyFactory.createGhostKnight(Vector2(0, -150)));
-      }else if(gameRef.currentLevel == 3){
-        gameRef.world.add(EnemyFactory.createTruQueen(Vector2(0, -150)));
-      }else if(gameRef.currentLevel == 4){
-        gameRef.world.add(EnemyFactory.createBeast(Vector2(0, -150)));
-      }else if(gameRef.currentLevel == 5){
-        gameRef.world.add(EnemyFactory.createMegalodon(Vector2(0, -150)));
-      }
-      
-
+      _triggerBossSpawnSequence(); 
     } else {
       _spawnEnemies(roomNumber);
     }
@@ -254,6 +242,47 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
     
     gameRef.atualizaDebugMode();
+  }
+
+  void _triggerBossSpawnSequence() {
+    // A posição onde o Boss vai cair/nascer
+    final spawnPos = Vector2(0, -150);
+
+    // 1. Opcional: Se você tiver um som de "porta trancando" ou "vento", pode tocar aqui!
+    // AudioManager.playSfx('lock.mp3');
+
+    // 2. O Suspense: Um Timer de 1.5 segundos
+    add(TimerComponent(
+      period: 1.5,
+      repeat: false,
+      removeOnFinish: true, // Se limpa da memória depois de rodar
+      onTick: () {
+        
+        // 3. O Impacto Visual (Explosões e Tremor)
+        createExplosionEffect(gameRef.world, spawnPos, Pallete.vermelho, count: 40);
+        gameRef.shakeCamera(intensity: 6.0, duration: 1.0);
+        
+        // Toca o som de impacto
+        AudioManager.playSfx('explosion.mp3');
+
+        // 4. O Spawn: Cria o Boss na arena de acordo com o andar atual
+        if (gameRef.currentLevel == 1) {
+          gameRef.world.add(EnemyFactory.createRatKing(spawnPos));
+        } else if (gameRef.currentLevel == 2) {
+          gameRef.world.add(EnemyFactory.createGhostKnight(spawnPos));
+        } else if (gameRef.currentLevel == 3) {
+          gameRef.world.add(EnemyFactory.createTruQueen(spawnPos));
+        } else if (gameRef.currentLevel == 4) {
+          gameRef.world.add(EnemyFactory.createBeast(spawnPos));
+        } else if (gameRef.currentLevel == 5) {
+          gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
+        }
+
+        // 5. Interface: 
+        // Aqui o Boss já foi adicionado. Se você tiver uma classe de HUD para a vida do Boss,
+        // o ideal é que a própria classe do Boss (EnemyBoss) avise o HUD no seu método `onLoad`!
+      },
+    ));
   }
 
   void _spawnDoors(int roomNumber) {
