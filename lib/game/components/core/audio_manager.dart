@@ -3,10 +3,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
 class AudioManager {
-  // Configurações de Volume (0.0 a 1.0)
   static double sfxVolume = 1.0;
   static double bgmVolume = 0.5;
-  static DateTime _lastSfxTime = DateTime.now();
+  
+  // CORREÇÃO 1: Agora cada som tem seu próprio cronômetro para evitar que um bloqueie o outro
+  static final Map<String, DateTime> _lastSfxTimes = {};
 
   static bool _isMutedMusic = false;
   static bool get isMutedMusic => _isMutedMusic;
@@ -16,12 +17,8 @@ class AudioManager {
   static bool _isBgmPlaying = false;
   static String _currentBgm = '';
 
-  // Guarda os sons rápidos pré-carregados na memória
   static final Map<String, AudioPool> _sfxPools = {};
 
-  // ==========================================
-  // RESOLVEDOR DE CAMINHOS (WEB VS MOBILE)
-  // ==========================================
   static String _resolveSfxPath(String filename) {
     if (kIsWeb) {
       return 'sfx/mp3/$filename'; 
@@ -31,80 +28,89 @@ class AudioManager {
     }
   }
 
-  /// Inicializa e pré-carrega sons importantes para evitar lag na primeira vez
+  // --- FUNÇÃO AUXILIAR PARA CARREGAR POOLS COM SEGURANÇA ---
+  static Future<void> _safeLoadPool(String filename, int min, int max) async {
+    try {
+      String resolvedPath = _resolveSfxPath(filename);
+      _sfxPools[filename] = await FlameAudio.createPool(resolvedPath, minPlayers: min, maxPlayers: max);
+    } catch (e) {
+      // Se um arquivo estiver faltando, ele te avisa qual é, mas NÃO trava o jogo!
+      print("⚠️ AVISO: Falha ao carregar o som '$filename'. Verifique se o arquivo existe na pasta correta. Erro: $e");
+    }
+  }
+
   static Future<void> init() async {
-    // 1. Configura o contexto de áudio global
     final audioContext = AudioContext(
       android: const AudioContextAndroid(
         isSpeakerphoneOn: false,
         stayAwake: false,
         contentType: AndroidContentType.sonification,
         usageType: AndroidUsageType.game,
-        audioFocus: AndroidAudioFocus.none, // O SEGREDO AQUI: Não roubar o foco!
+        audioFocus: AndroidAudioFocus.none, 
       ),
       iOS: AudioContextIOS(
-        category: AVAudioSessionCategory.ambient, // Mistura o áudio
+        category: AVAudioSessionCategory.ambient, 
         options: const {
           AVAudioSessionOptions.mixWithOthers,
         },
       ),
     );
     await AudioPlayer.global.setAudioContext(audioContext);
-    
-    // 2. Configura o loop de música global PRIMEIRO
     FlameAudio.bgm.initialize();
 
-    // 3. Cria as "Pools" APLICANDO a função de resolver o caminho!
-    _sfxPools['shoot.mp3'] = await FlameAudio.createPool(_resolveSfxPath('shoot.mp3'), minPlayers: 1, maxPlayers: 4);
-    _sfxPools['hit.mp3'] = await FlameAudio.createPool(_resolveSfxPath('hit.mp3'), minPlayers: 1, maxPlayers: 3);
-    _sfxPools['dash.mp3'] = await FlameAudio.createPool(_resolveSfxPath('dash.mp3'), minPlayers: 1, maxPlayers: 2);
-    _sfxPools['collect.mp3'] = await FlameAudio.createPool(_resolveSfxPath('collect.mp3'), minPlayers: 1, maxPlayers: 2);
-    _sfxPools['explosion.mp3'] = await FlameAudio.createPool(_resolveSfxPath('explosion.mp3'), minPlayers: 1, maxPlayers: 3);
-    _sfxPools['laser.mp3'] = await FlameAudio.createPool(_resolveSfxPath('laser.mp3'), minPlayers: 1, maxPlayers: 4);
-    _sfxPools['enemyShot.mp3'] = await FlameAudio.createPool(_resolveSfxPath('enemyShot.mp3'), minPlayers: 1, maxPlayers: 4);
-    _sfxPools['enemy_die.mp3'] = await FlameAudio.createPool(_resolveSfxPath('enemy_die.mp3'), minPlayers: 1, maxPlayers: 3);
+    // CORREÇÃO 2: Carrega cada som de forma independente. 
+    // Se o 'dash.wav' não existir, ele pula e carrega o 'hit.wav' normalmente.
+    await _safeLoadPool('shoot.mp3', 1, 4);
+    await _safeLoadPool('hit.mp3', 1, 3);
+    await _safeLoadPool('dash.mp3', 1, 2);
+    await _safeLoadPool('collect.mp3', 1, 2);
+    await _safeLoadPool('explosion.mp3', 1, 3);
+    await _safeLoadPool('laser.mp3', 1, 4);
+    await _safeLoadPool('enemyShot.mp3', 1, 4);
+    await _safeLoadPool('enemy_die.mp3', 1, 3);
 
-    // 4. Carrega o resto aplicando também na lista do loadAll
-    await FlameAudio.audioCache.loadAll([
-      _resolveSfxPath('game_over.mp3'), // Efeito sonoro convertido
-      'music/8bit_menu.mp3',            // Músicas continuam puras
-      'music/funny_bit.mp3',  
-      'music/retro_plat.mp3',
-    ]);
+    // Carrega os sons normais soltos
+    try {
+      await FlameAudio.audioCache.loadAll([
+        _resolveSfxPath('game_over.mp3'),
+        'music/8bit_menu.mp3',            
+        'music/funny_bit.mp3',  
+        'music/retro_plat.mp3',
+      ]);
+    } catch (e) {
+      print("⚠️ AVISO: Falha ao carregar os áudios secundários do Cache. Erro: $e");
+    }
   }
 
-  /// Toca um efeito sonoro curto
   static void playSfx(String filename) {
     if (_isMutedSfx) return;
     
     final now = DateTime.now();
-    // Só toca se passou 50ms desde o último som (Evita estouro de áudio se 10 inimigos morrerem no mesmo frame)
-    if (now.difference(_lastSfxTime).inMilliseconds > 50) {
+    // Busca o último tempo em que ESTE som específico tocou
+    final lastTime = _lastSfxTimes[filename] ?? DateTime.fromMillisecondsSinceEpoch(0);
+
+    if (now.difference(lastTime).inMilliseconds > 50) {
       try {
-        // A chave do dicionário continua sendo o nome original .mp3
         if (_sfxPools.containsKey(filename)) {
           _sfxPools[filename]!.start(volume: sfxVolume);
         } else {
-          // APLICAÇÃO da conversão caso toque um som fora das pools
           FlameAudio.play(_resolveSfxPath(filename), volume: sfxVolume);
         }
-        _lastSfxTime = now;
+        
+        // Atualiza o tempo apenas deste som
+        _lastSfxTimes[filename] = now;
       } catch (e) {
-         print("Erro ao tocar SFX: $e");
+         print("Erro ao tocar SFX ($filename): $e");
       }
     }
   }
 
-  /// Toca música de fundo em loop
+  // ... (o resto dos métodos de música e volume continuam exatamente iguais) ...
   static void playBgm(String filename) {
     if (_isMutedMusic) return;
-    if (_isBgmPlaying && _currentBgm == filename) {
-      return; 
-    }
+    if (_isBgmPlaying && _currentBgm == filename) return; 
 
-    if (_isBgmPlaying) {
-      FlameAudio.bgm.stop();
-    }
+    if (_isBgmPlaying) FlameAudio.bgm.stop();
   
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);

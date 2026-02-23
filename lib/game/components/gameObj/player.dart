@@ -133,7 +133,7 @@ class Player extends PositionComponent
       radius: attackRange,
       anchor: Anchor.center,
       position: size / 2,
-      paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 1,
+      paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 2,
     );
     add(_rangeIndicator);
     

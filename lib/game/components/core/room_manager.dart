@@ -31,6 +31,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   bool teveBanco = false;
   bool teveAlquimista = false;
 
+  bool isSpawnningBoss = false;
+
   int get bossRoom => gameRef.bossRoom;
 
   final double _minTimeBeforeClear = 0.5; // Tempo mínimo para evitar clear instantâneo
@@ -97,7 +99,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy);
       
       
-      if (realEnemies.isEmpty) {
+      if (realEnemies.isEmpty && !isSpawnningBoss) {
         _unlockDoors();
         _levelCleared = true;
       }
@@ -245,8 +247,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _triggerBossSpawnSequence() {
+    isSpawnningBoss = true;
     // A posição onde o Boss vai cair/nascer
     final spawnPos = Vector2(0, -150);
+
 
     // 1. Opcional: Se você tiver um som de "porta trancando" ou "vento", pode tocar aqui!
     // AudioManager.playSfx('lock.mp3');
@@ -277,7 +281,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         } else if (gameRef.currentLevel == 5) {
           gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
         }
-
+        isSpawnningBoss = false;
         // 5. Interface: 
         // Aqui o Boss já foi adicionado. Se você tiver uma classe de HUD para a vida do Boss,
         // o ideal é que a própria classe do Boss (EnemyBoss) avise o HUD no seu método `onLoad`!
