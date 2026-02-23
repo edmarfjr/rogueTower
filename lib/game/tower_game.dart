@@ -152,24 +152,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
 
-    await FlameAudio.audioCache.loadAll([
-      'music/8bit_menu.mp3',
-      'music/funny_bit.mp3',
-      'music/retro_plat.mp3',
-      'sfx/collect.mp3',
-      'sfx/dash.mp3',
-      'sfx/enemy_die.mp3',
-      'sfx/enemyShot.mp3',
-      'sfx/explosion.mp3',
-      'sfx/game_over.mp3',
-      'sfx/hit.mp3',
-      'sfx/laser.mp3',
-      'sfx/shoot.mp3',
-    ]);
-
     FlameAudio.bgm.initialize();
-    //musica menu principal
-    
 
     await progress.loadSettings(this);
     useCRTEffect = false;
