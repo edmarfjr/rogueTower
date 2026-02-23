@@ -133,6 +133,7 @@ class I18n {
       'ghostKnight': 'O Cavaleiro Fantasma',
       'truQueen': 'A Rainha Verdadeira',
       'beast': 'A Besta de Caerbannog',
+      'ai':'UI!'
     },
     'en': {
       'paused': 'PAUSED',
@@ -263,6 +264,7 @@ class I18n {
       'ghostKnight': 'The Ghost Knight',
       'truQueen': 'The True Queen',
       'beast': 'The Beast of Caerbannog',
+      'ai':'OUCH!'
       
     },
     'es': {
@@ -394,6 +396,7 @@ class I18n {
       'ghostKnight': 'El Caballero Fantasma',
       'truQueen': 'La Reina Verdadera',
       'beast': 'La Bestia de Caerbannog',
+      'ai':'AY!'
     }
   };
 

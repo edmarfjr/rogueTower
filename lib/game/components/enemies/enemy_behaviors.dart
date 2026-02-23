@@ -63,11 +63,37 @@ class FollowPlayerBehavior extends MovementBehavior {
     
     // Rotação visual
     if (enemy.rotates) {
-      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
+      if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
     
     enemy.position.addScaled(_direction, enemy.speed * dt);
+  }
+}
+
+class GoToCenterBehavior extends MovementBehavior {
+  final Vector2 _direction = Vector2.zero();
+  Vector2 _target = Vector2.zero();
+
+  @override
+  void update(double dt) {
+    // Só anda se o ataque permitir
+    if (!enemy.canMove) return;
+
+   
+    _direction
+      ..setFrom(_target)
+      ..sub(enemy.position)      
+      ..normalize();            
+    
+    // Rotação visual
+    if (enemy.rotates) {
+      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+      if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
+    }
+    if (enemy.position.distanceTo(_target) > 10){
+      enemy.position.addScaled(_direction, enemy.speed * dt);
+    }
+    
   }
 }
 
@@ -92,8 +118,7 @@ class KeepDistanceBehavior extends MovementBehavior {
 
     // Rotação visual
     if (enemy.rotates) {
-      final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      if (visual != null) visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
+      if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
 
     if (distance > maxDistance) {
@@ -534,51 +559,95 @@ class LaserAttackBehavior extends AttackBehavior {
 class SpinnerAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
+  late Vector2 size;
   final bool isDiagonal;
   final bool isChangeDir;
   final bool isBoomerang;
-  int changeDirAux = 0;
+  final bool isSpiral;
+
+  final int projectilesPerWave;
+  final double spinSpeed; // O quão rápido a espiral gira
+  
+  double _currentAngle = 0;
+  bool _isNextDiagonal = false; // Substitui o changeDirAux por um booleano simples
 
   SpinnerAttackBehavior({
-    this.interval = 1.5, 
+    this.interval = 1.5, // Centralizamos o tempo de recarga apenas no 'interval'
     this.isDiagonal = false, 
     this.isChangeDir = false,
     this.isBoomerang = false,
-  });
+    this.isSpiral = false,
+    this.projectilesPerWave = 4, 
+    this.spinSpeed = 0.4,
+  Vector2? size,
+  }) {
+    this.size = size ?? Vector2.all(10);
+  }
 
   @override
   void update(double dt) {
+    if (enemy == null || enemy!.isFreeze) return; // Segurança extra
+
     _timer += dt;
     if (_timer >= interval) {
-      // Atira em cruz
-      List<Vector2> directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
-
-      if (isDiagonal || isChangeDir && changeDirAux>=4){
-        directions = [Vector2(-1, -1), Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1)];
-        changeDirAux = 0;
+      // Toca o som APENAS UMA VEZ por onda de tiros, não por projétil
+      AudioManager.playSfx('enemyShot.mp3');
+      
+      if (isSpiral) {
+        _shootSpiral();
+      } else {
+        _shootCrossOrDiagonal();
       }
-
-      for (var dir in directions) {
-        enemy.gameRef.world.add(Projectile(
-          position: enemy.position + dir * 20,
-          direction: dir,
-          damage: 1,
-          speed: 200,
-          owner: enemy,
-          isBoomerang: isBoomerang,
-          dieTimer: isBoomerang ? 1.0 : 3.0,
-          isEnemyProjectile: true,
-        ));
-
-        if (isChangeDir) changeDirAux++;
-        AudioManager.playSfx('enemyShot.mp3');
-      }     
-      // Gira visualmente
-      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-      //visual?.angle += pi / 4;
+          
+      // Gira visualmente (Descomente se for usar)
+      // final visual = enemy!.children.whereType<GameIcon>().firstOrNull;
+      // visual?.angle += pi / 4;
       
       _timer = 0;
     }
+  }
+
+  void _shootSpiral() {
+    for (int i = 0; i < projectilesPerWave; i++) {
+      double angle = _currentAngle + (i * (2 * pi / projectilesPerWave));
+      Vector2 direction = Vector2(cos(angle), sin(angle));
+      _spawnProjectile(direction);
+    }
+    _currentAngle += spinSpeed; // Gira o canhão
+  }
+
+  void _shootCrossOrDiagonal() {
+    List<Vector2> directions;
+
+    // Lógica simplificada: Se for pra ser diagonal, usa os eixos diagonais
+    if (isDiagonal || (_isNextDiagonal && isChangeDir)) {
+      directions = [Vector2(-1, -1), Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1)];
+    } else {
+      directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
+    }
+
+    // Alterna a direção para a próxima onda
+    if (isChangeDir) {
+      _isNextDiagonal = !_isNextDiagonal;
+    }
+
+    for (var dir in directions) {
+      _spawnProjectile(dir);
+    }
+  }
+
+  void _spawnProjectile(Vector2 dir) {
+    enemy!.gameRef.world.add(Projectile(
+      position: enemy!.position + dir * 20,
+      direction: dir,
+      damage: 1,
+      speed: 200,
+      size: size,
+      owner: enemy,
+      isBoomerang: isBoomerang,
+      dieTimer: isBoomerang ? 1.0 : 3.0,
+      isEnemyProjectile: true,
+    ));
   }
 }
 
@@ -705,7 +774,7 @@ class ChargeAttackBehavior extends AttackBehavior {
   @override
   void update(double dt) {
     final player = enemy.gameRef.player;
-    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+    final visual = enemy.visual;
 
     // --- ESTADO 0: VIGILÂNCIA ---
     // O inimigo está andando aleatoriamente (controlado pelo MovementBehavior)

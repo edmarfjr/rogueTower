@@ -95,6 +95,8 @@ class EnemyBoss extends Enemy {
     canMove = false; // Trava o boss no lugar
     
     _transformTimer = 2.0; // 2 segundos de animação
+
+    gameRef.shakeCamera(intensity: 8.0, duration: 2.0);
     
     // Explode a primeira forma
     createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 20);

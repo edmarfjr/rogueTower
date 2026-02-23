@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -71,6 +72,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final List<CollectibleType> itensRarosPool = retornaItensRaros();
   List<CollectibleType> itensComunsPoolCurrent = [];
   List<CollectibleType> itensRarosPoolCurrent = [];
+
+  double _shakeTimer = 0.0;
+  double _shakeIntensity = 0.0;
 
   @override
   Color backgroundColor() => Pallete.preto;
@@ -170,17 +174,28 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await progress.loadSettings(this);
     useCRTEffect = false;
   }
-/*
+
   @override
   void update(double dt) {
-    super.update(dt);
-    // Acumula o tempo que passou desde o último frame (se o efeito estiver ligado)
-    print("Entidades no Mundo: ${world.children.length}");
-    //if (useCRTEffect) {
-    //  _shaderTime += dt;
-   // }
+    // IMPORTANTE: O super.update(dt) deve vir PRIMEIRO. 
+    // Ele faz a câmera focar no player perfeitamente.
+    super.update(dt); 
+
+    // 3. Aplica o tremor por cima da posição já calculada
+    if (_shakeTimer > 0) {
+      _shakeTimer -= dt;
+      
+      final rng = Random();
+      // Gera um valor aleatório entre -intensity e +intensity
+      double offsetX = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
+      double offsetY = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
+      
+      // Empurra a câmera levemente para o lado apenas neste frame
+      camera.viewfinder.position.add(Vector2(offsetX, offsetY));
+    }
   }
 
+/*
 @override
   void render(Canvas canvas) {
     if (!useCRTEffect) {
@@ -212,7 +227,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     }
   }
   */
-
+  void shakeCamera({double intensity = 5.0, double duration = 0.3}) {
+    _shakeIntensity = intensity;
+    _shakeTimer = duration;
+  }
   // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
   void depositCoins(int amount) {
     if (coinsNotifier.value >= amount) {

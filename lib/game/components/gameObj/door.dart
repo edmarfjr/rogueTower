@@ -164,7 +164,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
     double dist = position.distanceTo(gameRef.player.position);
     
-    if (dist <= raioBotao && !botaoAtivo && !trancada && !bloqueada && isOpen) {
+    if (dist <= raioBotao && !botaoAtivo && !bloqueada && isOpen) {
       _showButton();
       botaoAtivo = true;
     } else if (dist > raioBotao && botaoAtivo) {
@@ -179,11 +179,16 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     _currentButton = InteractButton(
       onTrigger: () {
         if(trancada){
-          // ... (Sua lógica da chave se mantém igualzinha aqui) ...
           if(gameRef.keysNotifier.value>0){
             destranca();
           }else{
             if(gameRef.player.hasChaveNegra){
+              gameRef.world.add(FloatingText(
+                text: 'ai'.tr(),
+                position: position.clone(), 
+                color: Pallete.branco,
+                fontSize: 12,
+              ));
               gameRef.player.takeDamage(1);
               destranca();
             }else{
@@ -208,6 +213,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
           // O JOGADOR VAI ENTRAR NA PORTA
           // ==========================================
           if(bites){
+            gameRef.world.add(FloatingText(
+                text: 'ai'.tr(),
+                position: position.clone(), 
+                color: Pallete.branco,
+                fontSize: 12,
+              ));
             gameRef.player.takeDamage(1);
           }
           

@@ -635,7 +635,7 @@ class CollectibleLogic {
         case CollectibleType.steroids:
           player.damage *= 1.4;
           player.maxHealth -=2;
-          player.healthNotifier.value -=2;
+          player.healthNotifier.value = min(player.healthNotifier.value,player.maxHealth) ;
           text = "+ 40% Damage, but 1 less Health!";
           //color = Pallete.vermelho;
           break;

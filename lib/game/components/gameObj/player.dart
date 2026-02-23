@@ -345,8 +345,8 @@ class Player extends PositionComponent
 
   void takeDamage(int amount) {
     if(_isInvincible) return;
-    if (healthNotifier.value <= 0) return;
-
+   // if (healthNotifier.value <= 0) return;
+    gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     if (hasShield) {
       _breakShield(); 
       return; 

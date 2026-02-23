@@ -1,4 +1,6 @@
 import 'package:flame_audio/flame_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 
 class AudioManager {
   // Configurações de Volume (0.0 a 1.0)
@@ -14,31 +16,58 @@ class AudioManager {
   static bool _isBgmPlaying = false;
   static String _currentBgm = '';
 
-  // --- O SEGREDO DA PERFORMANCE: POOLS DE ÁUDIO ---
   // Guarda os sons rápidos pré-carregados na memória
   static final Map<String, AudioPool> _sfxPools = {};
 
+  // ==========================================
+  // RESOLVEDOR DE CAMINHOS (WEB VS MOBILE)
+  // ==========================================
+  static String _resolveSfxPath(String filename) {
+    if (kIsWeb) {
+      return 'sfx/mp3/$filename'; 
+    } else {
+      String wavName = filename.replaceAll('.mp3', '.wav');
+      return 'sfx/wav/$wavName'; 
+    }
+  }
+
   /// Inicializa e pré-carrega sons importantes para evitar lag na primeira vez
   static Future<void> init() async {
-    // 1. Configura o loop de música global PRIMEIRO
+    // 1. Configura o contexto de áudio global
+    final audioContext = AudioContext(
+      android: const AudioContextAndroid(
+        isSpeakerphoneOn: false,
+        stayAwake: false,
+        contentType: AndroidContentType.sonification,
+        usageType: AndroidUsageType.game,
+        audioFocus: AndroidAudioFocus.none, // O SEGREDO AQUI: Não roubar o foco!
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.ambient, // Mistura o áudio
+        options: const {
+          AVAudioSessionOptions.mixWithOthers,
+        },
+      ),
+    );
+    await AudioPlayer.global.setAudioContext(audioContext);
+    
+    // 2. Configura o loop de música global PRIMEIRO
     FlameAudio.bgm.initialize();
 
-    // 2. Cria os "Pools" para sons que tocam muito rápido/várias vezes.
-    // maxPlayers: 4 significa que no máximo 4 tiros tocam no mesmo milissegundo. 
-    // Isso impede estourar o limite de áudio do Android e desligar a música.
-    _sfxPools['shoot.mp3'] = await FlameAudio.createPool('sfx/shoot.mp3', minPlayers: 1, maxPlayers: 4);
-    _sfxPools['hit.mp3'] = await FlameAudio.createPool('sfx/hit.mp3', minPlayers: 1, maxPlayers: 3);
-    _sfxPools['dash.mp3'] = await FlameAudio.createPool('sfx/dash.mp3', minPlayers: 1, maxPlayers: 2);
-    _sfxPools['collect.mp3'] = await FlameAudio.createPool('sfx/collect.mp3', minPlayers: 1, maxPlayers: 2);
-    _sfxPools['explosion.mp3'] = await FlameAudio.createPool('sfx/explosion.mp3', minPlayers: 1, maxPlayers: 3);
-    _sfxPools['laser.mp3'] = await FlameAudio.createPool('sfx/laser.mp3', minPlayers: 1, maxPlayers: 4);
-    _sfxPools['enemyShot.mp3'] = await FlameAudio.createPool('sfx/enemyShot.mp3', minPlayers: 1, maxPlayers: 4);
-    _sfxPools['enemy_die.mp3'] = await FlameAudio.createPool('sfx/enemy_die.mp3', minPlayers: 1, maxPlayers: 3);
+    // 3. Cria as "Pools" APLICANDO a função de resolver o caminho!
+    _sfxPools['shoot.mp3'] = await FlameAudio.createPool(_resolveSfxPath('shoot.mp3'), minPlayers: 1, maxPlayers: 4);
+    _sfxPools['hit.mp3'] = await FlameAudio.createPool(_resolveSfxPath('hit.mp3'), minPlayers: 1, maxPlayers: 3);
+    _sfxPools['dash.mp3'] = await FlameAudio.createPool(_resolveSfxPath('dash.mp3'), minPlayers: 1, maxPlayers: 2);
+    _sfxPools['collect.mp3'] = await FlameAudio.createPool(_resolveSfxPath('collect.mp3'), minPlayers: 1, maxPlayers: 2);
+    _sfxPools['explosion.mp3'] = await FlameAudio.createPool(_resolveSfxPath('explosion.mp3'), minPlayers: 1, maxPlayers: 3);
+    _sfxPools['laser.mp3'] = await FlameAudio.createPool(_resolveSfxPath('laser.mp3'), minPlayers: 1, maxPlayers: 4);
+    _sfxPools['enemyShot.mp3'] = await FlameAudio.createPool(_resolveSfxPath('enemyShot.mp3'), minPlayers: 1, maxPlayers: 4);
+    _sfxPools['enemy_die.mp3'] = await FlameAudio.createPool(_resolveSfxPath('enemy_die.mp3'), minPlayers: 1, maxPlayers: 3);
 
-    // 3. Carrega o resto normalmente (músicas e sons raros como morte do boss)
+    // 4. Carrega o resto aplicando também na lista do loadAll
     await FlameAudio.audioCache.loadAll([
-      'sfx/game_over.mp3',
-      'music/8bit_menu.mp3',
+      _resolveSfxPath('game_over.mp3'), // Efeito sonoro convertido
+      'music/8bit_menu.mp3',            // Músicas continuam puras
       'music/funny_bit.mp3',  
       'music/retro_plat.mp3',
     ]);
@@ -52,12 +81,12 @@ class AudioManager {
     // Só toca se passou 50ms desde o último som (Evita estouro de áudio se 10 inimigos morrerem no mesmo frame)
     if (now.difference(_lastSfxTime).inMilliseconds > 50) {
       try {
-        // Se o som estiver no nosso Pool de alta performance, usa o Pool!
+        // A chave do dicionário continua sendo o nome original .mp3
         if (_sfxPools.containsKey(filename)) {
           _sfxPools[filename]!.start(volume: sfxVolume);
         } else {
-          // Se for um som mais raro, toca da forma tradicional (adicionando o volume que faltava)
-          FlameAudio.play('sfx/$filename', volume: sfxVolume);
+          // APLICAÇÃO da conversão caso toque um som fora das pools
+          FlameAudio.play(_resolveSfxPath(filename), volume: sfxVolume);
         }
         _lastSfxTime = now;
       } catch (e) {
@@ -114,7 +143,5 @@ class AudioManager {
 
   static void updateSfxVolume(double volume) {
     sfxVolume = volume;
-    // Opcional: Atualizar o volume base de todos os pools não é estritamente necessário 
-    // porque nós passamos o sfxVolume no método .start() do pool ali em cima!
   }
 }

@@ -178,8 +178,8 @@ class EnemyFactory {
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: FollowPlayerBehavior(),
-        phase2Attack: ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+        phase2Movement: GoToCenterBehavior(),
+        phase2Attack: SpinnerAttackBehavior(interval: 2, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 8),
         phase2Attack2: SummonAttackBehavior(
           minionBuilder: (p) => EnemyFactory.createRat(p), 
           interval: 3.0, 
@@ -730,7 +730,7 @@ class EnemyFactory {
       position: pos,
       hp: 80,
       speed: 80,
-      hbSize: Vector2(26,26),
+      hbSize: Vector2(26,20),
       iconData: MdiIcons.fish,
       originalColor: Pallete.azulCla,
       movementBehavior: FollowPlayerBehavior(),
@@ -765,7 +765,7 @@ class EnemyFactory {
       position: pos,
       hp: 80,
       speed: 80,
-      hbSize: Vector2(26,26),
+      hbSize: Vector2(28,18),
       iconData: MdiIcons.shark,
       originalColor: Pallete.cinzaCla,
       movementBehavior: FollowPlayerBehavior(),

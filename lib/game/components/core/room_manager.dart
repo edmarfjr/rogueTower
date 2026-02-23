@@ -111,7 +111,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      //gameRef.world.add(EnemyFactory.createBeast(Vector2(50, 0)));
+      //gameRef.world.add(EnemyFactory.createTurtle(Vector2(50, 0)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -541,6 +541,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } else if (gameRef.nextRoomReward == CollectibleType.boss){
       _explosaoCriaItem();
       _generateBossReward();
+      ();
     } else {
       _explosaoCriaItem();
       gameRef.world.add(Collectible(
@@ -582,9 +583,19 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
   
   void _generateBossReward() {
-    _generateItemAleatorio(Vector2(0,0));
-    gameRef.world.add(Collectible(position: Vector2(30,0), type: CollectibleType.coin));
-    gameRef.world.add(Collectible(position: Vector2(-30,0), type: CollectibleType.coin));
+    List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
+
+    final CollectibleType lootType = possibleRewards[1];
+
+    gameRef.itensRarosPoolCurrent.remove(lootType);
+    gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType));
+    final direc = [Vector2(50, 0), Vector2(-50, 0), Vector2(0, 50), Vector2(0, -50)];
+    for (var dir in direc)
+    {
+      bool isCoin = Random().nextBool();
+       gameRef.world.add(Collectible(position: dir, type: isCoin? CollectibleType.coin : CollectibleType.potion));
+    }
+    
   }
   
   void _explosaoCriaItem() {
