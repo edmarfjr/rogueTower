@@ -2,20 +2,18 @@ workflows:
   android-release:
     name: Build Android Release (Play Store)
     
-    # Máquina que vai compilar o código (pode ser mac_mini_m1 ou linux)
+    # Máquina que vai compilar o código
     instance_type: mac_mini_m1 
     max_build_duration: 60
     
     environment:
       flutter: stable
-      # É aqui que o Codemagic puxa a sua assinatura de forma secreta!
       android_signing:
         - minha_chave_upload 
 
     scripts:
       - name: Criar key.properties no servidor do Codemagic
         script: |
-          # O Codemagic preenche essas variáveis ($CM_...) automaticamente a partir da chave que você cadastrar no painel deles.
           echo "storePassword=$CM_KEYSTORE_PASSWORD" >> android/key.properties
           echo "keyPassword=$CM_KEY_PASSWORD" >> android/key.properties
           echo "keyAlias=$CM_KEY_ALIAS" >> android/key.properties
@@ -23,18 +21,14 @@ workflows:
           
       - name: Baixar pacotes do Flutter
         script: |
-          flutter packages pub get
+          flutter pub get
           
-      - name: Gerar App Bundle (AAB) para a Play Store e APK
+      - name: Gerar App Bundle (Play Store) e APK (Testes)
         script: |
-          # O AAB é o formato exigido pela Google Play
-          flutter build appbundle --release
+          # Gera o AAB para a Play Store já com o número incrementado automaticamente!
+          flutter build appbundle --release --build-number=$BUILD_NUMBER
           
-          # Geramos o APK também caso você queira mandar direto para o seu celular
-          flutter build apk --release
-
-      - name: Build Android APK
-        script: |
+          # Gera o APK para você mandar pro celular também com o número atualizado!
           flutter build apk --release --build-number=$BUILD_NUMBER
 
     # Arquivos finais que o Codemagic vai te entregar para download no final do processo
