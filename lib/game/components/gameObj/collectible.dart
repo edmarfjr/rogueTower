@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
+import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -16,7 +17,7 @@ import '../core/i18n.dart';
 
 enum CollectibleType {
   //tipos de porta 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista,
+  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop, 
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
@@ -31,7 +32,13 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   int souls;
   int custoKeys;
   int custoBombs;
+  bool custoVida;
   bool naoEsgota;
+
+  Vector2 _velocity = Vector2.zero();
+  final double _gravity = 900.0; 
+  bool isBouncing = false;
+  double _groundY = 0.0;
 
   // Controle de Interface
   bool _isInfoVisible = false;
@@ -46,6 +53,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     this.souls = 0, 
     this.custoKeys = 0, 
     this.custoBombs = 0, 
+    this.custoVida = false,
     this.naoEsgota=false
     }): super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
@@ -111,7 +119,30 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         position: Vector2(size.x / 2, size.y + 5),
       ));
     }
-
+    if(custoVida){
+      add(GameIcon(
+        icon: MdiIcons.heart,
+        color: Pallete.vermelho,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2 + size.x/2 + 2, size.y + 13),
+      ));
+      add(GameIcon(
+        icon: MdiIcons.heart,
+        color: Pallete.vermelho,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, size.y + 13),
+      ));
+      add(GameIcon(
+        icon: MdiIcons.heart,
+        color: Pallete.vermelho,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 13),
+      ));
+    }
+    add(ShadowComponent(parentSize: size));
   }
 
   @override
@@ -119,6 +150,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     super.update(dt);
     
     // Calcula distância para o Player
+    if (isBouncing) {
+      // 1. A gravidade empurra a velocidade para baixo
+      _velocity.y += _gravity * dt;
+      
+      // 2. Aplica a velocidade na posição do item
+      position.x += _velocity.x * dt;
+      position.y += _velocity.y * dt;
+
+      // 3. Verifica se bateu no chão (e se está caindo, velocidade Y positiva)
+      if (position.y >= _groundY && _velocity.y > 0) {
+        position.y = _groundY; // Trava no chão
+        isBouncing = false;    // Desliga a física
+      }
+    }
     final player = gameRef.player;
     double dist = position.distanceTo(player.position);
 
@@ -127,6 +172,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     } else {
       if (_isInfoVisible) _hideInfo();
     }
+  }
+
+  void pop(Vector2 offsetDestino, {double altura = -200.0}) {
+    _groundY = position.y + offsetDestino.y;
+    
+    // Joga a moeda para cima (y negativo) e para o lado (x)
+    _velocity = Vector2(offsetDestino.x * 2.5, altura); 
+    isBouncing = true;
   }
 
   void _showInfo() {
@@ -158,7 +211,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // 3. Botão de Pegar
     if (_currentButton != null) return;
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
 
     _currentButton= InteractButton(
       position: hudPosition,
@@ -230,6 +283,22 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
     }
 
+    if (custoVida){
+      if (gameRef.player.maxHealth < 6) {
+        gameRef.world.add(FloatingText(
+          text: "Sem Containers de vida o suficiente!",
+          position: position + Vector2(0, -20),
+          color: Pallete.vermelho,
+          fontSize: 10,
+        ));
+        return;
+      } else {
+        gameRef.player.maxHealth -= 6;
+        gameRef.player.healthNotifier.value = min(gameRef.player.healthNotifier.value,gameRef.player.maxHealth);
+      }
+      
+    }
+
     // 2. Aplica Efeito
     final feedback = Collectible.applyEffect(type: type, game: gameRef);
     String feedbackText = feedback['text'] as String;
@@ -252,7 +321,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
       CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
       CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
-      CollectibleType.shop, CollectibleType.boss
+      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield,
+      CollectibleType.healthContainer
     ];
 
     // Se o item NÃO FOR consumível, adiciona na lista de adquiridos do Player

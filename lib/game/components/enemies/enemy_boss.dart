@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
@@ -161,6 +162,16 @@ class EnemyBoss extends Enemy {
           createExplosionEffect(gameRef.world, position + Vector2(offsetX, offsetY), Pallete.laranja, count: 12);
           AudioManager.playSfx('explosion.mp3');
           gameRef.shakeCamera(intensity: 3.0, duration: 0.2); // Tremor leve e contínuo
+
+          if (explosionCount % 2 == 0){
+
+            bool isCoin = Random().nextBool();
+            final item = Collectible(position: position, type: isCoin? CollectibleType.coin : CollectibleType.potion);
+            gameRef.world.add(item);
+            double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+            double altura = Random().nextDouble() * 100 + 150 * -1;
+            item.pop(Vector2(direcaoX, 0), altura:altura);
+          }
           
         } else {
           // --- A EXPLOSÃO FINAL MASSIVA ---

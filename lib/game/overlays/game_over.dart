@@ -61,7 +61,7 @@ class GameOver extends StatelessWidget {
                   minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {
-                  game.resetGame(); 
+                  game.resetGame(game.selectedClass); 
                 },
                 child: const Text('TENTAR NOVAMENTE', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),

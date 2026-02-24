@@ -295,6 +295,51 @@ class Hud extends StatelessWidget {
                 ),
               ),
             ),  
+
+            Positioned(
+              top: 50, // Ajuste para ficar um pouco abaixo do título/nível
+              left: 0,
+              right: 0,
+              child: ValueListenableBuilder<int>(
+                valueListenable: game.challengeHitsNotifier,
+                builder: (context, hitsTaken, child) {
+                  // Se for -1, significa que é uma sala normal, então não desenha NADA.
+                  if (hitsTaken < 0) return const SizedBox.shrink();
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "DESAFIO: ",
+                        style: TextStyle(
+                          color: Pallete.amarelo,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          shadows: [Shadow(blurRadius: 2, color: Colors.black)],
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      
+                      // Gera as 3 "chances" visuais
+                      ...List.generate(3, (index) {
+                        // Se o índice for MENOR que os hits tomados, desenha um Coração Quebrado
+                        bool lost = index < hitsTaken;
+                        
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                          child: Icon(
+                            lost ? MdiIcons.heartBroken : MdiIcons.heartOutline,
+                            color: lost ? Colors.red : Colors.white54,
+                            size: 30,
+                            shadows: const [Shadow(blurRadius: 4, color: Colors.black)],
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ),
             // ---------------------------------------------
             // 5. TOPO CENTRO: NÍVEL ATUAL
             // ---------------------------------------------

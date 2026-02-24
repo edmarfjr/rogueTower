@@ -1,13 +1,11 @@
 import 'dart:math';
-
+import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter/material.dart';
 
 import '../components/core/i18n.dart';
-import 'package:flutter/material.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
-// IMPORTANTE: Certifique-se de que seu pacote de ícones (ex: Material Design Icons) está importado
-// import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class MainMenu extends StatelessWidget {
   final TowerGame game;
@@ -16,13 +14,10 @@ class MainMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtém a largura da tela para ajudar a centralizar se necessário
-    // final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: SingleChildScrollView( // Garante que não quebre em telas muito pequenas na horizontal
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -30,7 +25,7 @@ class MainMenu extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(top: 20.0, bottom: 30.0),
                 child: Text(
-                  'ROGUE TOWER',
+                  'TOWER OF ICONS',
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
@@ -42,26 +37,75 @@ class MainMenu extends StatelessWidget {
                 ),
               ),
 
-              // --- NOVA ÁREA DE ARTE FLEXÍVEL ---
               const SizedBox(height: 60),
               _buildFlexibleBackgroundArt(context),
-
               const SizedBox(height: 40),
 
-              // Botão Jogar
-              _buildMenuButton(
-                context,
-                text: 'play'.tr(),
-                onPressed: () => game.startGame(),
-              ),
+              // ========================================================
+              // O FUTURE BUILDER: Decide quais botões mostrar baseado no Save
+              // ========================================================
+              FutureBuilder<bool>(
+                future: SaveManager.hasSavedRun(),
+                builder: (context, snapshot) {
+                  // Se ainda está carregando a resposta do celular, mostra os botões padrões
+                  // Se já carregou, verifica se é true ou false.
+                  final bool hasSave = snapshot.data ?? false;
 
-              const SizedBox(height: 15),
+                  return Column(
+                    children: [
+                      // --- BOTÃO CONTINUAR (Só aparece se existir Save!) ---
+                      if (hasSave) ...[
+                        _buildMenuButton(
+                          context,
+                          text: 'continue'.tr(), // Crie essa chave de tradução (ex: 'Continuar')
+                          bgColor: Pallete.verdeCla, // Destaque visual
+                          textColor: Colors.black,
+                          onPressed: () async {
+                            await SaveManager.loadRun(game);
+                            
+                            // Remove o menu da tela para o jogo voltar a rodar com os status carregados
+                            game.overlays.remove('MainMenu'); 
+                            game.resumeEngine(); 
+                            game.overlays.add('HUD');
+                            game.startLevel();
+                            // Se a sua engine pausa quando o menu abre, descomente a linha abaixo:
+                             
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                      ],
 
-              // Botão Configurações
-              _buildMenuButton(
-                context,
-                text: 'settings'.tr(),
-                onPressed: () => game.overlays.add('SettingsMenu'),
+                      // --- BOTÃO NOVO JOGO / JOGAR ---
+                      _buildMenuButton(
+                        context,
+                        // Se tem save, vira "Novo Jogo" (para o jogador saber que vai sobrescrever).
+                        // Se não tem, fica apenas "Jogar"
+                        text: 'play'.tr(), 
+                        bgColor: Pallete.branco,
+                        textColor: Colors.black,
+                        onPressed: () async {
+                          if (hasSave) {
+                            // Se o cara apertou "Novo Jogo" tendo um save antigo, a gente limpa!
+                            await SaveManager.clearSavedRun(); 
+                          }
+                          //game.startGame(); 
+                          game.overlays.add('CharacterSelectionMenu');
+                        },
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      // --- BOTÃO CONFIGURAÇÕES ---
+                      _buildMenuButton(
+                        context,
+                        text: 'settings'.tr(),
+                        bgColor: Pallete.branco,
+                        textColor: Colors.black,
+                        onPressed: () => game.overlays.add('SettingsMenu'),
+                      ),
+                    ],
+                  );
+                },
               ),
               
               const SizedBox(height: 50),
@@ -72,25 +116,31 @@ class MainMenu extends StatelessWidget {
     );
   }
 
-  // --- FUNÇÃO AUXILIAR PARA OS BOTÕES (Para não repetir código) ---
-  Widget _buildMenuButton(BuildContext context, {required String text, required VoidCallback onPressed}) {
+  // --- FUNÇÃO AUXILIAR ATUALIZADA (Agora aceita cor de fundo) ---
+  Widget _buildMenuButton(
+    BuildContext context, {
+    required String text,
+    required VoidCallback onPressed,
+    Color bgColor = Colors.white,
+    Color textColor = Colors.black,
+  }) {
     return SizedBox(
       width: 200,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Pallete.branco,
+          backgroundColor: bgColor,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
-          elevation: 5, // Um pouco de sombra
+          elevation: 5,
         ),
         onPressed: onPressed,
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
-            color: Colors.black,
+            color: textColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -98,49 +148,23 @@ class MainMenu extends StatelessWidget {
     );
   }
 
-  // --- ARTE DA TORRE USANDO STACK PARA CONTROLE TOTAL ---
+  // ... (Sua função _buildFlexibleBackgroundArt continua exatamente igual!) ...
   Widget _buildFlexibleBackgroundArt(BuildContext context) {
-    // Definimos uma altura fixa para a área da "cena"
     const double sceneHeight = 350;
-
     return SizedBox(
       height: sceneHeight,
-      width: double.infinity, // Ocupa toda a largura disponível
-      // Usamos um Container transparente para poder ver a área de debug se precisar
-      // color: Colors.red.withOpacity(0.1), 
+      width: double.infinity, 
       child: Stack(
-        // Alinhamento padrão para elementos não posicionados (opcional)
         alignment: Alignment.bottomCenter, 
-        clipBehavior: Clip.none, // Permite que elementos saiam um pouco da área se necessário
+        clipBehavior: Clip.none, 
         children: [
-          // ========================================================
-          // CAMADA 1: FUNDO (Céu, Lua, Chão)
-          // ========================================================
-          
           Positioned(
             top: -120,
             right: MediaQuery.of(context).size.width / 2 - 80,
             child: Icon(MdiIcons.moonWaxingCrescent, color: Pallete.amarelo.withOpacity(0.3), size: 100),
           ),
-
-        
-          // Linha do Chão (opcional, para dar base)
-         /* Positioned(
-             bottom: 30,
-             left: 20, right: 20, // Estica quase de ponta a ponta
-             child: Container(height: 2, color: Colors.white10),
-          ),
-          */
-          // ========================================================
-          // CAMADA 2: ELEMENTOS PRINCIPAIS (Torre e Player)
-          // ========================================================
-          
-          // --- A TORRE ---
-          // Use 'right' e 'bottom' para mover ela.
           Positioned(
-            bottom: 20, // Sentada na linha do chão
-            // Dica: Para centralizar, você pode usar um cálculo ou ajustar 'right' visualmente.
-            // Se quiser ela mais para a direita, aumente este valor.
+            bottom: 20, 
             right: MediaQuery.of(context).size.width / 2 - 200, 
             child:  Icon(
               MdiIcons.chessRook,
@@ -148,7 +172,6 @@ class MainMenu extends StatelessWidget {
               color: Pallete.cinzaEsc,
             ),
           ),
-
           Positioned(
             top: 80,
             left: 100,
@@ -156,12 +179,9 @@ class MainMenu extends StatelessWidget {
               angle :- pi / 4,
               child:Icon(MdiIcons.bat, color: Pallete.lilas, size: 50),
             ),
-
           ),
-          // --- O PLAYER ---
-          // Use 'left' e 'bottom' para mover ele.
           Positioned(
-            bottom: 30, // Na mesma linha base da torre
+            bottom: 30, 
             left: MediaQuery.of(context).size.width / 2 - 120,
             child: const Icon(
               Icons.directions_walk,
@@ -169,23 +189,6 @@ class MainMenu extends StatelessWidget {
               size: 50,
             ),
           ),
-
-          // --- O PONTO/PEDRINHA ---
-          // Posicionado relativo ao player
-          /*
-          Positioned(
-            bottom: 35,
-            left: MediaQuery.of(context).size.width / 2 - 135, // Um pouco atrás do player
-            child: Container(
-              width: 3,
-              height: 3,
-              decoration: const BoxDecoration(
-                color: Colors.white70,
-                shape: BoxShape.circle, // Ponto redondo fica mais bonito
-              ),
-            ),
-          ),
-          */
         ],
       ),
     );

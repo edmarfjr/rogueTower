@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
+import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart'; 
@@ -55,13 +57,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   int numCondicoes = 0;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
-  double _auraTimer = 0; // Timer para a aura "pulsar"
+  //double _auraTimer = 0; // Timer para a aura "pulsar"
   
   // CACHE DE TINTAS PARA A AURA (Evita lags por Garbage Collection)
-  final Paint _burnAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
-  final Paint _poisonAuraPaint = Paint()..color = Pallete.verdeCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
-  final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
-  final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+ // final Paint _burnAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+ // final Paint _poisonAuraPaint = Paint()..color = Pallete.verdeCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+ // final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+ // final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameIcon? visual;
   GameIcon? burnIcon;
@@ -164,6 +166,52 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         ));
       }
     }
+
+    add(ShadowComponent(parentSize: size));
+
+    add(TimerComponent(
+      period: 0.2, // A cada 0.2 segundos cospe uma fumaça
+      repeat: true,
+      onTick: () {
+        // Se não tiver nenhum efeito ativo, não faz nada
+        if (!isBurned && !isPoisoned && !isFreeze && !isBleed) return;
+
+        Color particleColor = Colors.white;
+        if (isBurned) particleColor = Pallete.laranja;
+        if (isPoisoned) particleColor = Pallete.verdeCla;
+        if (isFreeze) particleColor = Pallete.azulCla;
+        if (isBleed) particleColor = Pallete.vermelho;
+
+        final rng = Random();
+
+        // Cria a fumaça subindo
+        final particleSystem = ParticleSystemComponent(
+          particle: Particle.generate(
+            count: 3, // 3 bolinhas por vez
+            lifespan: 0.6, // Duram meio segundo
+            generator: (i) => AcceleratedParticle(
+              // Gravidade invertida (sobem)
+              acceleration: Vector2(0, -150), 
+              // Espalha um pouco para os lados
+              speed: Vector2((rng.nextDouble() - 0.5) * 60, -20), 
+              position: Vector2(size.x / 2, size.y / 2),
+              child: ComputedParticle(
+                renderer: (canvas, particle) {
+                  // Faz a partícula sumir suavemente (fade out) conforme o tempo passa
+                  final paint = Paint()
+                    ..color = particleColor.withOpacity(1.0 - particle.progress);
+                  canvas.drawCircle(Offset.zero, 3.0, paint); // Tamanho da bolinha
+                }
+              ),
+            ),
+          ),
+        );
+
+        add(particleSystem);
+      },
+    ));
+
+    
   }
 
   @override
@@ -177,7 +225,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     super.update(dt);
     
     // Atualiza o timer da aura visual
-    _auraTimer += dt * 5; 
+   // _auraTimer += dt * 5; 
 
     movementBehavior.update(dt);
     attackBehavior.update(dt);
@@ -188,7 +236,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     if (animado) _animateEnemy(dt);
   }
-
+/*
   // --- LÓGICA DE RENDERIZAÇÃO DA AURA ---
   @override
   void render(Canvas canvas) {
@@ -202,7 +250,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       // Usamos multiplicadores levemente diferentes (1.0, 0.9, 1.1) 
       // para que, se o inimigo tomar todas as condições juntas, as auras
       // não sobreponham perfeitamente umas as outras, mesclando as cores.
-      if (isBurned) canvas.drawCircle(center, baseRadius * pulse, _burnAuraPaint);
+      //if (isBurned) canvas.drawCircle(center, baseRadius * pulse, _burnAuraPaint);
       if (isBleed) canvas.drawCircle(center, (baseRadius * 1.1) * pulse, _bleedAuraPaint);
       if (isPoisoned) canvas.drawCircle(center, (baseRadius * 0.9) * pulse, _poisonAuraPaint);
       if (isFreeze) canvas.drawCircle(center, (baseRadius * 0.8) * pulse, _freezeAuraPaint);
@@ -211,6 +259,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // 2. Chama o método original para desenhar o Ícone e as TextComponents do Flame por cima
     super.render(canvas); 
   }
+  */
   
  void _createGhostEffect(double dt) {
     if (visual == null) return;
@@ -454,7 +503,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Garante recriação se já tivesse sido apagado (Correção similar ao burnIcon)
     if (bleedIcon == null) {
       bleedIcon = GameIcon(
-        icon: MdiIcons.heart,
+        icon: MdiIcons.water,
         color: Pallete.vermelho,
         size: size/2,
         anchor: Anchor.center,

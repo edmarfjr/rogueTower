@@ -123,6 +123,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.nextlevel: iconData = MdiIcons.stairsUp; break;
       case CollectibleType.bank: iconData = MdiIcons.bank; break;
       case CollectibleType.alquimista: iconData = MdiIcons.flaskEmptyOutline; break;
+      case CollectibleType.desafio: iconData = MdiIcons.swordCross; break;
+      case CollectibleType.darkShop: iconData = MdiIcons.storeOff; break;
       default: iconData = Icons.help_outline;
     }
     
@@ -179,7 +181,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     // Pega o tamanho real da tela neste exato frame
     final screenSize = gameRef.camera.viewport.size;
     // Define a posição no canto inferior direito
-    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
 
     _currentButton = InteractButton(
       position: hudPosition,

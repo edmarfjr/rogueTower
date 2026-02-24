@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/core/character_class.dart';
+import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
 import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
@@ -34,6 +36,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
+  late CharacterClass selectedClass;
 
   //late final FragmentProgram _crtProgram;
   //double _shaderTime = 0.0;
@@ -59,6 +62,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> challengeHitsNotifier = ValueNotifier<int>(-1);
   
   CollectibleType nextRoomReward = CollectibleType.nextlevel;
 
@@ -77,6 +81,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   double _shakeTimer = 0.0;
   double _shakeIntensity = 0.0;
 
+  
+  final double gameWidth = 500;
+  final double gameHeight = 900;
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -94,7 +102,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await progress.load();
     debugMode = false;
     // 1. VIEWPORT (Janela do Jogo)
-    camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
+    //camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
+    camera.viewport = MaxViewport();
 
     // 2. CONSTRUÇÃO MANUAL DO JOYSTICK
     // Base (O círculo cinza no fundo)
@@ -122,9 +131,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     camera.viewport.add(joystickKnob);
 
     // 3. CONFIGURAÇÃO DA ARENA
-    const double gameWidth = 400;
-    const double gameHeight = 700;
-
 
     arenaBorder = ArenaBorder(
       size: Vector2(gameWidth, gameHeight),
@@ -334,11 +340,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     }
   }
 
-  void startGame() {
+  void startGame(CharacterClass selectedClass) {
     overlays.remove('MainMenu');
     overlays.add('HUD');
     resumeEngine();
-    resetGame();
+    resetGame(selectedClass);
   }
 
   void pauseGame() {
@@ -388,11 +394,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
     //collisionDetection.items.clear();
-    
+    SaveManager.saveRun(this);
     startLevel();
   }
 
   void onGameOver() {
+    SaveManager.clearSavedRun();
     AudioManager.stopBgm();
     pauseEngine(); 
     overlays.add('GameOver'); 
@@ -403,7 +410,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.add('VictoryMenu'); 
   }
 
-  void resetGame() {
+  void resetGame(CharacterClass selectedClass) {
     itensComunsPoolCurrent = List.from(itensComunsPool);
     itensRarosPoolCurrent = List.from(itensRarosPool);
     itensComunsPoolCurrent.shuffle();
@@ -424,6 +431,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
 
     player.reset();
+    player.applyClass(selectedClass);
     camera.follow(player);
     
     AudioManager.playBgm('funny_bit.mp3');

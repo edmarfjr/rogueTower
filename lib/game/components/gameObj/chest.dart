@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/interact_button.dart';
+import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:flame/events.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -57,6 +58,8 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       position: size / 2,
     );
     add(_iconComponent!);
+
+    add(ShadowComponent(parentSize: size));
   }
 
   @override
@@ -68,7 +71,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double dist = position.distanceTo(player.position);
 
     if (dist <= _pickupRange) {
-      if (!_isInfoVisible) _showInfo();
+      if (!_isInfoVisible && ! _isOpen) _showInfo();
     } else {
       if (_isInfoVisible) _hideInfo();
     }
@@ -77,7 +80,6 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void _showInfo() {
     _isInfoVisible = true;
    
-
     // Grupo para facilitar remover tudo de uma vez
     _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
 
@@ -85,12 +87,15 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // 3. Botão de Pegar
     if (_currentButton != null) return;
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
 
     _currentButton = InteractButton(
       position: hudPosition,
-      onTrigger: _openChest,
-    )..position = Vector2(0, -50); 
+      onTrigger:(){
+        _openChest();
+        _hideInfo(); 
+      } ,
+    );
 
     gameRef.camera.viewport.add(_currentButton!);
 
@@ -124,12 +129,6 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.keysNotifier.value--;
     }
     
-    // Muda visual
-    //_updateIcon(Icons.lock_open, const Color(0xFFF0E68C)); 
-    
-    final rng = Random();
-
-    
     List<CollectibleType> possibleRewards = gameRef.itensComunsPoolCurrent;
 
     if(isLock) possibleRewards = gameRef.itensRarosPoolCurrent;
@@ -142,12 +141,16 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.itensComunsPoolCurrent.remove(lootType);
     }
     // 3. Cria o item sorteado
-    gameRef.world.add(Collectible(
-      position: position + Vector2(0, -40),
+    final item =Collectible(
+      position: position.clone(),
       type: lootType,
-    ));
-
-    removeFromParent();
+    );
+    gameRef.world.add(item);
+    double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+    double altura = Random().nextDouble() * 100 + 150 * -1;
+    item.pop(Vector2(direcaoX, 0), altura:altura);
+    _hideInfo();
+    //removeFromParent();
   }
   
 }

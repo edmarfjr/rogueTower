@@ -1,7 +1,9 @@
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
+import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
@@ -144,6 +146,8 @@ class Player extends PositionComponent
       position: size / 2 + Vector2(0,4),    
       isSolid: true,
     ));
+
+    add(ShadowComponent(parentSize: size));
   }
 
   @override
@@ -203,7 +207,41 @@ class Player extends PositionComponent
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
+
+    if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
+      _die();
+    }
   }
+
+  void applyClass(CharacterClass charClass) {
+      // 1. Aplica Vida e Escudo
+      maxHealth = charClass.maxHp;
+      healthNotifier.value = maxHealth;
+      shieldNotifier.value = charClass.startingShield;
+      bombNotifier.value = charClass.startingBombs;
+      
+      // 2. Aplica Atributos Numéricos
+      moveSpeed = charClass.speed;
+      damage = charClass.damage;
+      fireRate = charClass.fireRate;
+      fireRateInicial = charClass.fireRate;
+      critChance = charClass.critChance;
+      critDamage = charClass.critDamage;
+      attackRange = charClass.attackRange;
+      dashCooldown = charClass.dashCooldown;
+
+      // 3. Aplica Passivas
+      isPiercing = charClass.isPiercing;
+
+      // 4. (Opcional) Muda a cor do personagem para bater com a classe!
+      //originalColor = charClass.color;
+      final visualIcon = children.whereType<GameIcon>().firstOrNull;
+      if (visualIcon != null) {
+        visualIcon.setColor(charClass.color);
+        // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
+        // visualIcon.icon = charClass.icon; 
+      }
+    }
 
   void activateShield() {
     if (hasShield) return; 
@@ -327,8 +365,8 @@ class Player extends PositionComponent
   }
 
   void _keepInBounds() {
-    double limitX = 180 - 16;
-    double limitY = 320 - 16;
+    double limitX = game.gameWidth/2 - size.x;
+    double limitY = game.gameHeight/2 - size.y;
 
     position.x = position.x.clamp(-limitX, limitX);
     position.y = position.y.clamp(-limitY, limitY);
@@ -352,6 +390,13 @@ class Player extends PositionComponent
       return; 
     }
 
+    if (gameRef.challengeHitsNotifier.value >= 0) {
+      // Se ainda não tomou 3 hits, adiciona +1
+      if (gameRef.challengeHitsNotifier.value < 3) {
+        gameRef.challengeHitsNotifier.value++;
+      }
+    }
+
     if (shieldNotifier.value > 0){
       shieldNotifier.value-- ;
       _isInvincible = true;
@@ -366,9 +411,6 @@ class Player extends PositionComponent
     _isInvincible = true;
     _invincibilityTimer = invincibilityDuration;
     
-    if (healthNotifier.value <= 0) {
-      _die();
-    }
   }
 
   void _handleInvincibility(double dt) {
@@ -483,7 +525,7 @@ class Player extends PositionComponent
   }
 
   void reset() {
-    maxHealth = 4;
+    maxHealth = 8;
     healthNotifier.value = 4;
     maxDash = 2;
     dashNotifier.value = 2;

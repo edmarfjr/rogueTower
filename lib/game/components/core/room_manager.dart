@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/foundation/change_notifier.dart';
@@ -28,7 +29,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   double _checkTimer = 0.0; 
 
   bool teveShop = false;
+  bool teveDarkShop = false;
   bool teveBanco = false;
+  bool teveDesafio = false;
   bool teveAlquimista = false;
 
   bool isSpawnningBoss = false;
@@ -116,8 +119,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.fogo));
+      //gameRef.world.add(Collectible(position: Vector2(50, 0), type: CollectibleType.fogo));
       //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.veneno));
+
+      //teste de armadilhas
+      //gameRef.world.add(SpikeTrap(position: Vector2(0, 0)));
+      
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){
@@ -132,11 +139,23 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       return;
     } 
 
+    if (gameRef.nextRoomReward == CollectibleType.darkShop){
+      List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
+
+      final CollectibleType lootType = possibleRewards[0];
+
+      gameRef.itensRarosPoolCurrent.remove(lootType);
+      gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType, custoVida: true));
+      _spawnDoors(roomNumber);
+      return;
+    } 
+
     if (gameRef.nextRoomReward == CollectibleType.alquimista){
       _generateAlquimistaRoom(); 
       _spawnDoors(roomNumber);
       return;
     } 
+     if (gameRef.nextRoomReward == CollectibleType.desafio) gameRef.challengeHitsNotifier.value = 0;
 
     if (gameRef.player.magicShield) gameRef.player.activateShield();
     
@@ -170,8 +189,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     while (occupiedPositions.length < obstacleCount + 1 && attempts < 100) {
       attempts++;
 
-      double x = (rng.nextDouble() * 300) - 150;
-      double y = (rng.nextDouble() * 400) - 200; 
+      const double margin = 40.0;
+
+      final double spawnWidth = gameRef.gameWidth - (margin * 2);
+      final double spawnHeight = gameRef.gameHeight - (margin * 2);
+
+      double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
+      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
+
       final candidatePos = Vector2(x, y);
 
       // Validação de Posição
@@ -202,14 +227,22 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     int targetEnemyCount = baseCount + rng.nextInt(3);
     if (targetEnemyCount > 12) targetEnemyCount = 12;
 
+    if(gameRef.nextRoomReward == CollectibleType.desafio) targetEnemyCount = 12;
+
     int enemiesSpawned = 0;
     int attempts = 0; 
 
     while (enemiesSpawned < targetEnemyCount && attempts < 100) {
       attempts++;
 
-      double x = (rng.nextDouble() * 200) - 100;
-      double y = (rng.nextDouble() * 250) - 200;
+      const double margin = 40.0;
+
+      final double spawnWidth = gameRef.gameWidth - (margin * 2);
+      final double spawnHeight = gameRef.gameHeight - (margin * 2);
+
+      double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
+      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
+
       final pos = Vector2(x, y);
 
       // Zona segura no centro para o player nascer
@@ -291,13 +324,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(
-        position: Vector2(0, -300), 
+        position: Vector2(0, -400), 
         rewardType: CollectibleType.boss,
       ));
       return;
     } else if (roomNumber == bossRoom) {
       gameRef.world.add(Door(
-        position: Vector2(0, -300), 
+        position: Vector2(0, -400), 
         rewardType: CollectibleType.nextlevel,
       ));
       return;
@@ -322,8 +355,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         possibleRewards.add(CollectibleType.shop);
       }
 
+      if (gameRef.nextRoomReward != CollectibleType.darkShop && !teveDarkShop){
+        possibleRewards.add(CollectibleType.darkShop);
+      }
+
       if (gameRef.nextRoomReward != CollectibleType.bank && !teveBanco){
         possibleRewards.add(CollectibleType.bank);
+      }
+
+      if (gameRef.nextRoomReward != CollectibleType.desafio && !teveDesafio){
+        possibleRewards.add(CollectibleType.desafio);
       }
 
       if (gameRef.nextRoomReward != CollectibleType.alquimista && !teveAlquimista){
@@ -354,9 +395,19 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       rewardLeft = CollectibleType.shop;
     }
 
-    //garantir que nao tenha mais de um banco por andar
+    //garantir que nao tenha mais de um alquimista por andar
     if(rewardLeft == CollectibleType.alquimista || rewardRight == CollectibleType.alquimista){
       teveAlquimista = true;
+    }
+
+    //garantir que nao tenha mais de um desafio por andar
+    if(rewardLeft == CollectibleType.desafio || rewardRight == CollectibleType.desafio){
+      teveDesafio = true;
+    }
+
+    //garantir que nao tenha mais de um darkShop por andar
+    if(rewardLeft == CollectibleType.darkShop || rewardRight == CollectibleType.darkShop){
+      teveDarkShop = true;
     }
 
     //limpar as var de sala unica por andar
@@ -364,6 +415,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       teveShop = false;
       teveBanco = false;
       teveAlquimista = false;
+      teveDesafio = false;
+      teveDarkShop = false;
     } 
 
     bool tranca1 = false;
@@ -399,7 +452,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
 
     gameRef.world.add(Door(
-      position: Vector2(-100, -300), 
+      position: Vector2(-100, -400), 
       rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
@@ -407,7 +460,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ));
 
     gameRef.world.add(Door(
-      position: Vector2(100, -300),
+      position: Vector2(100, -400),
       rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
@@ -421,28 +474,35 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
   void _generateShopRoom(){
     gameRef.world.add(Collectible(
-        position: Vector2(-80, -50),
+        position: Vector2(160, 0),
         type: CollectibleType.potion,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(80, -50),
+        position: Vector2(80, 0),
         type: CollectibleType.shield,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
+      gameRef.world.add(Collectible(
+        position: Vector2(0, 0),
+        type: CollectibleType.bomba,
+        naoEsgota: true,
+        custo : game.player.hasCupon ? 10 : 15
+      ));
+
     gameRef.world.add(Collectible(
-        position: Vector2(-80, 50),
+        position: Vector2(-80, 0),
         type: CollectibleType.key,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
       int preco = game.player.hasCupon ? 20 : 30;
-      _generateItemAleatorio(Vector2(80,50), preco); 
+      _generateItemAleatorio(Vector2(-160,0), preco); 
   }
 
   void _generateAlquimistaRoom(){
@@ -455,24 +515,29 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateZeroRoom(){
+    double x1 =-120;
+    double y1 =-100;
+    double y2 =-0;
+    double y3 = 100;
     switch (gameRef.currentLevel){
+      
       case 1:
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, -100),
+          position: Vector2(x1, y1),
           id: 'permanent_shield_1', 
           type: CollectibleType.shield,
           soulCost: 200,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 0),
+          position: Vector2(x1, y2),
           id: 'permanent_health_1', 
           type: CollectibleType.healthContainer,
           soulCost: 500,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 100),
+          position: Vector2(x1, y3),
           id: 'permanent_fire_rate_1', 
           type: CollectibleType.fireRate,
           soulCost: 900,
@@ -480,21 +545,21 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         break;
       case 2:
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 0),
+          position: Vector2(x1, y1),
           id: 'permanent_health_2', 
           type: CollectibleType.healthContainer,
           soulCost: 800,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, -100),
+          position: Vector2(x1, y2),
           id: 'permanent_shield_2', 
           type: CollectibleType.shield,
           soulCost: 500,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 100),
+          position: Vector2(x1, y3),
           id: 'permanent_damage_2', 
           type: CollectibleType.damage,
           soulCost: 1200,
@@ -502,21 +567,21 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         break;
       case 3:
       gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, -100),
+          position: Vector2(x1, y1),
           id: 'permanent_shield_3', 
           type: CollectibleType.shield,
           soulCost: 700,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 0),
+          position: Vector2(x1, y2),
           id: 'permanent_health_3', 
           type: CollectibleType.healthContainer,
           soulCost: 1000,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 100),
+          position: Vector2(x1, y3),
           id: 'permanent_crit_3', 
           type: CollectibleType.critChance,
           soulCost: 1500,
@@ -524,24 +589,46 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         break;
       case 4:
       gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, -100),
+          position: Vector2(x1, y1),
           id: 'permanent_shield_4', 
           type: CollectibleType.shield,
           soulCost: 700,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 0),
+          position: Vector2(x1, y2),
           id: 'permanent_health_4', 
           type: CollectibleType.healthContainer,
           soulCost: 1000,
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(-80, 100),
+          position: Vector2(x1, y2),
           id: 'permanent_critDmg_4', 
           type: CollectibleType.critDamage,
           soulCost: 1500,
+        ));
+        break;
+      case 5:
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y1),
+          id: 'permanent_shield_5', 
+          type: CollectibleType.shield,
+          soulCost: 900,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y2),
+          id: 'permanent_health_5', 
+          type: CollectibleType.healthContainer,
+          soulCost: 1200,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y3),
+          id: 'permanent_fireRate_5', 
+          type: CollectibleType.fireRate,
+          soulCost: 1800,
         ));
         break;
       default:
@@ -559,7 +646,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop
-    || gameRef.nextRoomReward == CollectibleType.alquimista){
+    || gameRef.nextRoomReward == CollectibleType.alquimista || gameRef.nextRoomReward == CollectibleType.darkShop){
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
@@ -569,6 +656,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));
     } else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
       _generateZeroRoom();
+    } else if (gameRef.nextRoomReward == CollectibleType.desafio){
+      _spawnChallengeReward();
     } else if (gameRef.nextRoomReward == CollectibleType.boss){
       _explosaoCriaItem();
       _generateBossReward();
@@ -580,6 +669,39 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         type: gameRef.nextRoomReward,
       ));
     }
+  }
+
+  void _spawnChallengeReward() {
+    int hitsTomados = gameRef.challengeHitsNotifier.value;
+    
+    // Desliga o modo desafio para a próxima sala
+    gameRef.challengeHitsNotifier.value = -1; 
+
+    Vector2 centerOfRoom = Vector2.zero(); // Ou a posição central da sua sala
+
+    if (hitsTomados == 0) {
+      List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
+
+      final CollectibleType lootType = possibleRewards[0];
+
+      gameRef.itensRarosPoolCurrent.remove(lootType);
+      gameRef.world.add(Collectible(position: centerOfRoom, type: lootType));
+      
+      
+    } else if (hitsTomados == 1) {
+      List<CollectibleType> possibleRewards = gameRef.itensComunsPool;
+
+      final CollectibleType lootType = possibleRewards[0];
+
+      gameRef.itensRarosPoolCurrent.remove(lootType);
+      gameRef.world.add(Collectible(position: centerOfRoom, type: lootType));
+      
+      
+    } else if (hitsTomados == 2) {
+      gameRef.world.add(Collectible(position: centerOfRoom, type: CollectibleType.potion));
+      
+      
+    } 
   }
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
@@ -618,12 +740,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.itensRarosPoolCurrent.remove(lootType);
     gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType));
-    final direc = [Vector2(50, 0), Vector2(-50, 0), Vector2(0, 50), Vector2(0, -50)];
-    for (var dir in direc)
-    {
-      bool isCoin = Random().nextBool();
-       gameRef.world.add(Collectible(position: dir, type: isCoin? CollectibleType.coin : CollectibleType.potion));
-    }
+    //final direc = [Vector2(50, 0), Vector2(-50, 0), Vector2(0, 50), Vector2(0, -50)];
+    //for (var dir in direc)
+   // {
+   //   bool isCoin = Random().nextBool();
+    //   gameRef.world.add(Collectible(position: dir, type: isCoin? CollectibleType.coin : CollectibleType.potion));
+   // }
     
   }
   

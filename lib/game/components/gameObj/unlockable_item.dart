@@ -59,7 +59,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
     _isInfoVisible = true;
     _currentButton = InteractButton(
       position: hudPosition,

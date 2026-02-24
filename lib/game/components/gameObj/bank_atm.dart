@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
     // Visual: Um cofre ou caixa eletrônico
     add(GameIcon(
       icon: Icons.account_balance, // Ou Icons.savings
-      color: Colors.amberAccent,
+      color: Pallete.laranja,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
@@ -60,7 +61,7 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
     // Evita criar duplicados
     if (_currentButton != null) return;
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
 
     _currentButton = InteractButton(
       position: hudPosition,

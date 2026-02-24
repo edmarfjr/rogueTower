@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/overlays/character_selection_menu.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +44,8 @@ class GameEntry extends StatelessWidget {
             'VictoryMenu': (context, game) => VictoryMenu(game: game),
             'SettingsMenu': (context, game) => SettingsMenu(game: game), 
             'DebugMenu': (context, game) => DebugMenu(game: game), 
+            'CharacterSelectionMenu': (context, game) => CharacterSelectionMenu(game: game), 
+            
           },
       )
     );

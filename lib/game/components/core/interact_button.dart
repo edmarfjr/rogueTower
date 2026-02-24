@@ -8,6 +8,11 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 class InteractButton extends PositionComponent with TapCallbacks {
   final VoidCallback onTrigger;
 
+  // Pega o tamanho real da tela neste exato frame
+    //final screenSize = gameRef.camera.viewport.size;
+    // Define a posição no canto inferior direito
+    //final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+
   // AGORA ELE EXIGE RECEBER A POSIÇÃO NA HORA DE SER CRIADO!
   InteractButton({required this.onTrigger, required Vector2 position}) 
       : super(size: Vector2(35, 35), anchor: Anchor.center, position: position);
