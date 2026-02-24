@@ -33,6 +33,10 @@ workflows:
           # Geramos o APK também caso você queira mandar direto para o seu celular
           flutter build apk --release
 
+      - name: Build Android APK
+        script: |
+          flutter build apk --release --build-number=$BUILD_NUMBER
+
     # Arquivos finais que o Codemagic vai te entregar para download no final do processo
     artifacts:
       - build/app/outputs/bundle/release/**/*.aab

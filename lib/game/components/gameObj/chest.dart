@@ -134,7 +134,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     if(isLock) possibleRewards = gameRef.itensRarosPoolCurrent;
 
-    final CollectibleType lootType = possibleRewards[1];
+    final CollectibleType lootType = possibleRewards[0];
 
     if(isLock) {
       gameRef.itensRarosPoolCurrent.remove(lootType);

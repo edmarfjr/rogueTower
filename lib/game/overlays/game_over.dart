@@ -33,7 +33,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DA SALA
             Text(
-              'Você sobreviveu até a Sala ${game.currentRoom}',
+              'Você sobreviveu até a Sala ${game.currentRoom} do andar ${game.currentLevel}',
               style: const TextStyle(
                 fontSize: 20,
                 color: Pallete.branco,
@@ -45,7 +45,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DE MOEDAS (Opcional)
             Text(
-              'Ouro coletado: ${game.coinsNotifier.value}',
+              'Almas coletadas: ${game.progress.souls}}',
               style: const TextStyle(
                 fontSize: 16,
                 color: Pallete.amarelo,

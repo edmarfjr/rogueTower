@@ -614,7 +614,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _generateBossReward() {
     List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
 
-    final CollectibleType lootType = possibleRewards[1];
+    final CollectibleType lootType = possibleRewards[0];
 
     gameRef.itensRarosPoolCurrent.remove(lootType);
     gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType));
