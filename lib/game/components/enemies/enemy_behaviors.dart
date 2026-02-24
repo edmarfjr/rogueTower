@@ -47,9 +47,16 @@ abstract class DeathBehavior {
 
 // --- MOVIMENTOS (MOVEMENT BEHAVIORS) ---
 
+class IdleBehavior extends MovementBehavior {
+  @override
+  void update(double dt) {}
+}
+
 class FollowPlayerBehavior extends MovementBehavior {
   final Vector2 _direction = Vector2.zero();
+  final double speedMod;
 
+  FollowPlayerBehavior({this.speedMod = 1});
   @override
   void update(double dt) {
     // Só anda se o ataque permitir
@@ -66,7 +73,7 @@ class FollowPlayerBehavior extends MovementBehavior {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
     
-    enemy.position.addScaled(_direction, enemy.speed * dt);
+    enemy.position.addScaled(_direction, enemy.speed * speedMod * dt);
   }
 }
 
@@ -464,36 +471,81 @@ class MortarAttackBehavior extends AttackBehavior {
   final double minRange = 600;
   final bool isPoison;
   final double explosionRadius;
+  final bool isBarragem;
+  final int numMortars;
 
-  MortarAttackBehavior({this.interval = 4.0, this.isPoison = false, this.explosionRadius = 60.0});
+  MortarAttackBehavior({
+    this.interval = 4.0, 
+    this.isPoison = false, 
+    this.isBarragem = false,
+    this.numMortars = 10,
+    this.explosionRadius = 60.0
+  });
 
   @override
   void update(double dt) {
+    if (enemy == null) return; // Segurança caso o inimigo já tenha morrido
+
     _timer += dt;
     final dist = enemy.position.distanceTo(enemy.gameRef.player.position);
 
     if (_timer >= interval && dist < minRange) {
-      final target = enemy.gameRef.player.position.clone();
-      double flightTime = 1.5;
-
-      enemy.gameRef.world.add(TargetReticle(
-        position: target,
-        duration: flightTime,
-        owner: enemy,
-        radius: explosionRadius,
-      ));
-      AudioManager.playSfx('enemyShot.mp3');
-      enemy.gameRef.world.add(MortarShell(
-        startPos: enemy.position.clone(),
-        targetPos: target,
-        owner: enemy,
-        flightDuration: flightTime,
-        isPoison: isPoison,
-        explosionRadius: explosionRadius,
-      ));
-      
       _timer = 0;
+      
+      if (isBarragem) {
+        _fireBarrage();
+      } else {
+        _fireSingleMortar();
+      }
     }
+  }
+
+  void _fireSingleMortar() {
+    final target = enemy.gameRef.player.position.clone();
+    AudioManager.playSfx('enemyShot.mp3');
+    _spawnMortar(target, 1.5);
+  }
+
+  void _fireBarrage() {
+    final rng = Random();
+    
+    // Toca o som de tiro apenas UMA VEZ para a onda toda, para não estourar o áudio
+    AudioManager.playSfx('enemyShot.mp3'); 
+
+    for (int i = 0; i < numMortars; i++) {
+      // 1. Calcula posições aleatórias dentro dos limites da sua arena
+      // Considerando que a arena tem uns 360x640, geramos coordenadas seguras:
+      // Eixo X: entre -160 e 160 | Eixo Y: entre -280 e 280
+      double randomX = (rng.nextDouble() * 320) - 160; 
+      double randomY = (rng.nextDouble() * 560) - 280; 
+      Vector2 randomTarget = Vector2(randomX, randomY);
+
+      // 2. Cria um atraso aleatório para cada morteiro (entre 1.2 e 2.5 segundos)
+      // Assim eles caem sequencialmente, parecendo um bombardeio real!
+      double variedFlightTime = 1.2 + (rng.nextDouble() * 1.3);
+
+      _spawnMortar(randomTarget, variedFlightTime);
+    }
+  }
+
+  // --- O SEGREDO DO CÓDIGO LIMPO ---
+  // Um único lugar para instanciar a mira e o projétil!
+  void _spawnMortar(Vector2 target, double flightTime) {
+    enemy.gameRef.world.add(TargetReticle(
+      position: target,
+      duration: flightTime,
+      owner: enemy,
+      radius: explosionRadius,
+    ));
+    
+    enemy.gameRef.world.add(MortarShell(
+      startPos: enemy.position.clone(),
+      targetPos: target,
+      owner: enemy,
+      flightDuration: flightTime,
+      isPoison: isPoison,
+      explosionRadius: explosionRadius,
+    ));
   }
 }
 

@@ -10,17 +10,23 @@ class EnemyBoss extends Enemy {
   final String bossName;
   final double maxHp;
   
-  // Lógica de Segunda Fase
+  // --- LÓGICA DE ROTAÇÃO DE COMPORTAMENTOS ---
+  final double behaviorChangeInterval; // De quantos em quantos segundos ele muda de ataque?
+  double _behaviorTimer = 0;
+  int _currentBehaviorIndex = 0;
+
+  // Listas de comportamentos da FASE 1
+  final List<MovementBehavior> phase1Movements;
+  final List<AttackBehavior> phase1Attacks;
+
+  // Listas de comportamentos da FASE 2
   final bool hasSecondForm;
   bool isSecondForm = false;
+  final List<MovementBehavior> phase2Movements;
+  final List<AttackBehavior> phase2Attacks;
+
   bool _isTransforming = false;
   double _transformTimer = 0;
-
-  // Comportamentos da Fase 2
-  MovementBehavior? phase2Movement;
-  AttackBehavior? phase2Attack;
-  AttackBehavior? phase2Attack2;
-  
 
   late BossHealthBar healthBar;
 
@@ -28,13 +34,16 @@ class EnemyBoss extends Enemy {
     required this.bossName,
     required double hp,
     required super.position,
-    required super.movementBehavior,
-    required super.attackBehavior,
+    required this.behaviorChangeInterval,
+    required this.phase1Movements,
+    required this.phase1Attacks,
+    this.hasSecondForm = false,
+    this.phase2Movements = const [],
+    this.phase2Attacks = const [],
     super.deathBehavior,
-    super.attack2Behavior,
     super.speed = 100,
     super.soul = 50,
-    super.weight = 10.0, // Bosses são pesados, não são empurrados!
+    super.weight = 10.0,
     super.rotates = false,
     super.hasGhostEffect = false,
     super.iconData,
@@ -42,29 +51,31 @@ class EnemyBoss extends Enemy {
     super.size,
     super.hbSize,
     super.hbOffset,
-    this.hasSecondForm = false,
-    this.phase2Movement,
-    this.phase2Attack,
-    this.phase2Attack2,
   })  : maxHp = hp,
-        super(hp: hp, isBoss: true);
+        // Passa o primeiro comportamento da Fase 1 para o super inicializar o Enemy corretamente
+        super(
+          hp: hp, 
+          isBoss: true,
+          movementBehavior: phase1Movements.isNotEmpty ? phase1Movements.first : IdleBehavior() as MovementBehavior,
+          attackBehavior: phase1Attacks.isNotEmpty ? phase1Attacks.first : IdleBehavior() as AttackBehavior,
+        );
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Cria a barra de vida e adiciona no Viewport da Câmera (Fica fixo na tela UI)
+    // Garante que os comportamentos iniciais conheçam o chefe
+    movementBehavior.enemy = this;
+    attackBehavior.enemy = this;
+
     healthBar = BossHealthBar(this);
     gameRef.camera.viewport.add(healthBar);
   }
 
   @override
   void update(double dt) {
-    // --- LÓGICA DE TRANSIÇÃO DE FASE ---
     if (_isTransforming) {
       _transformTimer -= dt;
-      
-      // Efeito visual de transformação (tremendo/girando)
       visual?.angle += 20 * dt; 
       visual?.scale.x = 1.0 + (1.5 - _transformTimer).abs() * 0.2;
       visual?.scale.y = 1.0 + (1.5 - _transformTimer).abs() * 0.2;
@@ -72,19 +83,43 @@ class EnemyBoss extends Enemy {
       if (_transformTimer <= 0) {
         _finishTransformation();
       }
-      return; // Impede que ele ande ou ataque enquanto se transforma
+      return; 
+    }
+
+    // --- O SEGREDO DA TROCA DE ATAQUES ---
+    _behaviorTimer += dt;
+    if (_behaviorTimer >= behaviorChangeInterval) {
+      _behaviorTimer = 0;
+      _switchToNextBehavior();
     }
 
     super.update(dt);
   }
 
-  // --- O SEGREDO: SOBRESCREVER A MORTE ---
+  void _switchToNextBehavior() {
+    // Escolhe qual lista usar dependendo da fase atual
+    List<MovementBehavior> currentMovements = isSecondForm ? phase2Movements : phase1Movements;
+    List<AttackBehavior> currentAttacks = isSecondForm ? phase2Attacks : phase1Attacks;
+
+    if (currentAttacks.isEmpty || currentMovements.isEmpty) return;
+
+    // Avança o índice e volta para o 0 se chegar no final da lista
+    _currentBehaviorIndex = (_currentBehaviorIndex + 1) % currentAttacks.length;
+
+    // Atualiza os comportamentos e avisa a eles quem é o "enemy" (este boss)
+    movementBehavior = currentMovements[_currentBehaviorIndex % currentMovements.length];
+    movementBehavior.enemy = this;
+
+    attackBehavior = currentAttacks[_currentBehaviorIndex];
+    attackBehavior.enemy = this;
+  }
+
   @override
   void die() {
     if (hasSecondForm && !isSecondForm) {
       _startTransformation();
     } else {
-      super.die(); // Morre de verdade na Fase 2 (ou se não tiver fase 2)
+      super.die(); 
     }
   }
 
@@ -92,15 +127,11 @@ class EnemyBoss extends Enemy {
     _isTransforming = true;
     isSecondForm = true;
     isInvencivel = true;
-    canMove = false; // Trava o boss no lugar
+    canMove = false; 
     
-    _transformTimer = 2.0; // 2 segundos de animação
-
+    _transformTimer = 2.0; 
     gameRef.shakeCamera(intensity: 8.0, duration: 1.5);
-    
-    // Explode a primeira forma
     createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 20);
-    // AudioManager.playSfx('boss_phase2.mp3'); // Opcional
   }
 
   void _finishTransformation() {
@@ -108,27 +139,22 @@ class EnemyBoss extends Enemy {
     isInvencivel = false;
     canMove = true;
     
-    // Reseta visual
     visual?.angle = 0;
     visual?.scale.setValues(1.0, 1.0);
-    
-    // Fica mais perigoso (Muda cor, enche HP)
-    hp = maxHp; // Ou maxHp * 1.5 se quiser uma fase 2 com mais vida!
-    //originalColor = Pallete.roxo; // Cor da segunda fase
-    //visual?.setColor(originalColor);
+    hp = maxHp; 
 
-    // Troca o cérebro (Behaviors) para os da Fase 2
-    if (phase2Movement != null) {
-      movementBehavior = phase2Movement!;
-      movementBehavior.enemy = this; // Vincula ao boss atual
+    // Reseta o timer e o índice para a Fase 2 começar limpa
+    _behaviorTimer = 0;
+    _currentBehaviorIndex = 0;
+    
+    // Força a troca imediata para o primeiro ataque da Fase 2
+    if (phase2Movements.isNotEmpty) {
+      movementBehavior = phase2Movements.first;
+      movementBehavior.enemy = this;
     }
-    if (phase2Attack != null) {
-      attackBehavior = phase2Attack!;
+    if (phase2Attacks.isNotEmpty) {
+      attackBehavior = phase2Attacks.first;
       attackBehavior.enemy = this;
-    }
-    if (phase2Attack2 != null) {
-      attack2Behavior = phase2Attack2;
-      attack2Behavior!.enemy = this;
     }
   }
 }

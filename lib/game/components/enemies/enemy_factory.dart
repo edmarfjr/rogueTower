@@ -23,7 +23,7 @@ class EnemyFactory {
       hbSize: Vector2(16,32),
       iconData: MdiIcons.humanMale,
       originalColor: Pallete.bege,
-      movementBehavior: FollowPlayerBehavior(),
+      movementBehavior: IdleBehavior(),
       attackBehavior: NoAttackBehavior(),       
     );
   }
@@ -52,7 +52,7 @@ class EnemyFactory {
       weight: 5,
       iconData: MdiIcons.mushroom,
       originalColor: Pallete.rosa,
-      movementBehavior: RandomWanderBehavior(),
+      movementBehavior: IdleBehavior(),
       attackBehavior: SpinnerAttackBehavior(interval: 2),
     );
   }
@@ -113,7 +113,7 @@ class EnemyFactory {
       weight: 2.0,
       iconData: MdiIcons.beehiveOutline,
       originalColor: Pallete.laranja,
-      movementBehavior: FollowPlayerBehavior(),
+      movementBehavior: IdleBehavior(),
       attackBehavior: SummonAttackBehavior(
         minionBuilder: (p) => EnemyFactory.createBee(p), 
         interval: 3.5, 
@@ -169,74 +169,38 @@ class EnemyFactory {
       hbSize: Vector2(56,36),
       hbOffset: Vector2(0, 8), 
       originalColor: Pallete.vermelho,
+      behaviorChangeInterval: 4.0,
       
         // --- COMPORTAMENTOS DA FASE 1 ---
-        movementBehavior: RandomWanderBehavior(),
-        attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true),
-        
+        phase1Movements: [
+        FollowPlayerBehavior(speedMod: 0.75), 
+        IdleBehavior(),                 
+      ],
+      phase1Attacks: [
+        ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true), 
+        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), 
+      ],
+       
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: GoToCenterBehavior(),
-        phase2Attack: SpinnerAttackBehavior(interval: 2, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 8),
-        phase2Attack2: SummonAttackBehavior(
+        phase2Movements: [
+        FollowPlayerBehavior(speedMod: 1.2), 
+        GoToCenterBehavior(),                  
+        GoToCenterBehavior(),                  
+      ],
+      phase2Attacks: [
+        ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
+        SpinnerAttackBehavior(interval: 2, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 8),
+        MortarAttackBehavior(interval:4, isBarragem: true, isPoison: true),
+        SummonAttackBehavior(
           minionBuilder: (p) => EnemyFactory.createRat(p), 
           interval: 3.0, 
           maxMinions: 4,
         ),
-    );
-  }
-
-  static Enemy createKingSlime1(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 200,
-      speed: 80,
-      soul: 60,
-      size: Vector2.all(80),
-      iconData: MdiIcons.cloud,
-      originalColor: Pallete.vermelho,
-      movementBehavior: BouncerBehavior(),
-      attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(30)),
-      attack2Behavior: MortarAttackBehavior(interval: 4.0),
-      deathBehavior: SpawnOnDeathBehavior(
-        count: 2,
-        minionBuilder: (p) => EnemyFactory.createKingSlime2(p),
-      ),    
-    );
-  }
-
-  static Enemy createKingSlime2(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 100,
-      speed: 100,
-      soul: 25,
-      size: Vector2.all(64),
-      iconData: MdiIcons.cloud,
-      originalColor: Pallete.vermelho,
-      movementBehavior: BouncerBehavior(),
-      attackBehavior: ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(20)), 
-      attack2Behavior: MortarAttackBehavior(interval: 4.0),
-      deathBehavior: SpawnOnDeathBehavior(
-        count: 2,
-        minionBuilder: (p) => EnemyFactory.createKingSlime3(p),
-      ),    
-    );
-  }
-
-  static Enemy createKingSlime3(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 50,
-      speed: 120,
-      soul: 10,
-      size: Vector2.all(32),
-      iconData: MdiIcons.cloud,
-      originalColor: Pallete.vermelho,
-      movementBehavior: BouncerBehavior(),
-      attackBehavior: NoAttackBehavior(),  
+      ]
+        
     );
   }
 
@@ -299,7 +263,7 @@ class EnemyFactory {
       hbSize: Vector2(16,28),
       iconData: MdiIcons.coffin,
       originalColor: Pallete.marrom,
-      movementBehavior: FollowPlayerBehavior(),
+      movementBehavior: IdleBehavior(),
       attackBehavior: LaserAttackBehavior(interval: 2.5,),
     );
   }
@@ -336,26 +300,6 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createHorseManBoss(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 700,
-      speed: 100,
-      soul: 250, 
-      hasGhostEffect: true,
-      size: Vector2.all(80),
-      iconData: MdiIcons.horseHuman,
-      originalColor: Pallete.lilas,
-      movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: ChargeAttackBehavior(
-        detectRange: 180, 
-        chargeSpeed: 400, 
-        prepTime: 0.6,    
-      ),
-      attack2Behavior: MortarAttackBehavior(interval: 3.0),
-    );
-  }
-
   static EnemyBoss createGhostKnight(Vector2 pos) {
     return EnemyBoss(
       bossName: "ghostKnight".tr(),
@@ -365,29 +309,40 @@ class EnemyFactory {
       soul: 250, 
       iconData: MdiIcons.horseHuman,
       hasGhostEffect: true,
-      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      size: Vector2.all(64), 
       originalColor: Pallete.vermelho,
+      behaviorChangeInterval: 4.0,
       
         // --- COMPORTAMENTOS DA FASE 1 ---
-        movementBehavior: FollowPlayerBehavior(),
-        attackBehavior: ChargeAttackBehavior(
-          detectRange: 180, 
-          chargeSpeed: 400, 
-          prepTime: 0.6,    
-        ),
-        attack2Behavior: MortarAttackBehavior(interval: 3.0),
+        phase1Movements:[
+          FollowPlayerBehavior(),
+        ],
+        phase1Attacks: [
+          ChargeAttackBehavior(
+            detectRange: 180, 
+            chargeSpeed: 400, 
+            prepTime: 0.6,    
+          ),
+          MortarAttackBehavior(interval: 3.0),
+        ],
         
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: FollowPlayerBehavior(),
-        phase2Attack: ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
-        phase2Attack2: ChargeAttackBehavior(
-          detectRange: 360, 
-          chargeSpeed: 400, 
-          prepTime: 0.6,    
-        ),
+        phase2Movements:[
+          FollowPlayerBehavior(),
+        ],
+        phase2Attacks: [
+          ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+          MortarAttackBehavior(interval: 3.0),
+          ChargeAttackBehavior(
+            detectRange: 360, 
+            chargeSpeed: 400, 
+            prepTime: 0.6,    
+          ),
+        ],
+        
     );
   }
 
@@ -478,21 +433,6 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessQueenBoss(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 1200,
-      speed: 80,
-      soul: 300,
-      size: Vector2.all(80),
-      iconData: MdiIcons.chessKing,
-      originalColor: Pallete.lilas,
-      movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: SpinnerAttackBehavior(interval: 2.5, isChangeDir: true),
-      attack2Behavior: MortarAttackBehavior(interval: 3.0),
-    );
-  }
-
   static EnemyBoss createTruQueen(Vector2 pos) {
     return EnemyBoss(
       bossName: "truQueen".tr(),
@@ -503,26 +443,35 @@ class EnemyFactory {
       hbSize: Vector2(34,54),
       iconData: MdiIcons.chessQueen,
       hasGhostEffect: true,
-      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      size: Vector2.all(64), 
       originalColor: Pallete.bege,
+      behaviorChangeInterval: 4.0,
       
         // --- COMPORTAMENTOS DA FASE 1 ---
-        movementBehavior: FollowPlayerBehavior(),
-        attackBehavior: SpinnerAttackBehavior(interval: 2.5),
-        attack2Behavior: MortarAttackBehavior(interval: 3.0),
-        
+      phase1Movements: [
+        FollowPlayerBehavior(), 
+        BouncerBehavior(),            
+      ],
+      phase1Attacks: [
+        SpinnerAttackBehavior(interval: 2.5),
+        MortarAttackBehavior(interval: 3.0),
+      ],
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: BouncerBehavior(),
-        phase2Attack: SpinnerAttackBehavior(interval: 2, isChangeDir: true),
-        phase2Attack2: JumpAttackBehavior(
+      phase2Movements: [
+        BouncerBehavior(),            
+      ],
+      phase2Attacks: [
+        SpinnerAttackBehavior(interval: 2, isChangeDir: true),
+        JumpAttackBehavior(
           jumpRange: 300,    
           minRange: 50,      
           jumpDuration: 1.0, 
           cooldown: 3,     
         ),
+      ]
     );
   }
 
@@ -623,30 +572,6 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createRabbitBoss(Vector2 pos) {
-    return Enemy(
-      position: pos,
-      hp: 1500,
-      speed: 0,
-      size: Vector2.all(80),
-      soul: 350,
-      iconData: MdiIcons.rabbit,
-      originalColor: Pallete.vermelho,
-      movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: JumpAttackBehavior(
-        jumpRange: 200,    
-        minRange: 50,      
-        jumpDuration: 1.0, 
-        cooldown: 1.0, 
-        isRandomJump: true,
-        randomJumpRadius: 150.0,
-        isExplosionOnLand: false,
-        is4ShotOnLand: true,    
-      ),
-      attack2Behavior: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
-    );
-  }
-
   static EnemyBoss createBeast(Vector2 pos) {
     return EnemyBoss(
       bossName: "beast".tr(),
@@ -659,33 +584,46 @@ class EnemyFactory {
       hasGhostEffect: true,
       size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
       originalColor: Pallete.bege,
-      
+      behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---
-        movementBehavior: FollowPlayerBehavior(),
-        attackBehavior: JumpAttackBehavior(
-          jumpRange: 200,    
-          minRange: 50,      
-          jumpDuration: 1.0, 
-          cooldown: 1.0, 
-          isRandomJump: true,
-          randomJumpRadius: 150.0,
-          isExplosionOnLand: false,
-          is4ShotOnLand: true,    
-        ),
-        attack2Behavior: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
+        phase1Movements: [
+          FollowPlayerBehavior(), 
+          IdleBehavior(),                  
+        ],
+        phase1Attacks: [
+          JumpAttackBehavior(
+            jumpRange: 200,    
+            minRange: 50,      
+            jumpDuration: 1.0, 
+            cooldown: 1.0, 
+            isRandomJump: true,
+            randomJumpRadius: 150.0,
+            isExplosionOnLand: false,
+            is4ShotOnLand: true,    
+          ),
+          SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), // Modo 2: Atira em cruz
+          ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
+        ],
         
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: BouncerBehavior(),
-        phase2Attack: ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
-        phase2Attack2: JumpAttackBehavior(
-          jumpRange: 300,    
-          minRange: 50,      
-          jumpDuration: 1.0, 
-          cooldown: 3,     
-        ),
+        phase2Movements: [
+          FollowPlayerBehavior(), 
+          BouncerBehavior(),    
+          FollowPlayerBehavior(),              
+        ],
+        phase2Attacks: [
+          ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
+          SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), // Modo 2: Atira em cruz
+            JumpAttackBehavior(
+            jumpRange: 300,    
+            minRange: 50,      
+            jumpDuration: 1.0, 
+            cooldown: 3,     
+          ),
+        ],
     );
   }
 
@@ -717,7 +655,7 @@ class EnemyFactory {
       hbSize: Vector2(26,26),
       iconData: MdiIcons.fishbowl,
       originalColor: Pallete.azulCla,
-      movementBehavior: RandomWanderBehavior(),
+      movementBehavior: IdleBehavior(),
       attackBehavior: LaserAttackBehavior(
         interval: 3.0, 
         isShotgun: true, 
@@ -808,32 +746,42 @@ class EnemyFactory {
       soul: 350, 
       size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
       originalColor: Pallete.cinzaCla,
-      
+      behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---
-        movementBehavior: RandomWanderBehavior(),
-        attackBehavior: ChargeAttackBehavior(
-        detectRange: 180, 
-        chargeSpeed: 400, 
-        prepTime: 0.6,   
-      ),
-        attack2Behavior: DropHazardBehavior(
-        interval: 1.5, 
-        hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
-      ),
+        phase1Movements: [
+          RandomWanderBehavior(),   
+        ],
+        phase1Attacks: [
+          ChargeAttackBehavior(
+            detectRange: 180, 
+            chargeSpeed: 400, 
+            prepTime: 0.6,   
+          ),
+          DropHazardBehavior(
+            interval: 1.5, 
+            hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
+          ),
+        ],
+        
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
         
         // --- COMPORTAMENTOS DA FASE 2 ---
-        phase2Movement: FollowPlayerBehavior(),
-          phase2Attack: ChargeAttackBehavior(
-          detectRange: 180, 
-          chargeSpeed: 400, 
-          prepTime: 0.6,   
-        ),
-          phase2Attack2: DropHazardBehavior(
-          interval: 1.5, 
-          hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
-        ),
+        phase2Movements: [
+          FollowPlayerBehavior(),    
+        ],
+        phase2Attacks: [
+          ChargeAttackBehavior(
+            detectRange: 180, 
+            chargeSpeed: 400, 
+            prepTime: 0.6,   
+          ),
+            DropHazardBehavior(
+            interval: 1.5, 
+            hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
+          ),
+        ],
+       
     );
   }
 
