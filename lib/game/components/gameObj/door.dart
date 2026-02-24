@@ -176,7 +176,13 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   void _showButton() {
     if (_currentButton != null) return;
 
+    // Pega o tamanho real da tela neste exato frame
+    final screenSize = gameRef.camera.viewport.size;
+    // Define a posição no canto inferior direito
+    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+
     _currentButton = InteractButton(
+      position: hudPosition,
       onTrigger: () {
         if(trancada){
           if(gameRef.keysNotifier.value>0){
@@ -250,13 +256,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       },
     );
 
-    _currentButton!.position = Vector2(size.x / 2, -40); 
-    add(_currentButton!);
+    gameRef.camera.viewport.add(_currentButton!);
   }
 
   void _hideButton() {
     if (_currentButton != null) {
-      _currentButton!.removeFromParent();
+      gameRef.camera.viewport.remove(_currentButton!);
       _currentButton = null;
     }
   }

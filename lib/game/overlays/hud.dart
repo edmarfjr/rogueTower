@@ -250,7 +250,7 @@ class Hud extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
                       child: Icon(
@@ -282,7 +282,7 @@ class Hud extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child:  Center(
                       child: Icon(

@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
@@ -29,6 +32,8 @@ class EnemyBoss extends Enemy {
   double _transformTimer = 0;
 
   late BossHealthBar healthBar;
+
+  bool _isEpicDying = false;
 
   EnemyBoss({
     required this.bossName,
@@ -74,6 +79,8 @@ class EnemyBoss extends Enemy {
 
   @override
   void update(double dt) {
+    if (_isEpicDying) return;
+
     if (_isTransforming) {
       _transformTimer -= dt;
       visual?.angle += 20 * dt; 
@@ -119,8 +126,55 @@ class EnemyBoss extends Enemy {
     if (hasSecondForm && !isSecondForm) {
       _startTransformation();
     } else {
-      super.die(); 
+      // Se não tem segunda forma (ou já está nela), inicia a morte épica!
+      if (!_isEpicDying) {
+        _startEpicDeathSequence();
+      }
     }
+  }
+
+  void _startEpicDeathSequence() {
+    _isEpicDying = true;
+    isInvencivel = true;
+    canMove = false;
+
+    // Remove a barra de vida gigante do topo da tela na mesma hora
+    if (healthBar.isMounted) {
+      healthBar.removeFromParent();
+    }
+
+    int explosionCount = 0;
+    
+    // Um timer que roda a cada 0.3 segundos criando explosões aleatórias
+    add(TimerComponent(
+      period: 0.3,
+      repeat: true,
+      onTick: () {
+        explosionCount++;
+        
+        if (explosionCount < 7) {
+          // --- AS EXPLOSÕES MENORES (O Suspense) ---
+          final rng = Random();
+          double offsetX = (rng.nextDouble() - 0.5) * size.x;
+          double offsetY = (rng.nextDouble() - 0.5) * size.y;
+          
+          createExplosionEffect(gameRef.world, position + Vector2(offsetX, offsetY), Pallete.laranja, count: 12);
+          AudioManager.playSfx('explosion.mp3');
+          gameRef.shakeCamera(intensity: 3.0, duration: 0.2); // Tremor leve e contínuo
+          
+        } else {
+          // --- A EXPLOSÃO FINAL MASSIVA ---
+          createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 60);
+          AudioManager.playSfx('enemy_die.mp3');
+          gameRef.shakeCamera(intensity: 12.0, duration: 1.5); // Tremor absurdo
+          
+          // O golpe de misericórdia: 
+          // O Boss é removido, o RoomManager vê que os inimigos acabaram
+          // e as portas e o Baú Dourado aparecem no meio da fumaça!
+          super.die(); 
+        }
+      },
+    ));
   }
 
   void _startTransformation() {

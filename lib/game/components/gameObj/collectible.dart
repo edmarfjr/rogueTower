@@ -37,7 +37,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
   final double _pickupRange = 60.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
-  //InteractButton? _currentButton;
+  InteractButton? _currentButton;
 
   Collectible({
     required Vector2 position, 
@@ -156,13 +156,18 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     );
 
     // 3. Botão de Pegar
-    final btn = InteractButton(
-      onTrigger: _collectItem,
-    )..position = Vector2(0, -50);
+    if (_currentButton != null) return;
+    final screenSize = gameRef.camera.viewport.size;
+    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
 
+    _currentButton= InteractButton(
+      position: hudPosition,
+      onTrigger: (){_collectItem(); _hideInfo();},
+    );
+    gameRef.camera.viewport.add(_currentButton!);
     _infoGroup.add(textName);
     _infoGroup.add(textDesc);
-    _infoGroup.add(btn);
+    
 
     add(_infoGroup);
   }
@@ -171,6 +176,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     _isInfoVisible = false;
     if (contains(_infoGroup)) {
       remove(_infoGroup);
+    }
+    if (_currentButton != null) {
+      // Remove diretamente da lista de filhos do Viewport, que é 100% seguro!
+      gameRef.camera.viewport.remove(_currentButton!); 
+      _currentButton = null;
     }
   }
 

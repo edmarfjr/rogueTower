@@ -1123,14 +1123,21 @@ class SummonAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    _timer += dt;
-    _minions.removeWhere((e) => !e.isMounted);
+    if (enemy == null) return;
 
-    if (_timer >= interval) {
-      if (_minions.length < maxMinions) {
+    // Limpa da lista os lacaios que morreram
+    _minions.removeWhere((e) => !e.isMounted || e.hp <= 0);
+
+    // Só permite o cronômetro rodar se houver espaço na arena!
+    if (_minions.length < maxMinions) {
+      _timer += dt;
+      if (_timer >= interval) {
         _summonMinion();
-        _timer = 0;
+        _timer = 0; // Zera o cronômetro após invocar
       }
+    } else {
+      // Se a tela já está cheia, trava o cronômetro no zero
+      _timer = 0; 
     }
   }
 

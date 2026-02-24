@@ -16,7 +16,7 @@ import 'collectible.dart';
 class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   bool _isOpen = false;
   bool isLock;
-  
+  InteractButton? _currentButton;
   // Guardamos a referência do ícone para trocar (fechado -> aberto)
   GameIcon? _iconComponent;
 
@@ -83,11 +83,16 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
 
     // 3. Botão de Pegar
-    final btn = InteractButton(
+    if (_currentButton != null) return;
+    final screenSize = gameRef.camera.viewport.size;
+    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
+
+    _currentButton = InteractButton(
+      position: hudPosition,
       onTrigger: _openChest,
     )..position = Vector2(0, -50); 
 
-    _infoGroup.add(btn);
+    gameRef.camera.viewport.add(_currentButton!);
 
     add(_infoGroup);
   }
@@ -96,6 +101,11 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     _isInfoVisible = false;
     if (contains(_infoGroup)) {
       remove(_infoGroup);
+    }
+    if (_currentButton != null) {
+      // Remove diretamente da lista de filhos do Viewport, que é 100% seguro!
+      gameRef.camera.viewport.remove(_currentButton!); 
+      _currentButton = null;
     }
   }
 

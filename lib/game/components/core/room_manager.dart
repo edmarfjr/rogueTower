@@ -95,9 +95,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
       final allEnemies = gameRef.world.children.query<Enemy>();
       
-    
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy);
-      
       
       if (realEnemies.isEmpty && !isSpawnningBoss) {
         _unlockDoors();
@@ -114,7 +112,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
+      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -582,8 +580,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         type: gameRef.nextRoomReward,
       ));
     }
-
-    gameRef.atualizaDebugMode();
   }
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {

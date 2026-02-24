@@ -4,35 +4,31 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../../tower_game.dart';
 
-class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<TowerGame> {
+class InteractButton extends PositionComponent with TapCallbacks {
   final VoidCallback onTrigger;
-  String text;
 
-  InteractButton({required this.onTrigger, this.text = "!"}) 
-      : super(size: Vector2(40, 40), anchor: Anchor.center);
+  // AGORA ELE EXIGE RECEBER A POSIÇÃO NA HORA DE SER CRIADO!
+  InteractButton({required this.onTrigger, required Vector2 position}) 
+      : super(size: Vector2(35, 35), anchor: Anchor.center, position: position);
 
   @override
   Future<void> onLoad() async {
-    // Fica acima de tudo no mundo
-    priority = 100; 
+    priority = 1000; // Prioridade bem alta para ficar acima de todos os HUDs
 
-    // Fundo do botão (Estilo Balão de Fala)
-    add(RectangleComponent(
-      size: size,
-      paint: Paint()..color = Pallete.cinzaEsc,
+    add(CircleComponent(
+      radius: size.x,
+      paint: Paint()..color = Pallete.branco.withValues(alpha: 0.2),
       anchor: Anchor.center,
       position: size / 2,
     ));
     
-    // Borda
-    add(RectangleComponent(
-      size: size,
+    add(CircleComponent(
+      radius: size.x,
       paint: Paint()
-        ..color = Pallete.cinzaCla
+        ..color = Pallete.branco.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3,
+        ..strokeWidth = 2,
       anchor: Anchor.center,
       position: size / 2,
     ));
@@ -40,29 +36,14 @@ class InteractButton extends PositionComponent with TapCallbacks, HasGameRef<Tow
     add(GameIcon(
       icon: MdiIcons.exclamationThick, 
       color: Pallete.amarelo, 
-      size: size/2,
+      size: size / 2,
       anchor: Anchor.center, 
       position: size / 2,    
     ));
-    /* Texto "ABRIR" ou Ícone
-    add(TextComponent(
-      text: text,
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 16,
-          color: Pallete.branco,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      anchor: Anchor.center,
-      position: size / 2,
-    ));
-    */
   }
 
   @override
   void onTapDown(TapDownEvent event) {
-    // Executa a ação quando clicado
     onTrigger();
   }
 }

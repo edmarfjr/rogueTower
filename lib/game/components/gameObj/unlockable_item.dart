@@ -58,8 +58,11 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _showButton() {
+    final screenSize = gameRef.camera.viewport.size;
+    final hudPosition = Vector2(screenSize.x - 200, screenSize.y - 200);
     _isInfoVisible = true;
     _currentButton = InteractButton(
+      position: hudPosition,
       //text:"DESBLOQUEAR",
       onTrigger: () {
         if (_isUnlocked) {
@@ -68,15 +71,14 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
           _handleUnlock();
         }
       },
-    )..position = Vector2(size.x / 2, -20); // Posiciona acima do item
-    
-    add(_currentButton!);
+    ); // Posiciona acima do item
+    gameRef.camera.viewport.add(_currentButton!);
   }
 
   void _hideButton() {
     _isInfoVisible = false;
     if (_currentButton != null) {
-      _currentButton!.removeFromParent();
+      gameRef.camera.viewport.remove(_currentButton!);
       _currentButton = null;
     }
   }
