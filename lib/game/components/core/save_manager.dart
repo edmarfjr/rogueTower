@@ -86,6 +86,7 @@ class SaveManager {
       'hasCupon': game.player.hasCupon,
       'isBoomerang': game.player.isBoomerang,
       'isBleed': game.player.isBleed,
+      'criaPocaVeneno': game.player.criaPocaVeneno,
     };
 
     String jsonString = jsonEncode(runData);
@@ -188,6 +189,8 @@ class SaveManager {
     game.player.hasCupon = runData['hasCupon'] ?? false;
     game.player.isBoomerang = runData['isBoomerang'] ?? false;
     game.player.isBleed = runData['isBleed'] ?? false;
+    game.player.criaPocaVeneno = runData['criaPocaVeneno'] ?? false;
+    
 
     print("✅ Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/ad_manager.dart';
 import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +62,7 @@ class MainMenu extends StatelessWidget {
                           bgColor: Pallete.verdeCla, // Destaque visual
                           textColor: Colors.black,
                           onPressed: () async {
+                            AdManager.loadRewardedAd();
                             await SaveManager.loadRun(game);
                             
                             // Remove o menu da tela para o jogo voltar a rodar com os status carregados
@@ -84,6 +86,7 @@ class MainMenu extends StatelessWidget {
                         bgColor: Pallete.branco,
                         textColor: Colors.black,
                         onPressed: () async {
+                          AdManager.loadRewardedAd();
                           if (hasSave) {
                             // Se o cara apertou "Novo Jogo" tendo um save antigo, a gente limpa!
                             await SaveManager.clearSavedRun(); 

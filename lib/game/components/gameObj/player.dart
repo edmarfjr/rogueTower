@@ -8,6 +8,7 @@ import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -94,6 +95,8 @@ class Player extends PositionComponent
   bool isHeavyShot = false;
   bool hasCupon = false;
   bool isBoomerang = false;
+  bool criaPocaVeneno = false;
+  double criaPocaVenenoTmr = 0;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -105,6 +108,7 @@ class Player extends PositionComponent
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
+  Color _currentColor = Pallete.branco;
   GameIcon? _currentAccessory;
   double _baseAccessoryOffsetX = 0.0;
   double _baseAccessoryScaleX = 1.0;
@@ -235,6 +239,7 @@ class Player extends PositionComponent
   void applyClass(CharacterClass charClass) {
       // 1. Aplica Vida e Escudo
       maxHealth = charClass.maxHp;
+      maxDash = charClass.maxDash;
       healthNotifier.value = maxHealth;
       shieldNotifier.value = charClass.startingShield;
       bombNotifier.value = charClass.startingBombs;
@@ -247,6 +252,7 @@ class Player extends PositionComponent
       critChance = charClass.critChance;
       critDamage = charClass.critDamage;
       attackRange = charClass.attackRange;
+      _rangeIndicator.radius = attackRange;
       dashCooldown = charClass.dashCooldown;
       dot = charClass.dot;
       stackBonus = charClass.stackBonus;
@@ -261,7 +267,7 @@ class Player extends PositionComponent
     }
 
       // 4. (Opcional) Muda a cor do personagem para bater com a classe!
-      //originalColor = charClass.color;
+      _currentColor = charClass.color;
       if (_visual != null) {
         _visual.setColor(charClass.color);
         // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
@@ -358,6 +364,7 @@ class Player extends PositionComponent
     if (!velocity.isZero()) {
       velocityDash.setFrom(velocity); // Copia segura
       _handleDustEffect(dt);
+      if(criaPocaVeneno) _createPocaVeneno(dt); 
       if(isConcentration) fireRate = fireRateInicial * 1.15;
     }else{
       if(isConcentration) fireRate = fireRateInicial * 0.5;
@@ -406,7 +413,7 @@ class Player extends PositionComponent
       gameRef.world.add(
         GhostParticle(
           icon: _visual.icon,
-          color: Pallete.branco.withOpacity(0.3),
+          color: _currentColor.withOpacity(0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
@@ -414,6 +421,19 @@ class Player extends PositionComponent
         ),
       );
       _ghostTimer = 0;
+    }
+  }
+
+  void _createPocaVeneno(double dt) {
+    criaPocaVenenoTmr += dt;
+    if (criaPocaVenenoTmr >= 0.1) {
+      gameRef.world.add(
+        PoisonPuddle(
+          position: position.clone(), 
+          isPlayer: true
+        ),
+      );
+      criaPocaVenenoTmr = 0;
     }
   }
 
@@ -484,12 +504,12 @@ class Player extends PositionComponent
       if (_invincibilityTimer % 0.2 < 0.1) {
          _visual.setColor(Pallete.vermelho.withOpacity(0.5));
       } else {
-         _visual.setColor(Pallete.branco);
+         _visual.setColor(_currentColor);
       }
 
       if (_invincibilityTimer <= 0) {
         _isInvincible = false;
-        _visual.setColor(Pallete.branco);
+        _visual.setColor(_currentColor);
       }
     }
   }
@@ -638,6 +658,7 @@ class Player extends PositionComponent
     hasCupon = false;
     isBoomerang = false;
     isBleed = false;
+    criaPocaVeneno = false;
 
     _visual.setColor(Pallete.branco);
   }

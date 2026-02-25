@@ -357,9 +357,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.keys:
         return {'name': 'keys'.tr(), 'desc': 'keysDesc'.tr(), 'icon': MdiIcons.keyChain, 'color': Pallete.laranja};
       case CollectibleType.bomba:
-        return {'name': 'bomb'.tr(), 'desc': 'bombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
+        return {'name': 'bomb'.tr(), 'desc': 'bombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.lilas};
       case CollectibleType.bombas:
-        return {'name': 'bombs'.tr(), 'desc': 'bombsDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
+        return {'name': 'bombs'.tr(), 'desc': 'bombsDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.lilas};
       case CollectibleType.chest:
         return {'name': 'Baú', 'desc': 'Contém tesouros', 'icon': Icons.inventory_2, 'color': Pallete.laranja};
       case CollectibleType.damage:

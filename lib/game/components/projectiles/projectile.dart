@@ -105,7 +105,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     visual = GameIcon(
       icon: icon, 
       color: color,
-      size: size,
+      size: isHoming? size*2:size,
       anchor: Anchor.center,
       position: size / 2,
     );

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:TowerRogue/game/overlays/character_selection_menu.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,10 @@ import 'game/overlays/debug_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb) {
+    await MobileAds.instance.initialize();
+  }
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

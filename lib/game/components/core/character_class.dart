@@ -19,6 +19,7 @@ class CharacterClass {
 
   // Atributos Base
   final int maxHp;
+  final int maxDash;
   final double speed;
   final double damage;
   final double fireRate;
@@ -42,6 +43,7 @@ class CharacterClass {
     required this.icon,
     required this.color,
     required this.maxHp,
+    required this.maxDash,
     required this.speed,
     required this.damage,
     required this.fireRate,
@@ -79,13 +81,14 @@ class CharacterRoster {
       flipAccessoryBase: true,
       color: Pallete.lilas, // Ou Pallete.azul
       maxHp: 8, // 4 Corações
+      maxDash: 2,
       speed: 150.0,
       damage: 10.0,
       fireRate: 0.4,
       critChance: 5,
       critDamage: 1.5,
       dashCooldown: 2.5,
-      attackRange: 150,
+      attackRange: 200,
     ),
     CharacterClass(
       name: "LADINO",
@@ -97,6 +100,7 @@ class CharacterRoster {
       acessoryAngle: pi/2,
       color:  Pallete.verdeCla,
       maxHp: 4, // 2 Corações apenas!
+      maxDash: 3,
       speed: 220.0, // Muito rápido
       damage: 8.0,
       fireRate: 0.25, // Atira muito rápido
@@ -105,7 +109,7 @@ class CharacterRoster {
       dashCooldown: 1.0, // Dash carrega rápido
       startingBombs: 1,
       startingKeys: 1,
-      attackRange: 200,
+      attackRange: 150,
     ),
     CharacterClass(
       name: "MAGO",
@@ -115,9 +119,10 @@ class CharacterRoster {
       accessoryOffsetY: 10.0,
       accessorySize: 24.0,
       color: Pallete.rosa,
-      maxHp: 6, // 3 Corações
+      maxHp: 4, 
+      maxDash: 2,
       speed: 130.0, // Mais lento
-      damage: 15.0, // Dano alto
+      damage: 10.0, // Dano alto
       fireRate: 0.6, // Atira devagar
       critChance: 5,
       critDamage: 2,

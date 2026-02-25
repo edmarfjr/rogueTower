@@ -44,7 +44,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double freezeDuration = 3.0;
   bool isBurned = false;
   double burnTimer = 0.0;
-  double burnTime = 2.0;
+  double burnTime = 1.0;
   ValueNotifier<int> burnStacks = ValueNotifier<int>(0);
   bool isPoisoned = false;
   double poisonTimer = 0.0;

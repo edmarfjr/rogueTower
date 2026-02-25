@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/components/core/ad_manager.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
@@ -79,6 +80,25 @@ class GameOver extends StatelessWidget {
                 },
                 child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Pallete.vermelho,
+                  minimumSize: const Size(200, 50),
+                ),
+                child: const Text("Assistir Anúncio para Reviver ❤️"),
+                onPressed: () {
+                  AdManager.showRewardedAd(
+                    onRewardEarned: () {
+                      // Lógica de recompensa:
+                      game.player.healthNotifier.value = 2; // Dá um pouco de vida
+                      //game.player.revive = true; // Flag caso precise
+                      game.overlays.remove('GameOver'); // Tira a tela de morte
+                      game.resumeEngine(); // Volta o jogo!
+                    }
+                  );
+                }
+              )
           ],
         ),
       ),
