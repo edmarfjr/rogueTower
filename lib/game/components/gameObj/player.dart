@@ -45,6 +45,7 @@ class Player extends PositionComponent
   double fireRate = 0.4; 
   double fireRateInicial = 0.4; 
   double moveSpeed = 150.0;
+   int stackBonus = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
 
@@ -94,8 +95,6 @@ class Player extends PositionComponent
   bool hasCupon = false;
   bool isBoomerang = false;
 
-  int stackBonus = 0;
-
   // Variáveis de Animação
   double _walkTimer = 0;
   final double _bounceSpeed = 15.0;     
@@ -106,6 +105,10 @@ class Player extends PositionComponent
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
+  GameIcon? _currentAccessory;
+  double _baseAccessoryOffsetX = 0.0;
+  double _baseAccessoryScaleX = 1.0;
+
   MagicShieldEffect? _shieldVisual;
   final Paint _dashBgPaint = Paint()..color = Pallete.preto.withOpacity(0.5);
   final Paint _dashFgPaint = Paint()..color = Pallete.verdeCla;
@@ -197,12 +200,28 @@ class Player extends PositionComponent
     } else {
       _handleMovement(dt);    
     }
-
+/*
     // Lógica Visual (Virar sprite) - Acesso direto ao _visual cacheado
     if (velocity.x.abs() > 0.1) {
-      _visual.scale.x = velocity.x < 0 ? -1 : 1;
-    }
+      bool isFacingLeft = velocity.x < 0;
+      
+      // Flipa o corpo do jogador
+      _visual.scale.x = isFacingLeft ? -1 : 1;
 
+      // --- NOVA LÓGICA DO ACESSÓRIO ---
+      if (_currentAccessory != null) {
+        if (isFacingLeft) {
+          // Joga o acessório para o lado esquerdo do corpo e espelha a imagem
+          _currentAccessory!.position.x = -_baseAccessoryOffsetX + 32.0;
+          _currentAccessory!.scale.x = -_baseAccessoryScaleX;
+        } else {
+          // Volta para o lado direito do corpo e usa a escala normal
+          _currentAccessory!.position.x = _baseAccessoryOffsetX;
+          _currentAccessory!.scale.x = _baseAccessoryScaleX;
+        }
+      }
+    }
+*/
     _animateMovement(dt);
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
@@ -229,18 +248,40 @@ class Player extends PositionComponent
       critDamage = charClass.critDamage;
       attackRange = charClass.attackRange;
       dashCooldown = charClass.dashCooldown;
+      dot = charClass.dot;
+      stackBonus = charClass.stackBonus;
 
       // 3. Aplica Passivas
       isPiercing = charClass.isPiercing;
+      isBurn = charClass.isBurn;
+
+      if (_currentAccessory != null) {
+      _currentAccessory!.removeFromParent();
+      _currentAccessory = null;
+    }
 
       // 4. (Opcional) Muda a cor do personagem para bater com a classe!
       //originalColor = charClass.color;
-      final visualIcon = children.whereType<GameIcon>().firstOrNull;
-      if (visualIcon != null) {
-        visualIcon.setColor(charClass.color);
+      if (_visual != null) {
+        _visual.setColor(charClass.color);
         // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
         // visualIcon.icon = charClass.icon; 
       }
+
+      _currentAccessory = GameIcon(
+        icon: charClass.icon,     // Usa o ícone da classe (Escudo, Varinha, etc)
+        color: charClass.color,   // Usa a cor da classe
+        size: Vector2(charClass.accessorySize,charClass.accessorySize),
+      );
+
+      _baseAccessoryOffsetX = charClass.accessoryOffsetX;
+     _baseAccessoryScaleX = charClass.flipAccessoryBase ? -1.0 : 1.0;
+
+      _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, charClass.accessoryOffsetY);
+      _currentAccessory!.scale.x = _baseAccessoryScaleX;
+      _currentAccessory!.angle = charClass.acessoryAngle;
+      _currentAccessory!.priority = 1;
+      add(_currentAccessory!);
     }
 
   void activateShield() {
@@ -262,20 +303,43 @@ class Player extends PositionComponent
     if (velocity.x < -0.1) facingDirection = -1.0;
     if (velocity.x > 0.1) facingDirection = 1.0;
 
+    // Variáveis base de animação
+    double currentScaleX = 1.0;
+    double currentScaleY = 1.0;
+    double currentAngle = 0.0;
+
     if (!velocity.isZero()) {
       _walkTimer += dt * _bounceSpeed;
 
       double wave = sin(_walkTimer);
-      double scaleY = 1.0 + (wave * _bounceAmplitude); 
-      double scaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
-
-      _visual.scale.setValues(facingDirection * scaleX, scaleY);
-      _visual.angle = cos(_walkTimer) * 0.1; 
+      currentScaleY = 1.0 + (wave * _bounceAmplitude); 
+      currentScaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
+      currentAngle = cos(_walkTimer) * 0.1; 
       
     } else {
       _walkTimer = 0;
-      _visual.scale.setValues(facingDirection, 1.0); 
-      _visual.angle = 0; 
+    }
+
+    // 1. Aplica a animação no Corpo Principal (_visual)
+    _visual.scale.setValues(facingDirection * currentScaleX, currentScaleY);
+    _visual.angle = currentAngle; 
+
+    // 2. Aplica a animação no Acessório (Sincronizado!)
+    if (_currentAccessory != null) {
+      // Sincroniza o "pulo" (escala Y) e a rotação (balanço)
+      _currentAccessory!.scale.y = currentScaleY;
+      _currentAccessory!.angle = currentAngle;
+
+      // Trata a inversão de lado e o "amasso" (escala X)
+      if (facingDirection < 0) {
+        // Virado para a Esquerda
+        _currentAccessory!.position.x = -_baseAccessoryOffsetX + 32.0; // O nosso ajuste fino!
+        _currentAccessory!.scale.x = -_baseAccessoryScaleX * currentScaleX;
+      } else {
+        // Virado para a Direita
+        _currentAccessory!.position.x = _baseAccessoryOffsetX;
+        _currentAccessory!.scale.x = _baseAccessoryScaleX * currentScaleX;
+      }
     }
   }
 
@@ -496,9 +560,9 @@ class Player extends PositionComponent
       position: position.clone(), 
       direction: _tempDirection.clone(), 
       damage: dmg, 
-      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 150 : 300,
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
-      dieTimer: isBoomerang ? 1.0 : 3.0,
+      dieTimer: isBoomerang ? 1.0 : 2.0,
       apagaTiros: hasAntimateria,
       isHoming: isHoming,
       iniPosition: position.clone(),

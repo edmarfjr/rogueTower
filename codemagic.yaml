@@ -25,11 +25,9 @@ workflows:
           
       - name: Gerar App Bundle (Play Store) e APK (Testes)
         script: |
-          # Gera o AAB para a Play Store já com o número incrementado automaticamente!
-          flutter build appbundle --release --build-number=$BUILD_NUMBER
+          flutter build appbundle --release --build-number=$BUILD_NUMBER --no-tree-shake-icons
           
-          # Gera o APK para você mandar pro celular também com o número atualizado!
-          flutter build apk --release --build-number=$BUILD_NUMBER
+          flutter build apk --release --build-number=$BUILD_NUMBER --no-tree-shake-icons
 
     # Arquivos finais que o Codemagic vai te entregar para download no final do processo
     artifacts:
