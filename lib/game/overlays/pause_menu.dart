@@ -98,7 +98,7 @@ class PauseMenu extends StatelessWidget {
                 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.verdeCla,
+                    backgroundColor: Pallete.lilas,
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: () {
@@ -124,7 +124,7 @@ class PauseMenu extends StatelessWidget {
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.vermelho,
+                    backgroundColor: Pallete.lilas,
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: () {

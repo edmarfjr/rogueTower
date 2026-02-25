@@ -58,7 +58,7 @@ class GameOver extends StatelessWidget {
             // BOTÃO TENTAR NOVAMENTE
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.verdeCla,
+                  backgroundColor: Pallete.lilas,
                   minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {
@@ -72,7 +72,7 @@ class GameOver extends StatelessWidget {
             // BOTÃO VOLTAR AO MENU
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.vermelho,
+                  backgroundColor: Pallete.lilas,
                   minimumSize: const Size(200, 50),
                 ),
                 onPressed: () {                 
@@ -83,10 +83,10 @@ class GameOver extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.vermelho,
+                  backgroundColor: Pallete.lilas,
                   minimumSize: const Size(200, 50),
                 ),
-                child: const Text("Assistir Anúncio para Reviver ❤️"),
+                child: const Text("Assistir Anúncio para Reviver"),
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {

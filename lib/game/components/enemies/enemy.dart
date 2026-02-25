@@ -407,6 +407,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double fontSize = 14;
 
     if(isCrit){
+      gameRef.triggerHitStop(0.1);
       cor = Pallete.amarelo;
       fontSize = 18;
     } 
@@ -431,8 +432,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void _keepInsideArena() {
-    double halfWidth = TowerGame.arenaWidth / 2;
-    double halfHeight = TowerGame.arenaHeight / 2;
+    double halfWidth = TowerGame.gameWidth / 2;
+    double halfHeight = TowerGame.gameHeight / 2;
     double padding = size.x / 2; 
 
     position.x = position.x.clamp(-halfWidth + padding, halfWidth - padding);
@@ -588,7 +589,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       burnTimer += dt;
       if (burnTimer >= burnTime){
         burnStacks.value -= 1;
-        
+        takeDamage(5 *gameRef.player.dot, isDot: true);
+        burnText?.text = burnStacks.value.toString();
         burnTimer = 0.0;
         if (burnStacks.value <= 0) {
           isBurned = false;
@@ -603,9 +605,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
             burnText!.removeFromParent();
             burnText = null; // IMPORTANTE
           }
-        }else{
-          takeDamage(5 *gameRef.player.dot, isDot: true);
-          burnText?.text = burnStacks.value.toString();
         }
       }
     }
@@ -615,7 +614,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       poisonTimer += dt;
       if (poisonTimer >= poisonTime){
         poisonStacks.value -= 1;
-        
+        takeDamage(3 *gameRef.player.dot, isDot: true);
+        poisonText?.text = poisonStacks.value.toString();
         poisonTimer = 0.0;
         if (poisonStacks.value <= 0) {
           isPoisoned = false;
@@ -630,9 +630,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
             poisonText!.removeFromParent();
             poisonText = null; // IMPORTANTE
           }
-        }else{
-          takeDamage(3 *gameRef.player.dot, isDot: true);
-          poisonText?.text = poisonStacks.value.toString();
         }
       }
     }
@@ -642,7 +639,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       bleedTimer += dt;
       if (bleedTimer >= bleedTime){
         bleedStacks.value -= 1;
-        
+        takeDamage(2 *gameRef.player.dot, isDot: true);
+        bleedText?.text = bleedStacks.value.toString();
         bleedTimer = 0.0;
         if (bleedStacks.value <= 0) {
           isBleed = false;
@@ -657,9 +655,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
             bleedText!.removeFromParent();
             bleedText = null; // IMPORTANTE
           }
-        }else{
-          takeDamage(2 *gameRef.player.dot, isDot: true);
-          bleedText?.text = bleedStacks.value.toString();
         }
       }
     }

@@ -21,6 +21,7 @@ enum CollectibleType {
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
+  pocaVeneno,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail 
@@ -437,7 +438,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.kinetic:
          return {'name': 'kinetic'.tr(), 'desc': 'kineticDesc'.tr(), 'icon': MdiIcons.runFast, 'color': Pallete.vermelho}; 
       case CollectibleType.heavyShot:
-         return {'name': 'heavyShot'.tr(), 'desc': 'heavyShotDesc'.tr(), 'icon': MdiIcons.dumbbell, 'color': Pallete.cinzaEsc}; 
+         return {'name': 'heavy'.tr(), 'desc': 'heavyDesc'.tr(), 'icon': MdiIcons.dumbbell, 'color': Pallete.cinzaEsc}; 
       case CollectibleType.cupon:
          return {'name': 'cupon'.tr(), 'desc': 'cuponDesc'.tr(), 'icon': MdiIcons.ticketPercent, 'color': Pallete.bege};
       case CollectibleType.conqCrown:
@@ -446,6 +447,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
          return {'name': 'flail'.tr(), 'desc': 'flailDesc'.tr(), 'icon': MdiIcons.mace, 'color': Pallete.vermelho};
       case CollectibleType.bumerangue:
          return {'name': 'bumerangue'.tr(), 'desc': 'bumerangueDesc'.tr(), 'icon': MdiIcons.boomerang, 'color': Pallete.marrom};
+      case CollectibleType.pocaVeneno:
+         return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': MdiIcons.cloudOffOutline, 'color': Pallete.verdeEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -510,6 +513,8 @@ List<CollectibleType> retornaItens(player){
     if (!player.isKinetic) itens.add(CollectibleType.kinetic);
     if (!player.isHeavyShot) itens.add(CollectibleType.heavyShot);
     if (!player.hasCupon) itens.add(CollectibleType.cupon);
+    if (!player.criaPocaVenenoTmr) itens.add(CollectibleType.pocaVeneno);
+    
       
 
     return itens;
@@ -532,6 +537,7 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.dotBook,
       CollectibleType.druidScroll,
       CollectibleType.bloodstone,
+      CollectibleType.pocaVeneno,
     ];
     itens.add(CollectibleType.piercing);
     itens.add(CollectibleType.fogo);
@@ -911,6 +917,12 @@ class CollectibleLogic {
         case CollectibleType.bumerangue:
           player.isBoomerang = true;
           text = "Bumerangue!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.pocaVeneno:
+          player.criaPocaVeneno = true;
+          text = "poça veneno!";
           //color = Pallete.vermelho;
           break;
 

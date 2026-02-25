@@ -191,8 +191,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       const double margin = 40.0;
 
-      final double spawnWidth = gameRef.gameWidth - (margin * 2);
-      final double spawnHeight = gameRef.gameHeight - (margin * 2);
+      const double spawnWidth = TowerGame.gameWidth - (margin * 2);
+      const double spawnHeight = TowerGame.gameHeight - (margin * 2);
 
       double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
       double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
@@ -237,8 +237,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       const double margin = 40.0;
 
-      final double spawnWidth = gameRef.gameWidth - (margin * 2);
-      final double spawnHeight = gameRef.gameHeight - (margin * 2);
+      const double spawnWidth = TowerGame.gameWidth - (margin * 2);
+      const double spawnHeight = TowerGame.gameHeight - (margin * 4);
 
       double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
       double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
@@ -663,6 +663,18 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       _generateBossReward();
       ();
     } else {
+      if(gameRef.nextRoomReward == CollectibleType.potion || gameRef.nextRoomReward == CollectibleType.shield){
+        double itExtras = Random().nextDouble();
+        if (itExtras <= 0.2){
+          int numExtra = Random().nextInt(2) + 1;
+          for(var i=0;i<numExtra;i++){
+            gameRef.world.add(Collectible(
+              position: Vector2(-80 + (160 * i.toDouble()), 0),
+              type: gameRef.nextRoomReward,
+            ));
+          }
+        }
+      }
       _explosaoCriaItem();
       gameRef.world.add(Collectible(
         position: Vector2(0, 0),

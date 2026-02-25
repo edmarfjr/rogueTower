@@ -177,8 +177,8 @@ class RandomWanderBehavior extends MovementBehavior {
 
   // Agora aceita uma direção opcional de viés (Bias)
   void _pickNewTarget({Vector2? pushAwayFrom}) {
-    double w = TowerGame.arenaWidth / 2 - 40; // Margem de segurança maior (40)
-    double h = TowerGame.arenaHeight / 2 - 40;
+    double w = TowerGame.gameWidth / 2 - 40; // Margem de segurança maior (40)
+    double h = TowerGame.gameHeight / 2 - 40;
 
     if (pushAwayFrom != null) {
       // --- LÓGICA DE COLISÃO INTELIGENTE ---
@@ -253,10 +253,10 @@ class BouncerBehavior extends MovementBehavior {
     double halfHeight = enemy.size.y / 2;
 
     // Limites da Arena (considerando o tamanho do inimigo)
-    double rightLimit = (TowerGame.arenaWidth / 2) - halfWidth;
-    double leftLimit = -(TowerGame.arenaWidth / 2) + halfWidth;
-    double topLimit = -(TowerGame.arenaHeight / 2) + halfHeight;
-    double bottomLimit = (TowerGame.arenaHeight / 2) - halfHeight;
+    double rightLimit = (TowerGame.gameWidth / 2) - halfWidth;
+    double leftLimit = -(TowerGame.gameWidth / 2) + halfWidth;
+    double topLimit = -(TowerGame.gameHeight / 2) + halfHeight;
+    double bottomLimit = (TowerGame.gameHeight / 2) - halfHeight;
 
     bool bounced = false;
 
@@ -786,8 +786,8 @@ class DashAttackBehavior extends AttackBehavior {
   // --- VERIFICA SE BATEU NA BORDA DA ARENA ---
   bool _checkArenaImpact() {
     bool hit = false;
-    double halfW = TowerGame.arenaWidth / 2;
-    double halfH = TowerGame.arenaHeight / 2;
+    double halfW = TowerGame.gameWidth / 2;
+    double halfH = TowerGame.gameHeight / 2;
     
     // Raio do inimigo (aprox metade do tamanho)
     double r = enemy.size.x / 2;
@@ -1019,8 +1019,8 @@ class JumpAttackBehavior extends AttackBehavior {
     Vector2 target = enemy.position + offset;
 
     // (Opcional) Clampar para dentro da arena para ele não pular no vazio
-    double halfW = TowerGame.arenaWidth / 2 - 20;
-    double halfH = TowerGame.arenaHeight / 2 - 20;
+    double halfW = TowerGame.gameWidth / 2 - 20;
+    double halfH = TowerGame.gameHeight / 2 - 20;
     
     target.x = target.x.clamp(-halfW, halfW);
     target.y = target.y.clamp(-halfH, halfH);

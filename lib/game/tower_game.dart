@@ -31,8 +31,8 @@ import 'overlays/bank_menu.dart';
 import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-  static const double arenaWidth = 360.0;  // Largura total (Esquerda <-> Direita)
-  static const double arenaHeight = 660.0; // Altura total (Cima <-> Baixo)
+  static const double gameWidth = 500.0;  // Largura total (Esquerda <-> Direita)
+  static const double gameHeight = 900.0; // Altura total (Cima <-> Baixo)
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
@@ -81,9 +81,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   double _shakeTimer = 0.0;
   double _shakeIntensity = 0.0;
 
-  
-  final double gameWidth = 500;
-  final double gameHeight = 900;
+  //final double gameWidth = 500;
+  //final double gameHeight = 900;
+
+  double _hitStopTimer = 0.0;
 
   @override
   Color backgroundColor() => Pallete.preto;
@@ -167,6 +168,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
  @override
   void update(double dt) {
+    if (_hitStopTimer > 0) {
+      _hitStopTimer -= dt;
+      return; 
+    }
+
     super.update(dt); 
 
     // --- NOVA LÓGICA DO TREMOR (À PROVA DE FALHAS) ---
@@ -185,6 +191,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
       if (_shakeTimer <= 0) {
         camera.viewport.position = Vector2.zero();
       }
+    }
+  }
+
+  void triggerHitStop(double duration) {
+    // Se já estiver em um hit stop, pega o maior (para não cancelar um hit stop longo com um curto)
+    if (duration > _hitStopTimer) {
+      _hitStopTimer = duration;
     }
   }
 

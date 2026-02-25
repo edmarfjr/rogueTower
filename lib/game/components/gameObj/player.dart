@@ -4,6 +4,7 @@ import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
@@ -97,6 +98,7 @@ class Player extends PositionComponent
   bool isBoomerang = false;
   bool criaPocaVeneno = false;
   double criaPocaVenenoTmr = 0;
+  bool isShotgun = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -260,6 +262,10 @@ class Player extends PositionComponent
       // 3. Aplica Passivas
       isPiercing = charClass.isPiercing;
       isBurn = charClass.isBurn;
+
+      //remove itens cujo efeito ja existe
+      if(isPiercing)game.itensComunsPoolCurrent.remove(CollectibleType.piercing);
+      if(isBurn)game.itensComunsPoolCurrent.remove(CollectibleType.fogo);
 
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();
@@ -449,8 +455,8 @@ class Player extends PositionComponent
   }
 
   void _keepInBounds() {
-    double limitX = game.gameWidth/2 - size.x;
-    double limitY = game.gameHeight/2 - size.y;
+    double limitX = TowerGame.gameWidth/2 - size.x;
+    double limitY = TowerGame.gameHeight/2 - size.y;
 
     position.x = position.x.clamp(-limitX, limitX);
     position.y = position.y.clamp(-limitY, limitY);
@@ -469,6 +475,7 @@ class Player extends PositionComponent
     if(_isInvincible) return;
    // if (healthNotifier.value <= 0) return;
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
+    gameRef.triggerHitStop(0.05);
     if (hasShield) {
       _breakShield(); 
       return; 
@@ -543,14 +550,22 @@ class Player extends PositionComponent
     if (target != null) {
       _attackTimer = 0;
       _shootAt(target);
+      if(isShotgun){
+        _shootAt(target,angleOffset: 0.2);
+        _shootAt(target,angleOffset: -0.2);
+      }
     }
   }
 
-  void _shootAt(Enemy target) {
+  void _shootAt(Enemy target, {double angleOffset = 0}) {
     // Calculo da direção livre de lixo de memória
     _tempDirection.setFrom(target.position);
     _tempDirection.sub(position);
     _tempDirection.normalize();
+
+    double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
+    double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
+    _tempDirection.setValues(x, y);
 
     double dmg = damage;
 
@@ -563,9 +578,9 @@ class Player extends PositionComponent
        dmg = dmg * 1.3;
     }
     if(isBebado){
-      double angleOffset = Random().nextDouble() * 0.2;
-      double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
-      double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
+      double angOffset = Random().nextDouble() * 0.2;
+      double x = _tempDirection.x * cos(angOffset) - _tempDirection.y * sin(angOffset);
+      double y = _tempDirection.x * sin(angOffset) + _tempDirection.y * cos(angOffset);
       _tempDirection.setValues(x, y);
       dmg = dmg * 1.3;
     }
@@ -659,6 +674,7 @@ class Player extends PositionComponent
     isBoomerang = false;
     isBleed = false;
     criaPocaVeneno = false;
+    isShotgun = true;
 
     _visual.setColor(Pallete.branco);
   }

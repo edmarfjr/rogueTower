@@ -59,7 +59,7 @@ class MainMenu extends StatelessWidget {
                         _buildMenuButton(
                           context,
                           text: 'continue'.tr(), // Crie essa chave de tradução (ex: 'Continuar')
-                          bgColor: Pallete.verdeCla, // Destaque visual
+                          bgColor: Pallete.branco, // Destaque visual
                           textColor: Colors.black,
                           onPressed: () async {
                             AdManager.loadRewardedAd();
