@@ -674,7 +674,7 @@ class Player extends PositionComponent
     isBoomerang = false;
     isBleed = false;
     criaPocaVeneno = false;
-    isShotgun = true;
+    isShotgun = false;
 
     _visual.setColor(Pallete.branco);
   }
