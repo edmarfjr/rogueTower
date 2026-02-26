@@ -216,7 +216,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   void update(double dt) {
-    if (gameRef.currentRoom == 0) return; 
+    //if (gameRef.currentRoom == 0) return; 
     if(_initTimer > 0){
       _initTimer -= dt;
       return;
@@ -368,8 +368,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
     hp -= dmg;
     
-    // --- A CORREÇÃO ESTÁ AQUI ---
-    // Só aplica novos status se NÃO for um dano de Veneno/Fogo/Sangramento
     if (!isDot) {
       if(gameRef.player.isFreeze){
         final rng = Random();
@@ -379,21 +377,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
 
       if(gameRef.player.isBurn){
-        if (burnStacks.value < 5 + gameRef.player.stackBonus){
-          setBurn();     
-        }
+        setBurn();
       }
 
       if(gameRef.player.isPoison){
-        if (poisonStacks.value < 10 + gameRef.player.stackBonus){
-          setPoison();
-        }
+        setPoison();
       }
 
       if(gameRef.player.isBleed){
-        if (bleedStacks.value < 15 + gameRef.player.stackBonus){
-          setBleed();
-        }
+        setBleed();
       }
     }
 
@@ -407,17 +399,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double fontSize = 14;
 
     if(isCrit){
+      gameRef.shakeCamera(intensity: 2.0, duration: 0.1);
       gameRef.triggerHitStop(0.1);
       cor = Pallete.amarelo;
       fontSize = 18;
     } 
 
-    gameRef.world.add(FloatingText(
-      text: dmg.toInt().toString(),
-      position: position + Vector2(0, -10), 
-      color: cor, 
-      fontSize: fontSize,
-    ));
+    if (dmg > 0){
+      gameRef.world.add(FloatingText(
+        text: dmg.toInt().toString(),
+        position: position + Vector2(0, -10), 
+        color: cor, 
+        fontSize: fontSize,
+      ));
+    }
+    
 
     if (hp <= 0) {
       die();
@@ -463,6 +459,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setBurn(){
+    if (burnStacks.value >= 5 + gameRef.player.stackBonus) return;
     if(!isBurned) numCondicoes ++;
     isBurned = true;
     burnStacks.value += 1;
@@ -481,7 +478,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (burnText == null){
       burnText = TextComponent(
         text: burnStacks.value.toString(),
-        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -497,6 +494,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
   
   void setBleed(){
+    if (bleedStacks.value >= 15 + gameRef.player.stackBonus) return;
     if(!isBleed) numCondicoes ++;
     isBleed = true;
     bleedStacks.value += 1;
@@ -516,7 +514,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (bleedText == null){
       bleedText = TextComponent(
         text: bleedStacks.value.toString(),
-        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -532,6 +530,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setPoison(){
+    if (poisonStacks.value >= 10 + gameRef.player.stackBonus) return;
     if(!isPoisoned) numCondicoes ++;
     isPoisoned = true;
     poisonStacks.value += 1;
@@ -550,7 +549,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (poisonText == null){
       poisonText = TextComponent(
         text: poisonStacks.value.toString(),
-        position: Vector2((size.x/2) - 10, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
         anchor: Anchor.center,
         textRenderer: TextPaint(
           style: const TextStyle(
@@ -588,10 +587,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (isBurned){
       burnTimer += dt;
       if (burnTimer >= burnTime){
+        burnTimer = 0.0;
         burnStacks.value -= 1;
         takeDamage(5 *gameRef.player.dot, isDot: true);
         burnText?.text = burnStacks.value.toString();
-        burnTimer = 0.0;
+        
         if (burnStacks.value <= 0) {
           isBurned = false;
           numCondicoes --;

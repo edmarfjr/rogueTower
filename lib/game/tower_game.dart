@@ -447,7 +447,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     player.applyClass(selectedClass);
     camera.follow(player);
     
-    AudioManager.playBgm('funny_bit.mp3');
+   // AudioManager.playBgm('funny_bit.mp3');
     startLevel();
   }
 }

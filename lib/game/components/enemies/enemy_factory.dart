@@ -178,7 +178,7 @@ class EnemyFactory {
       ],
       phase1Attacks: [
         ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true), 
-        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), 
+        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 8), 
       ],
        
         // --- ATIVANDO A FASE 2 ---
@@ -192,8 +192,8 @@ class EnemyFactory {
       ],
       phase2Attacks: [
         ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
-        SpinnerAttackBehavior(interval: 2, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 8),
-        MortarAttackBehavior(interval:4, isBarragem: true, isPoison: true),
+        SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 12),
+        MortarAttackBehavior(interval:2, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
           minionBuilder: (p) => EnemyFactory.createRat(p), 
           interval: 3.0, 

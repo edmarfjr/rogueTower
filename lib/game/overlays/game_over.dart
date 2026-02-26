@@ -86,12 +86,12 @@ class GameOver extends StatelessWidget {
                   backgroundColor: Pallete.lilas,
                   minimumSize: const Size(200, 50),
                 ),
-                child: const Text("Assistir Anúncio para Reviver"),
+                child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {
                       // Lógica de recompensa:
-                      game.player.healthNotifier.value = 2; // Dá um pouco de vida
+                      game.player.healthNotifier.value = (game.player.maxHealth/2) as int; 
                       //game.player.revive = true; // Flag caso precise
                       game.overlays.remove('GameOver'); // Tira a tela de morte
                       game.resumeEngine(); // Volta o jogo!

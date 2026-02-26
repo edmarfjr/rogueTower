@@ -1,4 +1,5 @@
 import 'package:TowerRogue/game/components/core/character_class.dart';
+import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
 import '../components/core/character_class.dart';
@@ -14,6 +15,22 @@ class CharacterSelectionMenu extends StatefulWidget {
 
 class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
   int _selectedIndex = 0;
+  bool _isCurrentClassUnlocked = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUnlockStatus(); // Checa o primeiro personagem ao abrir a tela
+  }
+
+  // Função que lê o save
+  void _checkUnlockStatus() async {
+    final charClass = CharacterRoster.classes[_selectedIndex];
+    bool unlocked = await GameProgress.isClassUnlocked(charClass);
+    setState(() {
+      _isCurrentClassUnlocked = unlocked;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +55,45 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                 style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              
-              // O Ícone Gigante da Classe
-              Icon(charClass.icon, size: 100, color: charClass.color),
-              const SizedBox(height: 10),
-              
-              // Nome da Classe
-              Text(
-                charClass.name,
-                style: TextStyle(color: charClass.color, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // O ícone da classe (Fica cinza se estiver bloqueado!)
+                  Icon(
+                    charClass.icon, 
+                    size: 100, 
+                    color: _isCurrentClassUnlocked ? charClass.color : Colors.white24
+                  ),
+                  
+                  // O Cadeado gigante em cima
+                  if (!_isCurrentClassUnlocked)
+                    const Icon(Icons.lock, size: 60, color: Colors.white),
+                ],
               ),
               
-              // Descrição
+              const SizedBox(height: 10),
+              Text(
+                _isCurrentClassUnlocked ? charClass.name : "???",
+                style: TextStyle(
+                  color: _isCurrentClassUnlocked ? charClass.color : Colors.grey, 
+                  fontSize: 32, 
+                  letterSpacing: 2
+                ),
+              ),
+              
+              // Mostra a descrição normal se liberado, ou a Dica se bloqueado
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Text(
-                  charClass.description,
+                  _isCurrentClassUnlocked ? charClass.description : charClass.unlockConditionText,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  style: TextStyle(
+                    color: _isCurrentClassUnlocked ? Colors.white70 : Colors.redAccent, 
+                    fontSize: 16,
+                    fontWeight: _isCurrentClassUnlocked ? FontWeight.normal : FontWeight.bold,
+                  ),
                 ),
               ),
-
-              // Status Rápidos
-              Text("HP: ${charClass.maxHp} | Dano: ${charClass.damage} | Crítico: ${charClass.critChance}%",
-                  style: const TextStyle(color: Colors.white, fontSize: 18)),
 
               const Spacer(),
 
@@ -74,7 +106,12 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                     icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 30),
                     onPressed: () {
                       setState(() {
-                        if (_selectedIndex > 0) _selectedIndex--;
+                        if (_selectedIndex > 0){
+                          _selectedIndex--;
+                        } else {
+                          _selectedIndex = CharacterRoster.classes.length - 1;
+                        }
+                        _checkUnlockStatus();
                       });
                     },
                   ),
@@ -82,17 +119,17 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   // Botão de COMEÇAR JOGO
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: charClass.color,
+                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Colors.grey,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
-                    onPressed: () {
+                    onPressed: _isCurrentClassUnlocked ? () {
                       // CHAMA A FUNÇÃO QUE ALTERAMOS NO PASSO 3!
                       widget.game.selectedClass = charClass;
                       widget.game.startGame(charClass);
                       widget.game.overlays.remove('CharacterSelectionMenu');
-                    },
-                    child: const Text("INICIAR", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+                    } : null,
+                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
 
                   // Seta para a Direita
@@ -100,7 +137,11 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                     icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
                     onPressed: () {
                       setState(() {
-                        if (_selectedIndex < CharacterRoster.classes.length - 1) _selectedIndex++;
+                        if (_selectedIndex < CharacterRoster.classes.length - 1){
+                          _selectedIndex++;
+                        } else {
+                          _selectedIndex = 0;
+                        }_checkUnlockStatus();
                       });
                     },
                   ),

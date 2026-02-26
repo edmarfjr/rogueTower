@@ -1,4 +1,5 @@
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/tower_game.dart';
 import 'package:flutter/foundation.dart'; // Necessário para ValueNotifier
@@ -9,6 +10,7 @@ class GameProgress {
   static const String _unlocksKey = 'unlocked_items';
   static const String _bankKey = 'bank_balance';
   static const String _langKey = 'game_language';
+  static const String _unlockedClassesKey = 'unlocked_classes';
 
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
@@ -36,6 +38,30 @@ class GameProgress {
     
     // Aplica o idioma na classe I18n IMEDIATAMENTE ao carregar o jogo
     I18n.currentLanguage = savedLang;
+  }
+
+  static Future<bool> isClassUnlocked(CharacterClass charClass) async {
+    if (charClass.isUnlockedByDefault) return true;
+
+    final prefs = await SharedPreferences.getInstance();
+    List<String> unlockedList = prefs.getStringList(_unlockedClassesKey) ?? [];
+    
+    return unlockedList.contains(charClass.id);
+  }
+
+  static Future<bool> unlockClass(String classId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> unlockedList = prefs.getStringList(_unlockedClassesKey) ?? [];
+    
+    if (!unlockedList.contains(classId)) {
+      unlockedList.add(classId);
+      await prefs.setStringList(_unlockedClassesKey, unlockedList);
+      print("🎉 Nova classe desbloqueada no Save: $classId");
+      
+      return true; 
+    }
+    
+    return false; 
   }
 
   Future<void> addSouls(int amount) async {

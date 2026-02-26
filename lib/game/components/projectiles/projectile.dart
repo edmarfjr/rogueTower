@@ -91,7 +91,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   @override
   Future<void> onLoad() async {
     IconData icon = Icons.circle;
-    Color color = isEnemyProjectile ? Pallete.vermelho : Pallete.amarelo;
+    Color color = isEnemyProjectile ? Pallete.vermelho : Pallete.branco;
+    Vector2 tamanho = size ;
     if (explodes) {
       icon = Icons.brightness_high;
     } else if (isBoomerang) {
@@ -100,12 +101,17 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     } else if (isHoming) {
       icon = Icons.rocket_launch;
       visualAngle = -pi / 4; 
+      tamanho = tamanho * 2;
+    } else if (gameRef.selectedClass.name == 'PIROMANTE'){
+      icon = MdiIcons.fire; 
+      color = Pallete.laranja;
+      tamanho = tamanho * 2;
     }
 
     visual = GameIcon(
       icon: icon, 
       color: color,
-      size: isHoming? size*2:size,
+      size: tamanho,
       anchor: Anchor.center,
       position: size / 2,
     );
@@ -200,13 +206,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       position.addScaled(direction, speed * dt);
     }
 
-    // --- VISUAL (PISCAR) ---
+  /*  // --- VISUAL (PISCAR) ---
     double flashSpeed = (_timer > dieTimer - 1) ? 0.1 : 0.2;
     if (_timer % flashSpeed < (flashSpeed / 2)){ 
       visual?.setColor(Pallete.amarelo);
     } else {
       isEnemyProjectile ? visual?.setColor(Pallete.vermelho) : visual?.setColor(Pallete.azulCla);
     }
+  */
 
     if (_timer >= dieTimer){
       kill(triggerEffects: true); 
@@ -247,7 +254,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (splits) _doSplit();
     }
     
-    createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 5);
+    //createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 5);
     removeFromParent();
   }
 
@@ -287,6 +294,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     // 1. COLISÃO COM PAREDES
     if (!isSpectral && (other is Wall || other is ScreenHitbox)) {
+      createExplosionEffect(gameRef.world, position, Pallete.branco, count: 5);
       if (canBounce && _bounceCount < maxBounces) {
         _handleBounce(other, hitPos);
         if (other is Wall) other.vida--; 
@@ -304,6 +312,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // 2. COLISÃO COM INIMIGOS / PLAYER
     if (isEnemyProjectile) {
       if (other is Player) {
+        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
         other.takeDamage(1);
         
@@ -312,6 +321,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {
+        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
         other.takeDamage(damage);
         

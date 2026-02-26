@@ -80,7 +80,7 @@ class AudioManager {
         // --- PLAY INSTANTÂNEO COM ZERO LATÊNCIA! ---
         SoLoud.instance.play(_sfxSources[poolKey]!, volume: sfxVolume);
       } else {
-         print("🚨 ALERTA: O som '$filename' não foi pré-carregado no init()!");
+        // print("🚨 ALERTA: O som '$filename' não foi pré-carregado no init()!");
       }
     } catch (e) {
        print("Erro ao tocar SFX ($filename) no SoLoud: $e");

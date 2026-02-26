@@ -21,10 +21,10 @@ enum CollectibleType {
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
-  pocaVeneno,
+  pocaVeneno, rastroFogo,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
-  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail 
+  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -449,6 +449,12 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
          return {'name': 'bumerangue'.tr(), 'desc': 'bumerangueDesc'.tr(), 'icon': MdiIcons.boomerang, 'color': Pallete.marrom};
       case CollectibleType.pocaVeneno:
          return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': MdiIcons.cloudOffOutline, 'color': Pallete.verdeEsc};
+      case CollectibleType.rastroFogo:
+         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': MdiIcons.fireCircle, 'color': Pallete.vermelho};
+      case CollectibleType.tornado:
+         return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': MdiIcons.weatherTornado, 'color': Pallete.branco};
+      case CollectibleType.tripleShot:
+         return {'name': 'tripleShot'.tr(), 'desc': 'tripleShotDesc'.tr(), 'icon': MdiIcons.axisArrow, 'color': Pallete.branco};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -514,7 +520,8 @@ List<CollectibleType> retornaItens(player){
     if (!player.isHeavyShot) itens.add(CollectibleType.heavyShot);
     if (!player.hasCupon) itens.add(CollectibleType.cupon);
     if (!player.criaPocaVenenoTmr) itens.add(CollectibleType.pocaVeneno);
-    
+    if (!player.fireDash) itens.add(CollectibleType.rastroFogo);
+    if (!player.tripleShot && !player.isShotgun) itens.add(CollectibleType.tripleShot);
       
 
     return itens;
@@ -538,17 +545,19 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.druidScroll,
       CollectibleType.bloodstone,
       CollectibleType.pocaVeneno,
+      CollectibleType.rastroFogo,
+      CollectibleType.piercing,
+      CollectibleType.fogo,
+      CollectibleType.veneno,
+      CollectibleType.sangramento,
+      CollectibleType.chaveNegra,
+      CollectibleType.gravitacao,
+      CollectibleType.mine,
+      CollectibleType.spectral,
+      CollectibleType.bounce,
+      CollectibleType.cupon,
     ];
-    itens.add(CollectibleType.piercing);
-    itens.add(CollectibleType.fogo);
-    itens.add(CollectibleType.veneno);
-    itens.add(CollectibleType.sangramento);
-    itens.add(CollectibleType.chaveNegra);
-    itens.add(CollectibleType.gravitacao);
-    itens.add(CollectibleType.mine);
-    itens.add(CollectibleType.spectral);
-    itens.add(CollectibleType.bounce);
-    itens.add(CollectibleType.cupon);
+    
     return itens;
   }
 
@@ -571,20 +580,23 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.alcool,
       CollectibleType.soda,
       CollectibleType.conqCrown,
+      CollectibleType.berserk,
+      CollectibleType.audacious,
+      CollectibleType.freeze,
+      CollectibleType.magicShield,
+      CollectibleType.orbitalShield,
+      CollectibleType.foice,
+      CollectibleType.revive,
+      CollectibleType.antimateria,
+      CollectibleType.homing,
+      CollectibleType.concentration,
+      CollectibleType.defBurst,
+      CollectibleType.kinetic,
+      CollectibleType.heavyShot,
+      CollectibleType.tornado,
+      CollectibleType.tripleShot
     ];
-    itRaros.add(CollectibleType.berserk);
-    itRaros.add(CollectibleType.audacious);
-    itRaros.add(CollectibleType.freeze);
-    itRaros.add(CollectibleType.magicShield);
-    itRaros.add(CollectibleType.orbitalShield);
-    itRaros.add(CollectibleType.foice);
-    itRaros.add(CollectibleType.revive);
-    itRaros.add(CollectibleType.antimateria);
-    itRaros.add(CollectibleType.homing);
-    itRaros.add(CollectibleType.concentration);
-    itRaros.add(CollectibleType.defBurst);
-    itRaros.add(CollectibleType.kinetic);
-    itRaros.add(CollectibleType.heavyShot);
+
     return itRaros ;
   }
 
@@ -599,7 +611,7 @@ class CollectibleLogic {
        switch (type) {
          case CollectibleType.coin:
           int c = Random().nextInt(20)+5;
-          game.coinsNotifier.value += c;
+          game.player.collectCoin(c);
           text = "+ $c\$ ";
           //color = Pallete.amarelo;
           break;
@@ -925,6 +937,26 @@ class CollectibleLogic {
           text = "poça veneno!";
           //color = Pallete.vermelho;
           break;
+
+        case CollectibleType.rastroFogo:
+          player.fireDash = true;
+          text = "rastroFogo";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.tornado:
+          player.isDashDamages = true;
+          player.dashDuration *= 1.5;
+          text = "tornado";
+          //color = Pallete.vermelho;
+          break;  
+        
+        case CollectibleType.tripleShot:
+          player.tripleShot = true;
+          player.fireRate *= 0.6;
+          text = "tornado";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

@@ -1,12 +1,14 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
 import '../effects/explosion_effect.dart';
+import '../effects/unlock_notification.dart';
 import 'enemy.dart';
 import 'enemy_behaviors.dart';
 
@@ -123,11 +125,36 @@ class EnemyBoss extends Enemy {
   }
 
   @override
-  void die() {
+  void die() async {
     if (hasSecondForm && !isSecondForm) {
       _startTransformation();
     } else {
-      // Se não tem segunda forma (ou já está nela), inicia a morte épica!
+      String clasId = '';
+      String clasNome = '';
+      switch (gameRef.currentLevel) {
+        case 3:
+          clasId = 'arqueiro';
+          clasNome = 'ARQUEIRO';
+          break;
+        case 5:
+          clasId = 'exterminador';
+          clasNome = 'EXTERMINADOR';
+          break;
+        default:
+      }
+      if(clasId != ''){
+        bool isNewUnlock = await GameProgress.unlockClass(clasId); 
+    
+        if (isNewUnlock) {
+          gameRef.world.add(
+            UnlockNotification(
+              message: "NOVA CLASSE: $clasNome!",
+              position: position.clone(), // Nasce no cadáver do Boss
+            )
+          );
+        }
+      } 
+      
       if (!_isEpicDying) {
         _startEpicDeathSequence();
       }
@@ -243,8 +270,7 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
     size = Vector2(barWidth, 20);
 
     // 3. Posiciona no meio da tela no eixo X. 
-    // Como você tem o HUD na esquerda, adicionei "+ 20" para empurrar o centro visual mais pra direita
-    position = Vector2((gameRef.camera.viewport.size.x / 3) + 16, 20); 
+    position = Vector2((gameRef.camera.viewport.size.x / 2), 20); 
 
     textPaint = TextPaint(
       style: const TextStyle(

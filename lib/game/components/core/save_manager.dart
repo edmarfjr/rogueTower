@@ -87,6 +87,10 @@ class SaveManager {
       'isBoomerang': game.player.isBoomerang,
       'isBleed': game.player.isBleed,
       'criaPocaVeneno': game.player.criaPocaVeneno,
+      'fireDash': game.player.fireDash,
+      'isDashDamages': game.player.isDashDamages,
+      'isShotgun': game.player.isShotgun,
+      'tripleShot': game.player.tripleShot,
     };
 
     String jsonString = jsonEncode(runData);
@@ -190,6 +194,11 @@ class SaveManager {
     game.player.isBoomerang = runData['isBoomerang'] ?? false;
     game.player.isBleed = runData['isBleed'] ?? false;
     game.player.criaPocaVeneno = runData['criaPocaVeneno'] ?? false;
+    game.player.fireDash = runData['fireDash'] ?? false;
+    game.player.isDashDamages = runData['isDashDamages'] ?? false;
+    game.player.isShotgun = runData['isShotgun'] ?? false;
+    game.player.tripleShot = runData['tripleShot'] ?? false;
+    
     
 
     print("✅ Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");

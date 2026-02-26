@@ -1,14 +1,17 @@
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
+import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
+import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -37,8 +40,8 @@ class Player extends PositionComponent
   double _invincibilityTimer = 0;
   double invincibilityDuration = 0.5; 
   // -----------------------
-  double attackRange = 200; 
-  late CircleComponent _rangeIndicator;
+  double attackRange = 1.0; // tempo que o tiro demora pra sumir
+ // late CircleComponent _rangeIndicator;
   double _attackTimer = 0;
   double damage = 10.0;
   double dot = 1.0;
@@ -61,7 +64,7 @@ class Player extends PositionComponent
 
   bool isDashing = false;
   double _dashTimer = 0;
-  double dashDuration = 0.2; 
+  double dashDuration = 0.4; 
   double dashSpeed = 450;    
   
   double _dashCooldownTimer = 0;
@@ -97,8 +100,11 @@ class Player extends PositionComponent
   bool hasCupon = false;
   bool isBoomerang = false;
   bool criaPocaVeneno = false;
-  double criaPocaVenenoTmr = 0;
+  double criaHazardTmr = 0;
   bool isShotgun = false;
+  bool tripleShot = false;
+  bool fireDash = false;
+  bool isDashDamages = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -110,10 +116,13 @@ class Player extends PositionComponent
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
-  Color _currentColor = Pallete.branco;
+  Color currentColor = Pallete.branco;
   GameIcon? _currentAccessory;
   double _baseAccessoryOffsetX = 0.0;
   double _baseAccessoryScaleX = 1.0;
+
+  CircleComponent? _dodgeAura;
+  double _auraPulseTimer = 0.0;
 
   MagicShieldEffect? _shieldVisual;
   final Paint _dashBgPaint = Paint()..color = Pallete.preto.withOpacity(0.5);
@@ -139,7 +148,7 @@ class Player extends PositionComponent
     );
     add(_visual);
 
-    // Debug visual do alcance
+    /* Debug visual do alcance
     _rangeIndicator=CircleComponent(
       radius: attackRange,
       anchor: Anchor.center,
@@ -147,6 +156,7 @@ class Player extends PositionComponent
       paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 2,
     );
     add(_rangeIndicator);
+    */
     
     // Hitbox
     add(RectangleHitbox(
@@ -156,7 +166,26 @@ class Player extends PositionComponent
       isSolid: true,
     ));
 
+    _dodgeAura = CircleComponent(
+      radius: size.x * 0.7, // Um pouco maior que o corpo do player
+      anchor: Anchor.center,
+      position: size / 2, // Fica centralizada no jogador
+      priority: -1, // Prioridade negativa para ficar ATRÁS do corpo do player
+      paint: Paint()
+        ..color = Colors.transparent // Começa invisível
+        ..style = PaintingStyle.stroke // Apenas a borda
+        ..strokeWidth = 4.0
+        // O SEGREDO DO NEON: Um blur filter na pintura!
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0),
+    );
+    
+    // Para deixar oval/achatado simulando perspectiva 3D isométrica (opcional)
+    _dodgeAura!.scale.y = 0.6; 
+    
+    add(_dodgeAura!);
+
     add(ShadowComponent(parentSize: size));
+    
   }
 
   @override
@@ -206,28 +235,25 @@ class Player extends PositionComponent
     } else {
       _handleMovement(dt);    
     }
-/*
-    // Lógica Visual (Virar sprite) - Acesso direto ao _visual cacheado
-    if (velocity.x.abs() > 0.1) {
-      bool isFacingLeft = velocity.x < 0;
-      
-      // Flipa o corpo do jogador
-      _visual.scale.x = isFacingLeft ? -1 : 1;
+    if (_dodgeAura != null) {
+      if (isDashing && isDashDamages) {
+        _auraPulseTimer += dt * 30; // Velocidade do pulso
+        
+        // Faz a aura pulsar de tamanho usando uma onda Senoide (Sin)
+        double pulse = 1.0 + (sin(_auraPulseTimer) * 0.2);
+        _dodgeAura!.scale.x = pulse;
+        _dodgeAura!.scale.y = pulse * 0.6; // Mantém o achatamento isométrico
 
-      // --- NOVA LÓGICA DO ACESSÓRIO ---
-      if (_currentAccessory != null) {
-        if (isFacingLeft) {
-          // Joga o acessório para o lado esquerdo do corpo e espelha a imagem
-          _currentAccessory!.position.x = -_baseAccessoryOffsetX + 32.0;
-          _currentAccessory!.scale.x = -_baseAccessoryScaleX;
-        } else {
-          // Volta para o lado direito do corpo e usa a escala normal
-          _currentAccessory!.position.x = _baseAccessoryOffsetX;
-          _currentAccessory!.scale.x = _baseAccessoryScaleX;
-        }
+        // Pinta a aura com a cor da classe atual (ou usa um Azul/Ciano genérico)
+        Color auraColor =  Pallete.branco;
+        _dodgeAura!.paint.color = auraColor.withOpacity(0.8);
+        
+      } else {
+        // Se não está no dash, a aura fica invisível
+        _dodgeAura!.paint.color = Colors.transparent;
+        _auraPulseTimer = 0.0;
       }
     }
-*/
     _animateMovement(dt);
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
@@ -254,7 +280,7 @@ class Player extends PositionComponent
       critChance = charClass.critChance;
       critDamage = charClass.critDamage;
       attackRange = charClass.attackRange;
-      _rangeIndicator.radius = attackRange;
+     // _rangeIndicator.radius = attackRange;
       dashCooldown = charClass.dashCooldown;
       dot = charClass.dot;
       stackBonus = charClass.stackBonus;
@@ -262,23 +288,33 @@ class Player extends PositionComponent
       // 3. Aplica Passivas
       isPiercing = charClass.isPiercing;
       isBurn = charClass.isBurn;
+      isShotgun = charClass.isShotgun;
+
+      if(charClass.hasOrbShield){
+        game.world.add(OrbitalShield(angleOffset: 0, owner: this));
+        game.world.add(OrbitalShield(angleOffset: pi, owner: this));
+        game.itensRarosPoolCurrent.remove(CollectibleType.orbitalShield);
+      }
 
       //remove itens cujo efeito ja existe
       if(isPiercing)game.itensComunsPoolCurrent.remove(CollectibleType.piercing);
       if(isBurn)game.itensComunsPoolCurrent.remove(CollectibleType.fogo);
+      if(isShotgun)game.itensRarosPoolCurrent.remove(CollectibleType.tripleShot);
+   
 
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();
       _currentAccessory = null;
     }
 
-      // 4. (Opcional) Muda a cor do personagem para bater com a classe!
-      _currentColor = charClass.color;
+     /* // 4. (Opcional) Muda a cor do personagem para bater com a classe!
+      currentColor = charClass.color;
       if (_visual != null) {
         _visual.setColor(charClass.color);
         // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
         // visualIcon.icon = charClass.icon; 
       }
+      */
 
       _currentAccessory = GameIcon(
         icon: charClass.icon,     // Usa o ícone da classe (Escudo, Varinha, etc)
@@ -370,7 +406,7 @@ class Player extends PositionComponent
     if (!velocity.isZero()) {
       velocityDash.setFrom(velocity); // Copia segura
       _handleDustEffect(dt);
-      if(criaPocaVeneno) _createPocaVeneno(dt); 
+      if(criaPocaVeneno) _createHazard(dt); 
       if(isConcentration) fireRate = fireRateInicial * 1.15;
     }else{
       if(isConcentration) fireRate = fireRateInicial * 0.5;
@@ -419,7 +455,7 @@ class Player extends PositionComponent
       gameRef.world.add(
         GhostParticle(
           icon: _visual.icon,
-          color: _currentColor.withOpacity(0.3),
+          color: currentColor.withOpacity(0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
@@ -430,22 +466,24 @@ class Player extends PositionComponent
     }
   }
 
-  void _createPocaVeneno(double dt) {
-    criaPocaVenenoTmr += dt;
-    if (criaPocaVenenoTmr >= 0.1) {
+  void _createHazard(double dt,{bool isFire = false, double tmp = 0.1}) {
+    criaHazardTmr += dt;
+    if (criaHazardTmr >= tmp) {
       gameRef.world.add(
         PoisonPuddle(
           position: position.clone(), 
-          isPlayer: true
+          isPlayer: true,
+          isFire: isFire,
         ),
       );
-      criaPocaVenenoTmr = 0;
+      criaHazardTmr = 0;
     }
   }
 
   void _handleDashMovement(double dt) {
     _dashTimer -= dt;
     _createGhostEffect(dt);
+    if(fireDash)_createHazard(dt, isFire: true, tmp: 0.025);
     position.addScaled(_dashDirection, dashSpeed * dt);
 
     if (_dashTimer <= 0) {
@@ -467,12 +505,17 @@ class Player extends PositionComponent
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is Enemy && !other.isIntangivel) {
-      takeDamage(1);
+      if( isDashing && isDashDamages){
+        other.takeDamage(100);
+      }else{
+        takeDamage(1);
+      }
+      
     }
   }
 
   void takeDamage(int amount) {
-    if(_isInvincible) return;
+    if(_isInvincible || isDashing) return;
    // if (healthNotifier.value <= 0) return;
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     gameRef.triggerHitStop(0.05);
@@ -511,12 +554,12 @@ class Player extends PositionComponent
       if (_invincibilityTimer % 0.2 < 0.1) {
          _visual.setColor(Pallete.vermelho.withOpacity(0.5));
       } else {
-         _visual.setColor(_currentColor);
+         _visual.setColor(currentColor);
       }
 
       if (_invincibilityTimer <= 0) {
         _isInvincible = false;
-        _visual.setColor(_currentColor);
+        _visual.setColor(currentColor);
       }
     }
   }
@@ -537,11 +580,11 @@ class Player extends PositionComponent
 
     final enemies = gameRef.world.children.query<Enemy>();
     Enemy? target;
-    double closestDist = attackRange;
+    double closestDist = double.infinity;//attackRange;
 
     for (final enemy in enemies) {
       final dist = position.distanceTo(enemy.position);
-      if (dist <= attackRange && dist < closestDist) {
+      if (/* dist <= attackRange && */ dist < closestDist) {
         closestDist = dist;
         target = enemy;
       }
@@ -549,11 +592,19 @@ class Player extends PositionComponent
 
     if (target != null) {
       _attackTimer = 0;
-      _shootAt(target);
       if(isShotgun){
+        _shootAt(target,angleOffset: 0.075);
+        _shootAt(target,angleOffset: -0.075);
         _shootAt(target,angleOffset: 0.2);
         _shootAt(target,angleOffset: -0.2);
+      }else{
+        _shootAt(target);
+        if(tripleShot){
+          _shootAt(target,angleOffset: 0.2);
+          _shootAt(target,angleOffset: -0.2);
+        }
       }
+      
     }
   }
 
@@ -597,7 +648,7 @@ class Player extends PositionComponent
       damage: dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
-      dieTimer: isBoomerang ? 1.0 : 2.0,
+      dieTimer: isBoomerang ? 1.0 : attackRange,
       apagaTiros: hasAntimateria,
       isHoming: isHoming,
       iniPosition: position.clone(),
@@ -633,7 +684,7 @@ class Player extends PositionComponent
     _invincibilityTimer = 0;
     velocity.setZero();
     bombNotifier.value = 0;
-    attackRange = 200; 
+    attackRange = 1.0; 
     _attackTimer = 0;
     damage = 10.0;
     critChance = 5;
@@ -641,7 +692,7 @@ class Player extends PositionComponent
     fireRate = 0.4; 
     fireRateInicial = 0.4;
     moveSpeed = 150.0;
-    dashDuration = 0.2; 
+    dashDuration = 0.3; 
     dashSpeed = 450;    
     dashCooldown = 2.5; 
     invincibilityDuration = 0.5;
@@ -675,6 +726,8 @@ class Player extends PositionComponent
     isBleed = false;
     criaPocaVeneno = false;
     isShotgun = false;
+    fireDash = false;
+    isDashDamages = false;
 
     _visual.setColor(Pallete.branco);
   }
@@ -735,7 +788,7 @@ class Player extends PositionComponent
   
   void increaseRange(double multiplier){ 
     attackRange *= multiplier; 
-    _rangeIndicator.radius = attackRange;
+    //_rangeIndicator.radius = attackRange;
   }
 
   void increaseHp(int val){ 
@@ -753,8 +806,39 @@ class Player extends PositionComponent
     dashNotifier.value+=val; 
   }
 
-  void increaseShield(){ 
+  void increaseShield() async { 
     shieldNotifier.value++; 
+    if (shieldNotifier.value == 5) { 
+      bool isNewUnlock = await GameProgress.unlockClass('defensor');
+      
+      if (isNewUnlock) {
+        // Cria o texto nascendo em cima do próprio jogador!
+        gameRef.world.add(
+          UnlockNotification(
+            message: "NOVA CLASSE: DEFENSOR!",
+            position: position.clone() - Vector2(0, 40), // Um pouco acima da cabeça
+          )
+        );
+      }
+    }
+  }
+
+  void collectCoin(int value) async {
+    gameRef.coinsNotifier.value+=value;
+    
+    if (gameRef.coinsNotifier.value == 100) { 
+      bool isNewUnlock = await GameProgress.unlockClass('ladino');
+      
+      if (isNewUnlock) {
+        // Cria o texto nascendo em cima do próprio jogador!
+        gameRef.world.add(
+          UnlockNotification(
+            message: "NOVA CLASSE: LADINO!",
+            position: position.clone() - Vector2(0, 40), // Um pouco acima da cabeça
+          )
+        );
+      }
+    }
   }
 
   List<AcquiredItemData> getAcquiredItemsList() {
