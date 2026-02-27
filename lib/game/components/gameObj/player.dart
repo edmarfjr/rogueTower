@@ -376,14 +376,13 @@ class Player extends PositionComponent
   }
 
   void applyClass(CharacterClass charClass) {
-      // 1. Aplica Vida e Escudo
+
       maxHealth = charClass.maxHp;
       maxDash = charClass.maxDash;
       healthNotifier.value = maxHealth;
       shieldNotifier.value = charClass.startingShield;
       bombNotifier.value = charClass.startingBombs;
       
-      // 2. Aplica Atributos Numéricos
       moveSpeed = charClass.speed;
       damage = charClass.damage;
       fireRate = charClass.fireRate;
@@ -396,29 +395,43 @@ class Player extends PositionComponent
       dot = charClass.dot;
       stackBonus = charClass.stackBonus;
 
-      // 3. Aplica Passivas
-      isPiercing = charClass.isPiercing;
-      isBurn = charClass.isBurn;
       isShotgun = charClass.isShotgun;
 
-      if(charClass.hasOrbShield){
-        game.world.add(OrbitalShield(angleOffset: 0, owner: this));
-        game.world.add(OrbitalShield(angleOffset: pi, owner: this));
-        game.itensRarosPoolCurrent.remove(CollectibleType.orbitalShield);
-      }
+      for (var itemType in charClass.startingItems) {
 
-      //remove itens cujo efeito ja existe
-      if(isPiercing)game.itensComunsPoolCurrent.remove(CollectibleType.piercing);
-      if(isBurn)game.itensComunsPoolCurrent.remove(CollectibleType.fogo);
-      if(isShotgun)game.itensRarosPoolCurrent.remove(CollectibleType.tripleShot);
-   
+        if (isItemAtivo(itemType)) {
+          equipActiveItem(itemType, null); 
+        } 
+        else {
+          
+          CollectibleLogic.applyEffect(type: itemType, game: gameRef);
+
+          final List<CollectibleType> consumiveis = [
+            CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+            CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+            CollectibleType.bombas, CollectibleType.healthContainer
+          ];
+
+          if (!consumiveis.contains(itemType)) {
+            final attrs = Collectible.getAttributes(itemType);
+            
+            setAcquiredItemsList(
+              itemType,
+              attrs['name'] as String,
+              attrs['desc'] as String,
+              attrs['icon'] as IconData,
+              attrs['color'] as Color,
+            );
+          }
+        }
+      }
 
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();
       _currentAccessory = null;
     }
 
-     /* // 4. (Opcional) Muda a cor do personagem para bater com a classe!
+     /* 
       currentColor = charClass.color;
       if (_visual != null) {
         _visual.setColor(charClass.color);
@@ -426,21 +439,24 @@ class Player extends PositionComponent
         // visualIcon.icon = charClass.icon; 
       }
       */
+      if (!charClass.semAcessorio)
+      {
+        _currentAccessory = GameIcon(
+          icon: charClass.icon,     
+          color: charClass.color,   
+          size: Vector2(charClass.accessorySize,charClass.accessorySize),
+        );
 
-      _currentAccessory = GameIcon(
-        icon: charClass.icon,     // Usa o ícone da classe (Escudo, Varinha, etc)
-        color: charClass.color,   // Usa a cor da classe
-        size: Vector2(charClass.accessorySize,charClass.accessorySize),
-      );
+        _baseAccessoryOffsetX = charClass.accessoryOffsetX;
+        _baseAccessoryScaleX = charClass.flipAccessoryBase ? -1.0 : 1.0;
 
-      _baseAccessoryOffsetX = charClass.accessoryOffsetX;
-     _baseAccessoryScaleX = charClass.flipAccessoryBase ? -1.0 : 1.0;
+        _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, charClass.accessoryOffsetY);
+        _currentAccessory!.scale.x = _baseAccessoryScaleX;
+        _currentAccessory!.angle = charClass.acessoryAngle;
+        _currentAccessory!.priority = 1;
+        add(_currentAccessory!);
+      }
 
-      _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, charClass.accessoryOffsetY);
-      _currentAccessory!.scale.x = _baseAccessoryScaleX;
-      _currentAccessory!.angle = charClass.acessoryAngle;
-      _currentAccessory!.priority = 1;
-      add(_currentAccessory!);
     }
 
   void activateShield() {
@@ -872,6 +888,7 @@ class Player extends PositionComponent
     isMorteiro = false;
     hasBattery = false;
     hasShieldRegen = false;
+    items = [];
 
     _visual.setColor(Pallete.branco);
   }
@@ -994,23 +1011,26 @@ class Player extends PositionComponent
     return items;
   }
 
-  void setAcquiredItemsList(String name, String description, IconData icon, Color color) {
+  void setAcquiredItemsList(CollectibleType type, String name, String desc, IconData icon, Color color) {
     items.add(AcquiredItemData(
-      name: name,
-      description: description,
-      icon: icon,
-      color: color,
+      type: type, 
+      name: name, 
+      description: desc, 
+      icon: icon, 
+      color: color
     ));
   }
 }
 
 class AcquiredItemData {
+  final CollectibleType type;
   final IconData icon;
   final String name;
   final String description;
   final Color color;
 
   AcquiredItemData({
+    required this.type,
     required this.icon, 
     required this.name, 
     required this.description, 

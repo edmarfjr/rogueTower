@@ -149,6 +149,7 @@ class SaveManager {
         Color recoveredColor = Color(itemMap['colorValue']);
 
         game.player.setAcquiredItemsList(
+          itemMap['type'],
           itemMap['name'],
           itemMap['description'],
           recoveredIcon,

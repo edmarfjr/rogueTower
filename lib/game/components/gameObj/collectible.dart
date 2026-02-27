@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
+import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
@@ -280,9 +283,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void _collectItem() {
-    // Lógica original de coleta movida para cá
-    
+  void _collectItem() async {
     // 1. Verificação de Custo
     if (custo > 0 ) {
       if (gameRef.coinsNotifier.value < custo) {
@@ -341,6 +342,33 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
       
     }
+    //desbloqueia classes
+
+    String clasId = '';
+    String clasNome = '';
+    switch (type){
+      case CollectibleType.activeLicantropia:
+        clasId = 'licantropo';
+        clasNome = 'LICANTROPO';
+        print('LOBIZOME');
+      default:
+        print(type.toString());
+
+    }
+
+    if(clasId != ''){
+      bool isNewUnlock = await GameProgress.unlockClass(clasId); 
+          
+      if (isNewUnlock) {
+        gameRef.world.add(
+          UnlockNotification(
+            message: "NOVA CLASSE: $clasNome!",
+            position: position.clone(), // Nasce no cadáver do Boss
+          )
+        );
+      }
+    }
+
 
     //logica para itens ativos
     if (isItemAtivo(type)) {
@@ -364,7 +392,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       AudioManager.playSfx('collect.mp3'); 
       return; 
     }
-
+    
     // 2. Aplica Efeito
     final feedback = Collectible.applyEffect(type: type, game: gameRef);
     String feedbackText = feedback['text'] as String;
@@ -396,6 +424,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       final attrs = Collectible.getAttributes(type);
       
       gameRef.player.setAcquiredItemsList(
+        type,
         attrs['name'] as String,
         attrs['desc'] as String,
         attrs['icon'] as IconData,
@@ -552,6 +581,35 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
 }
 
+List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player player) {
+  // 1. Define quem PODE vir repetido (Status puros e consumíveis)
+  const stackables = [
+    CollectibleType.damage, CollectibleType.fireRate, CollectibleType.moveSpeed, 
+    CollectibleType.range, CollectibleType.healthContainer, CollectibleType.keys, 
+    CollectibleType.bombas, CollectibleType.sanduiche, CollectibleType.critChance, 
+    CollectibleType.critDamage, CollectibleType.dot, CollectibleType.dash,
+    CollectibleType.coin, CollectibleType.potion, CollectibleType.key, CollectibleType.bomba
+  ];
+
+  poolOriginal.removeWhere((itemType) {
+    // Se for acumulável, nunca remove da lista!
+    if (stackables.contains(itemType)) return false; 
+
+    // 2. Verifica se está na lista de Passivas do Pause Menu
+    bool temPassiva = player.items.any((adquirido) => adquirido.type == itemType);
+
+    // 3. Verifica se está nos slots de Itens Ativos da HUD
+    final ativos = player.activeItems.value;
+    bool temAtivo0 = ativos[0]?.type == itemType;
+    bool temAtivo1 = ativos[1]?.type == itemType;
+
+    // Se ele já tem o item em qualquer lugar, remove do sorteio do baú!
+    return temPassiva || temAtivo0 || temAtivo1;
+  });
+
+  return poolOriginal;
+}
+
 List<CollectibleType> retornaItens(player){
      List<CollectibleType> itens = [
       CollectibleType.damage,
@@ -607,11 +665,11 @@ List<CollectibleType> retornaItens(player){
     if (!player.tripleShot && !player.isShotgun) itens.add(CollectibleType.tripleShot);
     if (!player.hasShieldRegen) itens.add(CollectibleType.regenShield);
 
-    return itens;
+    return _filtrarPool(itens, player);
   }
 
 
-List<CollectibleType> retornaItensComuns(){
+List<CollectibleType> retornaItensComuns(player){
     List<CollectibleType> itens = [
       CollectibleType.damage,
       CollectibleType.fireRate,
@@ -645,7 +703,7 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.activeArtHp,
     ];
     
-    return itens;
+    return _filtrarPool(itens, player);
   }
 
 List<CollectibleType> retornaPocoes(){
@@ -660,7 +718,7 @@ List<CollectibleType> retornaPocoes(){
     ];
   }
 
-  List<CollectibleType> retornaItensRaros(){
+  List<CollectibleType> retornaItensRaros(player){
     List<CollectibleType> itRaros =[
       CollectibleType.steroids,
       CollectibleType.cafe,  
@@ -686,8 +744,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.battery,
       CollectibleType.regenShield
     ];
-
-    return itRaros ;
+    return _filtrarPool(itRaros, player);
   }
 
 class CollectibleLogic {

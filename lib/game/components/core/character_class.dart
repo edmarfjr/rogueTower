@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -16,6 +17,7 @@ class CharacterClass {
   final double accessorySize;
   final double acessoryAngle;
   final bool flipAccessoryBase;
+  final bool semAcessorio;
 
   // Atributos Base
   final int maxHp;
@@ -31,16 +33,15 @@ class CharacterClass {
   final int stackBonus;
 
   // Bônus Passivos (Flags)
-  final bool isPiercing; 
-  final bool isBurn;
   final bool isShotgun;
-  final bool hasOrbShield;
   final int startingBombs; 
   final int startingKeys;
   final int startingShield;
 
   final bool isUnlockedByDefault;
   final String unlockConditionText;
+
+  final List<CollectibleType> startingItems;
 
   const CharacterClass({
     required this.id,
@@ -59,10 +60,7 @@ class CharacterClass {
     required this.attackRange,
     this.dot = 1.0,
     this.stackBonus = 0,
-    this.isPiercing = false,
-    this.isBurn = false,
     this.isShotgun = false,
-    this.hasOrbShield = false,
     this.startingBombs = 0,
     this.startingShield = 0,
     this.startingKeys = 0,
@@ -73,6 +71,8 @@ class CharacterClass {
     this.flipAccessoryBase = false,
     this.isUnlockedByDefault = true, 
     this.unlockConditionText = "",
+    this.startingItems = const [],
+    this.semAcessorio = false,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -118,9 +118,12 @@ class CharacterRoster {
       critChance: 5,
       critDamage: 2,
       dashCooldown: 3.0,
-      isBurn: true, 
+      startingItems: [
+        CollectibleType.fogo, 
+        CollectibleType.dotBook
+      ],
       stackBonus: 5,
-      dot: 2.5,
+      dot: 1,
       attackRange: 0.6,
     ),
     CharacterClass(
@@ -210,9 +213,37 @@ class CharacterRoster {
       dashCooldown: 2.5,
       attackRange: 0.7,
       startingShield: 2,
-      hasOrbShield: true,
-      isUnlockedByDefault: false,
+      startingItems: [
+        CollectibleType.orbitalShield,
+      ],
+      isUnlockedByDefault: true,
       unlockConditionText: "Acumule 5 escudos"
+    ),
+    CharacterClass(
+      id: "licantropo",
+      name: "LICANTROPO",
+      description: "Pode se transformar em lobo",
+      icon: MdiIcons.dogSide,
+      semAcessorio: true,
+      accessoryOffsetX: 8.0, 
+      accessoryOffsetY: 15.0,
+      accessorySize: 16.0,
+      color: Pallete.marrom, 
+      maxHp: 4,
+      maxDash: 2,
+      speed: 150.0,
+      damage: 10.0,
+      fireRate: 0.4,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      startingShield: 2,
+      startingItems: [
+        CollectibleType.activeLicantropia,
+      ],
+      isUnlockedByDefault: false,
+      unlockConditionText: "Adquira Licantropia"
     ),
   ];
 }

@@ -73,8 +73,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   int? _joystickPointerId;
 
-  final List<CollectibleType> itensComunsPool = retornaItensComuns();
-  final List<CollectibleType> itensRarosPool = retornaItensRaros();
+  //final List<CollectibleType> itensComunsPool = retornaItensComuns();
+  //final List<CollectibleType> itensRarosPool = retornaItensRaros();
   List<CollectibleType> itensComunsPoolCurrent = [];
   List<CollectibleType> itensRarosPoolCurrent = [];
 
@@ -377,7 +377,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-    AudioManager.playBgm('8bit_menu.mp3');
+    //AudioManager.playBgm('8bit_menu.mp3');
   }
 
   void startLevel() {
@@ -425,11 +425,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void resetGame(CharacterClass selectedClass) {
-    itensComunsPoolCurrent = List.from(itensComunsPool);
-    itensRarosPoolCurrent = List.from(itensRarosPool);
-    itensComunsPoolCurrent.shuffle();
-    itensRarosPoolCurrent.shuffle();
-
      // Recarrega os áudios para evitar problemas de cache
     overlays.remove('GameOver');
     overlays.remove('VictoryMenu'); 
@@ -447,6 +442,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     player.reset();
     player.applyClass(selectedClass);
     camera.follow(player);
+
+    itensComunsPoolCurrent = retornaItensComuns(player);
+    itensRarosPoolCurrent = retornaItensRaros(player);
+    itensComunsPoolCurrent.shuffle();
+    itensRarosPoolCurrent.shuffle();
     
    // AudioManager.playBgm('funny_bit.mp3');
     startLevel();
