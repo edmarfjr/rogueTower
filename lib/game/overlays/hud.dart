@@ -1,3 +1,5 @@
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
@@ -18,7 +20,7 @@ class Hud extends StatelessWidget {
         child: Stack(
           children: [
             // ---------------------------------------------
-            // 1. CANTO SUPERIOR ESQUERDO: STATUS
+            // 1. CANTO SUPERIOR ESQUERDO: STATUS E INVENTÁRIO ATIVO
             // ---------------------------------------------
             Positioned(
               top: 10,
@@ -27,38 +29,65 @@ class Hud extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   
-                  // --- VIDA (COM MEIO CORAÇÃO) ---
+                  // --- INVENTÁRIO DE ITENS ATIVOS (NOVO!) ---
+                  ValueListenableBuilder<List<ActiveItemData?>>(
+                    // Escuta a lista de itens ativos que criamos no Player
+                    valueListenable: game.player.activeItems, 
+                    builder: (context, activeItems, child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0), // Espaço antes da vida
+                        child: Row(
+                          children: [
+                            _buildItemSlot(0, activeItems[0]),
+                            const SizedBox(width: 8),
+                            _buildItemSlot(1, activeItems[1]),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                  // --- VIDA---
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.healthNotifier,
                     builder: (context, currentHealth, child) {
-                      
-                      // Calcula quantos corações desenhar no total (Ex: 6 HP = 3 Corações)
                       final int totalHearts = (game.player.maxHealth / 2).ceil();
-
                       return Row(
                         children: List.generate(totalHearts, (index) {
-                          // Lógica para saber se o coração é Cheio, Meio ou Vazio
-                          // index 0 -> representa HP 1 e 2
-                          // index 1 -> representa HP 3 e 4
                           int heartValueTimesTwo = (index + 1) * 2;
-
                           IconData icon;
                           if (currentHealth >= heartValueTimesTwo) {
-                             // [CHEIO]
                              icon = MdiIcons.heart; 
                           } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             // [METADE]
                              icon = MdiIcons.heartHalfFull; 
                           } else {
-                             // [VAZIO]
                              icon = MdiIcons.heartOutline; 
                           }
+                          return Icon(icon, color: Pallete.vermelho, size: 30);
+                        }),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 8),
 
-                          return Icon(
-                            icon,
-                            color: Pallete.vermelho,
-                            size: 30, // MDI Icons costumam ficar bem nesse tamanho
-                          );
+                  // --- VIDA ARTIFICIAL ---
+                  ValueListenableBuilder<int>(
+                    valueListenable: game.player.artificialHealthNotifier,
+                    builder: (context, currentHealth, child) {
+                      final int totalHearts = (game.player.maxArtificialHealth / 2).ceil();
+                      return Row(
+                        children: List.generate(totalHearts, (index) {
+                          int heartValueTimesTwo = (index + 1) * 2;
+                          IconData icon;
+                          if (currentHealth >= heartValueTimesTwo) {
+                             icon = MdiIcons.heart; 
+                          } else if (currentHealth >= heartValueTimesTwo - 1) {
+                             icon = MdiIcons.heartHalfFull; 
+                          } else {
+                             icon = MdiIcons.heartOutline; 
+                          }
+                          return Icon(icon, color: Pallete.azulCla, size: 30);
                         }),
                       );
                     },
@@ -73,11 +102,7 @@ class Hud extends StatelessWidget {
                       if (currentShield == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentShield, (index) {
-                          return  Icon(
-                            MdiIcons.shield,
-                            color: Pallete.cinzaCla,
-                            size: 30,
-                          );
+                          return  Icon(MdiIcons.shield, color: Pallete.cinzaCla, size: 30);
                         }),
                       );
                     },
@@ -92,11 +117,7 @@ class Hud extends StatelessWidget {
                       if (currentDash == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentDash, (index) {
-                          return const Icon(
-                            Icons.double_arrow,
-                            color: Pallete.verdeCla,
-                            size: 30,
-                          );
+                          return const Icon(Icons.double_arrow, color: Pallete.verdeCla, size: 30);
                         }),
                       );
                     },
@@ -111,12 +132,8 @@ class Hud extends StatelessWidget {
                       return Text(
                         "\$ : $coins",
                         style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Pallete.amarelo,
-                          shadows: [
-                            Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))
-                          ],
+                          fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.amarelo,
+                          shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
                           decoration: TextDecoration.none,
                         ),
                       );
@@ -129,21 +146,13 @@ class Hud extends StatelessWidget {
                     builder: (context, keys, child) {
                       return Row(
                         children: [
-                          const Icon(
-                            Icons.key, // Ou MdiIcons.fire
-                            color: Pallete.laranja,
-                            size: 28,
-                          ),
+                          const Icon(Icons.key, color: Pallete.laranja, size: 28),
                           const SizedBox(width: 4),
                           Text(
                             ": $keys", 
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Pallete.laranja,
-                              shadows: [
-                                Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))
-                              ],
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.laranja,
+                              shadows: [Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -160,21 +169,13 @@ class Hud extends StatelessWidget {
                     builder: (context, bombs, child) {
                       return Row(
                         children: [
-                           Icon(
-                            MdiIcons.bomb, // Ou MdiIcons.fire
-                            color: Pallete.lilas,
-                            size: 28,
-                          ),
+                           Icon(MdiIcons.bomb, color: Pallete.lilas, size: 28),
                           const SizedBox(width: 4),
                           Text(
                             ": $bombs", 
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Pallete.lilas,
-                              shadows: [
-                                Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))
-                              ],
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -191,21 +192,13 @@ class Hud extends StatelessWidget {
                     builder: (context, souls, child) {
                       return Row(
                         children: [
-                          const Icon(
-                            Icons.whatshot, // Ou MdiIcons.fire
-                            color: Pallete.lilas,
-                            size: 28,
-                          ),
+                          const Icon(Icons.whatshot, color: Pallete.lilas, size: 28),
                           const SizedBox(width: 4),
                           Text(
                             ": $souls", 
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Pallete.lilas,
-                              shadows: [
-                                Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))
-                              ],
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -245,24 +238,20 @@ class Hud extends StatelessWidget {
                   },
                   borderRadius: BorderRadius.circular(40),
                   child: Container(
-                    width: 80,
-                    height: 80,
+                    width: 80, height: 80,
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
-                      child: Icon(
-                        Icons.double_arrow,
-                        color: Pallete.verdeCla,
-                        size: 40,
-                      ),
+                      child: Icon(Icons.double_arrow, color: Pallete.verdeCla, size: 40),
                     ),
                   ),
                 ),
               ),
             ),  
+            
             // ---------------------------------------------
             // 4. CANTO INFERIOR DIREITO: BOTÃO DE BOMBA
             // ---------------------------------------------
@@ -277,33 +266,30 @@ class Hud extends StatelessWidget {
                   },
                   borderRadius: BorderRadius.circular(40),
                   child: Container(
-                    width: 80,
-                    height: 80,
+                    width: 80, height: 80,
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
-                    child:  Center(
-                      child: Icon(
-                        MdiIcons.bomb,
-                        color: Pallete.cinzaEsc,
-                        size: 40,
-                      ),
+                    child: Center(
+                      child: Icon(MdiIcons.bomb, color: Pallete.cinzaEsc, size: 40),
                     ),
                   ),
                 ),
               ),
             ),  
 
+            // ---------------------------------------------
+            // 5. TOPO CENTRO: DESAFIO
+            // ---------------------------------------------
             Positioned(
-              top: 50, // Ajuste para ficar um pouco abaixo do título/nível
+              top: 50, 
               left: 0,
               right: 0,
               child: ValueListenableBuilder<int>(
                 valueListenable: game.challengeHitsNotifier,
                 builder: (context, hitsTaken, child) {
-                  // Se for -1, significa que é uma sala normal, então não desenha NADA.
                   if (hitsTaken < 0) return const SizedBox.shrink();
 
                   return Row(
@@ -312,19 +298,12 @@ class Hud extends StatelessWidget {
                       const Text(
                         "DESAFIO: ",
                         style: TextStyle(
-                          color: Pallete.amarelo,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          shadows: [Shadow(blurRadius: 2, color: Colors.black)],
-                          decoration: TextDecoration.none,
+                          color: Pallete.amarelo, fontWeight: FontWeight.bold, fontSize: 20,
+                          shadows: [Shadow(blurRadius: 2, color: Colors.black)], decoration: TextDecoration.none,
                         ),
                       ),
-                      
-                      // Gera as 3 "chances" visuais
                       ...List.generate(3, (index) {
-                        // Se o índice for MENOR que os hits tomados, desenha um Coração Quebrado
                         bool lost = index < hitsTaken;
-                        
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
                           child: Icon(
@@ -340,52 +319,99 @@ class Hud extends StatelessWidget {
                 },
               ),
             ),
-            // ---------------------------------------------
-            // 5. TOPO CENTRO: NÍVEL ATUAL
-            // ---------------------------------------------
-            /*Positioned(
-              top: 15, // Um pouco mais para baixo
-              left: 0,
-              right: 0,
-              child: Center(
-                // Listenable.merge escuta uma lista de notifiers.
-                // Se o Nível OU a Sala mudar, ele reconstrói o texto.
-                child: ListenableBuilder(
-                  listenable: Listenable.merge([
-                    game.currentLevelNotifier, 
-                    game.currentRoomNotifier
-                  ]),
-                  builder: (context, child) {
-                    final int level = game.currentLevelNotifier.value;
-                    final int room = game.currentRoomNotifier.value;
-
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "$level - $room", 
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontFamily: 'Pixel', 
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 3.0,
-                            shadows: [
-                              Shadow(blurRadius: 4, color: Colors.black, offset: Offset(3, 3)),
-                              Shadow(blurRadius: 10, color: Colors.black), // Borda suave
-                            ],
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),   */     
           ],
         ),
       )
     );
+  }
+
+  // ==========================================================
+  // HELPER WIDGET: Desenha um único slot de item ativo
+  // ==========================================================
+  Widget _buildItemSlot(int index, ActiveItemData? itemData) {
+    bool isEmpty = itemData == null;
+    bool isReady = isEmpty || itemData.isReady;
+
+    IconData? slotIcon;
+    Color? slotColor;
+    if (!isEmpty) {
+      final attrs = Collectible.getAttributes(itemData.type);
+      slotIcon = attrs['icon'];
+      slotColor = attrs['color'];
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (!isEmpty && isReady) {
+          game.player.useActiveSlot(index);
+        }
+      },
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Pallete.cinzaEsc.withOpacity(0.8),
+          border: Border.all(
+            color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
+            width: 2
+          ),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
+        ),
+        child: isEmpty 
+          ? const SizedBox.shrink() 
+          : Stack(
+              alignment: Alignment.center,
+              children: [
+                // 1. O Ícone Oficial puxado do jogo!
+                Icon(
+                  slotIcon,
+                  color: slotColor,
+                  size: 32,
+                ),
+                
+                // 2. A PELÍCULA DE COOLDOWN E A CARGA (Apenas se não estiver pronto)
+                if (!isReady) ...[
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.65), 
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  Text(
+                    "${itemData.currentCharge}/${itemData.maxCharge}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // HELPER PARA CORES E ÍCONES (Já que o método do Collectible é privado)
+  // ==========================================================
+  IconData _getIconForType(CollectibleType type) {
+    switch (type) {
+      case CollectibleType.pocaVeneno: return MdiIcons.cloudOffOutline;
+      case CollectibleType.tornado: return MdiIcons.weatherTornado;
+      // Adicione seus novos itens ativos aqui:
+      // case CollectibleType.suaPocaoDeCura: return MdiIcons.bottleTonicPlus;
+      default: return Icons.star;
+    }
+  }
+
+  Color _getColorForType(CollectibleType type) {
+    switch (type) {
+      case CollectibleType.pocaVeneno: return Pallete.verdeEsc;
+      case CollectibleType.tornado: return Pallete.branco;
+      default: return Pallete.amarelo;
+    }
   }
 }

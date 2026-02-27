@@ -63,7 +63,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       period: 0.5, 
       repeat: true,
       onTick: () {
-        Color particleColor = isFire ? Pallete.laranja : Pallete.verdeCla;
+        Color particleColor = isFire ? Pallete.vermelho : Pallete.verdeCla;
         final rng = Random();
 
         final particleSystem = ParticleSystemComponent(

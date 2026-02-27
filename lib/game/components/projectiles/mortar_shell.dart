@@ -14,7 +14,10 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   final double flightDuration;
   final PositionComponent? owner;
   final bool isPoison;
-  final double explosionRadius; // Raio da explosão
+  final bool isFire;
+  final double explosionRadius; 
+  final bool isPlayer;
+  final double damage;
   
   double _timeElapsed = 0;
   final double _maxHeight = 150.0;
@@ -27,7 +30,10 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     this.owner,
     this.flightDuration = 1.2,
     this.isPoison = false,
+    this.isFire = false,
     this.explosionRadius = 60.0,
+    this.isPlayer = false,
+    this.damage = 1,
   }) : super(position: startPos, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
@@ -84,9 +90,12 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   void _explode() {
     // Força a explosão no alvo exato
     if (isPoison) {
-      gameRef.world.add(PoisonPuddle(position: targetPos, size: Vector2.all(explosionRadius*2)));
+      gameRef.world.add(PoisonPuddle(position: targetPos, isPlayer: isPlayer, size: Vector2.all(explosionRadius*2)));
     } else {
-      gameRef.world.add(Explosion(position: targetPos, radius: explosionRadius));
+      gameRef.world.add(Explosion(position: targetPos, damagesPlayer: !isPlayer,damage: damage ,radius: explosionRadius));
+      if(isFire){
+        gameRef.world.add(PoisonPuddle(position: targetPos, isPlayer: isPlayer, isFire: true, size: Vector2.all(explosionRadius)));
+      }
     }
     removeFromParent();
   }

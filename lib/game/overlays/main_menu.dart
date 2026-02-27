@@ -106,6 +106,18 @@ class MainMenu extends StatelessWidget {
                         textColor: Colors.black,
                         onPressed: () => game.overlays.add('SettingsMenu'),
                       ),
+
+                      const SizedBox(height: 15),
+
+                      // botao diario
+                      _buildMenuButton(
+                        context,
+                        text: 'diario'.tr(),
+                        bgColor: Pallete.branco,
+                        textColor: Colors.black,
+                        onPressed: () => game.overlays.add('DiaryScreen'),
+                      ),
+                      
                     ],
                   );
                 },

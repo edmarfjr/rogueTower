@@ -11,12 +11,14 @@ import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import 'dart:math';
 import '../../tower_game.dart'; 
 import '../enemies/enemy.dart'; 
@@ -32,6 +34,9 @@ class Player extends PositionComponent
   int maxHealth = 4;
   late final ValueNotifier<int> healthNotifier;
   ValueNotifier<int> shieldNotifier = ValueNotifier<int>(0);
+
+  int maxArtificialHealth = 0;
+  late final ValueNotifier<int> artificialHealthNotifier;
 
   int maxDash = 2;
   late final ValueNotifier<int> dashNotifier;
@@ -105,6 +110,11 @@ class Player extends PositionComponent
   bool tripleShot = false;
   bool fireDash = false;
   bool isDashDamages = false;
+  bool isLicantropia = false;
+  double licantropiaTmr = 0;
+  bool isMorteiro = false;
+  bool hasBattery = false;
+  bool hasShieldRegen = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -131,8 +141,20 @@ class Player extends PositionComponent
   //lista de itens
   List<AcquiredItemData> items = [];
 
+  final ValueNotifier<List<ActiveItemData?>> activeItems = ValueNotifier([null, null]);
+
+  //int cargaItem = 5;
+  int cargaItem(CollectibleType type) {
+    if (type == CollectibleType.activePoisonBomb) return 3; 
+    if (type == CollectibleType.activeLicantropia) return 10;    
+    if (type == CollectibleType.activeHeal) return 5;   
+
+    return 1; // Padrão
+  }
+
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
+    artificialHealthNotifier = ValueNotifier<int>(maxArtificialHealth);
     dashNotifier = ValueNotifier<int>(maxDash);
   }
   
@@ -258,9 +280,98 @@ class Player extends PositionComponent
     _handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
+    _handleLicantropia(dt);
 
     if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
       _die();
+    }
+  }
+
+  void ativaLicantropia(){
+    isLicantropia = true;
+    _visual.removeFromParent();
+
+    _visual = GameIcon(
+      icon: MdiIcons.dogSide,
+      color: Pallete.marrom,
+      size: size, 
+      anchor: Anchor.center,
+      position: size / 2,
+    );
+    currentColor = Pallete.marrom;
+    add(_visual);
+  }
+  void _handleLicantropia(double dt){
+    if (isLicantropia){
+      licantropiaTmr += dt;
+      if (licantropiaTmr >= 30){
+        isLicantropia = false;
+        _visual.removeFromParent();
+
+        _visual = GameIcon(
+          icon: Icons.directions_walk,
+          color: Pallete.branco,
+          size: size * 1.2, 
+          anchor: Anchor.center,
+          position: size / 2,
+        );
+        currentColor = Pallete.branco;
+        add(_visual);
+      }
+    }
+  }
+
+  ActiveItemData? equipActiveItem(CollectibleType newItem, int? incomingCharge) {
+    final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    ActiveItemData? droppedData; // Guarda TUDO do item antigo (tipo e carga)
+
+    if (isItemRecarregavel(newItem)) {
+      if (currentItems[0] != null) droppedData = currentItems[0];
+      
+      int max = cargaItem(newItem);
+      // Se veio do chão com carga, usa ela. Se é novo gerado pelo baú, vem cheio (max)!
+      int chargeToSet = incomingCharge ?? max; 
+      
+      currentItems[0] = ActiveItemData(type: newItem, currentCharge: chargeToSet, maxCharge: max);
+      
+    } else if (isItemUsoUnico(newItem)) {
+      if (currentItems[1] != null) droppedData = currentItems[1];
+      
+      currentItems[1] = ActiveItemData(type: newItem, currentCharge: 1, maxCharge: 1);
+    }
+
+    activeItems.value = currentItems;
+    return droppedData;
+  }
+
+  void useActiveSlot(int slotIndex) {
+    final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    final itemData = currentItems[slotIndex];
+
+    // Só usa se existir e estiver com a carga completa!
+    if (itemData != null && itemData.isReady) {
+      CollectibleLogic.applyEffect(type: itemData.type, game: gameRef);
+
+      if (slotIndex == 0) {
+        // Zera a carga do recarregável
+        itemData.currentCharge = 0; 
+      } else if (slotIndex == 1) {
+        // Destrói o de uso único
+        currentItems[1] = null; 
+      }
+      activeItems.value = currentItems;
+    }
+  }
+
+  void rechargeActiveItem({bool full = false}) {
+    final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    int val = 1;
+    if(hasBattery) val = 2;
+    if(full) val = cargaItem(currentItems[0]!.type);
+    // Se tem item no slot 0 e ele NÃO está pronto, carrega +1
+    if (currentItems[0] != null && !currentItems[0]!.isReady) {
+      currentItems[0]!.currentCharge+= val;
+      activeItems.value = currentItems; // Dispara a atualização visual na HUD
     }
   }
 
@@ -393,26 +504,29 @@ class Player extends PositionComponent
 
   void _handleMovement(double dt) {
     velocity.setZero();
+    double movVel = moveSpeed;
+    if(isLicantropia) movVel = moveSpeed * 1.5;
 
     if (gameRef.joystickDelta != Vector2.zero()) {
        velocity.setFrom(gameRef.joystickDelta);
-       velocity.scale(moveSpeed);
+       velocity.scale(movVel);
     } else if (_keyboardInput != Vector2.zero()) {
        velocity.setFrom(_keyboardInput);
        velocity.normalize();
-       velocity.scale(moveSpeed);
+       velocity.scale(movVel);
     }
 
     if (!velocity.isZero()) {
-      velocityDash.setFrom(velocity); // Copia segura
+      velocityDash.setFrom(velocity); 
       _handleDustEffect(dt);
+      if(isLicantropia) _createGhostEffect(dt);
       if(criaPocaVeneno) _createHazard(dt); 
       if(isConcentration) fireRate = fireRateInicial * 1.15;
     }else{
       if(isConcentration) fireRate = fireRateInicial * 0.5;
     } 
     
-    position.addScaled(velocity, dt); // Otimizado
+    position.addScaled(velocity, dt); 
   }
 
   void startDash() {
@@ -525,7 +639,7 @@ class Player extends PositionComponent
     }
 
     if (gameRef.challengeHitsNotifier.value >= 0) {
-      // Se ainda não tomou 3 hits, adiciona +1
+      
       if (gameRef.challengeHitsNotifier.value < 3) {
         gameRef.challengeHitsNotifier.value++;
       }
@@ -540,8 +654,13 @@ class Player extends PositionComponent
       }
       return;
     }
-
-    healthNotifier.value -= amount;
+    if(artificialHealthNotifier.value > 0){
+      artificialHealthNotifier.value -= amount;
+      maxArtificialHealth -= amount;
+    }else{
+      healthNotifier.value -= amount;
+    }
+    
     _isInvincible = true;
     _invincibilityTimer = invincibilityDuration;
     
@@ -576,7 +695,9 @@ class Player extends PositionComponent
 
   void _handleAutoAttack(double dt) {
     _attackTimer += dt;
-    if (_attackTimer < fireRate) return;
+    double fRate = fireRate;
+    if (isLicantropia) fRate = fireRate*0.5;
+    if (_attackTimer < fRate) return;
 
     final enemies = gameRef.world.children.query<Enemy>();
     Enemy? target;
@@ -592,18 +713,32 @@ class Player extends PositionComponent
 
     if (target != null) {
       _attackTimer = 0;
-      if(isShotgun){
-        _shootAt(target,angleOffset: 0.075);
-        _shootAt(target,angleOffset: -0.075);
-        _shootAt(target,angleOffset: 0.2);
-        _shootAt(target,angleOffset: -0.2);
+      if(isMorteiro){
+        gameRef.world.add(MortarShell(
+          startPos: position.clone(),
+          targetPos: target.position.clone(),
+          owner: this,
+          flightDuration: 1,
+          damage: damage,
+          isFire: true,
+          explosionRadius: 60,
+          isPlayer: true,
+        ));
       }else{
-        _shootAt(target);
-        if(tripleShot){
+        if(isShotgun){
+          _shootAt(target,angleOffset: 0.075);
+          _shootAt(target,angleOffset: -0.075);
           _shootAt(target,angleOffset: 0.2);
           _shootAt(target,angleOffset: -0.2);
+        }else{
+          _shootAt(target);
+          if(tripleShot){
+            _shootAt(target,angleOffset: 0.2);
+            _shootAt(target,angleOffset: -0.2);
+          }
         }
       }
+      
       
     }
   }
@@ -619,6 +754,7 @@ class Player extends PositionComponent
     _tempDirection.setValues(x, y);
 
     double dmg = damage;
+    double aRange = attackRange;
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.3;
@@ -635,7 +771,10 @@ class Player extends PositionComponent
       _tempDirection.setValues(x, y);
       dmg = dmg * 1.3;
     }
-    
+    if(isLicantropia){
+      dmg = dmg * 1.5;
+      aRange = aRange * 0.5;
+    }
     AudioManager.playSfx('shoot.mp3');
     if(isMineShot){
       gameRef.world.add(Bomb(position: position.clone(), damage: dmg*1.5, isMine: true, direction: _tempDirection.clone()));
@@ -648,7 +787,7 @@ class Player extends PositionComponent
       damage: dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
-      dieTimer: isBoomerang ? 1.0 : attackRange,
+      dieTimer: isBoomerang ? 1.0 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: isHoming,
       iniPosition: position.clone(),
@@ -675,8 +814,10 @@ class Player extends PositionComponent
   }
 
   void reset() {
-    maxHealth = 8;
+    maxHealth = 4;
     healthNotifier.value = 4;
+    maxArtificialHealth = 0;
+    artificialHealthNotifier.value = 0;
     maxDash = 2;
     dashNotifier.value = 2;
     _dashCooldownTimer = 0;
@@ -728,6 +869,9 @@ class Player extends PositionComponent
     isShotgun = false;
     fireDash = false;
     isDashDamages = false;
+    isMorteiro = false;
+    hasBattery = false;
+    hasShieldRegen = false;
 
     _visual.setColor(Pallete.branco);
   }
@@ -794,6 +938,11 @@ class Player extends PositionComponent
   void increaseHp(int val){ 
     maxHealth+=val; 
     healthNotifier.value+=val; 
+  }
+
+  void increaseArtificialHp(int val){ 
+    maxArtificialHealth+=val; 
+    artificialHealthNotifier.value+=val; 
   }
 
   void curaHp([int val = 1]){ 

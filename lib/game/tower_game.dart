@@ -386,6 +386,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void nextLevel(CollectibleType chosenReward) {
+    player.rechargeActiveItem();
     currentRoomNotifier.value++;
     if (currentRoom > bossRoom){
       currentRoomNotifier.value = 0;

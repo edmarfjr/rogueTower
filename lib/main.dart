@@ -1,3 +1,4 @@
+import 'package:TowerRogue/game/overlays/diary_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:TowerRogue/game/overlays/character_selection_menu.dart';
@@ -51,6 +52,7 @@ class GameEntry extends StatelessWidget {
             'SettingsMenu': (context, game) => SettingsMenu(game: game), 
             'DebugMenu': (context, game) => DebugMenu(game: game), 
             'CharacterSelectionMenu': (context, game) => CharacterSelectionMenu(game: game), 
+            'DiaryScreen': (context, game) => DiaryScreen(game: game), 
             
           },
       )

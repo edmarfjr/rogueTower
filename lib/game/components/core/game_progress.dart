@@ -11,6 +11,7 @@ class GameProgress {
   static const String _bankKey = 'bank_balance';
   static const String _langKey = 'game_language';
   static const String _unlockedClassesKey = 'unlocked_classes';
+  static const String _discoveredKey = 'discovered_items';
 
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
@@ -20,6 +21,7 @@ class GameProgress {
   int get bankBalance => bankNotifier.value;
   
   List<String> unlockedItems = [];
+  List<String> discoveredItems = [];
 
   // Getter para facilitar o acesso ao valor int puro se precisar
   int get souls => soulsNotifier.value;
@@ -30,6 +32,7 @@ class GameProgress {
     soulsNotifier.value = prefs.getInt(_soulsKey) ?? 0;
     bankNotifier.value = prefs.getInt(_bankKey) ?? 0;
     unlockedItems = prefs.getStringList(_unlocksKey) ?? [];
+    discoveredItems = prefs.getStringList(_discoveredKey) ?? [];
 
     // --- LÓGICA DO IDIOMA ---
     // Carrega o idioma salvo ou usa 'pt' como padrão
@@ -115,6 +118,15 @@ class GameProgress {
 
   bool isUnlocked(String itemId) {
     return unlockedItems.contains(itemId);
+  }
+
+  Future<void> discoverItem(String itemId) async {
+    if (!discoveredItems.contains(itemId)) {
+      discoveredItems.add(itemId);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_discoveredKey, discoveredItems);
+      print("📖 Novo item catalogado no Diário: $itemId");
+    }
   }
 
   Future<void> changeLanguage(String lang) async {

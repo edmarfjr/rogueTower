@@ -91,6 +91,12 @@ class SaveManager {
       'isDashDamages': game.player.isDashDamages,
       'isShotgun': game.player.isShotgun,
       'tripleShot': game.player.tripleShot,
+      'isMorteiro': game.player.isMorteiro,
+      'hasBattery': game.player.hasBattery,
+      'hasShieldRegen': game.player.hasShieldRegen,
+      'maxArtificialHealth': game.player.maxArtificialHealth,
+      'artificialHealthNotifier': game.player.artificialHealthNotifier.value,
+      
     };
 
     String jsonString = jsonEncode(runData);
@@ -198,9 +204,12 @@ class SaveManager {
     game.player.isDashDamages = runData['isDashDamages'] ?? false;
     game.player.isShotgun = runData['isShotgun'] ?? false;
     game.player.tripleShot = runData['tripleShot'] ?? false;
+    game.player.isMorteiro = runData['isMorteiro'] ?? false;
+    game.player.hasBattery = runData['hasBattery'] ?? false;
+    game.player.hasShieldRegen = runData['hasShieldRegen'] ?? false;
+    game.player.maxArtificialHealth = runData['maxArtificialHealth'] ?? false;
+    game.player.artificialHealthNotifier.value = runData['artificialHealthNotifier'] ?? false;
     
-    
-
     print("✅ Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }
 

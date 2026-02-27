@@ -2,10 +2,12 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
-import 'package:flame/collisions.dart';
+import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+//import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/events.dart'; // Necessário para o TapCallbacks
+//import 'package:flame/events.dart'; 
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -15,16 +17,54 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 import '../core/i18n.dart';
 
+class ActiveItemData {
+  final CollectibleType type;
+  int currentCharge;
+  int maxCharge;
+
+  ActiveItemData({
+    required this.type,
+    required this.currentCharge,
+    required this.maxCharge,
+  });
+
+  bool get isReady => currentCharge >= maxCharge;
+}
+
 enum CollectibleType {
   //tipos de porta 
   coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop, 
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
-  pocaVeneno, rastroFogo,
+  pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
-  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot
+  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield
+}
+
+
+bool isItemRecarregavel(CollectibleType type) {
+  const recarregaveis = [
+    CollectibleType.activePoisonBomb, 
+    CollectibleType.activeLicantropia, 
+    CollectibleType.activeHeal, 
+  ];
+  return recarregaveis.contains(type);
+}
+
+bool isItemUsoUnico(CollectibleType type) {
+  const usoUnico = [
+    CollectibleType.sanduiche,
+    CollectibleType.cupon,  
+    CollectibleType.activeBattery,
+    CollectibleType.activeArtHp,
+  ];
+  return usoUnico.contains(type);
+}
+
+bool isItemAtivo(CollectibleType type) {
+  return isItemRecarregavel(type) || isItemUsoUnico(type);
 }
 
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
@@ -35,6 +75,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   int custoBombs;
   bool custoVida;
   bool naoEsgota;
+  int? activeCharge;
 
   Vector2 _velocity = Vector2.zero();
   final double _gravity = 900.0; 
@@ -55,13 +96,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     this.custoKeys = 0, 
     this.custoBombs = 0, 
     this.custoVida = false,
-    this.naoEsgota=false
+    this.naoEsgota=false,
+    this.activeCharge,
     }): super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     // 1. Configura Visual (Ícone e Cor)
-    final attrs = _getAttributes(type);
+    final attrs = Collectible.getAttributes(type);
     IconData iconData = attrs['icon'] as IconData;
     Color iconColor = attrs['color'] as Color;
 
@@ -186,7 +228,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   void _showInfo() {
     _isInfoVisible = true;
     
-    final attrs = _getAttributes(type);
+    final attrs = Collectible.getAttributes(type);
     String name = attrs['name'] as String;
     String desc = attrs['desc'] as String;
 
@@ -300,6 +342,29 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       
     }
 
+    //logica para itens ativos
+    if (isItemAtivo(type)) {
+      // Passa a carga que estava no chão para o Player
+      ActiveItemData? droppedData = gameRef.player.equipActiveItem(type, activeCharge);
+
+      // Se o bolso estava cheio, dropa o antigo no chão COM A CARGA DELE!
+      if (droppedData != null) {
+        final droppedItem = Collectible(
+          position: gameRef.player.position.clone(),
+          type: droppedData.type,
+          activeCharge: droppedData.currentCharge, // A MEMÓRIA!
+        );
+        gameRef.world.add(droppedItem);
+        droppedItem.pop(Vector2((Random().nextDouble() - 0.5) * 60, 10));
+      }
+
+      gameRef.progress.discoverItem(type.toString());
+
+      if (!naoEsgota) removeFromParent(); 
+      AudioManager.playSfx('collect.mp3'); 
+      return; 
+    }
+
     // 2. Aplica Efeito
     final feedback = Collectible.applyEffect(type: type, game: gameRef);
     String feedbackText = feedback['text'] as String;
@@ -328,7 +393,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     // Se o item NÃO FOR consumível, adiciona na lista de adquiridos do Player
     if (!consumiveis.contains(type)) {
-      final attrs = _getAttributes(type);
+      final attrs = Collectible.getAttributes(type);
       
       gameRef.player.setAcquiredItemsList(
         attrs['name'] as String,
@@ -343,7 +408,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   // Helper para pegar dados visuais e textos (Nome, Descrição, Ícone, Cor)
-  Map<String, dynamic> _getAttributes(CollectibleType t) {
+  static Map<String, dynamic> getAttributes(CollectibleType t) {
     switch (t) {
       case CollectibleType.coin:
         return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
@@ -455,6 +520,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
          return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': MdiIcons.weatherTornado, 'color': Pallete.branco};
       case CollectibleType.tripleShot:
          return {'name': 'tripleShot'.tr(), 'desc': 'tripleShotDesc'.tr(), 'icon': MdiIcons.axisArrow, 'color': Pallete.branco};
+      case CollectibleType.activeHeal:
+         return {'name': 'activeHeal'.tr(), 'desc': 'activeHealDesc'.tr(), 'icon': MdiIcons.bottleTonicPlusOutline, 'color': Pallete.vermelho};
+      case CollectibleType.activePoisonBomb:
+         return {'name': 'activePoisonBomb'.tr(), 'desc': 'activePoisonBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.verdeEsc};
+      case CollectibleType.activeLicantropia:
+         return {'name': 'activeLicantropia'.tr(), 'desc': 'activeLicantropiaDesc'.tr(), 'icon': MdiIcons.dogSide, 'color': Pallete.vermelho};
+      case CollectibleType.activeBattery:
+         return {'name': 'activeBattery'.tr(), 'desc': 'activeBatteryDesc'.tr(), 'icon': MdiIcons.battery, 'color': Pallete.azulCla};
+      case CollectibleType.battery:
+         return {'name': 'battery'.tr(), 'desc': 'batteryDesc'.tr(), 'icon': MdiIcons.carBattery, 'color': Pallete.azulCla};
+      case CollectibleType.regenShield:
+         return {'name': 'regenShield'.tr(), 'desc': 'regenShieldDesc'.tr(), 'icon': MdiIcons.shieldSync, 'color': Pallete.azulCla};
+      case CollectibleType.activeArtHp:
+         return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': MdiIcons.heart, 'color': Pallete.azulCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -495,6 +574,10 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.soda,
       CollectibleType.bloodstone,
       CollectibleType.conqCrown,
+      CollectibleType.activePoisonBomb,
+      CollectibleType.activeHeal,
+      CollectibleType.activeLicantropia,
+      CollectibleType.activeArtHp,
     ];
     if (!player.isBerserk) itens.add(CollectibleType.berserk);
     if (!player.isAudaz) itens.add(CollectibleType.audacious);
@@ -522,7 +605,7 @@ List<CollectibleType> retornaItens(player){
     if (!player.criaPocaVenenoTmr) itens.add(CollectibleType.pocaVeneno);
     if (!player.fireDash) itens.add(CollectibleType.rastroFogo);
     if (!player.tripleShot && !player.isShotgun) itens.add(CollectibleType.tripleShot);
-      
+    if (!player.hasShieldRegen) itens.add(CollectibleType.regenShield);
 
     return itens;
   }
@@ -556,6 +639,10 @@ List<CollectibleType> retornaItensComuns(){
       CollectibleType.spectral,
       CollectibleType.bounce,
       CollectibleType.cupon,
+      CollectibleType.activePoisonBomb,
+      CollectibleType.activeHeal,
+      CollectibleType.activeBattery,
+      CollectibleType.activeArtHp,
     ];
     
     return itens;
@@ -594,7 +681,10 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.kinetic,
       CollectibleType.heavyShot,
       CollectibleType.tornado,
-      CollectibleType.tripleShot
+      CollectibleType.tripleShot,     
+      CollectibleType.activeLicantropia,
+      CollectibleType.battery,
+      CollectibleType.regenShield
     ];
 
     return itRaros ;
@@ -957,6 +1047,58 @@ class CollectibleLogic {
           text = "tornado";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.activeHeal:
+          player.curaHp(2);
+          text = "activeHeal";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activePoisonBomb:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            damage:player.damage * 3, 
+            radius:100));
+          game.world.add(PoisonPuddle(
+            position: player.position.clone(),
+            isPlayer: true,
+            duration: 5.0,
+            size: Vector2.all(100)
+          ));
+          text = "activeHeal";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeLicantropia:
+          player.ativaLicantropia();
+          text = "activeLicantropia";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeBattery:
+          player.rechargeActiveItem(full: true);
+          text = "activeBattery";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.battery:
+          player.hasBattery = true;
+          text = "battery";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.regenShield:
+          player.hasShieldRegen = true;
+          text = "regenShield";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeArtHp:
+          player.increaseArtificialHp(6);
+          text = "activeArtHp";
+          //color = Pallete.vermelho;
+          break;
 
         default:
           text = "";
