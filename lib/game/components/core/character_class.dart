@@ -216,8 +216,8 @@ class CharacterRoster {
       startingItems: [
         CollectibleType.orbitalShield,
       ],
-      isUnlockedByDefault: true,
-      unlockConditionText: "Acumule 5 escudos"
+      isUnlockedByDefault: false,
+      unlockConditionText: "Acumule 6 escudos"
     ),
     CharacterClass(
       id: "licantropo",

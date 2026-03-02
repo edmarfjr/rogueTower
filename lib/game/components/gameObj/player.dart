@@ -974,7 +974,7 @@ class Player extends PositionComponent
 
   void increaseShield() async { 
     shieldNotifier.value++; 
-    if (shieldNotifier.value == 5) { 
+    if (shieldNotifier.value == 6) { 
       bool isNewUnlock = await GameProgress.unlockClass('defensor');
       
       if (isNewUnlock) {
