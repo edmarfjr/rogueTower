@@ -660,7 +660,7 @@ List<CollectibleType> retornaItens(player){
     if (!player.isKinetic) itens.add(CollectibleType.kinetic);
     if (!player.isHeavyShot) itens.add(CollectibleType.heavyShot);
     if (!player.hasCupon) itens.add(CollectibleType.cupon);
-    if (!player.criaPocaVenenoTmr) itens.add(CollectibleType.pocaVeneno);
+    if (!player.criaPocaVeneno) itens.add(CollectibleType.pocaVeneno);
     if (!player.fireDash) itens.add(CollectibleType.rastroFogo);
     if (!player.tripleShot && !player.isShotgun) itens.add(CollectibleType.tripleShot);
     if (!player.hasShieldRegen) itens.add(CollectibleType.regenShield);
