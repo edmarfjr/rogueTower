@@ -7,6 +7,7 @@ import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:TowerRogue/game/components/gameObj/decoy.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
@@ -124,6 +125,8 @@ class Player extends PositionComponent
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
 
+  Decoy? activeDecoy;
+
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
   Color currentColor = Pallete.branco;
@@ -235,6 +238,18 @@ class Player extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
+    // --- LÓGICA DE PERSISTÊNCIA DO DECOY ---
+    if (activeDecoy != null) {
+      // Quando a sala limpa o mundo, o "parent" do Decoy fica nulo.
+      if (activeDecoy!.parent == null) {
+        // Re-adiciona o fantasma no mundo novo!
+        gameRef.world.add(activeDecoy!);
+        
+        // Teleporta ele pro pé do jogador (para ele não nascer preso fora da parede na sala nova)
+        activeDecoy!.position = position.clone(); 
+      }
+    }
+    
     if (dashNotifier.value < maxDash){
       if (_dashCooldownTimer > 0) {
         _dashCooldownTimer -= dt;
@@ -889,6 +904,7 @@ class Player extends PositionComponent
     hasBattery = false;
     hasShieldRegen = false;
     items = [];
+    activeDecoy = null;
 
     _visual.setColor(Pallete.branco);
   }

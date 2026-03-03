@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -83,8 +84,8 @@ class CharacterRoster {
   static final List<CharacterClass> classes = [
     CharacterClass(
       id: "guerreiro",
-      name: "GUERREIRO",
-      description: "Equilibrado e resistente.",
+      name: "guerreiro".tr(),
+      description: "guerreiroDesc".tr(),//"Equilibrado e resistente.",
       icon: MdiIcons.sword,
       accessoryOffsetX: 30.0, 
       accessoryOffsetY: 10.0,
@@ -103,8 +104,8 @@ class CharacterRoster {
     ),
     CharacterClass(
       id: 'piromante',
-      name: "PIROMANTE",
-      description: "Só causa Dano ao longo do tempo.",
+      name: "piromante".tr(),
+      description: "piromanteDesc".tr(),//"Só causa Dano ao longo do tempo.",
       icon: MdiIcons.fire, 
       accessoryOffsetX: 30.0, 
       accessoryOffsetY: 10.0,
@@ -128,8 +129,8 @@ class CharacterRoster {
     ),
     CharacterClass(
       id: 'ladino',
-      name: "LADINO",
-      description: "Frágil, porém mortal.",
+      name: "ladino".tr(),
+      description: "ladinoDesc".tr(),//"Frágil, porém mortal.",
       icon: MdiIcons.knifeMilitary, 
       accessorySize: 12.0,
       accessoryOffsetX: 30.0, 
@@ -148,12 +149,12 @@ class CharacterRoster {
       startingKeys: 1,
       attackRange: 0.5,
       isUnlockedByDefault: false,
-      unlockConditionText: "Acumule 100 moedas em uma run"
+      unlockConditionText: "ladinoCond".tr(),//"Acumule 100 moedas em uma run"
     ),
     CharacterClass(
       id: 'arqueiro',
-      name: "ARQUEIRO",
-      description: "Atira a longas distancias.",
+      name: "arqueiro".tr(),
+      description: "arqueiroDesc".tr(),//"Atira a longas distancias.",
       icon: MdiIcons.bowArrow, 
       accessorySize: 24.0,
       accessoryOffsetX: 30.0, 
@@ -170,12 +171,12 @@ class CharacterRoster {
       dashCooldown: 2.0, 
       attackRange: 1.0,
       isUnlockedByDefault: false,
-      unlockConditionText: "Derrote o terceiro boss"
+      unlockConditionText: "arqueiroCond".tr(),//"Derrote o terceiro boss"
     ),
     CharacterClass(
       id: 'exterminador',
-      name: "EXTERMINADOR",
-      description: "Usa uma poderosa escopeta de curto alcance.",
+      name: "exterminador".tr(),
+      description: "exterminadorDesc".tr(),//"Usa uma poderosa escopeta de curto alcance.",
       icon: MdiIcons.sunglasses, 
       accessorySize: 6.0,
       accessoryOffsetX: 18.0, 
@@ -192,12 +193,12 @@ class CharacterRoster {
       attackRange: 0.2,
       isShotgun: true,
       isUnlockedByDefault: false,
-      unlockConditionText: "Derrote o quinto boss"
+      unlockConditionText: "exterminadorCond".tr(),//""Derrote o quinto boss"
     ),
     CharacterClass(
       id: "defensor",
-      name: "DEFENSOR",
-      description: "Inicia com escudos protetores",
+      name: "defensor".tr(),
+      description: "defensorDesc".tr(),//"Inicia com escudos protetores",
       icon: MdiIcons.shield,
       accessoryOffsetX: 8.0, 
       accessoryOffsetY: 15.0,
@@ -217,12 +218,12 @@ class CharacterRoster {
         CollectibleType.orbitalShield,
       ],
       isUnlockedByDefault: false,
-      unlockConditionText: "Acumule 6 escudos"
+      unlockConditionText: "defensorCond".tr(),//"Acumule 6 escudos"
     ),
     CharacterClass(
       id: "licantropo",
-      name: "LICANTROPO",
-      description: "Pode se transformar em lobo",
+      name: "licantropo".tr(),
+      description: "licantropoDesc".tr(),//"Pode se transformar em lobo",
       icon: MdiIcons.dogSide,
       semAcessorio: true,
       accessoryOffsetX: 8.0, 
@@ -243,7 +244,7 @@ class CharacterRoster {
         CollectibleType.activeLicantropia,
       ],
       isUnlockedByDefault: false,
-      unlockConditionText: "Adquira Licantropia"
+      unlockConditionText: "licantropoCond".tr(),//"Adquira Licantropia"
     ),
   ];
 }

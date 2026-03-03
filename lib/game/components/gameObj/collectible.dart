@@ -4,6 +4,7 @@ import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
+import 'package:TowerRogue/game/components/gameObj/decoy.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
@@ -43,7 +44,8 @@ enum CollectibleType {
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
-  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield
+  concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
+  decoy
 }
 
 
@@ -563,6 +565,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
          return {'name': 'regenShield'.tr(), 'desc': 'regenShieldDesc'.tr(), 'icon': MdiIcons.shieldSync, 'color': Pallete.azulCla};
       case CollectibleType.activeArtHp:
          return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': MdiIcons.heart, 'color': Pallete.azulCla};
+      case CollectibleType.decoy:
+        return {'name': 'decoy'.tr(), 'desc': 'decoyDesc'.tr(), 'icon': MdiIcons.accountMultiple, 'color': Pallete.cinzaCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -574,7 +578,6 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  // Mantive seu método estático applyEffect igual (não alterado no exemplo para economizar espaço)
   static Map<String, dynamic> applyEffect({required CollectibleType type, required TowerGame game}) {
       return CollectibleLogic.applyEffect(type: type, game: game);
   }
@@ -582,7 +585,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 }
 
 List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player player) {
-  // 1. Define quem PODE vir repetido (Status puros e consumíveis)
+
   const stackables = [
     CollectibleType.damage, CollectibleType.fireRate, CollectibleType.moveSpeed, 
     CollectibleType.range, CollectibleType.healthContainer, CollectibleType.keys, 
@@ -592,18 +595,14 @@ List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player pl
   ];
 
   poolOriginal.removeWhere((itemType) {
-    // Se for acumulável, nunca remove da lista!
     if (stackables.contains(itemType)) return false; 
 
-    // 2. Verifica se está na lista de Passivas do Pause Menu
     bool temPassiva = player.items.any((adquirido) => adquirido.type == itemType);
 
-    // 3. Verifica se está nos slots de Itens Ativos da HUD
     final ativos = player.activeItems.value;
     bool temAtivo0 = ativos[0]?.type == itemType;
     bool temAtivo1 = ativos[1]?.type == itemType;
 
-    // Se ele já tem o item em qualquer lugar, remove do sorteio do baú!
     return temPassiva || temAtivo0 || temAtivo1;
   });
 
@@ -664,6 +663,7 @@ List<CollectibleType> retornaItens(player){
     if (!player.fireDash) itens.add(CollectibleType.rastroFogo);
     if (!player.tripleShot && !player.isShotgun) itens.add(CollectibleType.tripleShot);
     if (!player.hasShieldRegen) itens.add(CollectibleType.regenShield);
+    if (player.activeDecoy == null) itens.add(CollectibleType.decoy);
 
     return _filtrarPool(itens, player);
   }
@@ -742,17 +742,16 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.tripleShot,     
       CollectibleType.activeLicantropia,
       CollectibleType.battery,
-      CollectibleType.regenShield
+      CollectibleType.regenShield,
+      CollectibleType.decoy,
     ];
     return _filtrarPool(itRaros, player);
   }
 
 class CollectibleLogic {
    static Map<String, dynamic> applyEffect({required CollectibleType type, required TowerGame game}) {
-      // Lógica placeholder: VOCÊ DEVE MANTER A SUA LÓGICA ORIGINAL AQUI
-      // Copiei apenas um exemplo para funcionar
+
        String text = "";
-       //Color color = Pallete.branco;
        final player = game.player;
       AudioManager.playSfx('collect.mp3');
        switch (type) {
@@ -765,9 +764,9 @@ class CollectibleLogic {
           
         case CollectibleType.potion:
           if (player.healthNotifier.value < player.maxHealth) {
-            player.curaHp(2); // Ou player.heal() se tiver criado
+            player.curaHp(2);
             text = "Curado!";
-            //color = Pallete.vermelho; // Rosa/Vermelho
+            //color = Pallete.vermelho; 
           } else {
             text = "Cheio!";
             //color = Pallete.cinzaCla;
@@ -776,9 +775,9 @@ class CollectibleLogic {
 
         case CollectibleType.sanduiche:
           if (player.healthNotifier.value < player.maxHealth) {
-            player.curaHp(6); // Ou player.heal() se tiver criado
+            player.curaHp(6); 
             text = "Curado!";
-            //color = Pallete.vermelho; // Rosa/Vermelho
+            //color = Pallete.vermelho; 
           } else {
             text = "Cheio!";
            // color = Pallete.cinzaCla;
@@ -789,44 +788,44 @@ class CollectibleLogic {
           int k = Random().nextInt(2)+1;
           game.keysNotifier.value += k;
           text = "$k Key(s)!";
-          //color = Pallete.branco; // Ciano/Laranja
+          //color = Pallete.branco; 
           break;
 
         case CollectibleType.keys:
           game.keysNotifier.value+=10;
           text = "10 Keys!";
-          //color = Pallete.branco; // Ciano/Laranja
+          //color = Pallete.branco; 
           break;
         
         case CollectibleType.bomba:
           int b = Random().nextInt(2)+1;
           game.player.bombNotifier.value += b;
           text = "$b Bombs(s)!";
-          //color = Pallete.branco; // Ciano/Laranja
+          //color = Pallete.branco; 
           break;
 
         case CollectibleType.bombas:
           game.player.bombNotifier.value+=10;
           text = "10 Bombs!";
-          //color = Pallete.branco; // Ciano/Laranja
+          //color = Pallete.branco; 
           break;
 
         case CollectibleType.damage:
           player.increaseDamage(1.2);
           text = "+ Damage!";
-          //color = Pallete.branco; // Laranja
+          //color = Pallete.branco; 
           break;
 
         case CollectibleType.dot:
           player.dot += 0.2;
           text = "+ Dot!";
-          //color = Pallete.branco; // Laranja
+          //color = Pallete.branco;
           break;
           
         case CollectibleType.fireRate:
           player.increaseFireRate(0.85);
           text = "+ Fire Rate!";
-          //color = Pallete.azulCla; // Amarelo
+          //color = Pallete.azulCla; 
           break;
           
         case CollectibleType.moveSpeed:
@@ -1155,6 +1154,15 @@ class CollectibleLogic {
           player.increaseArtificialHp(6);
           text = "activeArtHp";
           //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.decoy:
+          if (player.activeDecoy == null) {
+            final decoy = Decoy(position: player.position.clone());
+            player.activeDecoy = decoy;
+            game.world.add(decoy);
+          }
+          text = "Decoy Ativado!";
           break;
 
         default:

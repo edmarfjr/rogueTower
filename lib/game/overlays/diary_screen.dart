@@ -77,8 +77,8 @@ class DiaryScreen extends StatelessWidget {
                 labelColor: Pallete.amarelo,
                 unselectedLabelColor: Colors.white54,
                 tabs: [
-                  Tab(text: "ITENS PASSIVOS"),
-                  Tab(text: "ITENS ATIVOS"),
+                  Tab(text: "RELIQUIAS"),
+                  Tab(text: "ITENS"),
                 ],
               ),
 

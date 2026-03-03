@@ -112,7 +112,7 @@ class MainMenu extends StatelessWidget {
                       // botao diario
                       _buildMenuButton(
                         context,
-                        text: 'diario'.tr(),
+                        text: 'colecao'.tr(),
                         bgColor: Pallete.branco,
                         textColor: Colors.black,
                         onPressed: () => game.overlays.add('DiaryScreen'),

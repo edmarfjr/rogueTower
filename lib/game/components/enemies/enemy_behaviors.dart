@@ -1,13 +1,9 @@
 import 'dart:math';
 import 'dart:ui';
-//import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
-
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flutter/material.dart';
-
 import '../gameObj/wall.dart';
 import 'package:flame/components.dart';
 import '../../tower_game.dart';
@@ -21,10 +17,28 @@ import '../effects/path_effect.dart';
 import '../effects/explosion_effect.dart';
 import '../core/pallete.dart';
 import '../core/game_icon.dart';
-//import 'enemy_factory.dart';
 
 typedef EnemyBuilder = Enemy Function(Vector2);
 typedef HazardBuilder = PositionComponent Function(Vector2 position);
+
+// --- HELPER DE AGGRO (O SEGREDO DO DECOY) ---
+// Qualquer Behavior pode chamar essa função para saber quem é o alvo atual!
+PositionComponent getEnemyTarget(Enemy enemy) {
+  final player = enemy.gameRef.player;
+  
+  if (player.activeDecoy != null && player.activeDecoy!.isMounted) {
+    final decoy = player.activeDecoy!;
+    double distToPlayer = enemy.position.distanceTo(player.position);
+    double distToDecoy = enemy.position.distanceTo(decoy.position);
+
+    // Se o Decoy estiver mais perto, ataca ele!
+    if (distToDecoy <= distToPlayer) {
+      return decoy;
+    }
+  }
+  
+  return player; // Se não tem Decoy ou o Player tá mais perto, foca no Player.
+}
 
 // --- INTERFACES ---
 
@@ -59,16 +73,15 @@ class FollowPlayerBehavior extends MovementBehavior {
   FollowPlayerBehavior({this.speedMod = 1});
   @override
   void update(double dt) {
-    // Só anda se o ataque permitir
     if (!enemy.canMove) return;
 
-    final player = enemy.gameRef.player;
-    _direction
-      ..setFrom(player.position) // Copia posição do player
-      ..sub(enemy.position)      // Subtrai posição do inimigo
-      ..normalize();             // Normaliza
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
     
-    // Rotação visual
+    _direction
+      ..setFrom(target.position) 
+      ..sub(enemy.position)      
+      ..normalize();             
+    
     if (enemy.rotates) {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
@@ -83,24 +96,19 @@ class GoToCenterBehavior extends MovementBehavior {
 
   @override
   void update(double dt) {
-    // Só anda se o ataque permitir
     if (!enemy.canMove) return;
 
-   
     _direction
       ..setFrom(_target)
       ..sub(enemy.position)      
-      ..normalize();            
+      ..normalize();             
     
-    // Rotação visual
     if (enemy.rotates) {
-      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
     if (enemy.position.distanceTo(_target) > 10){
       enemy.position.addScaled(_direction, enemy.speed * dt);
     }
-    
   }
 }
 
@@ -116,23 +124,21 @@ class KeepDistanceBehavior extends MovementBehavior {
   void update(double dt) {
     if (!enemy.canMove) return;
 
-    final player = enemy.gameRef.player;
-    final distance = enemy.position.distanceTo(player.position);
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final distance = enemy.position.distanceTo(target.position);
+    
     _direction
-      ..setFrom(player.position) // Copia posição do player
-      ..sub(enemy.position)      // Subtrai posição do inimigo
-      ..normalize();             // Normaliza
+      ..setFrom(target.position) 
+      ..sub(enemy.position)      
+      ..normalize();             
 
-    // Rotação visual
     if (enemy.rotates) {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
     }
 
     if (distance > maxDistance) {
-      // Aproxima
       enemy.position.addScaled(_direction, enemy.speed * dt);
     } else if (distance < minDistance) {
-      // Foge
       enemy.position.addScaled(-_direction, (enemy.speed * 0.8) * dt);
     }
   }
@@ -140,32 +146,24 @@ class KeepDistanceBehavior extends MovementBehavior {
 
 class RandomWanderBehavior extends MovementBehavior {
   Vector2 _target = Vector2.zero();
-  
-  // Vetores reutilizáveis para evitar Garbage Collection (Travamentos)
   final Vector2 _direction = Vector2.zero();
   final Vector2 _tempCalc = Vector2.zero(); 
-
-  final Random _rng = Random(); // Cache do Random
+  final Random _rng = Random(); 
 
   @override
   void update(double dt) {
     if (!enemy.canMove) return;
 
-    // Se não tem alvo ou chegou perto, escolhe um aleatório total
     if (_target == Vector2.zero() || enemy.position.distanceTo(_target) < 10) {
       _pickNewTarget();
     }
 
-    // Lógica de Movimento Otimizada (Zero Alocação)
     _direction
       ..setFrom(_target)       
       ..sub(enemy.position)    
       ..normalize();           
 
-    // Rotação visual
     if (enemy.rotates) {
-      // Otimização: Se você implementou a variável '_visual' no Enemy sugerida antes, use-a aqui.
-      // Se não, mantenha o children.firstOrNull
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
       if (visual != null) {
         visual.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
@@ -175,58 +173,38 @@ class RandomWanderBehavior extends MovementBehavior {
     enemy.position.addScaled(_direction, enemy.speed * dt);
   }
 
-  // Agora aceita uma direção opcional de viés (Bias)
   void _pickNewTarget({Vector2? pushAwayFrom}) {
-    double w = TowerGame.gameWidth / 2 - 40; // Margem de segurança maior (40)
+    double w = TowerGame.gameWidth / 2 - 40; 
     double h = TowerGame.gameHeight / 2 - 40;
 
     if (pushAwayFrom != null) {
-      // --- LÓGICA DE COLISÃO INTELIGENTE ---
-      // 1. Pega o ângulo da direção oposta ao objeto
       double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
-      
-      // 2. Adiciona uma variação aleatória de +/- 60 graus (pi/3)
-      // Isso faz ele não voltar exatamente pra trás, mas sair na diagonal
       double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
       double finalAngle = baseAngle + noise;
 
-      // 3. Projeta um ponto longe (ex: 200 pixels) nessa direção segura
       double dist = 100 + _rng.nextDouble() * 100;
-      
       _target.setValues(
         enemy.position.x + cos(finalAngle) * dist,
         enemy.position.y + sin(finalAngle) * dist,
       );
-
     } else {
-      // --- LÓGICA ALEATÓRIA PURA ---
       _target.setValues(
         (_rng.nextDouble() * 2 * w) - w, 
         (_rng.nextDouble() * 2 * h) - h
       );
     }
 
-    // IMPORTANTE: Garante que o ponto calculado (seja por colisão ou random)
-    // não caia fora da arena, senão ele tenta atravessar a parede do mundo.
     _target.x = _target.x.clamp(-w, w);
     _target.y = _target.y.clamp(-h, h);
   }
   
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-     // Ignora coisas que não são barreiras físicas
      if (other is Web || other is PoisonPuddle) return;
-     
-     // Ignora se o alvo atual JÁ ESTÁ longe do objeto (evita jitter)
-     if (other.position.distanceTo(_target) > other.position.distanceTo(enemy.position)) {
-       return;
-     }
+     if (other.position.distanceTo(_target) > other.position.distanceTo(enemy.position)) return;
 
-     // 1. Calcula vetor que aponta PARA LONGE do objeto (Inimigo - Objeto)
      _tempCalc.setFrom(enemy.position);
      _tempCalc.sub(other.position);
-     
-     // 2. Escolhe novo alvo usando esse vetor como guia
      _pickNewTarget(pushAwayFrom: _tempCalc);
   }
 }
@@ -236,7 +214,6 @@ class BouncerBehavior extends MovementBehavior {
 
   @override
   void update(double dt) {
-    // Inicializa velocidade se estiver parada
     if (_velocity == Vector2.zero()) {
        final rng = Random();
        double angle = rng.nextDouble() * 2 * pi;
@@ -248,81 +225,55 @@ class BouncerBehavior extends MovementBehavior {
   }
 
   void _checkBounds() {
-   // Pegamos o tamanho REAL do inimigo (seja 32, 96 ou 200)
     double halfWidth = enemy.size.x / 2;
     double halfHeight = enemy.size.y / 2;
 
-    // Limites da Arena (considerando o tamanho do inimigo)
     double rightLimit = (TowerGame.gameWidth / 2) - halfWidth;
     double leftLimit = -(TowerGame.gameWidth / 2) + halfWidth;
     double topLimit = -(TowerGame.gameHeight / 2) + halfHeight;
     double bottomLimit = (TowerGame.gameHeight / 2) - halfHeight;
 
-    bool bounced = false;
-
-    // --- EIXO X ---
     if (enemy.position.x >= rightLimit) {
-      _velocity.x = -_velocity.x.abs(); // Força ir para Esquerda
-      enemy.position.x = rightLimit;      // Desgruda da parede
-      bounced = true;
+      _velocity.x = -_velocity.x.abs(); 
+      enemy.position.x = rightLimit;      
     } 
     else if (enemy.position.x <= leftLimit) {
-      _velocity.x = _velocity.x.abs();  // Força ir para Direita
-      enemy.position.x = leftLimit;       // Desgruda da parede
-      bounced = true;
+      _velocity.x = _velocity.x.abs();  
+      enemy.position.x = leftLimit;       
     }
 
-    // --- EIXO Y ---
     if (enemy.position.y >= bottomLimit) {
-      _velocity.y = -_velocity.y.abs(); // Força ir para Cima
-      enemy.position.y = bottomLimit;     // Desgruda
-      bounced = true;
+      _velocity.y = -_velocity.y.abs(); 
+      enemy.position.y = bottomLimit;     
     } 
     else if (enemy.position.y <= topLimit) {
-      _velocity.y = _velocity.y.abs();  // Força ir para Baixo
-      enemy.position.y = topLimit;        // Desgruda
-      bounced = true;
+      _velocity.y = _velocity.y.abs();  
+      enemy.position.y = topLimit;        
     }
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     if (other is Wall) {
-      // 1. Descobrir se bateu no lado ou em cima/baixo
-      // Pegamos o retângulo de colisão (interseção)
       final myRect = enemy.toAbsoluteRect();
       final otherRect = other.toAbsoluteRect();
       final intersection = myRect.intersect(otherRect);
 
-      // 2. Lógica de Quique
-      // Se a interseção é mais alta que larga -> Colisão Horizontal (Lados)
       if (intersection.width < intersection.height) {
-         // Verifica direção para evitar "quiques duplos" ou prender
-         // Se estou indo para a Direita (Vel > 0) e a parede está na minha Direita...
          if (_velocity.x > 0 && enemy.position.x < other.position.x) {
-            _velocity.x = -_velocity.x; // Inverte X
+            _velocity.x = -_velocity.x; 
          }
-         // Se estou indo para a Esquerda e a parede está na Esquerda...
          else if (_velocity.x < 0 && enemy.position.x > other.position.x) {
-            _velocity.x = -_velocity.x; // Inverte X
+            _velocity.x = -_velocity.x; 
          }
-      } 
-      // Se a interseção é mais larga que alta -> Colisão Vertical (Topo/Baixo)
-      else {
-         // Indo para Baixo, parede embaixo
+      } else {
          if (_velocity.y > 0 && enemy.position.y < other.position.y) {
-            _velocity.y = -_velocity.y; // Inverte Y
+            _velocity.y = -_velocity.y; 
          }
-         // Indo para Cima, parede em cima
          else if (_velocity.y < 0 && enemy.position.y > other.position.y) {
-            _velocity.y = -_velocity.y; // Inverte Y
+            _velocity.y = -_velocity.y; 
          }
       }
-      
-      // Opcional: Empurrão extra para desgrudar
-      // (O Enemy.dart já faz um empurrão básico, mas se ainda prender, descomente abaixo)
-      // final separation = (enemy.position - other.position).normalized();
-      // enemy.position += separation * 2.0;
     }
   }
 }
@@ -340,7 +291,6 @@ class ProjectileAttackBehavior extends AttackBehavior {
   double speed;
   late Vector2 size;
   
-  // Tipos de tiro
   final bool isShotgun;
   final bool is2shot;
   final bool isOrbital;
@@ -349,12 +299,10 @@ class ProjectileAttackBehavior extends AttackBehavior {
   final bool isHoming;
   final bool isBoomerang;
 
-  // --- NOVAS CONFIGURAÇÕES DE RAJADA (BURST) ---
   final bool isBurst;
-  final int burstCount;       // Quantos tiros por rajada
-  final double burstDelay;    // Tempo entre os tiros da rajada (ex: 0.1s)
+  final int burstCount;       
+  final double burstDelay;    
 
-  // Variáveis de controle interno da rajada
   bool _isBurstActive = false;
   int _burstShotsFired = 0;
   double _burstTimer = 0;
@@ -381,52 +329,44 @@ class ProjectileAttackBehavior extends AttackBehavior {
   void update(double dt) {
     if (!enemy.isMounted) return;
 
-    // --- LÓGICA DA RAJADA ATIVA ---
     if (_isBurstActive) {
       _burstTimer += dt;
-      
       if (_burstTimer >= burstDelay) {
-        _triggerShotPattern(); // Atira
+        _triggerShotPattern(); 
         _burstShotsFired++;
-        _burstTimer = 0; // Reseta timer do tiro rápido
+        _burstTimer = 0; 
 
-        // Verifica se acabou a rajada
         if (_burstShotsFired >= burstCount) {
           _isBurstActive = false;
           _burstShotsFired = 0;
-          _timer = 0; // Só agora reseta o Cooldown principal
+          _timer = 0; 
         }
       }
-      return; // Se está em rajada, não executa o timer principal
+      return; 
     }
 
-    // --- LÓGICA DO INTERVALO PRINCIPAL (COOLDOWN) ---
     _timer += dt;
     if (_timer >= interval) {
       if (isBurst) {
-        // INICIA A RAJADA
         _isBurstActive = true;
         _burstShotsFired = 0;
-        _burstTimer = burstDelay; // Força o primeiro tiro a sair imediatamente no próximo frame
+        _burstTimer = burstDelay; 
       } else {
-        // TIRO NORMAL (Único)
         _triggerShotPattern();
         _timer = 0;
       }
     }
   }
 
-  // Separei a lógica de QUAL tiro sai (Shotgun/Normal/2Shot) para poder reutilizar na rajada
   void _triggerShotPattern() {
-    // Recalcula direção a cada tiro (para a rajada acompanhar o player se ele se mover)
-    final player = enemy.gameRef.player;
-    final direction = (player.position - enemy.position).normalized();
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final direction = (target.position - enemy.position).normalized();
 
     if (is2shot) {
       _fireBullet(direction, 0.2);
       _fireBullet(direction, -0.2);
     } else {
-      _fireBullet(direction, 0); // Tiro central
+      _fireBullet(direction, 0); 
       
       if (isShotgun) {
         _fireBullet(direction, 0.3);
@@ -441,6 +381,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
     double x = baseDir.x * cos(angleOffset) - baseDir.y * sin(angleOffset);
     double y = baseDir.x * sin(angleOffset) + baseDir.y * cos(angleOffset);
     final newDir = Vector2(x, y);
+    
     if(!isStraight){
       double angleOffset = Random().nextDouble() * 0.2;
       double x = newDir.x * cos(angleOffset) - newDir.y * sin(angleOffset);
@@ -484,10 +425,11 @@ class MortarAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null) return; // Segurança caso o inimigo já tenha morrido
+    if (enemy == null) return; 
 
     _timer += dt;
-    final dist = enemy.position.distanceTo(enemy.gameRef.player.position);
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final dist = enemy.position.distanceTo(target.position);
 
     if (_timer >= interval && dist < minRange) {
       _timer = 0;
@@ -495,41 +437,31 @@ class MortarAttackBehavior extends AttackBehavior {
       if (isBarragem) {
         _fireBarrage();
       } else {
-        _fireSingleMortar();
+        _fireSingleMortar(target.position);
       }
     }
   }
 
-  void _fireSingleMortar() {
-    final target = enemy.gameRef.player.position.clone();
+  void _fireSingleMortar(Vector2 targetPos) {
+    final target = targetPos.clone();
     AudioManager.playSfx('enemyShot.mp3');
     _spawnMortar(target, 1.5);
   }
 
   void _fireBarrage() {
     final rng = Random();
-    
-    // Toca o som de tiro apenas UMA VEZ para a onda toda, para não estourar o áudio
     AudioManager.playSfx('enemyShot.mp3'); 
 
     for (int i = 0; i < numMortars; i++) {
-      // 1. Calcula posições aleatórias dentro dos limites da sua arena
-      // Considerando que a arena tem uns 360x640, geramos coordenadas seguras:
-      // Eixo X: entre -160 e 160 | Eixo Y: entre -280 e 280
       double randomX = (rng.nextDouble() * 320) - 160; 
       double randomY = (rng.nextDouble() * 560) - 280; 
       Vector2 randomTarget = Vector2(randomX, randomY);
-
-      // 2. Cria um atraso aleatório para cada morteiro (entre 1.2 e 2.5 segundos)
-      // Assim eles caem sequencialmente, parecendo um bombardeio real!
       double variedFlightTime = 1.2 + (rng.nextDouble() * 1.3);
 
       _spawnMortar(randomTarget, variedFlightTime);
     }
   }
 
-  // --- O SEGREDO DO CÓDIGO LIMPO ---
-  // Um único lugar para instanciar a mira e o projétil!
   void _spawnMortar(Vector2 target, double flightTime) {
     enemy.gameRef.world.add(TargetReticle(
       position: target,
@@ -563,21 +495,23 @@ class LaserAttackBehavior extends AttackBehavior {
     _timer += dt;
 
     if (_isShooting) {
-      enemy.canMove = false; // TRAVA O MOVIMENTO
+      enemy.canMove = false; 
       if (_timer > 1.2) {
         _isShooting = false;
-        enemy.canMove = true; // DESTRAVA
+        enemy.canMove = true; 
         _timer = 0;
       }
       return;
     }
 
-    final dist = enemy.position.distanceTo(enemy.gameRef.player.position);
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final dist = enemy.position.distanceTo(target.position);
+    
     if (_timer >= interval && dist < 350) {
       _isShooting = true;
       _timer = 0;
       
-      final dir = (enemy.gameRef.player.position - enemy.position).normalized();
+      final dir = (target.position - enemy.position).normalized();
       final angle = atan2(dir.y, dir.x);
 
       enemy.gameRef.world.add(LaserBeam(
@@ -588,7 +522,6 @@ class LaserAttackBehavior extends AttackBehavior {
         isEnemyProjectile: true,
       ));
       if (isShotgun) {
-        // Tiros adicionais com ângulo levemente diferente
         enemy.gameRef.world.add(LaserBeam(
           position: enemy.position + (dir * 10),
           angleRad: angle + 0.2,
@@ -618,13 +551,13 @@ class SpinnerAttackBehavior extends AttackBehavior {
   final bool isSpiral;
 
   final int projectilesPerWave;
-  final double spinSpeed; // O quão rápido a espiral gira
+  final double spinSpeed; 
   
   double _currentAngle = 0;
-  bool _isNextDiagonal = false; // Substitui o changeDirAux por um booleano simples
+  bool _isNextDiagonal = false; 
 
   SpinnerAttackBehavior({
-    this.interval = 1.5, // Centralizamos o tempo de recarga apenas no 'interval'
+    this.interval = 1.5, 
     this.isDiagonal = false, 
     this.isChangeDir = false,
     this.isBoomerang = false,
@@ -638,11 +571,10 @@ class SpinnerAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null || enemy!.isFreeze) return; // Segurança extra
+    if (enemy == null || enemy!.isFreeze) return; 
 
     _timer += dt;
     if (_timer >= interval) {
-      // Toca o som APENAS UMA VEZ por onda de tiros, não por projétil
       AudioManager.playSfx('enemyShot.mp3');
       
       if (isSpiral) {
@@ -651,10 +583,6 @@ class SpinnerAttackBehavior extends AttackBehavior {
         _shootCrossOrDiagonal();
       }
           
-      // Gira visualmente (Descomente se for usar)
-      // final visual = enemy!.children.whereType<GameIcon>().firstOrNull;
-      // visual?.angle += pi / 4;
-      
       _timer = 0;
     }
   }
@@ -665,20 +593,18 @@ class SpinnerAttackBehavior extends AttackBehavior {
       Vector2 direction = Vector2(cos(angle), sin(angle));
       _spawnProjectile(direction);
     }
-    _currentAngle += spinSpeed; // Gira o canhão
+    _currentAngle += spinSpeed; 
   }
 
   void _shootCrossOrDiagonal() {
     List<Vector2> directions;
 
-    // Lógica simplificada: Se for pra ser diagonal, usa os eixos diagonais
     if (isDiagonal || (_isNextDiagonal && isChangeDir)) {
       directions = [Vector2(-1, -1), Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1)];
     } else {
       directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
     }
 
-    // Alterna a direção para a próxima onda
     if (isChangeDir) {
       _isNextDiagonal = !_isNextDiagonal;
     }
@@ -704,11 +630,9 @@ class SpinnerAttackBehavior extends AttackBehavior {
 }
 
 class DashAttackBehavior extends AttackBehavior {
-  int _state = 0; // 0: Aim, 1: Dash, 2: Recover
+  int _state = 0; 
   double _timer = 0;
   Vector2 _dashDir = Vector2.zero();
-  
-  // Flag para evitar múltiplas colisões no mesmo frame
   bool _hitProcessed = false; 
 
   @override
@@ -716,12 +640,12 @@ class DashAttackBehavior extends AttackBehavior {
     _hitProcessed = false; 
     final visual = enemy.children.whereType<GameIcon>().firstOrNull;
 
-    if (_state == 0) { // --- MIRA (AIMING) ---
+    if (_state == 0) { 
       enemy.canMove = false; 
       
       if (_timer < 0.5) { 
-         final player = enemy.gameRef.player;
-         _dashDir = (player.position - enemy.position).normalized();
+         final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+         _dashDir = (target.position - enemy.position).normalized();
          if(visual != null) visual.angle = atan2(_dashDir.y, _dashDir.x) + enemy.rotateOff;
       } else { 
          if (_timer < 0.6) { 
@@ -735,26 +659,22 @@ class DashAttackBehavior extends AttackBehavior {
       
       _timer += dt;
       if (_timer >= 1.0) {
-        _state = 1; // VAI PARA O DASH
+        _state = 1; 
         _timer = 0;
         if(visual != null) visual.setColor(Pallete.vermelho);
       }
       
-    } else if (_state == 1) { // --- INVESTIDA (DASHING) ---
-       
-       // Move
+    } else if (_state == 1) { 
        enemy.position += _dashDir * 350 * dt; 
        
-       // VERIFICAÇÃO MANUAL DE BORDA (A correção está aqui!)
-       // Se bater na borda da arena, para imediatamente.
        if(_checkArenaImpact()) {
           _triggerBonk();
        }
        
-    } else if (_state == 2) { // --- RECUPERAÇÃO (RECOVERING) ---
+    } else if (_state == 2) { 
        _timer += dt;
        if (_timer >= 1.0) {
-         _state = 0; // Volta a mirar
+         _state = 0; 
          _timer = 0;
          enemy.canMove = true;
          if(visual != null) visual.setColor(Pallete.amarelo);
@@ -762,7 +682,6 @@ class DashAttackBehavior extends AttackBehavior {
     }
   }
 
-  // Escuta colisões com Paredes Internas (Walls)
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     if (_state == 1 && other is Wall && !_hitProcessed) {
@@ -771,49 +690,35 @@ class DashAttackBehavior extends AttackBehavior {
     }
   }
 
-  // --- FUNÇÃO QUE PARA O DASH ---
   void _triggerBonk() {
-    _state = 2; // Muda estado para Recuperando
+    _state = 2; 
     _timer = 0;
-    
-    // Empurrão para trás (Recuo) para desgrudar da parede
     enemy.position -= _dashDir * 20; 
-    
-    // Feedback visual (opcional)
     enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
   }
 
-  // --- VERIFICA SE BATEU NA BORDA DA ARENA ---
   bool _checkArenaImpact() {
     bool hit = false;
     double halfW = TowerGame.gameWidth / 2;
     double halfH = TowerGame.gameHeight / 2;
-    
-    // Raio do inimigo (aprox metade do tamanho)
     double r = enemy.size.x / 2;
 
-    // Borda Esquerda ou Direita
     if (enemy.position.x <= -halfW + r || enemy.position.x >= halfW - r) {
       hit = true;
     }
-
-    // Borda Cima ou Baixo
     if (enemy.position.y <= -halfH + r || enemy.position.y >= halfH - r) {
       hit = true;
     }
-
     return hit;
   }
 }
 
 class ChargeAttackBehavior extends AttackBehavior {
-  // Configurações
-  final double detectRange; // Distância para ativar
-  final double chargeSpeed; // Velocidade da investida
-  final double prepTime;    // Tempo parado avisando que vai atacar
+  final double detectRange; 
+  final double chargeSpeed; 
+  final double prepTime;    
   
-  // Variáveis de Estado
-  int _state = 0; // 0: Idle, 1: Prep, 2: Charge, 3: Cooldown
+  int _state = 0; 
   double _timer = 0;
   Vector2 _chargeDir = Vector2.zero();
 
@@ -825,93 +730,72 @@ class ChargeAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    final player = enemy.gameRef.player;
+    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
     final visual = enemy.visual;
 
-    // --- ESTADO 0: VIGILÂNCIA ---
-    // O inimigo está andando aleatoriamente (controlado pelo MovementBehavior)
     if (_state == 0) {
-      double dist = enemy.position.distanceTo(player.position);
+      double dist = enemy.position.distanceTo(target.position);
       
       if (dist <= detectRange) {
-        // PLAYER ENTROU NO ALCANCE!
         _state = 1;
         _timer = 0;
-        enemy.canMove = false; // Trava o movimento aleatório
-        
-        // Feedback Visual: Fica Vermelho (Perigo!)
+        enemy.canMove = false; 
         visual?.setColor(Pallete.vermelho);
       }
     }
-
-    // --- ESTADO 1: PREPARAÇÃO ---
-    // Fica parado "carregando" o ataque
     else if (_state == 1) {
       _timer += dt;
       
-      // Mira no jogador enquanto prepara (opcional, deixa mais difícil)
-      _chargeDir = (player.position - enemy.position).normalized();
+      _chargeDir = (target.position - enemy.position).normalized();
       
-      // Se tiver visual, rotaciona para olhar pro player
       if (visual != null && !enemy.rotates) {
-         if (player.position.x < enemy.position.x) visual.scale.x = -1;
+         if (target.position.x < enemy.position.x) visual.scale.x = -1;
          else visual.scale.x = 1;
       }
 
       if (_timer >= prepTime) {
-        _state = 2; // INICIA A CARGA
+        _state = 2; 
         _timer = 0;
       }
     }
-
-    // --- ESTADO 2: INVESTIDA (CHARGE) ---
-    // Corre na direção travada
     else if (_state == 2) {
       _timer += dt;
-      
-      // Move manualmente (ignorando speed base)
       enemy.position += _chargeDir * chargeSpeed * dt;
 
-      // Duração máxima da investida (ex: 1 segundo ou até bater)
       if (_timer >= 1.0) {
         _stopCharge();
       }
     }
-
-    // --- ESTADO 3: COOLDOWN ---
-    // Descansa um pouco antes de voltar a andar
     else if (_state == 3) {
       _timer += dt;
-      if (_timer >= 1.5) { // 1.5s de descanso
-        _state = 0; // Volta a andar aleatoriamente
+      if (_timer >= 1.5) { 
+        _state = 0; 
         _timer = 0;
-        enemy.canMove = true; // Libera movimento
-        visual?.setColor(enemy.originalColor); // Cor volta ao normal
+        enemy.canMove = true; 
+        visual?.setColor(enemy.originalColor); 
       }
     }
   }
 
-  // Se bater na parede ou no player durante a carga, para.
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (_state == 2) { // Só importa se estiver correndo
+    if (_state == 2) { 
       if (other is Wall) {
-        // Empurra um pouco pra trás pra não grudar
         enemy.position -= _chargeDir * 10;
         _stopCharge();
       }
-      // Se bater no player, o player toma dano (lógica já existente no Player/Enemy),
-      // mas podemos parar o dash também:
-      if (other == enemy.gameRef.player) {
+      
+      // Se bater no jogador ou no decoy, também para o charge
+      final target = getEnemyTarget(enemy);
+      if (other == target) {
          _stopCharge();
       }
     }
   }
 
   void _stopCharge() {
-    _state = 3; // Vai para Cooldown
+    _state = 3; 
     _timer = 0;
-    // Opcional: Feedback visual de "tonto" ou "cansado"
     enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.cinzaEsc);
   }
 }
@@ -930,14 +814,13 @@ class JumpAttackBehavior extends AttackBehavior {
   final bool isExplosionOnLand;
   final bool is4ShotOnLand;
 
-  late Player _cachedPlayer;
+  late PositionComponent _cachedTarget; // Agora guarda o Player ou Decoy
 
   bool _isJumping = false;
   double _timer = 0;
   Vector2 _startPos = Vector2.zero();
   Vector2 _targetPos = Vector2.zero();
 
-  // Referências para os efeitos visuais
   CircleComponent? _shadow;
 
   JumpAttackBehavior({
@@ -946,41 +829,35 @@ class JumpAttackBehavior extends AttackBehavior {
     this.jumpDuration = 0.8,
     this.cooldown = 2.5,
     this.impactRadius = 60,
-    this.maxJumpHeight = 120.0, // Altura que ele sobe na tela
-    this.isRandomJump = false, // Padrão: Comportamento antigo
+    this.maxJumpHeight = 120.0, 
+    this.isRandomJump = false, 
     this.randomJumpRadius = 100.0,
-    this.isExplosionOnLand = true, // Se true, cria efeito de explosão ao aterrissar
-    this.is4ShotOnLand = false, // Se true, atira 4 projéteis ao aterrissar
+    this.isExplosionOnLand = true, 
+    this.is4ShotOnLand = false, 
   });
 
   @override
   void update(double dt) {
     if (!enemy.isMounted) return;
-    _cachedPlayer = enemy.gameRef.player;
+    _cachedTarget = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
 
     if (_isJumping) {
       _timer += dt;
       double progress = (_timer / jumpDuration).clamp(0.0, 1.0);
 
-      // 1. Posição Lógica (Move a "sombra" no chão em linha reta)
       enemy.position.x = lerpDouble(_startPos.x, _targetPos.x, progress)!;
       enemy.position.y = lerpDouble(_startPos.y, _targetPos.y, progress)!;
 
-      // 2. Cálculo da Parábola (Senoide vai de 0 -> 1 -> 0)
       double arc = sin(progress * pi);
       double heightFactor = sin(progress * pi);
       
-      // 3. Move o VISUAL para cima (Simulando o eixo Z)
-      //final visual = enemy.children.whereType<GameIcon>().firstOrNull;
       if (enemy.visual != null) {
-        // A posição padrão do ícone é size / 2. Nós subtraímos a altura.
         enemy.visual!.position.y = (enemy.size.y / 2) - (arc * maxJumpHeight);
         enemy.scale = Vector2.all(1.0 + (heightFactor * 0.5));
       }
 
-      // 4. Efeito na Sombra (Fica menor e mais clara quanto mais alto o inimigo vai)
       if (_shadow != null) {
-        _shadow!.scale = Vector2.all(1.0 - (arc * 0.6)); // Encolhe até 40%
+        _shadow!.scale = Vector2.all(1.0 - (arc * 0.6)); 
         _shadow!.paint.color = Pallete.cinzaEsc;
       }
 
@@ -992,15 +869,12 @@ class JumpAttackBehavior extends AttackBehavior {
 
       if (_timer >= cooldown) {
         if (isRandomJump) {
-          // MODO ALEATÓRIO: Pula para um lugar qualquer por perto
           _startJump(_getRandomTarget());
         } else {
-          // MODO PADRÃO: Pula no jogador se estiver no alcance
-          final player = enemy.gameRef.player;
-          double dist = enemy.position.distanceTo(player.position);
+          double dist = enemy.position.distanceTo(_cachedTarget.position);
 
           if (dist <= jumpRange && dist >= minRange) {
-            _startJump(player.position);
+            _startJump(_cachedTarget.position);
           }
         }
       }
@@ -1009,16 +883,12 @@ class JumpAttackBehavior extends AttackBehavior {
 
   Vector2 _getRandomTarget() {
     final rng = Random();
-    
-    // Gera ângulo e distância aleatórios
     double angle = rng.nextDouble() * 2 * pi;
-    double dist = (rng.nextDouble() * randomJumpRadius) + 30; // +30 para evitar pulos muito curtos
+    double dist = (rng.nextDouble() * randomJumpRadius) + 30; 
     
-    // Calcula o deslocamento
     Vector2 offset = Vector2(cos(angle), sin(angle)) * dist;
     Vector2 target = enemy.position + offset;
 
-    // (Opcional) Clampar para dentro da arena para ele não pular no vazio
     double halfW = TowerGame.gameWidth / 2 - 20;
     double halfH = TowerGame.gameHeight / 2 - 20;
     
@@ -1037,25 +907,21 @@ class JumpAttackBehavior extends AttackBehavior {
     _startPos = enemy.position.clone();
     _targetPos = target.clone();
 
-    // 1. Cria a Mira no chão do Mundo
     if (!isRandomJump){
       enemy.gameRef.world.add(TargetReticle(
         position: target,
         duration: jumpDuration,
         radius: impactRadius,
       ));
-
     }
     
-    // 2. Cria a Sombra no Inimigo (Fica no 'chão' relativo a ele)
     _shadow = CircleComponent(
       radius: enemy.size.x / 2.5,
-      position: enemy.size / 2, // Fica no centro lógico
+      position: enemy.size / 2, 
       anchor: Anchor.center,
       paint: Paint()..color = Colors.black.withOpacity(0.5),
-      priority: -1, // Garante que a sombra fique ATRÁS do corpo do inimigo
+      priority: -1, 
     );
-    // Para criar um oval (sombra realista), achatamos o eixo Y
     _shadow!.scale.y = 0.5; 
     enemy.add(_shadow!);
   }
@@ -1066,23 +932,26 @@ class JumpAttackBehavior extends AttackBehavior {
     _timer = 0;
     enemy.canMove = true;
 
-    // 1. Limpeza Visual (Remove mira, remove sombra, reseta altura do sprite)
     _shadow?.removeFromParent();
     _shadow = null;
     
     if (enemy.visual != null) {
-      enemy.visual!.position.y = enemy.size.y / 2; // Volta pro chão
+      enemy.visual!.position.y = enemy.size.y / 2; 
     }
     enemy.scale = Vector2.all(1.0);
 
-    // 2. Impacto e Dano
     if (isExplosionOnLand){
       createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
       
-      if (enemy.position.distanceTo(_cachedPlayer.position) <= impactRadius) {
-        _cachedPlayer.takeDamage(1);
-        Vector2 pushDir = (_cachedPlayer.position - enemy.position).normalized();
-        _cachedPlayer.position += pushDir * 30;
+      // Se acertou o alvo (seja ele o player ou decoy)
+      if (enemy.position.distanceTo(_cachedTarget.position) <= impactRadius) {
+        if (_cachedTarget is Player) {
+           (_cachedTarget as Player).takeDamage(1);
+        }
+        // Se quisermos que o Decoy tome "dano" e suma, basta adicionar a lógica no Decoy
+        
+        Vector2 pushDir = (_cachedTarget.position - enemy.position).normalized();
+        _cachedTarget.position += pushDir * 30;
       }
     }else if (is4ShotOnLand){
       List<Vector2> directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)];
@@ -1097,12 +966,11 @@ class JumpAttackBehavior extends AttackBehavior {
         ));
       } 
     }
-    
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (_isJumping) return; // Ignora colisões enquanto voa
+    if (_isJumping) return; 
     super.onCollision(intersectionPoints, other);
   }
 }

@@ -113,20 +113,20 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _checkTimer = 0.0; 
 
     // TESTES DE OBJETOS
-    if (roomNumber == 0) {
+    //if (roomNumber == 0) {
       //teste de inimigos
-      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
+      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeLicantropia));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.decoy));
       //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.activeBattery));
       //gameRef.world.add(Collectible(position: Vector2(0,-50), type: CollectibleType.activeLicantropia));
 
       //teste de armadilhas
       //gameRef.world.add(SpikeTrap(position: Vector2(0, 0)));
       
-    }
+  //  }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
