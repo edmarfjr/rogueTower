@@ -46,7 +46,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DE MOEDAS (Opcional)
             Text(
-              'Almas coletadas: ${game.progress.souls}}',
+              'Almas coletadas: ${game.progress.souls}',
               style: const TextStyle(
                 fontSize: 16,
                 color: Pallete.amarelo,
@@ -86,7 +86,7 @@ class GameOver extends StatelessWidget {
                   backgroundColor: Pallete.lilas,
                   minimumSize: const Size(200, 50),
                 ),
-                child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child: const Text('REVIVER', style: TextStyle(fontSize: 18, color: Pallete.branco)),
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {

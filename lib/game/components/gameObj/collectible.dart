@@ -290,7 +290,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custo > 0 ) {
       if (gameRef.coinsNotifier.value < custo) {
         gameRef.world.add(FloatingText(
-          text: "Sem dinheiro!",
+          text: "noCoins".tr(),
           position: position + Vector2(0, -20),
           color: Pallete.vermelho,
           fontSize: 10,
@@ -304,7 +304,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoKeys > 0 ) {
       if (gameRef.keysNotifier.value < custoKeys) {
         gameRef.world.add(FloatingText(
-          text: "Sem Chaves!",
+          text: "noKeys".tr(),
           position: position + Vector2(0, -20),
           color: Pallete.vermelho,
           fontSize: 10,
@@ -318,7 +318,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoBombs > 0 ) {
       if (gameRef.player.bombNotifier.value < custoBombs) {
         gameRef.world.add(FloatingText(
-          text: "Sem Bombas!",
+          text: "noBombs".tr(),
           position: position + Vector2(0, -20),
           color: Pallete.vermelho,
           fontSize: 10,
@@ -332,7 +332,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoVida){
       if (gameRef.player.maxHealth < 6) {
         gameRef.world.add(FloatingText(
-          text: "Sem Containers de vida o suficiente!",
+          text: "noHp".tr(),
           position: position + Vector2(0, -20),
           color: Pallete.vermelho,
           fontSize: 10,
