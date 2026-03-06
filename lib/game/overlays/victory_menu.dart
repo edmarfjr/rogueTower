@@ -37,7 +37,7 @@ class VictoryMenu extends StatelessWidget {
               const Text(
                 "VITÓRIA!",
                 style: TextStyle(
-                  fontFamily: 'Pixel', // Se tiver fonte pixelada
+                  fontFamily: 'Pixel',
                   fontSize: 40,
                   color: Pallete.amarelo,
                   fontWeight: FontWeight.bold,
@@ -74,12 +74,29 @@ class VictoryMenu extends StatelessWidget {
                     side: const BorderSide(color: Pallete.verdeCla, width: 3),
                   ),
                   onPressed: () {
-                    // Reinicia o jogo
-                    game.transitionEffect.startTransition(() {
                       game.overlays.remove('VictoryMenu');
-                      game.resetGame(game.selectedClass); 
-                    }); 
-                    
+                      game.resetGame(game.selectedClass);                             
+                  },
+                  child: const Text(
+                    "MENU PRINCIPAL",
+                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Botão de retornar menu
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Pallete.verdeEsc,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    side: const BorderSide(color: Pallete.verdeCla, width: 3),
+                  ),
+                  onPressed: () {
+                      game.overlays.remove('VictoryMenu');
+                      game.returnToMenu();                            
                   },
                   child: const Text(
                     "JOGAR NOVAMENTE",

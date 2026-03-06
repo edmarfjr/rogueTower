@@ -98,6 +98,7 @@ class _DebugMenuState extends State<DebugMenu> {
               TextButton(
                 onPressed: () {
                   widget.game.overlays.remove('DebugMenu');
+                  widget.game.resumeGame();
                 },
                 child: const Text("FECHAR DEBUG", style: TextStyle(color: Colors.white54)),
               ),

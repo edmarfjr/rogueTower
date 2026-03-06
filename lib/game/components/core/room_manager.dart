@@ -113,20 +113,20 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _checkTimer = 0.0; 
 
     // TESTES DE OBJETOS
-    //if (roomNumber == 0) {
+    if (roomNumber == 0) {
       //teste de inimigos
-      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
+      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.decoy));
+      gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeD6));
       //gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.activeBattery));
       //gameRef.world.add(Collectible(position: Vector2(0,-50), type: CollectibleType.activeLicantropia));
 
       //teste de armadilhas
       //gameRef.world.add(SpikeTrap(position: Vector2(0, 0)));
       
-  //  }
+    }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){
       _spawnBankRoom(); 
@@ -319,6 +319,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         // o ideal é que a própria classe do Boss (EnemyBoss) avise o HUD no seu método `onLoad`!
       },
     ));
+  }
+
+  void reloadDoors(){
+    gameRef.world.children.query<Door>().forEach((d) => d.removeFromParent());
+    _spawnDoors(gameRef.currentRoom);
+    _levelCleared = false;
   }
 
   void _spawnDoors(int roomNumber) {
@@ -604,7 +610,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
 
         gameRef.world.add(UnlockableItem(
-          position: Vector2(x1, y2),
+          position: Vector2(x1, y3),
           id: 'permanent_critDmg_4', 
           type: CollectibleType.critDamage,
           soulCost: 1500,
@@ -718,9 +724,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
-     final rng = Random();
+    final rng = Random();
+    final rngPool = rng.nextDouble();
+    List<CollectibleType> possibleRewards;
 
-    final List<CollectibleType> possibleRewards = retornaItens(gameRef.player);
+    if (rngPool <= 0.2){
+      possibleRewards = retornaItensRaros(gameRef.player);
+    }else if(rngPool > 0.2 && rngPool <= 0.6){
+      possibleRewards = retornaItensComuns(gameRef.player);
+    }else{
+      possibleRewards = retornaPocoes();
+    }
 
     final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
     

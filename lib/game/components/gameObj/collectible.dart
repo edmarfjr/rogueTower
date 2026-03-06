@@ -41,11 +41,12 @@ enum CollectibleType {
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
-  pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp,
+  pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
+  activeGift,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
-  decoy
+  decoy, magicMush, activeMagicKeyChain, activeD6
 }
 
 
@@ -54,6 +55,8 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activePoisonBomb, 
     CollectibleType.activeLicantropia, 
     CollectibleType.activeHeal, 
+    CollectibleType.activeMagicKeyChain,
+    CollectibleType.activeGift,
   ];
   return recarregaveis.contains(type);
 }
@@ -64,6 +67,9 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.cupon,  
     CollectibleType.activeBattery,
     CollectibleType.activeArtHp,
+    CollectibleType.activeMagicKey,
+    CollectibleType.activeHoming,
+    CollectibleType.activeD6,
   ];
   return usoUnico.contains(type);
 }
@@ -498,7 +504,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.foice:
         return {'name': 'foice'.tr(), 'desc': 'foiceDesc'.tr(), 'icon': MdiIcons.sickle, 'color': Pallete.lilas};
       case CollectibleType.revive:
-        return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': MdiIcons.cross, 'color': Pallete.amarelo};
+        return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': MdiIcons.oneUp, 'color': Pallete.verdeCla};
       case CollectibleType.antimateria:
         return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': MdiIcons.radioboxMarked, 'color': Pallete.azulEsc};
       case CollectibleType.piercing:
@@ -567,6 +573,18 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
          return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': MdiIcons.heart, 'color': Pallete.azulCla};
       case CollectibleType.decoy:
         return {'name': 'decoy'.tr(), 'desc': 'decoyDesc'.tr(), 'icon': MdiIcons.accountMultiple, 'color': Pallete.cinzaCla};
+      case CollectibleType.magicMush:
+        return {'name': 'magicMush'.tr(), 'desc': 'magicMushDesc'.tr(), 'icon': MdiIcons.oneUp, 'color': Pallete.vermelho};
+      case CollectibleType.activeMagicKey:
+        return {'name': 'activeMagicKey'.tr(), 'desc': 'activeMagicKeyDesc'.tr(), 'icon': Icons.vpn_key, 'color': Pallete.azulCla};
+      case CollectibleType.activeMagicKeyChain:
+        return {'name': 'activeMagicKeyChain'.tr(), 'desc': 'activeMagicKeyChainDesc'.tr(), 'icon': MdiIcons.keyChain, 'color': Pallete.azulCla};
+      case CollectibleType.activeHoming:
+        return {'name': 'activeHoming'.tr(), 'desc': 'activeHomingDesc'.tr(), 'icon': MdiIcons.targetAccount, 'color': Pallete.laranja};
+      case CollectibleType.activeGift:
+        return {'name': 'activeGift'.tr(), 'desc': 'activeGiftDesc'.tr(), 'icon': MdiIcons.gift, 'color': Pallete.rosa};
+      case CollectibleType.activeD6:
+        return {'name': 'activeD6'.tr(), 'desc': 'activeD6Desc'.tr(), 'icon': MdiIcons.dice6, 'color': Pallete.verdeEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -615,7 +633,7 @@ List<CollectibleType> retornaItens(player){
       CollectibleType.fireRate,
       CollectibleType.moveSpeed, 
       CollectibleType.range, 
-      CollectibleType.healthContainer,
+      //CollectibleType.healthContainer,
       CollectibleType.keys,
       CollectibleType.dash,
       CollectibleType.sanduiche,
@@ -701,6 +719,8 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeHeal,
       CollectibleType.activeBattery,
       CollectibleType.activeArtHp,
+      CollectibleType.activeHoming,
+      CollectibleType.activeMagicKey,
     ];
     
     return _filtrarPool(itens, player);
@@ -744,6 +764,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.battery,
       CollectibleType.regenShield,
       CollectibleType.decoy,
+      CollectibleType.magicMush,
+      CollectibleType.activeMagicKeyChain,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1163,6 +1185,75 @@ class CollectibleLogic {
             game.world.add(decoy);
           }
           text = "Decoy Ativado!";
+          break;
+
+        case CollectibleType.magicMush:
+          player.changeSize(2);
+          player.increaseDamage(1.2);
+          player.increaseHp(2);
+          player.increaseRange(1.2);
+          player.increaseMovementSpeed(1.2);
+          player.increaseFireRate(0.8);
+          text = "GROWS!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeMagicKey:
+          game.roomManager.reloadDoors();
+          text = "magickey!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeMagicKeyChain:
+          game.roomManager.reloadDoors();
+          text = "magickeychain!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeHoming:
+          player.isHomingTemp = true;
+          text = "activeHoming!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeGift:
+          final int rng = Random().nextInt(6);
+          String txt = '';
+          switch(rng){
+            case 0:
+              player.curaHp(2);
+              txt = 'Cura!';
+              break;  
+            case 1:
+              player.increaseShield();
+              txt = 'Escudo!';
+              break;
+            case 2:
+              game.keysNotifier.value += 1;
+              txt = 'Chave!';
+              break;
+            case 3:
+              player.bombNotifier.value += 1;
+              txt = 'Bomba!';
+              break;
+            case 4:
+              final int c = Random().nextInt(20)+5;
+              game.player.collectCoin(c);
+              txt = 'Moedas!';
+              break;
+            case 5:
+              game.progress.addSouls(50);
+              txt = 'Almas!';
+              break;
+          }
+          text = txt;
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeD6:
+          game.nextLevel(game.nextRoomReward,mesmaSala:true);
+          text = "activeHoming!";
+          //color = Pallete.vermelho;
           break;
 
         default:

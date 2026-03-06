@@ -1,14 +1,14 @@
 import 'dart:math';
-import 'dart:ui';
+//import 'dart:ui';
 import 'dart:async';
-import 'dart:ui' as ui;
+//import 'dart:ui' as ui;
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
-import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
-import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
-import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
+//import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
+//import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
+//import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -17,14 +17,14 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
 import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/enemies/enemy.dart';
-import 'package:TowerRogue/game/components/gameObj/door.dart';
+//import 'package:TowerRogue/game/components/enemies/enemy.dart';
+//import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/core/room_manager.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
-import 'package:TowerRogue/game/components/gameObj/chest.dart';
+//import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+//import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
-import 'components/gameObj/wall.dart';
+//import 'components/gameObj/wall.dart';
 import 'components/gameObj/arena_border.dart';
 import 'components/core/game_progress.dart';
 import 'overlays/bank_menu.dart';
@@ -385,9 +385,16 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     roomManager.startRoom(currentRoom);
   }
 
-  void nextLevel(CollectibleType chosenReward) {
+  void restartRoom(){
+    
+  }
+
+  void nextLevel(CollectibleType chosenReward,{bool mesmaSala = false}) {
     player.rechargeActiveItem();
-    currentRoomNotifier.value++;
+    //reseta upgrades temporarios
+    if(player.isHomingTemp) player.isHomingTemp = false;
+
+    if(!mesmaSala)currentRoomNotifier.value++;
     if (currentRoom > bossRoom){
       currentRoomNotifier.value = 0;
       currentLevelNotifier.value++;

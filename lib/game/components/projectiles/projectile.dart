@@ -98,6 +98,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     } else if (isBoomerang) {
       icon = MdiIcons.boomerang; 
       color = Pallete.marrom;
+      tamanho = tamanho * 2;
     } else if (isHoming) {
       icon = Icons.rocket_launch;
       visualAngle = -pi / 4; 

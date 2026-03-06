@@ -13,7 +13,7 @@ import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
-import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
+//import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -91,6 +91,7 @@ class Player extends PositionComponent
   bool pegouRevive = false;
   bool hasAntimateria = false;
   bool isHoming = false;
+  bool isHomingTemp = false;
   bool canBounce = false;
   bool isPiercing = false;
   bool isSpectral = false;
@@ -129,6 +130,7 @@ class Player extends PositionComponent
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
+  late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
   GameIcon? _currentAccessory;
   double _baseAccessoryOffsetX = 0.0;
@@ -149,9 +151,10 @@ class Player extends PositionComponent
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 3; 
-    if (type == CollectibleType.activeLicantropia) return 10;    
+    if (type == CollectibleType.activeLicantropia) return 6;    
     if (type == CollectibleType.activeHeal) return 5;   
-
+    if (type == CollectibleType.activeMagicKeyChain) return 5;
+    if (type == CollectibleType.activeGift) return 5;
     return 1; // Padrão
   }
 
@@ -184,12 +187,13 @@ class Player extends PositionComponent
     */
     
     // Hitbox
-    add(RectangleHitbox(
+    _hitbox=RectangleHitbox(
       size: Vector2(12,24),
       anchor: Anchor.center, 
       position: size / 2 + Vector2(0,4),    
       isSolid: true,
-    ));
+    );
+    add(_hitbox);
 
     _dodgeAura = CircleComponent(
       radius: size.x * 0.7, // Um pouco maior que o corpo do player
@@ -820,7 +824,7 @@ class Player extends PositionComponent
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
       dieTimer: isBoomerang ? 1.0 : aRange,
       apagaTiros: hasAntimateria,
-      isHoming: isHoming,
+      isHoming: isHoming || isHomingTemp,
       iniPosition: position.clone(),
       canBounce: canBounce,
       isSpectral: isSpectral,
@@ -949,6 +953,30 @@ class Player extends PositionComponent
   }
 
   // UPGRADES
+  void changeSize(double sizeMod){
+    _visual.removeFromParent();
+
+    _visual = GameIcon(
+      icon: Icons.directions_walk, 
+      color: Pallete.branco, 
+      size: size*sizeMod,
+      anchor: Anchor.center, 
+      position: size / 2,    
+    );
+    add(_visual);
+
+    _hitbox.removeFromParent();
+
+    _hitbox=RectangleHitbox(
+      size: Vector2(12,24)*sizeMod,
+      anchor: Anchor.center, 
+      position: size / 2 + Vector2(0,4),    
+      isSolid: true,
+    );
+    add(_hitbox);
+  }
+
+
   void increaseDamage(double multiplier) { 
     damage *= multiplier; 
   }
