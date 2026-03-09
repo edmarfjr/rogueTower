@@ -4,7 +4,7 @@ import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
-import 'package:TowerRogue/game/components/gameObj/decoy.dart';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
@@ -46,7 +46,7 @@ enum CollectibleType {
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
-  decoy, magicMush, activeMagicKeyChain, activeD6
+  decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit
 }
 
 
@@ -506,7 +506,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.revive:
         return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': MdiIcons.oneUp, 'color': Pallete.verdeCla};
       case CollectibleType.antimateria:
-        return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': MdiIcons.radioboxMarked, 'color': Pallete.azulEsc};
+        return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': MdiIcons.radioboxMarked, 'color': Pallete.lilas};
       case CollectibleType.piercing:
         return {'name': 'piercing'.tr(), 'desc': 'piercingDesc'.tr(), 'icon': MdiIcons.middlewareOutline, 'color': Pallete.vermelho};
       case CollectibleType.homing:
@@ -584,7 +584,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeGift:
         return {'name': 'activeGift'.tr(), 'desc': 'activeGiftDesc'.tr(), 'icon': MdiIcons.gift, 'color': Pallete.rosa};
       case CollectibleType.activeD6:
-        return {'name': 'activeD6'.tr(), 'desc': 'activeD6Desc'.tr(), 'icon': MdiIcons.dice6, 'color': Pallete.verdeEsc};
+        return {'name': 'activeD6'.tr(), 'desc': 'activeD6Desc'.tr(), 'icon': MdiIcons.dice6, 'color': Pallete.verdeCla};
+      case CollectibleType.splitShot:
+        return {'name': 'splitShot'.tr(), 'desc': 'splitShotDesc'.tr(), 'icon': MdiIcons.axisArrow, 'color': Pallete.vermelho};
+      case CollectibleType.familarBlock:
+        return {'name': 'familarBlock'.tr(), 'desc': 'familarBlockDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.azulCla};
+      case CollectibleType.familarAtira:
+        return {'name': 'familarAtira'.tr(), 'desc': 'familarAtiraDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.vermelho};
+      case CollectibleType.confuseCrit:
+        return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': MdiIcons.headQuestion, 'color': Pallete.amarelo};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -766,6 +774,10 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.decoy,
       CollectibleType.magicMush,
       CollectibleType.activeMagicKeyChain,
+      CollectibleType.splitShot,
+      CollectibleType.familarBlock,
+      CollectibleType.familarAtira,
+      CollectibleType.confuseCrit,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1179,11 +1191,11 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.decoy:
-          if (player.activeDecoy == null) {
-            final decoy = Decoy(position: player.position.clone());
-            player.activeDecoy = decoy;
+          //if (player.activeDecoy == null) {
+            final decoy = Familiar(position: player.position.clone(),type: FamiliarType.decoy, followDistance: 120, player: player);
+            player.familiars.add(decoy);
             game.world.add(decoy);
-          }
+         // }
           text = "Decoy Ativado!";
           break;
 
@@ -1253,6 +1265,42 @@ class CollectibleLogic {
         case CollectibleType.activeD6:
           game.nextLevel(game.nextRoomReward,mesmaSala:true);
           text = "activeHoming!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.splitShot:
+          player.isShootSplits = true;
+          text = "splitShot!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.familarBlock:
+          //if (player.activeDecoy == null) {
+            final block = Familiar(position: player.position.clone(),type: FamiliarType.block, player: player);
+            player.familiars.add(block);
+            game.world.add(block);
+         // }
+          text = "Decoy Ativado!";
+          break;
+
+        case CollectibleType.familarAtira:
+          //if (player.activeDecoy == null) {
+            final block = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.atira, 
+                                  player: player,
+                                  offsetY: -32,
+                                  offsetX: -16, 
+                                  followDistance: 5
+                                  );
+            player.familiars.add(block);
+            game.world.add(block);
+         // }
+          text = "Decoy Ativado!";
+          break;
+
+        case CollectibleType.confuseCrit:
+          player.confuseOnCrit = true;
+          text = "confuseOnCrit!";
           //color = Pallete.vermelho;
           break;
 

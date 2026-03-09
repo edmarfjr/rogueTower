@@ -18,7 +18,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 1000,
-      speed: 0,
+      speed: 100,
       isDummy: true,
       hbSize: Vector2(16,32),
       iconData: MdiIcons.humanMale,
@@ -178,7 +178,7 @@ class EnemyFactory {
       ],
       phase1Attacks: [
         ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true), 
-        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 8), 
+        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 16), 
       ],
        
         // --- ATIVANDO A FASE 2 ---
@@ -192,8 +192,8 @@ class EnemyFactory {
       ],
       phase2Attacks: [
         ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
-        SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 12),
-        MortarAttackBehavior(interval:2, isBarragem: true, isPoison: true),
+        SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 24),
+        MortarAttackBehavior(interval:1, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
           minionBuilder: (p) => EnemyFactory.createRat(p), 
           interval: 3.0, 
@@ -319,11 +319,11 @@ class EnemyFactory {
         ],
         phase1Attacks: [
           ChargeAttackBehavior(
-            detectRange: 180, 
+            detectRange: 380, 
             chargeSpeed: 400, 
             prepTime: 0.6,    
           ),
-          MortarAttackBehavior(interval: 3.0),
+          MortarAttackBehavior(interval: 2.0),
         ],
         
         // --- ATIVANDO A FASE 2 ---
@@ -334,10 +334,10 @@ class EnemyFactory {
           FollowPlayerBehavior(),
         ],
         phase2Attacks: [
-          ProjectileAttackBehavior(interval: 5.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+          ProjectileAttackBehavior(interval: 2.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
           MortarAttackBehavior(interval: 3.0),
           ChargeAttackBehavior(
-            detectRange: 360, 
+            detectRange: 500, 
             chargeSpeed: 400, 
             prepTime: 0.6,    
           ),
@@ -582,7 +582,7 @@ class EnemyFactory {
       hbSize: Vector2(50,50),
       soul: 300, 
       hasGhostEffect: true,
-      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      size: Vector2.all(64), 
       originalColor: Pallete.bege,
       behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---
@@ -594,14 +594,14 @@ class EnemyFactory {
           JumpAttackBehavior(
             jumpRange: 200,    
             minRange: 50,      
-            jumpDuration: 1.0, 
-            cooldown: 1.0, 
+            jumpDuration: 0.5, 
+            cooldown: 0.5, 
             isRandomJump: true,
             randomJumpRadius: 150.0,
             isExplosionOnLand: false,
             is4ShotOnLand: true,    
           ),
-          SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), // Modo 2: Atira em cruz
+          SpinnerAttackBehavior(interval: 1.0, isSpiral: true ,projectilesPerWave: 16), // Modo 2: Atira em cruz
           ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
         ],
         
@@ -616,7 +616,7 @@ class EnemyFactory {
         ],
         phase2Attacks: [
           ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
-          SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 4), // Modo 2: Atira em cruz
+          SpinnerAttackBehavior(interval: 0.8, isSpiral: true, projectilesPerWave: 24), // Modo 2: Atira em cruz
             JumpAttackBehavior(
             jumpRange: 300,    
             minRange: 50,      
@@ -744,7 +744,7 @@ class EnemyFactory {
       iconData: MdiIcons.shark,
       hbSize: Vector2(50,50),
       soul: 350, 
-      size: Vector2.all(64), // O dobro do tamanho de um inimigo normal!
+      size: Vector2.all(64), 
       originalColor: Pallete.cinzaCla,
       behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---

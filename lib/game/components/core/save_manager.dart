@@ -96,6 +96,8 @@ class SaveManager {
       'hasShieldRegen': game.player.hasShieldRegen,
       'maxArtificialHealth': game.player.maxArtificialHealth,
       'artificialHealthNotifier': game.player.artificialHealthNotifier.value,
+      'isShootSplits': game.player.isShootSplits,
+      'confuseOnCrit': game.player.confuseOnCrit,
       
     };
 
@@ -210,6 +212,9 @@ class SaveManager {
     game.player.hasShieldRegen = runData['hasShieldRegen'] ?? false;
     game.player.maxArtificialHealth = runData['maxArtificialHealth'] ?? false;
     game.player.artificialHealthNotifier.value = runData['artificialHealthNotifier'] ?? false;
+    game.player.isShootSplits = runData['isShootSplits'] ?? false;
+    game.player.confuseOnCrit = runData['confuseOnCrit'] ?? false;
+    
     
     print("✅ Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flutter/material.dart';
@@ -21,23 +22,24 @@ import '../core/game_icon.dart';
 typedef EnemyBuilder = Enemy Function(Vector2);
 typedef HazardBuilder = PositionComponent Function(Vector2 position);
 
-// --- HELPER DE AGGRO (O SEGREDO DO DECOY) ---
-// Qualquer Behavior pode chamar essa função para saber quem é o alvo atual!
+// --- HELPER DE AGGRO---
 PositionComponent getEnemyTarget(Enemy enemy) {
   final player = enemy.gameRef.player;
   
-  if (player.activeDecoy != null && player.activeDecoy!.isMounted) {
-    final decoy = player.activeDecoy!;
-    double distToPlayer = enemy.position.distanceTo(player.position);
-    double distToDecoy = enemy.position.distanceTo(decoy.position);
+  PositionComponent bestTarget = player;
+  double shortestDist = enemy.position.distanceTo(player.position);
 
-    // Se o Decoy estiver mais perto, ataca ele!
-    if (distToDecoy <= distToPlayer) {
-      return decoy;
+  for (var familiar in player.familiars) {
+    if (familiar.isMounted && familiar.type == FamiliarType.decoy) {
+      double dist = enemy.position.distanceTo(familiar.position);
+      if (dist < shortestDist) {
+        shortestDist = dist;
+        bestTarget = familiar;
+      }
     }
   }
   
-  return player; // Se não tem Decoy ou o Player tá mais perto, foca no Player.
+  return bestTarget;
 }
 
 // --- INTERFACES ---

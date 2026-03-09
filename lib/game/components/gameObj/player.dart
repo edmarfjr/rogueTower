@@ -7,7 +7,7 @@ import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/gameObj/decoy.dart';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
@@ -66,7 +66,7 @@ class Player extends PositionComponent
   final Vector2 _keyboardInput = Vector2.zero(); 
   final Vector2 _dashDirection = Vector2.zero();
   final Vector2 _collisionBuffer = Vector2.zero();
-  final Vector2 _tempDirection = Vector2.zero(); // Usado na mira
+  final Vector2 _tempDirection = Vector2.zero(); 
 
   bool isDashing = false;
   double _dashTimer = 0;
@@ -117,6 +117,8 @@ class Player extends PositionComponent
   bool isMorteiro = false;
   bool hasBattery = false;
   bool hasShieldRegen = false;
+  bool isShootSplits = false;
+  bool confuseOnCrit = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -126,7 +128,8 @@ class Player extends PositionComponent
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
 
-  Decoy? activeDecoy;
+  //Familiar? activeDecoy;
+  List<Familiar> familiars = [];
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
@@ -243,14 +246,17 @@ class Player extends PositionComponent
   void update(double dt) {
     super.update(dt);
     // --- LÓGICA DE PERSISTÊNCIA DO DECOY ---
-    if (activeDecoy != null) {
-      // Quando a sala limpa o mundo, o "parent" do Decoy fica nulo.
-      if (activeDecoy!.parent == null) {
-        // Re-adiciona o fantasma no mundo novo!
-        gameRef.world.add(activeDecoy!);
+    for (var familiar in familiars) {
+      // Quando a sala limpa o mundo, o "parent" do familiar fica nulo.
+      if (familiar.parent == null) {
+        // Re-adiciona o bichinho no mundo novo!
+        gameRef.world.add(familiar);
         
-        // Teleporta ele pro pé do jogador (para ele não nascer preso fora da parede na sala nova)
-        activeDecoy!.position = position.clone(); 
+        // Teleporta ele pro pé do jogador com um leve espalhamento
+        familiar.position = position.clone() + Vector2(
+          (Random().nextDouble() - 0.5) * 40, 
+          (Random().nextDouble() - 0.5) * 40
+        ); 
       }
     }
     
@@ -831,6 +837,8 @@ class Player extends PositionComponent
       isPiercing: isPiercing,
       isOrbital: isOrbitalShot,
       isBoomerang: isBoomerang,
+      splits: isShootSplits,
+      splitCount: isShootSplits? 5 : 0
     ));
   }
 
@@ -908,7 +916,9 @@ class Player extends PositionComponent
     hasBattery = false;
     hasShieldRegen = false;
     items = [];
-    activeDecoy = null;
+    familiars = [];
+    isShootSplits = false;
+    confuseOnCrit = false;
 
     _visual.setColor(Pallete.branco);
   }

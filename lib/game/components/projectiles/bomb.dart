@@ -32,7 +32,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   Future<void> onLoad() async {
     
     add(GameIcon(
-      icon: isMine ? MdiIcons.disc : MdiIcons.bomb, 
+      icon: isMine ? MdiIcons.mine : MdiIcons.bomb, 
       color: isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas,
       size: size,
       anchor: Anchor.center,
@@ -71,7 +71,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     if (isMine){
-      if (!isEnemy && other is Enemy) {
+      if (!isEnemy && other is Enemy && !other.isIntangivel) {
         gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:60));
         removeFromParent();
       }else if (isEnemy && other is Player) {

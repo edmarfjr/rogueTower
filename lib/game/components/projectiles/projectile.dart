@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -319,6 +320,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         
         // Bumerangue perfura alvos vivos naturalmente!
         if (!isPiercing && !isBoomerang) kill(); 
+      } else if (other is Familiar && other.type == FamiliarType.block ){
+        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
+        kill();
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {

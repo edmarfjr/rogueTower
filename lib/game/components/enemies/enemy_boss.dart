@@ -181,7 +181,6 @@ class EnemyBoss extends Enemy {
         explosionCount++;
         
         if (explosionCount < 7) {
-          // --- AS EXPLOSÕES MENORES (O Suspense) ---
           final rng = Random();
           double offsetX = (rng.nextDouble() - 0.5) * size.x;
           double offsetY = (rng.nextDouble() - 0.5) * size.y;
@@ -190,7 +189,7 @@ class EnemyBoss extends Enemy {
           AudioManager.playSfx('explosion.mp3');
           gameRef.shakeCamera(intensity: 3.0, duration: 0.2); // Tremor leve e contínuo
 
-          if (explosionCount % 2 == 0){
+        /*  if (explosionCount % 2 == 0){
 
             bool isCoin = Random().nextBool();
             final item = Collectible(position: position, type: isCoin? CollectibleType.coin : CollectibleType.potion);
@@ -199,16 +198,13 @@ class EnemyBoss extends Enemy {
             double altura = Random().nextDouble() * 100 + 150 * -1;
             item.pop(Vector2(direcaoX, 0), altura:altura);
           }
-          
+         */ 
         } else {
           // --- A EXPLOSÃO FINAL MASSIVA ---
           createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 60);
           AudioManager.playSfx('enemy_die.mp3');
-          gameRef.shakeCamera(intensity: 12.0, duration: 1.5); // Tremor absurdo
+          gameRef.shakeCamera(intensity: 12.0, duration: 1.5);
           
-          // O golpe de misericórdia: 
-          // O Boss é removido, o RoomManager vê que os inimigos acabaram
-          // e as portas e o Baú Dourado aparecem no meio da fumaça!
           super.die(); 
         }
       },

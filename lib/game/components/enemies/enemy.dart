@@ -54,7 +54,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double bleedTimer = 0.0;
   double bleedTime = 1.0;
   ValueNotifier<int> bleedStacks = ValueNotifier<int>(0);
+  bool isConfuse = false;
+  double confuseTimer = 0.0;
+  double confuseTime = 3.0;
   int numCondicoes = 0;
+  MovementBehavior confuseBehavior = RandomWanderBehavior();
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -70,6 +74,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameIcon? freezeIcon;
   GameIcon? poisonIcon;
   GameIcon? bleedIcon;
+  GameIcon? confuseIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
@@ -125,6 +130,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     _baseSpeed = speed;
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
+    confuseBehavior.enemy = this;
     this.deathBehavior.enemy = this;
     if (attack2Behavior != null) {
       attack2Behavior!.enemy = this;
@@ -227,10 +233,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Atualiza o timer da aura visual
    // _auraTimer += dt * 5; 
 
-    movementBehavior.update(dt);
-    attackBehavior.update(dt);
-    attack2Behavior?.update(dt);
-    
+    if(isConfuse){
+      confuseBehavior.update(dt);
+    }else{
+      movementBehavior.update(dt);
+      attackBehavior.update(dt);
+      attack2Behavior?.update(dt);
+    }
     _keepInsideArena();
     _updateStatus(dt);
 
@@ -403,6 +412,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.triggerHitStop(0.1);
       cor = Pallete.amarelo;
       fontSize = 18;
+      if(gameRef.player.confuseOnCrit){
+        setConfuse();
+      }
+      
     } 
 
     if (dmg > 0){
@@ -455,6 +468,23 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     
     add(freezeIcon!);
+
+  }
+
+  void setConfuse(){
+    if (isConfuse) return;
+    numCondicoes ++;
+    isConfuse = true;
+
+    confuseIcon = GameIcon(
+      icon: MdiIcons.help,
+      color: Pallete.amarelo,
+      size: size/4,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+    );
+    
+    add(confuseIcon!);
 
   }
 
@@ -655,6 +685,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
             bleedText!.removeFromParent();
             bleedText = null; // IMPORTANTE
           }
+        }
+      }
+    }
+
+    //confuse
+    if (isConfuse){
+      confuseTimer += dt;
+      if (confuseTimer >= confuseTime){
+        isConfuse = false;
+        if (confuseIcon != null) {
+          confuseIcon!.removeFromParent();
+          confuseIcon = null; // IMPORTANTE
         }
       }
     }
