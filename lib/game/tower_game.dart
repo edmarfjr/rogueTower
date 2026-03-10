@@ -385,10 +385,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     roomManager.startRoom(currentRoom);
   }
 
-  void restartRoom(){
-    
-  }
-
   void nextLevel(CollectibleType chosenReward,{bool mesmaSala = false}) {
     player.rechargeActiveItem();
     //reseta upgrades temporarios

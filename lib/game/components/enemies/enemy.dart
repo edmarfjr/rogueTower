@@ -59,6 +59,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double confuseTime = 3.0;
   int numCondicoes = 0;
   MovementBehavior confuseBehavior = RandomWanderBehavior();
+  PositionComponent? lureTarget;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -233,10 +234,33 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Atualiza o timer da aura visual
    // _auraTimer += dt * 5; 
 
+    
+
     if(isConfuse){
       confuseBehavior.update(dt);
+   // }else if(isBombLured){
+   //   bombLuredBehavior.update(dt);
     }else{
-      movementBehavior.update(dt);
+      if (lureTarget != null) {
+        if (!lureTarget!.isMounted) {
+          // Se a bomba explodiu e sumiu, limpa a hipnose!
+          lureTarget = null; 
+        } else if (canMove) {
+          // IGNORA O MOVEMENT BEHAVIOR E VAI CEGO PARA A BOMBA!
+          final dir = (lureTarget!.position - position).normalized();
+          position += dir * speed * dt;
+
+          // Vira o rostinho do inimigo para a bomba
+          if (rotates && visual != null) {
+            visual!.angle = atan2(dir.y, dir.x) + rotateOff;
+          }
+        }
+      } 
+      
+      // Se NÃO ESTÁ hipnotizado, roda o comportamento normal dele!
+      if (lureTarget == null) {
+        movementBehavior.update(dt);
+      }
       attackBehavior.update(dt);
       attack2Behavior?.update(dt);
     }

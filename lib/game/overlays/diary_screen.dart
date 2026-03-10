@@ -26,8 +26,8 @@ class DiaryScreen extends StatelessWidget {
     final validItems = CollectibleType.values.where((t) => !ignoreList.contains(t)).toList();
     
     // 2. Separa em duas listas usando a função que criámos anteriormente!
-    final activeItemsList = validItems.where((t) => isItemAtivo(t)).toList();
-    final passiveItemsList = validItems.where((t) => !isItemAtivo(t)).toList();
+    //final activeItemsList = validItems.where((t) => isItemAtivo(t)).toList();
+    //final passiveItemsList = validItems.where((t) => !isItemAtivo(t)).toList();
 
     return Material(
       color: Colors.black87,
@@ -71,7 +71,7 @@ class DiaryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // --- OS SEPARADORES (TABS) ---
+              /* --- OS SEPARADORES (TABS) ---
               const TabBar(
                 indicatorColor: Pallete.amarelo,
                 labelColor: Pallete.amarelo,
@@ -81,18 +81,11 @@ class DiaryScreen extends StatelessWidget {
                   Tab(text: "ITENS"),
                 ],
               ),
+              */
 
               // --- O CONTEÚDO DE CADA SEPARADOR ---
               Expanded(
-                child: TabBarView(
-                  children: [
-                    // Separador 1: Grelha de Itens Passivos
-                    _buildGrid(passiveItemsList, discoveredItems),
-                    
-                    // Separador 2: Grelha de Itens Ativos
-                    _buildGrid(activeItemsList, discoveredItems),
-                  ],
-                ),
+                child: _buildGrid(validItems, discoveredItems),
               ),
             ],
           ),
@@ -116,8 +109,18 @@ class DiaryScreen extends StatelessWidget {
         final isDiscovered = discoveredList.contains(type.toString());
         final attrs = Collectible.getAttributes(type);
 
+        String desc = attrs['desc'].toString().toLowerCase();
+
+        if (isItemAtivo(type)) {
+          if (isItemRecarregavel(type)) {
+            desc += "\n[recarregável]";
+          } else if (isItemUsoUnico(type)) {
+            desc += "\n[uso único]";
+          }
+        }
+
         return Tooltip(
-          message: isDiscovered ? "${attrs['name']}\n${attrs['desc']}" : "Item Desconhecido",
+          message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
           textStyle: const TextStyle(fontSize: 14, color: Colors.white),
           decoration: BoxDecoration(color: Colors.black87, border: Border.all(color: Pallete.amarelo)),
           child: Container(

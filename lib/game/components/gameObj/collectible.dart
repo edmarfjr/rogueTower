@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/core/interact_button.dart';
+import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
 import 'package:TowerRogue/game/components/gameObj/familiar.dart';
@@ -42,11 +43,12 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift,
+  activeGift, activeRerollItem, activeBandage,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
-  decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit
+  decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
+  activeHeartConverter, activeDivineShield, activeRitualDagger
 }
 
 
@@ -57,6 +59,8 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeHeal, 
     CollectibleType.activeMagicKeyChain,
     CollectibleType.activeGift,
+    CollectibleType.activeHeartConverter,
+    CollectibleType.activeRitualDagger,
   ];
   return recarregaveis.contains(type);
 }
@@ -70,6 +74,9 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeMagicKey,
     CollectibleType.activeHoming,
     CollectibleType.activeD6,
+    CollectibleType.activeDivineShield,
+    CollectibleType.activeRerollItem,
+    CollectibleType.activeBandage,
   ];
   return usoUnico.contains(type);
 }
@@ -593,6 +600,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'familarAtira'.tr(), 'desc': 'familarAtiraDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.vermelho};
       case CollectibleType.confuseCrit:
         return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': MdiIcons.headQuestion, 'color': Pallete.amarelo};
+      case CollectibleType.pregos:
+        return {'name': 'pregos'.tr(), 'desc': 'pregosDesc'.tr(), 'icon': MdiIcons.nail, 'color': Pallete.cinzaCla};
+      case CollectibleType.bombDecoy:
+        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.verdeEsc};
+      case CollectibleType.activeHeartConverter:
+        return {'name': 'activeHeartConverter'.tr(), 'desc': 'activeHeartConverterDesc'.tr(), 'icon': MdiIcons.heartOutline, 'color': Pallete.azulCla};
+      case CollectibleType.activeDivineShield:
+        return {'name': 'activeDivineShield'.tr(), 'desc': 'activeDivineShieldDesc'.tr(), 'icon': MdiIcons.shieldStar, 'color': Pallete.azulCla};
+      case CollectibleType.activeRerollItem:
+        return {'name': 'activeRerollItem'.tr(), 'desc': 'activeRerollItemDesc'.tr(), 'icon': MdiIcons.diceD20, 'color': Pallete.laranja};
+      case CollectibleType.activeRitualDagger:
+        return {'name': 'activeRitualDagger'.tr(), 'desc': 'activeRitualDaggerDesc'.tr(), 'icon': MdiIcons.knifeMilitary, 'color': Pallete.vermelho};
+      case CollectibleType.activeBandage:
+        return {'name': 'activeBandage'.tr(), 'desc': 'activeBandageDesc'.tr(), 'icon': MdiIcons.bandage, 'color': Pallete.bege};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -729,6 +750,8 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeArtHp,
       CollectibleType.activeHoming,
       CollectibleType.activeMagicKey,
+      CollectibleType.activeRerollItem,
+      CollectibleType.activeBandage,
     ];
     
     return _filtrarPool(itens, player);
@@ -778,6 +801,11 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.familarBlock,
       CollectibleType.familarAtira,
       CollectibleType.confuseCrit,
+      CollectibleType.pregos,
+      CollectibleType.bombDecoy,
+      CollectibleType.activeDivineShield,
+      CollectibleType.activeHeartConverter,
+      CollectibleType.activeRitualDagger,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1301,6 +1329,91 @@ class CollectibleLogic {
         case CollectibleType.confuseCrit:
           player.confuseOnCrit = true;
           text = "confuseOnCrit!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.pregos:
+          player.isBombSplits = true;
+          text = "pregos!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.bombDecoy:
+          player.isBombDecoy = true;
+          text = "bombDecoy!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeHeartConverter:
+          player.increaseArtificialHp(6);
+          player.increaseHp(-2);
+          text = "activeHeartConverter!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeDivineShield:
+          player.setInvencibility(10);
+          text = "activeDivineShield!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeRerollItem:
+          bool rolouAlgo = false;
+
+          final itensNoChao = game.world.children.whereType<Collectible>().toList();
+
+          final naoRolar = [
+            CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+            CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+            CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+            CollectibleType.shop, CollectibleType.boss, CollectibleType.healthContainer,
+            CollectibleType.darkShop, CollectibleType.desafio
+          ];
+
+          final poolRaros = retornaItensRaros(player);
+
+          final pool = retornaItensComuns(player);
+
+          for (var item in itensNoChao) {
+            if (!naoRolar.contains(item.type)) {
+              if (pool.isNotEmpty) {
+                CollectibleType novoTipo;
+                if (poolRaros.contains(item.type)) {
+                  novoTipo = poolRaros[Random().nextInt(poolRaros.length)];
+                  print('item raro');
+                }else{
+                  novoTipo = pool[Random().nextInt(pool.length)];
+                  print('item comum');
+                }
+                Vector2 pos = item.position.clone();
+                
+                item.removeFromParent();
+                
+                game.world.add(Collectible(position: pos, type: novoTipo));
+                
+                
+                createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+                
+                rolouAlgo = true;
+              }
+            }
+          }
+
+          text = rolouAlgo ? "Destino Alterado!" : "Nada para mudar!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeRitualDagger:
+          player.takeDamage(1);
+          player.tempDmgBonus = true;
+          text = "activeRitualDagger!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBandage:
+          player.regenCount = 4;
+          text = "activeBandage!";
           //color = Pallete.vermelho;
           break;
 

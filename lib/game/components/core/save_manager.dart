@@ -98,6 +98,8 @@ class SaveManager {
       'artificialHealthNotifier': game.player.artificialHealthNotifier.value,
       'isShootSplits': game.player.isShootSplits,
       'confuseOnCrit': game.player.confuseOnCrit,
+      'isBombSplits':game.player.isBombSplits,
+      'isBombDecoy':game.player.isBombDecoy,
       
     };
 
@@ -214,9 +216,10 @@ class SaveManager {
     game.player.artificialHealthNotifier.value = runData['artificialHealthNotifier'] ?? false;
     game.player.isShootSplits = runData['isShootSplits'] ?? false;
     game.player.confuseOnCrit = runData['confuseOnCrit'] ?? false;
+    game.player.isBombSplits = runData['isBombSplits'] ?? false;
+    game.player.isBombDecoy = runData['isBombDecoy'] ?? false;
     
-    
-    print("✅ Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
+    print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }
 
   // ==========================================
@@ -230,6 +233,6 @@ class SaveManager {
   static Future<void> clearSavedRun() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_saveKey);
-    print("🗑️ Save da run deletado (Game Over).");
+    print("Save da run deletado (Game Over).");
   }
 }

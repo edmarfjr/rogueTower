@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
+import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flutter/material.dart';
 import '../gameObj/wall.dart';
@@ -25,6 +26,7 @@ typedef HazardBuilder = PositionComponent Function(Vector2 position);
 // --- HELPER DE AGGRO---
 PositionComponent getEnemyTarget(Enemy enemy) {
   final player = enemy.gameRef.player;
+  bool bombLure = false;
   
   PositionComponent bestTarget = player;
   double shortestDist = enemy.position.distanceTo(player.position);
@@ -38,7 +40,28 @@ PositionComponent getEnemyTarget(Enemy enemy) {
       }
     }
   }
+/*
+  final decoyBombs = enemy.gameRef.world.children.whereType<Bomb>();
   
+  for (var bomb in decoyBombs) {
+    double dist = enemy.position.distanceTo(bomb.position);
+    
+    // Se o inimigo estiver dentro da área de atração da bomba,
+    // e ela estiver mais perto que o jogador/familiar, ele vai nela!
+    if (bomb.isDecoy && dist <= bomb.attractionRadius && dist < shortestDist) {
+      shortestDist = dist;
+      bestTarget = bomb;
+      bombLure = true;
+      
+    }
+  }
+
+  if (bombLure){
+    enemy.isBombLured = true;
+  }else{
+    enemy.isBombLured = false;
+  }
+  */
   return bestTarget;
 }
 
@@ -77,7 +100,7 @@ class FollowPlayerBehavior extends MovementBehavior {
   void update(double dt) {
     if (!enemy.canMove) return;
 
-    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final target = getEnemyTarget(enemy);
     
     _direction
       ..setFrom(target.position) 

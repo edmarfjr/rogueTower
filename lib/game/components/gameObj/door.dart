@@ -253,6 +253,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
             );
             if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop) gameRef.player.hasCupon = false;
             if(gameRef.player.hasShieldRegen)gameRef.player.increaseShield();
+            if(gameRef.player.tempDmgBonus)gameRef.player.tempDmgBonus = false;
+            if(gameRef.player.regenCount > 0){
+              game.player.curaHp(1);
+              gameRef.player.regenCount -= 1;
+            }
+            
             gameRef.nextLevel(rewardType);
           });
         }

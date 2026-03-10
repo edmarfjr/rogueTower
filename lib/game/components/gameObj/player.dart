@@ -119,6 +119,10 @@ class Player extends PositionComponent
   bool hasShieldRegen = false;
   bool isShootSplits = false;
   bool confuseOnCrit = false;
+  bool isBombSplits = false;
+  bool isBombDecoy = false;
+  bool tempDmgBonus = false;
+  int regenCount = 0;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -158,6 +162,9 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeHeal) return 5;   
     if (type == CollectibleType.activeMagicKeyChain) return 5;
     if (type == CollectibleType.activeGift) return 5;
+    if (type == CollectibleType.activeHeartConverter) return 5;
+    if (type == CollectibleType.activeRitualDagger) return 5;
+    
     return 1; // Padrão
   }
 
@@ -702,8 +709,7 @@ class Player extends PositionComponent
       healthNotifier.value -= amount;
     }
     
-    _isInvincible = true;
-    _invincibilityTimer = invincibilityDuration;
+    setInvencibility(invincibilityDuration);
     
   }
 
@@ -722,6 +728,11 @@ class Player extends PositionComponent
         _visual.setColor(currentColor);
       }
     }
+  }
+
+  void setInvencibility(double dur){
+    _isInvincible = true;
+    _invincibilityTimer = dur;
   }
 
   void _die() {
@@ -805,6 +816,10 @@ class Player extends PositionComponent
     if(isHeavyShot){
        dmg = dmg * 1.3;
     }
+    if(tempDmgBonus){
+       dmg = dmg * 1.2;
+    }
+    
     if(isBebado){
       double angOffset = Random().nextDouble() * 0.2;
       double x = _tempDirection.x * cos(angOffset) - _tempDirection.y * sin(angOffset);
@@ -818,7 +833,11 @@ class Player extends PositionComponent
     }
     AudioManager.playSfx('shoot.mp3');
     if(isMineShot){
-      gameRef.world.add(Bomb(position: position.clone(), damage: dmg*1.5, isMine: true, direction: _tempDirection.clone()));
+      gameRef.world.add(Bomb(
+        position: position.clone(), 
+        damage: dmg*1.5, 
+        isMine: true, 
+        direction: _tempDirection.clone()));
       return;
     }
     gameRef.world.add(Projectile(
@@ -845,7 +864,13 @@ class Player extends PositionComponent
   void criaBomba(){
     if (bombNotifier.value > 0){
       bombNotifier.value--;
-      gameRef.world.add(Bomb(position: position.clone(), damage:30));
+      gameRef.world.add(Bomb(
+        position: position.clone(), 
+        damage:30, 
+        owner: this, 
+        splits: isBombSplits,
+        isDecoy: isBombDecoy
+      ));
     } else {
       gameRef.world.add(FloatingText(
         text: "Sem Bombas",
@@ -919,6 +944,10 @@ class Player extends PositionComponent
     familiars = [];
     isShootSplits = false;
     confuseOnCrit = false;
+    isBombSplits = false;
+    isBombDecoy = false;
+    tempDmgBonus = false;
+    regenCount = 0;
 
     _visual.setColor(Pallete.branco);
   }

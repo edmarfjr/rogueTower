@@ -277,9 +277,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         canBounce: false,
         explodes: false, 
         splits: false, 
-        isHoming: isHoming, 
-        isPiercing: isPiercing,
-        isBoomerang: isBoomerang, // Fragmentos bumerangues também ficam muito loucos
+        //isHoming: isHoming, 
+        //isPiercing: isPiercing,
+        //isBoomerang: isBoomerang, 
       ));
     }
   }
