@@ -43,7 +43,7 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift, activeRerollItem, activeBandage,
+  activeGift, activeRerollItem, activeBandage, activeMidas,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -63,6 +63,7 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeRitualDagger,
     CollectibleType.activeConvBruta,
     CollectibleType.activeMagicMirror,
+    CollectibleType.activeMidas,
   ];
   return recarregaveis.contains(type);
 }
@@ -622,6 +623,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeMagicMirror'.tr(), 'desc': 'activeMagicMirrorDesc'.tr(), 'icon': MdiIcons.mirrorVariant, 'color': Pallete.laranja};
       case CollectibleType.activeConvBruta:
         return {'name': 'activeConvBruta'.tr(), 'desc': 'activeConvBrutaDesc'.tr(), 'icon': MdiIcons.flaskPlus, 'color': Pallete.vermelho};
+      case CollectibleType.activeMidas:
+        return {'name': 'activeMidas'.tr(), 'desc': 'activeMidasDesc'.tr(), 'icon': MdiIcons.handFrontRight, 'color': Pallete.laranja};
       case CollectibleType.charmOnCrit:
         return {'name': 'charmOnCrit'.tr(), 'desc': 'charmOnCritDesc'.tr(), 'icon': MdiIcons.charity, 'color': Pallete.rosa};
       case CollectibleType.nextlevel:
@@ -762,6 +765,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeMagicKey,
       CollectibleType.activeRerollItem,
       CollectibleType.activeBandage,
+      CollectibleType.activeMidas,
     ];
     
     return _filtrarPool(itens, player);
@@ -1473,7 +1477,18 @@ class CollectibleLogic {
           text = "charmOnCrit!";
           //color = Pallete.vermelho;
           break;
-        
+
+        case CollectibleType.activeMidas:
+          if(game.progress.soulsNotifier.value >= 1000)
+          {
+            game.progress.spendSouls(1000);
+            game.player.collectCoin(500);
+            text = "activeMidas!";
+            return {'text': "activeMidas!", 'color': Pallete.branco, 'sucesso': true}; 
+          }else{
+            return {'text': "Almas Insuficiente!", 'color': Pallete.branco, 'sucesso': false};
+          }
+          
         default:
           text = "";
           break;
