@@ -128,6 +128,8 @@ class Player extends PositionComponent
   bool isFreezeDash = false;
   bool goldDmg = false;
   bool shieldCrit = false;
+  bool isUnicorn = false;
+  double unicornTmr = 0;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -313,10 +315,11 @@ class Player extends PositionComponent
       }
     }
     _animateMovement(dt);
-    _handleAutoAttack(dt);
+    if(!isUnicorn)_handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
     _handleLicantropia(dt);
+    _handleUnicorn(dt);
 
     if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
       _die();
@@ -346,6 +349,42 @@ class Player extends PositionComponent
       licantropiaTmr += dt;
       if (licantropiaTmr >= 30){
         isLicantropia = false;
+        _visual.removeFromParent();
+
+        _visual = GameIcon(
+          icon: Icons.directions_walk,
+          color: Pallete.branco,
+          size: size * 1.2, 
+          anchor: Anchor.center,
+          position: size / 2,
+        );
+        currentColor = Pallete.branco;
+        add(_visual);
+      }
+    }
+  }
+
+  void ativaUnicorn(){
+    isUnicorn = true;
+    _isInvincible = true;
+    _visual.removeFromParent();
+
+    _visual = GameIcon(
+      icon: MdiIcons.unicorn,
+      color: Pallete.laranja,
+      size: size, 
+      anchor: Anchor.center,
+      position: size / 2,
+    );
+    currentColor = Pallete.laranja;
+    add(_visual);
+  }
+  void _handleUnicorn(double dt){
+    if (isUnicorn){
+      unicornTmr += dt;
+      if (unicornTmr >= 10){
+        isUnicorn = false;
+        _isInvincible = false;
         _visual.removeFromParent();
 
         _visual = GameIcon(
@@ -576,7 +615,7 @@ class Player extends PositionComponent
   void _handleMovement(double dt) {
     velocity.setZero();
     double movVel = moveSpeed;
-    if(isLicantropia) movVel = moveSpeed * 1.5;
+    if(isLicantropia || isUnicorn) movVel = moveSpeed * 1.5;
 
     if (gameRef.joystickDelta != Vector2.zero()) {
        velocity.setFrom(gameRef.joystickDelta);
@@ -590,7 +629,7 @@ class Player extends PositionComponent
     if (!velocity.isZero()) {
       velocityDash.setFrom(velocity); 
       _handleDustEffect(dt);
-      if(isLicantropia) _createGhostEffect(dt);
+      if(isLicantropia || isUnicorn) _createGhostEffect(dt);
       if(criaPocaVeneno) _createHazard(dt); 
       if(isConcentration) fireRate = fireRateInicial * 1.15;
     }else{
@@ -703,12 +742,12 @@ class Player extends PositionComponent
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
-      if( isDashing && isDashDamages){
-        other.takeDamage(damage);
+      if( isUnicorn || isDashing && isDashDamages){
+        double dmg = isUnicorn? damage*2 : damage;
+        other.takeDamage(dmg);
       }else{
         takeDamage(1);
       }
-      
     }
   }
 

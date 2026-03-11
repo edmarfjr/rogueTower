@@ -206,6 +206,8 @@ class I18n {
       'activeStunBombDesc':'Causa uma explosão que atordoa inimigos',
       'activeFairy':'Fadas',
       'activeFairyDesc':'invoca 5 Fadas que atacam inimigos próximos',
+      'activeUnicorn':'Cabeça de unicórnio',
+      'activeUnicornDesc':'Se transforma em unicórnio, não atira mas causa dano de colisão',
       'guerreiro':'GUERREIRO',
       'guerreiroDesc':'Equilibrado e resistente.',
       'piromante':'PIROMANTE',

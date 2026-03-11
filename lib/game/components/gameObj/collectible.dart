@@ -43,13 +43,13 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg,
+  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico ,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
-  activeStunBomb, activeFairy
+  activeStunBomb, activeFairy, activeUnicorn
 }
 
 
@@ -67,6 +67,7 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeMidas,
     CollectibleType.activeStunBomb,
     CollectibleType.activeFairy,
+    CollectibleType.activeUnicorn,
   ];
   return recarregaveis.contains(type);
 }
@@ -83,6 +84,7 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeDivineShield,
     CollectibleType.activeRerollItem,
     CollectibleType.activeBandage,
+    CollectibleType.activeUnicornUnico,
   ];
   return usoUnico.contains(type);
 }
@@ -646,6 +648,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeStunBomb'.tr(), 'desc': 'activeStunBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.marrom};
       case CollectibleType.activeFairy:
         return {'name': 'activeFairy'.tr(), 'desc': 'activeFairyDesc'.tr(), 'icon': MdiIcons.candy, 'color': Pallete.amarelo};
+      case CollectibleType.activeUnicorn:
+        return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': MdiIcons.unicornVariant, 'color': Pallete.laranja};
+      case CollectibleType.activeUnicornUnico:
+        return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': MdiIcons.unicornVariant, 'color': Pallete.amarelo};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -843,6 +849,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeConvBruta,
       CollectibleType.activeMagicMirror,
       CollectibleType.charmOnCrit,
+      CollectibleType.activeUnicorn,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1547,6 +1554,18 @@ class CollectibleLogic {
           }
           text = "activeFairy!";
           break;
+
+        case CollectibleType.activeUnicorn:
+          player.ativaUnicorn() ;
+          text = "activeUnicorn";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeUnicornUnico:
+          player.ativaUnicorn() ;
+          text = "activeUnicornUnico";
+          //color = Pallete.vermelho;
+          break; 
           
         default:
           text = "";
