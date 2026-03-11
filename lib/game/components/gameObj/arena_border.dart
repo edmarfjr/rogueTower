@@ -24,7 +24,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   }) : super(
           size: size,
           anchor: Anchor.center,
-          position: Vector2.zero(), // Assume que o mundo é centralizado no 0,0
+          position: Vector2.zero(), 
+          priority: -10000,
         ) {
     // Configura a espessura da linha
     _borderPaint.strokeWidth = wallThickness;
@@ -48,7 +49,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       case 5: return Pallete.azulCla; 
       default: return Pallete.azulEsc;
     }
-  }      
+  }  
+  
 
   @override
   void update(double dt) {

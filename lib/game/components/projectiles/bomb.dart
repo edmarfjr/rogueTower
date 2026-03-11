@@ -90,9 +90,9 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
     if (_timer >= duration && !isMine) {
       if (isEnemy) {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:100));
+        gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:100, owner: owner));
       } else {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:100));
+        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:100, owner: owner));
       }
 
       if(splits){

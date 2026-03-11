@@ -21,10 +21,31 @@ import '../core/pallete.dart';
 import '../core/game_icon.dart';
 
 typedef EnemyBuilder = Enemy Function(Vector2);
-typedef HazardBuilder = PositionComponent Function(Vector2 position);
+typedef HazardBuilder = PositionComponent Function(Vector2 position, Enemy owner);
 
 // --- HELPER DE AGGRO---
 PositionComponent getEnemyTarget(Enemy enemy) {
+  if (enemy.isCharmed) {
+    final allEnemies = enemy.gameRef.world.children.whereType<Enemy>();
+    
+    Enemy? closestEnemy;
+    double shortestDist = double.infinity;
+
+    for (var other in allEnemies) {
+      // Procura inimigos que NÃO sejam ele mesmo e que NÃO estejam hipnotizados
+      if (other != enemy && !other.isCharmed && other.isMounted) {
+        double dist = enemy.position.distanceTo(other.position);
+        if (dist < shortestDist) {
+          shortestDist = dist;
+          closestEnemy = other;
+        }
+      }
+    }
+
+    // Se achou um alvo inimigo, ataca ele! 
+    // Se a sala estiver limpa (ou só tiver aliados), ele segue o jogador amigavelmente.
+    return closestEnemy ?? enemy.gameRef.player; 
+  }
   final player = enemy.gameRef.player;
   bool bombLure = false;
   
@@ -417,7 +438,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
     enemy.gameRef.world.add(Projectile(
       position: enemy.position + newDir * 20,
       direction: newDir,
-      damage: 1,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
       speed: speed,
       size: size,
       owner: enemy,
@@ -426,7 +447,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
       isHoming: isHoming,
       isBoomerang: isBoomerang,
       dieTimer: isBoomerang ? 1.0 : 3.0,
-      isEnemyProjectile: true,
+      isEnemyProjectile: !enemy.isCharmed,
     ));
   }
 }
@@ -453,7 +474,7 @@ class MortarAttackBehavior extends AttackBehavior {
     if (enemy == null) return; 
 
     _timer += dt;
-    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final target = getEnemyTarget(enemy); 
     final dist = enemy.position.distanceTo(target.position);
 
     if (_timer >= interval && dist < minRange) {
@@ -502,6 +523,8 @@ class MortarAttackBehavior extends AttackBehavior {
       flightDuration: flightTime,
       isPoison: isPoison,
       explosionRadius: explosionRadius,
+      isPlayer: enemy.isCharmed,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage : 1,
     ));
   }
 }
@@ -529,7 +552,7 @@ class LaserAttackBehavior extends AttackBehavior {
       return;
     }
 
-    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final target = getEnemyTarget(enemy); 
     final dist = enemy.position.distanceTo(target.position);
     
     if (_timer >= interval && dist < 350) {
@@ -539,30 +562,24 @@ class LaserAttackBehavior extends AttackBehavior {
       final dir = (target.position - enemy.position).normalized();
       final angle = atan2(dir.y, dir.x);
 
-      enemy.gameRef.world.add(LaserBeam(
-        position: enemy.position + (dir * 10),
-        angleRad: angle,
-        owner: enemy,
-        isMoving: isMoving,
-        isEnemyProjectile: true,
-      ));
+      criaLaser(dir,angle);
       if (isShotgun) {
-        enemy.gameRef.world.add(LaserBeam(
-          position: enemy.position + (dir * 10),
-          angleRad: angle + 0.2,
-          owner: enemy,
-          isMoving: isMoving,
-          isEnemyProjectile: true,
-        ));
-        enemy.gameRef.world.add(LaserBeam(
-          position: enemy.position + (dir * 10),
-          angleRad: angle - 0.2,
-          owner: enemy,
-          isMoving: isMoving,
-          isEnemyProjectile: true,
-        ));
+        criaLaser(dir,angle+0.2);
+        criaLaser(dir,angle-0.2);
       }
     }
+  }
+
+  void criaLaser(Vector2 dir,ang)
+  {
+    enemy.gameRef.world.add(LaserBeam(
+      position: enemy.position + (dir * 10),
+      angleRad: ang,
+      owner: enemy,
+      isMoving: isMoving,
+      isEnemyProjectile: !enemy.isCharmed,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage : 1,
+    ));
   }
 }
 
@@ -643,13 +660,13 @@ class SpinnerAttackBehavior extends AttackBehavior {
     enemy!.gameRef.world.add(Projectile(
       position: enemy!.position + dir * 20,
       direction: dir,
-      damage: 1,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
       speed: 200,
       size: size,
       owner: enemy,
       isBoomerang: isBoomerang,
       dieTimer: isBoomerang ? 1.0 : 3.0,
-      isEnemyProjectile: true,
+      isEnemyProjectile: !enemy.isCharmed,
     ));
   }
 }
@@ -669,7 +686,7 @@ class DashAttackBehavior extends AttackBehavior {
       enemy.canMove = false; 
       
       if (_timer < 0.5) { 
-         final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+         final target = getEnemyTarget(enemy); 
          _dashDir = (target.position - enemy.position).normalized();
          if(visual != null) visual.angle = atan2(_dashDir.y, _dashDir.x) + enemy.rotateOff;
       } else { 
@@ -755,7 +772,7 @@ class ChargeAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    final target = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    final target = getEnemyTarget(enemy);
     final visual = enemy.visual;
 
     if (_state == 0) {
@@ -839,7 +856,7 @@ class JumpAttackBehavior extends AttackBehavior {
   final bool isExplosionOnLand;
   final bool is4ShotOnLand;
 
-  late PositionComponent _cachedTarget; // Agora guarda o Player ou Decoy
+  late PositionComponent _cachedTarget; 
 
   bool _isJumping = false;
   double _timer = 0;
@@ -864,7 +881,7 @@ class JumpAttackBehavior extends AttackBehavior {
   @override
   void update(double dt) {
     if (!enemy.isMounted) return;
-    _cachedTarget = getEnemyTarget(enemy); // Puxa o Player ou o Decoy!
+    _cachedTarget = getEnemyTarget(enemy); 
 
     if (_isJumping) {
       _timer += dt;
@@ -968,12 +985,13 @@ class JumpAttackBehavior extends AttackBehavior {
     if (isExplosionOnLand){
       createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 15);
       
-      // Se acertou o alvo (seja ele o player ou decoy)
+      
       if (enemy.position.distanceTo(_cachedTarget.position) <= impactRadius) {
         if (_cachedTarget is Player) {
            (_cachedTarget as Player).takeDamage(1);
+        }else if (_cachedTarget is Enemy) {
+           (_cachedTarget as Enemy).takeDamage(enemy.gameRef.player.damage/2);
         }
-        // Se quisermos que o Decoy tome "dano" e suma, basta adicionar a lógica no Decoy
         
         Vector2 pushDir = (_cachedTarget.position - enemy.position).normalized();
         _cachedTarget.position += pushDir * 30;
@@ -984,10 +1002,10 @@ class JumpAttackBehavior extends AttackBehavior {
         enemy.gameRef.world.add(Projectile(
           position: enemy.position + dir * 20,
           direction: dir,
-          damage: 1,
+          damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
           speed: 200,
           owner: enemy,
-          isEnemyProjectile: true,
+          isEnemyProjectile: !enemy.isCharmed,
         ));
       } 
     }
@@ -1003,13 +1021,13 @@ class JumpAttackBehavior extends AttackBehavior {
 class SummonAttackBehavior extends AttackBehavior {
   final double interval;
   final int maxMinions;
-  final EnemyBuilder minionBuilder; // <--- A VARIÁVEL MÁGICA
+  final EnemyBuilder minionBuilder; 
   
   double _timer = 0;
   final List<Enemy> _minions = []; 
 
   SummonAttackBehavior({
-    required this.minionBuilder, // Agora é obrigatório dizer O QUE ele invoca
+    required this.minionBuilder, 
     this.interval = 4.0, 
     this.maxMinions = 3
   });
@@ -1018,31 +1036,26 @@ class SummonAttackBehavior extends AttackBehavior {
   void update(double dt) {
     if (enemy == null) return;
 
-    // Limpa da lista os lacaios que morreram
     _minions.removeWhere((e) => !e.isMounted || e.hp <= 0);
 
-    // Só permite o cronômetro rodar se houver espaço na arena!
     if (_minions.length < maxMinions) {
       _timer += dt;
       if (_timer >= interval) {
         _summonMinion();
-        _timer = 0; // Zera o cronômetro após invocar
+        _timer = 0; 
       }
     } else {
-      // Se a tela já está cheia, trava o cronômetro no zero
       _timer = 0; 
     }
   }
 
   void _summonMinion() {
-    // Efeito visual no Invocador (Pisca)
     final visual = enemy.children.whereType<GameIcon>().firstOrNull;
     visual?.setColor(Pallete.rosa);
     Future.delayed(const Duration(milliseconds: 200), () {
       if (enemy.isMounted) visual?.setColor(enemy.originalColor);
     });
 
-    // Posição aleatória
     final rng = Random();
     double offsetX = (rng.nextDouble() * 60) - 30; 
     double offsetY = (rng.nextDouble() * 60) - 30;
@@ -1087,7 +1100,7 @@ class DropHazardBehavior extends AttackBehavior {
 
   void _dropHazard() {
     // 1. Usa a função builder para criar o objeto na posição atual
-    final hazard = hazardBuilder(enemy.position.clone());
+    final hazard = hazardBuilder(enemy.position.clone(), enemy);
     
     // 2. Adiciona ao mundo
     enemy.gameRef.world.add(hazard);
@@ -1145,10 +1158,10 @@ class ProjectileBurstDeathBehavior extends DeathBehavior {
       enemy.gameRef.world.add(Projectile(
         position: enemy.position,
         direction: dir,
-        damage: 1,
+        damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
         speed: 150,
         owner: enemy,
-        isEnemyProjectile: true,
+        isEnemyProjectile: !enemy.isCharmed,
       ));
     }
   }

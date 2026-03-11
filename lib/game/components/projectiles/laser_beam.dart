@@ -31,6 +31,8 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   RectangleHitbox? _hitbox;
 
+  bool critico = true;
+
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
@@ -52,7 +54,9 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     angle = angleRad;
     
     // Prioridade alta para desenhar por cima do chão/inimigos
-    priority = 10; 
+    priority = 500; 
+
+    if (owner is Enemy) critico = false;
   }
 
   @override
@@ -188,7 +192,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     else {
       if (other is Enemy) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-        other.takeDamage(damage);
+        other.takeDamage(damage,critico:critico);
         //removeFromParent();
       }
     } 

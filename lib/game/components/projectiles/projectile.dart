@@ -61,6 +61,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool _isDead = false;
 
+  bool critico = true;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -127,6 +129,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     ));
 
     _updateRotation();
+
+    if (owner is Enemy) critico = false;
   }
 
   @override
@@ -235,6 +239,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       Enemy? bestTarget;
 
       for (final enemy in enemies) {
+        if(enemy.isCharmed) continue;
         if (_hitTargets.contains(enemy)) continue;
 
         final dist = position.distanceToSquared(enemy.position);
@@ -325,10 +330,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         kill();
       }
     } else {
-      if (other is Enemy && !other.isInvencivel && !other.isIntangivel) {
+      if (other is Enemy && !other.isInvencivel && !other.isIntangivel && !other.isCharmed) {
         createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
-        other.takeDamage(damage);
+        other.takeDamage(damage,critico:critico);
         
         if ((isPiercing || isBoomerang) && _homingTarget == other) {
           _homingTarget = null;

@@ -50,7 +50,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     
     // Adicionamos como filho
     add(_visualChild);
-    priority = 100; 
+    priority = 1000; 
   }
 
   @override
@@ -92,7 +92,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     if (isPoison) {
       gameRef.world.add(PoisonPuddle(position: targetPos, isPlayer: isPlayer, size: Vector2.all(explosionRadius*2)));
     } else {
-      gameRef.world.add(Explosion(position: targetPos, damagesPlayer: !isPlayer,damage: damage ,radius: explosionRadius));
+      gameRef.world.add(Explosion(position: targetPos, damagesPlayer: !isPlayer,damage: damage ,radius: explosionRadius, owner:owner));
       if(isFire){
         gameRef.world.add(PoisonPuddle(position: targetPos, isPlayer: isPlayer, isFire: true, size: Vector2.all(explosionRadius)));
       }

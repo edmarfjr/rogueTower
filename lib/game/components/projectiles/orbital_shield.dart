@@ -98,6 +98,8 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     final newY = centerY + sin(_currentAngle) * radius;
     
     position.setValues(newX, newY);
+    
+    priority = position.y.toInt();
   }
 
   // --- O DESENHO DA CORRENTE ---

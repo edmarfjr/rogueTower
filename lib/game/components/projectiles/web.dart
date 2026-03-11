@@ -34,7 +34,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
     ));
     
     // Fica no chão (abaixo dos inimigos e player)
-    priority = -1;
+    priority = -500;
   }
 
   @override

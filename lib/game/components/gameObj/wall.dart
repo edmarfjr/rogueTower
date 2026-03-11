@@ -68,5 +68,8 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       position: size / 2,
       isSolid: true,
     ));
+
+    priority = position.y.toInt();
   }
+
 }

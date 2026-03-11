@@ -55,6 +55,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     } else {
       if (_isInfoVisible) _hideButton();
     }
+    priority = position.y.toInt();
   }
 
   void _showButton() {

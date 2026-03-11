@@ -88,7 +88,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       },
     ));
     
-    priority = -2;
+    priority = -500;
   }
 
   @override

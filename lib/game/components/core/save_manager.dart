@@ -100,6 +100,8 @@ class SaveManager {
       'confuseOnCrit': game.player.confuseOnCrit,
       'isBombSplits':game.player.isBombSplits,
       'isBombDecoy':game.player.isBombDecoy,
+      'charmOnCrit':game.player.charmOnCrit,
+      
       
     };
 
@@ -218,6 +220,8 @@ class SaveManager {
     game.player.confuseOnCrit = runData['confuseOnCrit'] ?? false;
     game.player.isBombSplits = runData['isBombSplits'] ?? false;
     game.player.isBombDecoy = runData['isBombDecoy'] ?? false;
+    game.player.charmOnCrit = runData['charmOnCrit'] ?? false;
+    
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }

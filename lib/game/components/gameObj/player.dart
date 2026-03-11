@@ -123,6 +123,7 @@ class Player extends PositionComponent
   bool isBombDecoy = false;
   bool tempDmgBonus = false;
   int regenCount = 0;
+  bool charmOnCrit = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -164,8 +165,8 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeGift) return 5;
     if (type == CollectibleType.activeHeartConverter) return 5;
     if (type == CollectibleType.activeRitualDagger) return 5;
-    
-    return 1; // Padrão
+    if (type == CollectibleType.activeConvBruta) return 5;
+    return 5; 
   }
 
   Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
@@ -317,6 +318,8 @@ class Player extends PositionComponent
     if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
       _die();
     }
+
+    priority = position.y.toInt();
   }
 
   void ativaLicantropia(){
@@ -382,11 +385,26 @@ class Player extends PositionComponent
 
     // Só usa se existir e estiver com a carga completa!
     if (itemData != null && itemData.isReady) {
-      CollectibleLogic.applyEffect(type: itemData.type, game: gameRef);
+      
+      final feedback = CollectibleLogic.applyEffect(type: itemData.type, game: gameRef);
+      String feedbackText = feedback['text'] as String;
+      Color feedbackColor = feedback['color'] as Color;
+      bool foiSucesso = feedback['sucesso'] ?? true;
+
+    /* 3. Feedback Visual Final*/
+    if (feedbackText.isNotEmpty) {
+      gameRef.world.add(FloatingText(
+        text: feedbackText,
+        position: position.clone(), 
+        color: feedbackColor,
+        fontSize: 12,
+      ));
+    }
+    
 
       if (slotIndex == 0) {
         // Zera a carga do recarregável
-        itemData.currentCharge = 0; 
+        if (foiSucesso)itemData.currentCharge = 0; 
       } else if (slotIndex == 1) {
         // Destrói o de uso único
         currentItems[1] = null; 
@@ -657,18 +675,19 @@ class Player extends PositionComponent
   void _keepInBounds() {
     double limitX = TowerGame.gameWidth/2 - size.x;
     double limitY = TowerGame.gameHeight/2 - size.y;
+    double arenaBorder = 10;
 
-    position.x = position.x.clamp(-limitX, limitX);
-    position.y = position.y.clamp(-limitY, limitY);
+    position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
+    position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
   }
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other is Enemy && !other.isIntangivel) {
+    if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
       if( isDashing && isDashDamages){
-        other.takeDamage(100);
+        other.takeDamage(damage);
       }else{
         takeDamage(1);
       }
@@ -757,7 +776,7 @@ class Player extends PositionComponent
 
     for (final enemy in enemies) {
       final dist = position.distanceTo(enemy.position);
-      if (/* dist <= attackRange && */ dist < closestDist) {
+      if (/* dist <= attackRange && */ dist < closestDist && !enemy.isCharmed) {
         closestDist = dist;
         target = enemy;
       }
@@ -948,6 +967,8 @@ class Player extends PositionComponent
     isBombDecoy = false;
     tempDmgBonus = false;
     regenCount = 0;
+    activeItems.value = [null, null];
+    charmOnCrit = false;
 
     _visual.setColor(Pallete.branco);
   }

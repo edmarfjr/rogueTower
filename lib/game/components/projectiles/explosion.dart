@@ -16,6 +16,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final bool damagesPlayer; 
   final Color cor;
   final Color corBorda; 
+  final PositionComponent? owner;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -26,6 +27,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.damage = 1,
     this.damagesPlayer = true,
     this.apagaTiros = false,
+    this.owner,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
@@ -34,7 +36,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
 
   @override
   Future<void> onLoad() async {
-    priority = 20;
+    priority = 500;
     
     AudioManager.playSfx('explosion.mp3');
 
@@ -51,8 +53,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       // inimigos
       final enemies = gameRef.world.children.query<Enemy>();
       for(final e in enemies){
-         if (e.position.distanceTo(position) <= radius && !e.isInvencivel && !e.isIntangivel) {
-            e.takeDamage(damage); // Explosão dói mais em inimigos
+         if (e.position.distanceTo(position) <= radius && !e.isInvencivel && !e.isIntangivel && !e.isCharmed) {
+            e.takeDamage(damage,critico: false); 
          }
       }
       // Apaga projéteis inimigos

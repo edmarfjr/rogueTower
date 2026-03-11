@@ -45,6 +45,8 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       position: size / 2,
       isSolid: true,
     ));
+
+    priority = position.y.toInt();
   }
 
   void _updateIcon(IconData icon, Color color) {
@@ -75,6 +77,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     } else {
       if (_isInfoVisible) _hideInfo();
     }
+    
   }
 
   void _showInfo() {
@@ -146,9 +149,9 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       type: lootType,
     );
     gameRef.world.add(item);
-    double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
-    double altura = Random().nextDouble() * 100 + 150 * -1;
-    item.pop(Vector2(direcaoX, 0), altura:altura);
+    double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
+    double altura = Random().nextDouble() * 100 + 250 * -1;
+    item.pop(Vector2(direcaoX, -16), altura:altura);
     _hideInfo();
     //removeFromParent();
   }

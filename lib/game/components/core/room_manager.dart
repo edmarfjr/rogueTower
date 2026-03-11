@@ -98,9 +98,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
       final allEnemies = gameRef.world.children.query<Enemy>();
       
-      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy);
+      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed);
+      final charmedEnemies = allEnemies.where((enemy) => !enemy.isDummy && enemy.isCharmed);
       
       if (realEnemies.isEmpty && !isSpawnningBoss) {
+        // limpa inimigos charmeds
+        charmedEnemies.forEach((e) => e.removeFromParent());
+
         _unlockDoors();
         _levelCleared = true;
       }
@@ -119,12 +123,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeRitualDagger));
-      gameRef.world.add(Collectible(position: Vector2(0,50), type: CollectibleType.activeBandage));
-      //gameRef.world.add(Collectible(position: Vector2(0,-50), type: CollectibleType.familarAtira));
+      gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeConvBruta));
+      gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeBandage));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.familarAtira));
 
       //teste de armadilhas
-      //gameRef.world.add(SpikeTrap(position: Vector2(0, 0)));
+      //gameRef.world.add(Chest(position: Vector2(0, 0)));
       
     }
     

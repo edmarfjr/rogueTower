@@ -60,6 +60,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   int numCondicoes = 0;
   MovementBehavior confuseBehavior = RandomWanderBehavior();
   PositionComponent? lureTarget;
+  bool isCharmed = false;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -76,6 +77,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameIcon? poisonIcon;
   GameIcon? bleedIcon;
   GameIcon? confuseIcon;
+  GameIcon? charmIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
@@ -223,7 +225,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   void update(double dt) {
-    //if (gameRef.currentRoom == 0) return; 
     if(_initTimer > 0){
       _initTimer -= dt;
       return;
@@ -234,30 +235,21 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Atualiza o timer da aura visual
    // _auraTimer += dt * 5; 
 
-    
-
     if(isConfuse){
       confuseBehavior.update(dt);
-   // }else if(isBombLured){
-   //   bombLuredBehavior.update(dt);
     }else{
       if (lureTarget != null) {
         if (!lureTarget!.isMounted) {
-          // Se a bomba explodiu e sumiu, limpa a hipnose!
           lureTarget = null; 
         } else if (canMove) {
-          // IGNORA O MOVEMENT BEHAVIOR E VAI CEGO PARA A BOMBA!
           final dir = (lureTarget!.position - position).normalized();
           position += dir * speed * dt;
 
-          // Vira o rostinho do inimigo para a bomba
           if (rotates && visual != null) {
             visual!.angle = atan2(dir.y, dir.x) + rotateOff;
           }
         }
       } 
-      
-      // Se NÃO ESTÁ hipnotizado, roda o comportamento normal dele!
       if (lureTarget == null) {
         movementBehavior.update(dt);
       }
@@ -268,6 +260,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     _updateStatus(dt);
 
     if (animado) _animateEnemy(dt);
+
+    priority = position.y.toInt();
   }
 /*
   // --- LÓGICA DE RENDERIZAÇÃO DA AURA ---
@@ -366,8 +360,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       _collisionBuffer.normalize();
       position.addScaled(_collisionBuffer, 1.0);
     } 
-    else if (other is Enemy && !voa && !other.voa|| (other is Enemy && voa && !other.voa)) {
-      _handleEnemyCollision(other);
+    else if(other is Enemy){
+      if(other.isCharmed){
+        takeDamage(gameRef.player.damage / 2,critico:false);
+      }else if (!voa && !other.voa|| (voa && !other.voa)) {
+        _handleEnemyCollision(other);
+      }
     }
   }
 
@@ -389,13 +387,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
   }
 
-  void takeDamage(double damage, {bool isDot = false}) { // <-- ADICIONADO AQUI
+  void takeDamage(double damage, {bool isDot = false, critico = true}) { // <-- ADICIONADO AQUI
     if (hp <= 0) return;
     bool isCrit = false;
     double dmg = damage;
     double critChance = Random().nextDouble() * 100;
 
-    if (critChance <= gameRef.player.critChance) {
+    if (critChance <= gameRef.player.critChance && critico) {
       dmg *= gameRef.player.critDamage;
       isCrit = true;
     }
@@ -439,6 +437,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if(gameRef.player.confuseOnCrit){
         setConfuse();
       }
+      if(gameRef.player.charmOnCrit){
+        setCharm();
+      }
       
     } 
 
@@ -467,10 +468,26 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void _keepInsideArena() {
     double halfWidth = TowerGame.gameWidth / 2;
     double halfHeight = TowerGame.gameHeight / 2;
-    double padding = size.x / 2; 
+    double padding = size.x / 2 + 10; 
 
     position.x = position.x.clamp(-halfWidth + padding, halfWidth - padding);
     position.y = position.y.clamp(-halfHeight + padding, halfHeight - padding);
+  }
+
+  void setCharm() {
+    if (!isCharmed && !isBoss) {
+      isCharmed = true;
+      numCondicoes ++;
+      charmIcon = GameIcon(
+        icon: MdiIcons.heart,
+        color: Pallete.rosa,
+        size: size/4,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+      );
+      
+      add(charmIcon!);
+    }
   }
 
   void setFreeze(){
@@ -496,7 +513,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setConfuse(){
-    if (isConfuse) return;
+    if (isConfuse || isBoss) return;
     numCondicoes ++;
     isConfuse = true;
 

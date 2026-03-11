@@ -84,7 +84,12 @@ class EnemyFactory {
       movementBehavior: RandomWanderBehavior(), 
       attackBehavior: DropHazardBehavior(
         interval: 0.5, 
-        hazardBuilder: (p) => PoisonPuddle(position: p, duration: 5.0, damage: 1),
+        hazardBuilder: (p, owner) => PoisonPuddle(
+                                position: p, 
+                                duration: 5.0, 
+                                damage: 1,
+                                isPlayer : owner.isCharmed 
+                              ),
       ),
     );
   }
@@ -233,7 +238,7 @@ class EnemyFactory {
       movementBehavior: RandomWanderBehavior(), 
       attackBehavior: DropHazardBehavior(
         interval: 2.5,
-        hazardBuilder: (p) => Web(position: p, duration: 8.0),
+        hazardBuilder: (p,owner) => Web(position: p, duration: 8.0),
       ),
       attack2Behavior: ProjectileAttackBehavior(interval: 2.5)
     );
@@ -759,7 +764,7 @@ class EnemyFactory {
           ),
           DropHazardBehavior(
             interval: 1.5, 
-            hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
+            hazardBuilder: (p,owner) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
           ),
         ],
         
@@ -778,7 +783,7 @@ class EnemyFactory {
           ),
             DropHazardBehavior(
             interval: 1.5, 
-            hazardBuilder: (p) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
+            hazardBuilder: (p,owner) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
           ),
         ],
        

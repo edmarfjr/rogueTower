@@ -12,7 +12,7 @@ class ShadowComponent extends PositionComponent {
     position = Vector2(parentSize.x / 2, parentSize.y); 
     
     // Priority negativa garante que a sombra fique SEMPRE atrás do personagem
-    priority = -1; 
+    priority = -500; 
   }
 
   @override

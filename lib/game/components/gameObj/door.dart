@@ -49,6 +49,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       position: size / 2,
       isSolid: true
     ));
+
+    priority = position.y.toInt();
   }
 
   void _updateDoorIcon(IconData icon, Color color) {
@@ -173,6 +175,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       _hideButton();
       botaoAtivo = false;
     }
+    
   }
 
   void _showButton() {

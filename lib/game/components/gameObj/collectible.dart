@@ -48,7 +48,7 @@ enum CollectibleType {
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
-  activeHeartConverter, activeDivineShield, activeRitualDagger
+  activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit
 }
 
 
@@ -61,6 +61,8 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeGift,
     CollectibleType.activeHeartConverter,
     CollectibleType.activeRitualDagger,
+    CollectibleType.activeConvBruta,
+    CollectibleType.activeMagicMirror,
   ];
   return recarregaveis.contains(type);
 }
@@ -102,7 +104,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
   // Controle de Interface
   bool _isInfoVisible = false;
-  final double _pickupRange = 60.0; // Distância para aparecer o botão
+  final double _pickupRange = 30.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
   InteractButton? _currentButton;
 
@@ -203,6 +205,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 13),
       ));
     }
+    priority = -500;
     add(ShadowComponent(parentSize: size));
   }
 
@@ -223,6 +226,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       if (position.y >= _groundY && _velocity.y > 0) {
         position.y = _groundY; // Trava no chão
         isBouncing = false;    // Desliga a física
+        
       }
     }
     final player = gameRef.player;
@@ -614,6 +618,12 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeRitualDagger'.tr(), 'desc': 'activeRitualDaggerDesc'.tr(), 'icon': MdiIcons.knifeMilitary, 'color': Pallete.vermelho};
       case CollectibleType.activeBandage:
         return {'name': 'activeBandage'.tr(), 'desc': 'activeBandageDesc'.tr(), 'icon': MdiIcons.bandage, 'color': Pallete.bege};
+      case CollectibleType.activeMagicMirror:
+        return {'name': 'activeMagicMirror'.tr(), 'desc': 'activeMagicMirrorDesc'.tr(), 'icon': MdiIcons.mirrorVariant, 'color': Pallete.laranja};
+      case CollectibleType.activeConvBruta:
+        return {'name': 'activeConvBruta'.tr(), 'desc': 'activeConvBrutaDesc'.tr(), 'icon': MdiIcons.flaskPlus, 'color': Pallete.vermelho};
+      case CollectibleType.charmOnCrit:
+        return {'name': 'charmOnCrit'.tr(), 'desc': 'charmOnCritDesc'.tr(), 'icon': MdiIcons.charity, 'color': Pallete.rosa};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -806,6 +816,9 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeDivineShield,
       CollectibleType.activeHeartConverter,
       CollectibleType.activeRitualDagger,
+      CollectibleType.activeConvBruta,
+      CollectibleType.activeMagicMirror,
+      CollectibleType.charmOnCrit,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1417,10 +1430,54 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break;
 
+        case CollectibleType.activeConvBruta:
+          final itensNoChao = game.world.children.whereType<Collectible>().toList();
+
+          final naoRolar = [
+            CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+            CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+            CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+            CollectibleType.shop, CollectibleType.boss, CollectibleType.healthContainer,
+            CollectibleType.darkShop, CollectibleType.desafio
+          ];
+
+          for (var item in itensNoChao) {
+              if (!naoRolar.contains(item.type)) {
+                Vector2 pos = item.position.clone();
+                item.removeFromParent();
+                game.world.add(Collectible(position: pos, type: CollectibleType.damage)); 
+                createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+            }
+          }
+          text = "activeConvBruta!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeMagicMirror:
+          final ativos = player.activeItems.value;
+          
+          final itemUsoUnico = ativos[1]; 
+
+          if (itemUsoUnico != null) {
+             final feedback = CollectibleLogic.applyEffect(type: itemUsoUnico.type, game: game);
+             // SUCESSO! Dá um 'return' direto aqui para sair da função agora mesmo.
+             return {'text': "Copiou: ${feedback['text'].tr()}", 'color': Pallete.branco, 'sucesso': true}; 
+           } else {
+             // FALHOU! Dá um 'return' direto dizendo que deu erro.
+             return {'text': "Nada para copiar!", 'color': Pallete.branco, 'sucesso': false};
+           }
+
+        case CollectibleType.charmOnCrit:
+          player.charmOnCrit = true;
+          text = "charmOnCrit!";
+          //color = Pallete.vermelho;
+          break;
+        
         default:
           text = "";
           break;
        }
-       return {'text': text, 'color': Pallete.branco};
+       return {'text': text, 'color': Pallete.branco, 'sucesso': true};
    }
 }

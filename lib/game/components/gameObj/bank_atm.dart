@@ -36,6 +36,8 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
       position: size / 2,
       isSolid: false, // Player atravessa (apenas gatilho)
     ));
+
+    priority = position.y.toInt();
   }
 
   @override
