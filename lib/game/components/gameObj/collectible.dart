@@ -43,12 +43,13 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift, activeRerollItem, activeBandage, activeMidas,
+  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
-  activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit
+  activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
+  activeStunBomb, activeFairy
 }
 
 
@@ -64,6 +65,8 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeConvBruta,
     CollectibleType.activeMagicMirror,
     CollectibleType.activeMidas,
+    CollectibleType.activeStunBomb,
+    CollectibleType.activeFairy,
   ];
   return recarregaveis.contains(type);
 }
@@ -108,6 +111,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   final double _pickupRange = 30.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
   InteractButton? _currentButton;
+  GameIcon? visual;
 
   Collectible({
     required Vector2 position, 
@@ -128,13 +132,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     IconData iconData = attrs['icon'] as IconData;
     Color iconColor = attrs['color'] as Color;
 
-    add(GameIcon(
+    double ang = 0;
+
+    if(type == CollectibleType.activeFairy) ang = pi/4;
+
+    visual = GameIcon(
       icon: iconData,
       color: iconColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2, 
-    ));
+    );
+
+    visual!.angle = ang;
+    add(visual!);
 
     // Texto de preço (se houver)
     if (custo > 0){
@@ -627,6 +638,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeMidas'.tr(), 'desc': 'activeMidasDesc'.tr(), 'icon': MdiIcons.handFrontRight, 'color': Pallete.laranja};
       case CollectibleType.charmOnCrit:
         return {'name': 'charmOnCrit'.tr(), 'desc': 'charmOnCritDesc'.tr(), 'icon': MdiIcons.charity, 'color': Pallete.rosa};
+      case CollectibleType.freezeDash:
+        return {'name': 'freezeDash'.tr(), 'desc': 'freezeDashDesc'.tr(), 'icon': MdiIcons.skate, 'color': Pallete.azulCla};
+      case CollectibleType.goldDmg:
+        return {'name': 'goldDmg'.tr(), 'desc': 'goldDmgDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.laranja};
+      case CollectibleType.activeStunBomb:
+        return {'name': 'activeStunBomb'.tr(), 'desc': 'activeStunBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.marrom};
+      case CollectibleType.activeFairy:
+        return {'name': 'activeFairy'.tr(), 'desc': 'activeFairyDesc'.tr(), 'icon': MdiIcons.candy, 'color': Pallete.amarelo};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -766,6 +785,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeRerollItem,
       CollectibleType.activeBandage,
       CollectibleType.activeMidas,
+      CollectibleType.goldDmg,
     ];
     
     return _filtrarPool(itens, player);
@@ -1201,7 +1221,7 @@ class CollectibleLogic {
             duration: 5.0,
             size: Vector2.all(100)
           ));
-          text = "activeHeal";
+          text = "activePoisonBomb";
           //color = Pallete.vermelho;
           break; 
 
@@ -1482,12 +1502,51 @@ class CollectibleLogic {
           if(game.progress.soulsNotifier.value >= 1000)
           {
             game.progress.spendSouls(1000);
-            game.player.collectCoin(500);
+            game.player.collectCoin(50);
             text = "activeMidas!";
             return {'text': "activeMidas!", 'color': Pallete.branco, 'sucesso': true}; 
           }else{
             return {'text': "Almas Insuficiente!", 'color': Pallete.branco, 'sucesso': false};
           }
+
+        case CollectibleType.freezeDash:
+          player.increaseDash(-1);
+          player.isFreezeDash = true;
+          text = "freezeDash";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.goldDmg:
+          player.goldDmg = true;
+          text = "goldDmg";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeStunBomb:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            isStun: true, 
+            radius:100,
+            cor:Pallete.laranja.withAlpha(50),
+            corBorda:Pallete.marrom.withAlpha(50)
+          ));
+          text = "activeStunBomb";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeFairy:
+          for(var i = 0; i < 5; i++){
+            final f = Familiar(position: player.position.clone(),
+                                type: FamiliarType.fly, 
+                                player: player,
+                                angleOffset: i*(2*pi/5)
+                              );
+            player.familiars.add(f);
+            game.world.add(f);
+          }
+          text = "activeFairy!";
+          break;
           
         default:
           text = "";

@@ -92,6 +92,7 @@ class CharacterRoster {
       accessorySize: 24.0,
       flipAccessoryBase: true,
       color: Pallete.cinzaCla, 
+      startingShield: 2,
       maxHp: 6,
       maxDash: 2,
       speed: 150.0,

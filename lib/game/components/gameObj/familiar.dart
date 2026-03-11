@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -14,10 +15,12 @@ import '../core/pallete.dart';
 enum FamiliarType {
   decoy,
   block,
-  atira
+  atira,
+  fly
 }
 
-class Familiar extends PositionComponent with HasGameRef<TowerGame> {
+class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
+  GameIcon? visual;
   double followDistance = 0;//120.0; 
   double speed = 0; 
   final FamiliarType type;
@@ -27,6 +30,15 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
   final Player player;
   double offsetX;
   double offsetY;
+  double detectRadius = 600;
+  bool retorna = true;
+
+  //variaveis do fly
+  double _currentAngle = 0;
+  double radius = 32;
+  final double angleOffset; 
+  
+  PositionComponent? target;
 
   Familiar({
     required Vector2 position ,
@@ -36,6 +48,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
     this.speed = 200.0,
     this.offsetX = 0,
     this.offsetY = 0,
+    this.angleOffset = 0, 
     }) : super(position: position , size: Vector2.all(32), anchor: Anchor.center) {
     priority = 10; 
   }
@@ -43,8 +56,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
   @override
   Future<void> onLoad() async {
 
+    _currentAngle = angleOffset;
+
     IconData icon;
     Color cor;  
+    double ang = 0;
 
     switch(type){
       case FamiliarType.decoy:
@@ -56,15 +72,33 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
       case FamiliarType.atira:
         icon = MdiIcons.fire;
         cor = Pallete.vermelho.withOpacity(0.7);
+      case FamiliarType.fly:
+        icon = MdiIcons.candy;
+        cor = Pallete.amarelo.withOpacity(0.7);
+        detectRadius = 150;
+        speed = 4;
+        size = Vector2.all(16);
+        ang = pi/4;
     }
 
 
-    add(GameIcon(
+    visual=GameIcon(
       icon: icon,
       color: cor, 
       size: size,
       anchor: Anchor.center,
       position: size / 2,
+    );
+
+    add(visual!);
+
+    visual!.angle = ang;
+
+    add(RectangleHitbox(
+      size: size , 
+      anchor: Anchor.center,
+      position: size / 2 , 
+      isSolid: true,
     ));
   }
 
@@ -75,14 +109,68 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
     final playerPos = gameRef.player.position  + Vector2(offsetX,offsetY) ;
     final dist = position.distanceTo(playerPos);
 
-    if (dist > followDistance) {
-      final direction = (playerPos - position).normalized();
-      position += direction * speed * dt;
+    if(type == FamiliarType.fly){
+      
+      PositionComponent? target = getTarget();
+    
+      if (target != null) {
+        speed = 150;
+        final targetPos = target.position;
+        final direction = (targetPos - position).normalized();
+        position += direction * speed * dt;
+      }else{
+        speed = 4;
+        _currentAngle += speed * dt;
+      
+        double centerX;
+        double centerY;
+
+        centerX = playerPos.x;
+        centerY = playerPos.y;
+
+        // Cálculo da nova posição
+        final newX = centerX + cos(_currentAngle) * radius;
+        final newY = centerY + sin(_currentAngle) * radius;
+        
+        position.setValues(newX, newY);
+      }
+
+    }else{
+      if (dist > followDistance) {
+        final direction = (playerPos - position).normalized();
+        position += direction * speed * dt;
+      }
+
+      if(type == FamiliarType.atira){
+        _handleAutoAttack(dt);
+      }
     }
 
-    if(type == FamiliarType.atira){
-      _handleAutoAttack(dt);
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if(other is Enemy && !other.isIntangivel){
+      other.takeDamage(gameRef.player.damage * 2);
+      retorna = false;
+      removeFromParent();
     }
+  }
+
+  PositionComponent? getTarget(){
+    final enemies = gameRef.world.children.query<Enemy>();
+    PositionComponent? target ;
+    double closestDist = double.infinity;//attackRange;
+
+    for (final enemy in enemies) {
+      final dist = position.distanceTo(enemy.position);
+      if ( dist <= detectRadius &&  dist < closestDist) {
+        closestDist = dist;
+        target = enemy;
+      }
+    }
+    return target;
   }
 
   void _handleAutoAttack(double dt) {
@@ -90,27 +178,15 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame> {
     double fRate = fireRate;
     if (_attackTimer < fRate) return;
 
-    final enemies = gameRef.world.children.query<Enemy>();
-    Enemy? target;
-    double closestDist = double.infinity;//attackRange;
-
-    for (final enemy in enemies) {
-      final dist = position.distanceTo(enemy.position);
-      if (/* dist <= attackRange && */ dist < closestDist) {
-        closestDist = dist;
-        target = enemy;
-      }
-    }
-
+    PositionComponent? target = getTarget();
+    
     if (target != null) {
       _attackTimer = 0;
       _shootAt(target);
-      
-      
     }
   }
 
-  void _shootAt(Enemy target, {double angleOffset = 0}) {
+  void _shootAt(PositionComponent target, {double angleOffset = 0}) {
     // Calculo da direção livre de lixo de memória
     _tempDirection.setFrom(target.position);
     _tempDirection.sub(position);

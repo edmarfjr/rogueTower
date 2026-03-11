@@ -393,7 +393,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double dmg = damage;
     double critChance = Random().nextDouble() * 100;
 
-    if (critChance <= gameRef.player.critChance && critico) {
+    if (critChance <= gameRef.player.returnCritChance() && critico) {
       dmg *= gameRef.player.critDamage;
       isCrit = true;
     }
@@ -660,7 +660,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (burnTimer >= burnTime){
         burnTimer = 0.0;
         burnStacks.value -= 1;
-        takeDamage(5 *gameRef.player.dot, isDot: true);
+
+        double dmg = 5 ;
+        double dot = gameRef.player.dot;
+        if (gameRef.player.goldDmg){
+          dot += gameRef.coinsNotifier.value * 0.01;
+        }
+        dmg *= dot ;
+        takeDamage(dmg, isDot: true);
+
         burnText?.text = burnStacks.value.toString();
         
         if (burnStacks.value <= 0) {
@@ -685,7 +693,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       poisonTimer += dt;
       if (poisonTimer >= poisonTime){
         poisonStacks.value -= 1;
-        takeDamage(3 *gameRef.player.dot, isDot: true);
+        
+        double dmg = 3 ;
+        double dot = gameRef.player.dot;
+        if (gameRef.player.goldDmg){
+          dot += gameRef.coinsNotifier.value * 0.01;
+        }
+        dmg *= dot ;
+        takeDamage(dmg, isDot: true);
+        
         poisonText?.text = poisonStacks.value.toString();
         poisonTimer = 0.0;
         if (poisonStacks.value <= 0) {
@@ -710,7 +726,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       bleedTimer += dt;
       if (bleedTimer >= bleedTime){
         bleedStacks.value -= 1;
-        takeDamage(2 *gameRef.player.dot, isDot: true);
+        
+        double dmg = 2 ;
+        double dot = gameRef.player.dot;
+        if (gameRef.player.goldDmg){
+          dot += gameRef.coinsNotifier.value * 0.01;
+        }
+        dmg *= dot ;
+        takeDamage(dmg, isDot: true);
+        
         bleedText?.text = bleedStacks.value.toString();
         bleedTimer = 0.0;
         if (bleedStacks.value <= 0) {

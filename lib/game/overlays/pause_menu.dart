@@ -14,11 +14,11 @@ class PauseMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final int hp = game.player.healthNotifier.value;
     final int maxHp = game.player.maxHealth;
-    final int dmg = (game.player.damage / 10 * 100).round();
+    final int dmg = (game.player.returnDamage() / 10 * 100).round();
     final int dot = (game.player.dot * 100).round();
     final int fireRate = (0.4 / game.player.fireRate  * 100).round();
     final int range = (game.player.attackRange / 200 * 100).round();
-    final int critChance = (game.player.critChance).round();
+    final int critChance = (game.player.returnCritChance()).round();
     final int critDmg = (game.player.critDamage / 2 * 100).round();
     final int speed = (game.player.moveSpeed / 150 * 100).round();
     final int level = game.currentLevel;

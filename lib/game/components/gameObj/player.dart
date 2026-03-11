@@ -59,6 +59,7 @@ class Player extends PositionComponent
    int stackBonus = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
+  double bombButtonTimer = 0;
 
   // VETORES OTIMIZADOS (Previnem Garbage Collection)
   final Vector2 velocity = Vector2.zero();
@@ -124,6 +125,9 @@ class Player extends PositionComponent
   bool tempDmgBonus = false;
   int regenCount = 0;
   bool charmOnCrit = false;
+  bool isFreezeDash = false;
+  bool goldDmg = false;
+  bool shieldCrit = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -253,14 +257,13 @@ class Player extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
-    // --- LÓGICA DE PERSISTÊNCIA DO DECOY ---
+    
     for (var familiar in familiars) {
-      // Quando a sala limpa o mundo, o "parent" do familiar fica nulo.
-      if (familiar.parent == null) {
-        // Re-adiciona o bichinho no mundo novo!
-        gameRef.world.add(familiar);
+      
+      if (familiar.parent == null && familiar.retorna) {
         
-        // Teleporta ele pro pé do jogador com um leve espalhamento
+        gameRef.world.add(familiar);
+       
         familiar.position = position.clone() + Vector2(
           (Random().nextDouble() - 0.5) * 40, 
           (Random().nextDouble() - 0.5) * 40
@@ -318,6 +321,8 @@ class Player extends PositionComponent
     if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
       _die();
     }
+
+    if (bombButtonTimer > 0) bombButtonTimer -= dt;
 
     priority = position.y.toInt();
   }
@@ -605,6 +610,18 @@ class Player extends PositionComponent
       kineticTimer = 3.0;
     }
 
+    if(isFreezeDash){
+      gameRef.world.add(Explosion(
+                          position: position, 
+                          damagesPlayer:false, 
+                          radius:150, 
+                          owner: this,
+                          isFreeze: true,
+                          cor: Pallete.branco.withAlpha(50),
+                          corBorda: Pallete.azulCla.withAlpha(50),
+                        ));
+    }
+
     AudioManager.playSfx('dash.mp3');
 
     _dashTimer = dashDuration;
@@ -814,18 +831,8 @@ class Player extends PositionComponent
     }
   }
 
-  void _shootAt(Enemy target, {double angleOffset = 0}) {
-    // Calculo da direção livre de lixo de memória
-    _tempDirection.setFrom(target.position);
-    _tempDirection.sub(position);
-    _tempDirection.normalize();
-
-    double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
-    double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
-    _tempDirection.setValues(x, y);
-
+  double returnDamage(){
     double dmg = damage;
-    double aRange = attackRange;
 
     if(isBerserk && healthNotifier.value <= 2) dmg = dmg * 1.4;
     if(isAudaz && shieldNotifier.value == 0) dmg = dmg * 1.3;
@@ -838,16 +845,49 @@ class Player extends PositionComponent
     if(tempDmgBonus){
        dmg = dmg * 1.2;
     }
-    
+    if(goldDmg){
+      dmg += dmg*0.01*gameRef.coinsNotifier.value;
+    }
+    if(isBebado){
+       dmg = dmg * 1.3;
+    }
+    if(isLicantropia){
+       dmg = dmg * 1.5;
+    }
+
+    return dmg;
+  }
+
+  double returnCritChance(){
+    double crit = critChance;
+
+    if(shieldCrit){
+      crit += shieldNotifier.value * 5;
+    }
+
+    return crit;
+  }
+
+  void _shootAt(Enemy target, {double angleOffset = 0}) {
+    // Calculo da direção livre de lixo de memória
+    _tempDirection.setFrom(target.position);
+    _tempDirection.sub(position);
+    _tempDirection.normalize();
+
+    double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
+    double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
+    _tempDirection.setValues(x, y);
+
+    double dmg = returnDamage();
+    double aRange = attackRange;
+
     if(isBebado){
       double angOffset = Random().nextDouble() * 0.2;
       double x = _tempDirection.x * cos(angOffset) - _tempDirection.y * sin(angOffset);
       double y = _tempDirection.x * sin(angOffset) + _tempDirection.y * cos(angOffset);
       _tempDirection.setValues(x, y);
-      dmg = dmg * 1.3;
     }
     if(isLicantropia){
-      dmg = dmg * 1.5;
       aRange = aRange * 0.5;
     }
     AudioManager.playSfx('shoot.mp3');
@@ -881,6 +921,8 @@ class Player extends PositionComponent
   }
 
   void criaBomba(){
+    if(bombButtonTimer>0) return;
+    bombButtonTimer = 0.5;
     if (bombNotifier.value > 0){
       bombNotifier.value--;
       gameRef.world.add(Bomb(
@@ -969,6 +1011,9 @@ class Player extends PositionComponent
     regenCount = 0;
     activeItems.value = [null, null];
     charmOnCrit = false;
+    isFreezeDash = false;
+    goldDmg = false;
+    shieldCrit = true;
 
     _visual.setColor(Pallete.branco);
   }

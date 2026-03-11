@@ -17,6 +17,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final Color cor;
   final Color corBorda; 
   final PositionComponent? owner;
+  final bool isFreeze;
+  final bool isStun;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -28,6 +30,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.damagesPlayer = true,
     this.apagaTiros = false,
     this.owner,
+    this.isFreeze = false,
+    this.isStun = false,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
@@ -54,7 +58,13 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       final enemies = gameRef.world.children.query<Enemy>();
       for(final e in enemies){
          if (e.position.distanceTo(position) <= radius && !e.isInvencivel && !e.isIntangivel && !e.isCharmed) {
-            e.takeDamage(damage,critico: false); 
+            if(isFreeze){
+              e.setFreeze();
+            }if(isStun){
+              e.setConfuse();
+            }else{
+              e.takeDamage(damage,critico: false); 
+            }
          }
       }
       // Apaga projéteis inimigos

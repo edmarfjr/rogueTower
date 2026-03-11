@@ -13,7 +13,7 @@ class GameProgress {
   static const String _unlockedClassesKey = 'unlocked_classes';
   static const String _discoveredKey = 'discovered_items';
 
-  final ValueNotifier<int> soulsNotifier = ValueNotifier(1000);
+  final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
 
   final ValueNotifier<String> languageNotifier = ValueNotifier('pt');
