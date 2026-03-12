@@ -107,6 +107,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
         _unlockDoors();
         _levelCleared = true;
+        print('room cleared');
+        gameRef.saveGame();
       }
     }
   }
@@ -123,8 +125,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeUnicornUnico));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.familarAtira));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeBombardeioUnico));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.molotov));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));

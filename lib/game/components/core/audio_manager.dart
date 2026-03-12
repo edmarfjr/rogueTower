@@ -116,7 +116,8 @@ class AudioManager {
     if (_isMutedMusic) {
       FlameAudio.bgm.stop();
     } else {
-       playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
+      if(_currentBgm.isNotEmpty)playBgm(_currentBgm);
+      //playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
     }
   }
 

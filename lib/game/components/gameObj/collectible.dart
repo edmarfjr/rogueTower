@@ -7,6 +7,7 @@ import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
 import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
+import 'package:TowerRogue/game/components/projectiles/bombardmentEffect.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
@@ -43,13 +44,13 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico ,
+  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
-  activeStunBomb, activeFairy, activeUnicorn
+  activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov
 }
 
 
@@ -68,6 +69,7 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeStunBomb,
     CollectibleType.activeFairy,
     CollectibleType.activeUnicorn,
+    CollectibleType.activeBombardeio,
   ];
   return recarregaveis.contains(type);
 }
@@ -85,6 +87,7 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeRerollItem,
     CollectibleType.activeBandage,
     CollectibleType.activeUnicornUnico,
+    CollectibleType.activeBombardeioUnico,
   ];
   return usoUnico.contains(type);
 }
@@ -379,13 +382,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     String clasId = '';
     String clasNome = '';
+
     switch (type){
       case CollectibleType.activeLicantropia:
         clasId = 'licantropo';
-        clasNome = 'LICANTROPO';
-        print('LOBIZOME');
+        clasNome = 'licantropo'.tr();
+      case CollectibleType.molotov:
+        clasId = 'multidao';
+        clasNome = 'multidao'.tr();
       default:
-        print(type.toString());
 
     }
 
@@ -652,6 +657,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': MdiIcons.unicornVariant, 'color': Pallete.laranja};
       case CollectibleType.activeUnicornUnico:
         return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': MdiIcons.unicornVariant, 'color': Pallete.amarelo};
+      case CollectibleType.activeBombardeio:
+        return {'name': 'activeBombardeio'.tr(), 'desc': 'activeBombardeioDesc'.tr(), 'icon': MdiIcons.airplaneRemove, 'color': Pallete.vermelho};
+      case CollectibleType.activeBombardeioUnico:
+        return {'name': 'activeBombardeio'.tr(), 'desc': 'activeBombardeioDesc'.tr(), 'icon': MdiIcons.airplaneRemove, 'color': Pallete.laranja};
+      case CollectibleType.curaCrit:
+        return {'name': 'curaCrit'.tr(), 'desc': 'curaCritDesc'.tr(), 'icon': MdiIcons.bloodBag, 'color': Pallete.vermelho};
+      case CollectibleType.molotov:
+        return {'name': 'molotov'.tr(), 'desc': 'molotovDesc'.tr(), 'icon': MdiIcons.bottleWine, 'color': Pallete.laranja};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -792,6 +805,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeBandage,
       CollectibleType.activeMidas,
       CollectibleType.goldDmg,
+      CollectibleType.activeBombardeioUnico,
     ];
     
     return _filtrarPool(itens, player);
@@ -850,6 +864,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeMagicMirror,
       CollectibleType.charmOnCrit,
       CollectibleType.activeUnicorn,
+      CollectibleType.activeBombardeio,
+      CollectibleType.molotov,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1567,6 +1583,39 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break; 
           
+        case CollectibleType.activeBombardeio:
+          game.world.add(BombardmentEffect(
+            totalExplosions: 12,           
+            interval: 0.2,                 
+            damage: player.damage * 5,
+          ));
+          text = "activeBombardeio";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeBombardeioUnico:
+          game.world.add(BombardmentEffect(
+            totalExplosions: 12,           
+            interval: 0.2,                 
+            damage: player.damage * 5,
+          ));
+          text = "activeBombardeio";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.curaCrit:
+          player.isCritHeal = true;
+          text = "curaCrit";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.molotov:
+          player.isMorteiro = true;
+          player.increaseFireRate(2);
+          text = "molotov";
+          //color = Pallete.vermelho;
+          break;
+
         default:
           text = "";
           break;

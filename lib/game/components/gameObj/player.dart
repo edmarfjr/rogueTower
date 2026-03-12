@@ -130,6 +130,7 @@ class Player extends PositionComponent
   bool shieldCrit = false;
   bool isUnicorn = false;
   double unicornTmr = 0;
+  bool isCritHeal = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -149,6 +150,7 @@ class Player extends PositionComponent
   GameIcon? _currentAccessory;
   double _baseAccessoryOffsetX = 0.0;
   double _baseAccessoryScaleX = 1.0;
+  IconData icone = Icons.directions_walk;
 
   CircleComponent? _dodgeAura;
   double _auraPulseTimer = 0.0;
@@ -352,7 +354,7 @@ class Player extends PositionComponent
         _visual.removeFromParent();
 
         _visual = GameIcon(
-          icon: Icons.directions_walk,
+          icon: icone,
           color: Pallete.branco,
           size: size * 1.2, 
           anchor: Anchor.center,
@@ -388,7 +390,7 @@ class Player extends PositionComponent
         _visual.removeFromParent();
 
         _visual = GameIcon(
-          icon: Icons.directions_walk,
+          icon: icone,
           color: Pallete.branco,
           size: size * 1.2, 
           anchor: Anchor.center,
@@ -549,6 +551,21 @@ class Player extends PositionComponent
         _currentAccessory!.angle = charClass.acessoryAngle;
         _currentAccessory!.priority = 1;
         add(_currentAccessory!);
+      }
+      if(charClass.mudaIcone){
+         _visual.removeFromParent();
+
+        _visual = GameIcon(
+          icon: charClass.icon,
+          color: Pallete.branco,
+          size: size * 1.2, 
+          anchor: Anchor.center,
+          position: size / 2,
+        );
+        currentColor = Pallete.branco;
+        add(_visual);
+
+        icone = charClass.icon;
       }
 
     }
@@ -846,9 +863,9 @@ class Player extends PositionComponent
           targetPos: target.position.clone(),
           owner: this,
           flightDuration: 1,
-          damage: damage,
+          damage: damage * 2,
           isFire: true,
-          explosionRadius: 60,
+          explosionRadius: 100,
           isPlayer: true,
         ));
       }else{
@@ -1052,7 +1069,8 @@ class Player extends PositionComponent
     charmOnCrit = false;
     isFreezeDash = false;
     goldDmg = false;
-    shieldCrit = true;
+    shieldCrit = false;
+    isCritHeal = false;
 
     _visual.setColor(Pallete.branco);
   }

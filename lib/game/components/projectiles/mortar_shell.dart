@@ -38,10 +38,21 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
 
   @override
   Future<void> onLoad() async {
+
+    IconData icon = MdiIcons.bomb;
+    Color cor = Pallete.lilas;
+
+    if(isFire){
+      icon = MdiIcons.bottleWine;
+      cor = Pallete.laranja;
+    }
+    if(isPoison){
+      cor = Pallete.verdeCla;
+    }
     // Criamos o visual
     _visualChild = GameIcon(
-      icon: MdiIcons.bomb, 
-      color: Pallete.lilas,
+      icon: icon, 
+      color: cor,
       size: Vector2.all(24),
       anchor: Anchor.center,
       // Importante: posição relativa ao centro do pai

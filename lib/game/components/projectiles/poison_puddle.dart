@@ -18,8 +18,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   double _damageTickTimer = 0; 
   bool _playerIsInside = false;
   bool isFire;
-
-  // --- NOVA VARIÁVEL: Rastreia todos os inimigos pisando na poça ---
+  double _animTmr = 0;
+  final double _bounceSpeed = 15.0;     
+  final double _bounceAmplitude = 0.15; 
   final Set<Enemy> _enemiesInside = {};
 
   GameIcon? visual;
@@ -63,22 +64,25 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       period: 0.5, 
       repeat: true,
       onTick: () {
-        Color particleColor = isFire ? Pallete.vermelho : Pallete.verdeCla;
+        Color particleColor = isFire ? Pallete.laranja : Pallete.verdeCla;
         final rng = Random();
+
+        final double posX = rng.nextDouble() * size.x - size.x/2 ;
+        final double accX = rng.nextDouble() * size.x - size.x/2 ;
 
         final particleSystem = ParticleSystemComponent(
           particle: Particle.generate(
-            count: 3, 
+            count: 5, 
             lifespan: 0.5, 
             generator: (i) => AcceleratedParticle(
-              acceleration: Vector2(0, -150), 
+              acceleration: Vector2(accX, -150), 
               speed: Vector2((rng.nextDouble() - 0.5) * 60, -20), 
-              position: Vector2(size.x / 2, size.y / 2),
+              position: Vector2((size.x / 2) + posX, size.x / 8),
               child: ComputedParticle(
                 renderer: (canvas, particle) {
                   final paint = Paint()
                     ..color = particleColor.withOpacity(1.0 - particle.progress);
-                  canvas.drawCircle(Offset.zero, 3.0, paint); 
+                  canvas.drawCircle(Offset.zero, size.y/10, paint); 
                 }
               ),
             ),
@@ -120,11 +124,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
         }
       }
 
-      // Zera o cronômetro para o próximo "Tick"
       _damageTickTimer = 0; 
     }
 
-    // --- 2. LÓGICA DE FADE OUT ---
     if (_lifeTimer > duration - 1.0) {
        double currentOpacity = (duration - _lifeTimer).clamp(0.0, 1.0);
        if (visual != null) {
@@ -135,9 +137,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     if (_lifeTimer >= duration) {
       removeFromParent();
     }
-  }
 
-  // --- CONTROLE DE QUEM ENTRA E SAI DA POÇA ---
+    if(isFire)_animateMovement(dt);
+  }
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
@@ -147,7 +149,6 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       _playerIsInside = true;
     }
     
-    // Anota o inimigo na lista quando ele pisa
     if (other is Enemy && isPlayer) {
       _enemiesInside.add(other);
     }
@@ -162,9 +163,25 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       _damageTickTimer = 0; 
     }
     
-    // Tira o inimigo da lista quando ele sai
     if (other is Enemy && isPlayer) {
       _enemiesInside.remove(other);
     }
+  }
+
+  void _animateMovement(double dt) {
+    double currentScaleX = 1.0;
+    double currentScaleY = 1.0;
+    double currentAngle = 0.0;
+
+    _animTmr += dt * _bounceSpeed;
+
+    double wave = sin(_animTmr);
+    currentScaleY = 1.0 + (wave * _bounceAmplitude); 
+    currentScaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
+    currentAngle = cos(_animTmr) * 0.1; 
+    
+    visual!.scale.setValues(currentScaleX, currentScaleY);
+    visual!.angle = currentAngle; 
+
   }
 }

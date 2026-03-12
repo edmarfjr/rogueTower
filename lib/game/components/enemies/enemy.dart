@@ -440,13 +440,24 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if(gameRef.player.charmOnCrit){
         setCharm();
       }
-      
+      if(gameRef.player.isCritHeal){
+        double rng = Random().nextDouble();
+        if(rng < 0.5){
+          gameRef.world.add(FloatingText(
+            text: 'Cura!',
+            position: gameRef.player.position.clone() + Vector2(0, -10), 
+            //color: Pallete.branco, 
+            fontSize: 14,
+          ));
+          gameRef.player.curaHp(1);
+        } 
+      }
     } 
 
     if (dmg > 0){
       gameRef.world.add(FloatingText(
         text: dmg.toInt().toString(),
-        position: position + Vector2(0, -10), 
+        position: position.clone() + Vector2(0, -10), 
         color: cor, 
         fontSize: fontSize,
       ));

@@ -19,6 +19,7 @@ class CharacterClass {
   final double acessoryAngle;
   final bool flipAccessoryBase;
   final bool semAcessorio;
+  final bool mudaIcone;
 
   // Atributos Base
   final int maxHp;
@@ -74,6 +75,7 @@ class CharacterClass {
     this.unlockConditionText = "",
     this.startingItems = const [],
     this.semAcessorio = false,
+    this.mudaIcone = false,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -92,7 +94,7 @@ class CharacterRoster {
       accessorySize: 24.0,
       flipAccessoryBase: true,
       color: Pallete.cinzaCla, 
-      startingShield: 2,
+      //startingShield: 2,
       maxHp: 6,
       maxDash: 2,
       speed: 150.0,
@@ -240,12 +242,34 @@ class CharacterRoster {
       critDamage: 1.5,
       dashCooldown: 2.5,
       attackRange: 0.7,
-      startingShield: 2,
       startingItems: [
         CollectibleType.activeLicantropia,
       ],
       isUnlockedByDefault: false,
       unlockConditionText: "licantropoCond".tr(),//"Adquira Licantropia"
+    ),
+    CharacterClass(
+      id: "multidao",
+      name: "multidao".tr(),
+      description: "multidaoDesc".tr(),//"Pode se transformar em lobo",
+      icon: MdiIcons.humanQueue,
+      semAcessorio: true,
+      mudaIcone: true,
+      color: Pallete.branco, 
+      maxHp: 6,
+      maxDash: 2,
+      speed: 150.0,
+      damage: 10.0,
+      fireRate: 0.8,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      startingItems: [
+        CollectibleType.molotov,
+      ],
+      isUnlockedByDefault: false,
+      unlockConditionText: "multidaoCond".tr(),//"Adquira Licantropia"
     ),
   ];
 }

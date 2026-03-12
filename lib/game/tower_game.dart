@@ -411,8 +411,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
     //collisionDetection.items.clear();
-    SaveManager.saveRun(this);
+    saveGame();
     startLevel();
+  }
+
+  void saveGame(){
+    SaveManager.saveRun(this);
   }
 
   void onGameOver() {

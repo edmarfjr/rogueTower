@@ -104,6 +104,7 @@ class SaveManager {
       'isFreezeDash':game.player.isFreezeDash,
       'goldDmg':game.player.goldDmg,
       'shieldCrit':game.player.shieldCrit,
+      'isCritHeal':game.player.isCritHeal,
     };
 
     String jsonString = jsonEncode(runData);
@@ -225,6 +226,7 @@ class SaveManager {
     game.player.isFreezeDash = runData['isFreezeDash'] ?? false;
     game.player.goldDmg = runData['goldDmg'] ?? false;
     game.player.shieldCrit = runData['shieldCrit'] ?? false;
+    game.player.isCritHeal = runData['isCritHeal'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
   }
