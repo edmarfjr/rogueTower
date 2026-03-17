@@ -107,13 +107,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
         _unlockDoors();
         _levelCleared = true;
-        print('room cleared');
+        if(gameRef.currentRoom == 0 && gameRef.currentLevel==1)return;
         gameRef.saveGame();
       }
     }
   }
 
-  void startRoom(int roomNumber) {
+  void startRoom(int roomNumber,{continuar = false}) {
     
     _levelCleared = false;
     _checkTimer = 0.0; 

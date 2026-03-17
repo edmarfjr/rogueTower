@@ -3,9 +3,10 @@ import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class InteractButton extends PositionComponent with TapCallbacks {
+class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandler {
   final VoidCallback onTrigger;
 
   // Pega o tamanho real da tela neste exato frame
@@ -51,4 +52,15 @@ class InteractButton extends PositionComponent with TapCallbacks {
   void onTapDown(TapDownEvent event) {
     onTrigger();
   }
+
+  @override
+  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+
+    if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
+      onTrigger();
+    }
+    return true;
+    
+  }
+
 }

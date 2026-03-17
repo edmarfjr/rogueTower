@@ -272,4 +272,18 @@ class CharacterRoster {
       unlockConditionText: "multidaoCond".tr(),//"Adquira Licantropia"
     ),
   ];
+
+  static CharacterClass getClassById(String? id) {
+    if (id == null) return classes.first; // Retorna o Guerreiro por defeito se for nulo
+
+    for (var charClass in classes) {
+      if (charClass.id == id) {
+        return charClass;
+      }
+    }
+    
+    // Se não encontrar o ID (por exemplo, se mudou o nome da classe num update), retorna a primeira
+    return classes.first; 
+  }
+
 }

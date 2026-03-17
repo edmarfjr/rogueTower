@@ -255,6 +255,9 @@ class Player extends PositionComponent
     if (keysPressed.contains(LogicalKeyboardKey.space)) {
       startDash();
     }
+    if (keysPressed.contains(LogicalKeyboardKey.shiftLeft)) {
+      criaBomba();
+    }
     return true;
   }
 
@@ -724,7 +727,7 @@ class Player extends PositionComponent
     if (criaHazardTmr >= tmp) {
       gameRef.world.add(
         PoisonPuddle(
-          position: position.clone(), 
+          position: position.clone() + Vector2(0, size.y/2), 
           isPlayer: true,
           isFire: isFire,
         ),
@@ -837,6 +840,10 @@ class Player extends PositionComponent
     }
   }
 
+  void resetAttackTimer() {
+    _attackTimer = 0;
+  }
+
   void _handleAutoAttack(double dt) {
     _attackTimer += dt;
     double fRate = fireRate;
@@ -856,6 +863,7 @@ class Player extends PositionComponent
     }
 
     if (target != null) {
+      print("🎯 ALVO ENCONTRADO! Tentando atirar...");
       _attackTimer = 0;
       if(isMorteiro){
         gameRef.world.add(MortarShell(

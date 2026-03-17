@@ -6,22 +6,17 @@ import '../../tower_game.dart';
 class SaveManager {
   static const String _saveKey = 'active_run_state';
 
-  // ==========================================
-  // 1. SALVAR O JOGO (Tirar a Foto)
-  // ==========================================
   static Future<void> saveRun(TowerGame game) async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Desmonta a lista de objetos complexos em uma lista de Mapas simples
-    // (Ajuste "game.player" para "game" se a sua lista de itens estiver no TowerGame)
     List<Map<String, dynamic>> serializedItems = game.player.getAcquiredItemsList().map((item) {
       return {
         'name': item.name,
         'description': item.description,
-        'iconCodePoint': item.icon.codePoint, // Extrai o código numérico do ícone
-        'iconFontFamily': item.icon.fontFamily, // Extrai a família da fonte (ex: MaterialIcons)
+        'iconCodePoint': item.icon.codePoint, 
+        'iconFontFamily': item.icon.fontFamily, 
         'iconFontPackage': item.icon.fontPackage,
-        'colorValue': item.color.value, // Extrai o código hexadecimal da cor em número (int)
+        'colorValue': item.color.value,
       };
     }).toList();
 
@@ -40,6 +35,7 @@ class SaveManager {
       'shield': game.player.shieldNotifier.value,
       'bombs': game.player.bombNotifier.value,
       'dash': game.player.dashNotifier.value,
+      'playerClassId': game.selectedClass.id,
 
       // --- INVENTÁRIO DE ARTEFATOS ---
       'acquiredItems': serializedItems,
@@ -112,16 +108,13 @@ class SaveManager {
     print("💾 Run salva com sucesso (Nível ${game.currentLevelNotifier.value}, Sala ${game.currentRoomNotifier.value})!");
   }
 
-  // ==========================================
-  // 2. CARREGAR O JOGO (Revelar a Foto)
-  // ==========================================
-  static Future<void> loadRun(TowerGame game) async {
+  static Future<String?> loadRun(TowerGame game) async {
     final prefs = await SharedPreferences.getInstance();
     
-    if (!prefs.containsKey(_saveKey)) return;
+    if (!prefs.containsKey(_saveKey)) return null;
 
     String? jsonString = prefs.getString(_saveKey);
-    if (jsonString == null) return;
+    if (jsonString == null) return null;
 
     final Map<String, dynamic> runData = jsonDecode(jsonString);
 
@@ -179,6 +172,11 @@ class SaveManager {
     game.player.dashCooldown = (runData['dashCooldown'] ?? 2.5).toDouble();
     game.player.invincibilityDuration = (runData['invincibilityDuration'] ?? 0.5).toDouble();
     game.player.stackBonus = (runData['stackBonus'] ?? 0).toInt();
+    game.player.maxArtificialHealth = (runData['maxArtificialHealth'] ?? 0).toInt();
+    game.player.artificialHealthNotifier.value = (runData['artificialHealthNotifier'] ?? 0).toInt();
+    game.player.velocity.setZero();
+    game.player.resetAttackTimer();
+    game.player.unicornTmr = 0;
 
     // --- CARREGA FLAGS E POWER-UPS ---
     game.player.isBerserk = runData['isBerserk'] ?? false;
@@ -216,8 +214,6 @@ class SaveManager {
     game.player.isMorteiro = runData['isMorteiro'] ?? false;
     game.player.hasBattery = runData['hasBattery'] ?? false;
     game.player.hasShieldRegen = runData['hasShieldRegen'] ?? false;
-    game.player.maxArtificialHealth = runData['maxArtificialHealth'] ?? false;
-    game.player.artificialHealthNotifier.value = runData['artificialHealthNotifier'] ?? false;
     game.player.isShootSplits = runData['isShootSplits'] ?? false;
     game.player.confuseOnCrit = runData['confuseOnCrit'] ?? false;
     game.player.isBombSplits = runData['isBombSplits'] ?? false;
@@ -227,13 +223,12 @@ class SaveManager {
     game.player.goldDmg = runData['goldDmg'] ?? false;
     game.player.shieldCrit = runData['shieldCrit'] ?? false;
     game.player.isCritHeal = runData['isCritHeal'] ?? false;
+    game.player.isUnicorn = false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
+    return runData['playerClassId'];
   }
 
-  // ==========================================
-  // 3. VERIFICAR E APAGAR O SAVE
-  // ==========================================
   static Future<bool> hasSavedRun() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey(_saveKey);

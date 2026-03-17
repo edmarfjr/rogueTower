@@ -443,7 +443,7 @@ class EnemyFactory {
       bossName: "truQueen".tr(),
       hp: 1200, // Vida da Fase 1
       position: Vector2(0, -100),
-      speed: 80,
+      speed: 120,
       soul: 300, 
       hbSize: Vector2(34,54),
       iconData: MdiIcons.chessQueen,
@@ -512,7 +512,7 @@ class EnemyFactory {
       hasGhostEffect: true,
       hbSize: Vector2(24,24),
       iconData: MdiIcons.unicorn,
-      originalColor: Pallete.lilas,
+      originalColor: Pallete.bege,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ChargeAttackBehavior(
         detectRange: 180, 
@@ -745,7 +745,7 @@ class EnemyFactory {
       bossName: "megalodon".tr(),
       hp: 1800, // Vida da Fase 1
       position: Vector2(0, -100),
-      speed: 100,
+      speed: 120,
       iconData: MdiIcons.shark,
       hbSize: Vector2(50,50),
       soul: 350, 
@@ -758,12 +758,12 @@ class EnemyFactory {
         ],
         phase1Attacks: [
           ChargeAttackBehavior(
-            detectRange: 180, 
+            detectRange: 300, 
             chargeSpeed: 400, 
             prepTime: 0.6,   
           ),
           DropHazardBehavior(
-            interval: 1.5, 
+            interval: 0.5, 
             hazardBuilder: (p,owner) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
           ),
         ],

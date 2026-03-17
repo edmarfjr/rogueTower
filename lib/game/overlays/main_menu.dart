@@ -63,15 +63,7 @@ class MainMenu extends StatelessWidget {
                           textColor: Colors.black,
                           onPressed: () async {
                             AdManager.loadRewardedAd();
-                            await SaveManager.loadRun(game);
-                            
-                            // Remove o menu da tela para o jogo voltar a rodar com os status carregados
-                            game.overlays.remove('MainMenu'); 
-                            game.resumeEngine(); 
-                            game.overlays.add('HUD');
-                            game.startLevel();
-                            // Se a sua engine pausa quando o menu abre, descomente a linha abaixo:
-                             
+                            game.continueGame(); 
                           },
                         ),
                         const SizedBox(height: 15),

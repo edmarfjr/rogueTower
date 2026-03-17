@@ -1,14 +1,9 @@
 import 'dart:math';
-//import 'dart:ui';
 import 'dart:async';
-//import 'dart:ui' as ui;
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
-//import 'package:TowerRogue/game/components/gameObj/bank_atm.dart';
-//import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
-//import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -17,17 +12,11 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart'; 
 import 'package:TowerRogue/game/components/gameObj/player.dart';
-//import 'package:TowerRogue/game/components/enemies/enemy.dart';
-//import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/core/room_manager.dart';
-//import 'package:TowerRogue/game/components/projectiles/projectile.dart';
-//import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
-//import 'components/gameObj/wall.dart';
 import 'components/gameObj/arena_border.dart';
 import 'components/core/game_progress.dart';
-import 'overlays/bank_menu.dart';
 import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
@@ -102,36 +91,28 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     
     await progress.load();
     debugMode = false;
-    // 1. VIEWPORT (Janela do Jogo)
     //camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
     camera.viewport = MaxViewport();
 
-    // 2. CONSTRUÇÃO MANUAL DO JOYSTICK
-    // Base (O círculo cinza no fundo)
     joystickBase = CircleComponent(
       radius: _maxRadius,
       paint: Paint()..color = Colors.grey.withOpacity(0.3),
-      anchor: Anchor.center, // Importante: Centro no pivô
-      priority: 900,         // Alto, mas abaixo do knob
+      anchor: Anchor.center,
+      priority: 900,        
     );
 
-    // Knob (A bolinha branca que mexe)
     joystickKnob = CircleComponent(
       radius: 20,
       paint: Paint()..color = Colors.white.withOpacity(0.8),
       anchor: Anchor.center,
-      priority: 901,         // Mais alto para ficar em cima da base
+      priority: 901,         
     );
 
-    // Esconde eles inicialmente (jogando pra longe)
     joystickBase.position = Vector2(-1000, -1000);
     joystickKnob.position = Vector2(-1000, -1000);
 
-    // ADICIONA AO VIEWPORT (Para ficarem fixos na tela, tipo HUD)
     camera.viewport.add(joystickBase);
     camera.viewport.add(joystickKnob);
-
-    // 3. CONFIGURAÇÃO DA ARENA
 
     arenaBorder = ArenaBorder(
       size: Vector2(gameWidth, gameHeight),
@@ -142,10 +123,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     camera.setBounds(
       Rectangle.fromLTWH(-60, -60, 120, 130),
-      considerViewport: false, // Force a parada independente do tamanho da tela
+      considerViewport: false, 
     );
 
-    // 4. MUNDO E ENTIDADES
     roomManager = RoomManager();
     add(roomManager);
 
@@ -157,8 +137,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     transitionEffect = ScreenTransition();
     camera.viewport.add(transitionEffect);
     camera.viewfinder.anchor = Anchor.center;
-
-    overlays.addEntry('bank_menu', (context, game) => BankMenu(game: this));
 
     FlameAudio.bgm.initialize();
 
@@ -175,7 +153,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     super.update(dt); 
 
-    // --- NOVA LÓGICA DO TREMOR (À PROVA DE FALHAS) ---
     if (_shakeTimer > 0) {
       _shakeTimer -= dt;
       
@@ -183,11 +160,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
       double offsetX = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       double offsetY = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       
-      // O PULO DO GATO: Nós trememos a tela do celular (viewport), 
-      // e não o mundo virtual do jogo. Assim não briga com o camera.follow()!
       camera.viewport.position = Vector2(offsetX, offsetY);
 
-      // Quando o tempo acabar, temos que garantir que a tela volta para o centro
       if (_shakeTimer <= 0) {
         camera.viewport.position = Vector2.zero();
       }
@@ -195,7 +169,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void triggerHitStop(double duration) {
-    // Se já estiver em um hit stop, pega o maior (para não cancelar um hit stop longo com um curto)
     if (duration > _hitStopTimer) {
       _hitStopTimer = duration;
     }
@@ -212,12 +185,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     try {
       final shader = _crtProgram.fragmentShader();
 
-      // Pega a densidade real da tela
       final pixelRatio = ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
 
       shader.setFloat(0, _shaderTime);
       
-      // Resolução perfeita usando apenas o tamanho do Flame multiplicado pela densidade
       shader.setFloat(1, size.x * pixelRatio); 
       shader.setFloat(2, size.y * pixelRatio);
 
@@ -237,79 +208,63 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     _shakeIntensity = intensity;
     _shakeTimer = duration;
 
-    // --- LÓGICA DE VIBRAÇÃO FÍSICA NO CELULAR ---
-    // Se o tremor for forte (como o do Boss), dá um "Tranco" pesado
     if (intensity >= 6.0) {
       HapticFeedback.heavyImpact();
     } 
-    // Se for um tremor mais fraco (dano comum), vibra mais suave
     else {
       HapticFeedback.vibrate(); 
     }
   }
-  // Tira da Carteira (Atual) -> Põe no Banco (Persistente)
+
   void depositCoins(int amount) {
     if (coinsNotifier.value >= amount) {
-      coinsNotifier.value -= amount; // Tira da mão
-      progress.depositToBank(amount); // Salva no banco
+      coinsNotifier.value -= amount; 
+      progress.depositToBank(amount); 
     }
   }
 
-  // Tira do Banco (Persistente) -> Põe na Carteira (Atual)
   void withdrawCoins(int amount) async {
-    // Tenta sacar do banco
     bool success = await progress.withdrawFromBank(amount);
     
     if (success) {
-      coinsNotifier.value += amount; // Põe na mão
+      coinsNotifier.value += amount; 
     }
   }
 
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
-    // 2. A MÁGICA: Se já temos um dedo controlando o joystick, ignora esse novo toque!
     if (_joystickPointerId != null) return;
     
-    // Grava o ID do dedo que acabou de tocar para ser o "Dono" do joystick
     _joystickPointerId = pointerId;
 
-    // Converte o toque da tela para coordenadas do Viewport (360x640)
     final screenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
 
-    // Posiciona a BASE e o KNOB exatamente onde tocou
     joystickBase.position = screenPosition;
     joystickKnob.position = screenPosition;
     
-    // Zera o movimento inicial
     joystickDelta = Vector2.zero();
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    // 3. SEGREGAÇÃO: Se o dedo que está movendo não for o Dono, ignora!
     if (pointerId != _joystickPointerId) return;
 
-    // Onde o dedo está AGORA (no viewport)
     final currentScreenPosition = camera.viewport.globalToLocal(info.eventPosition.widget);
     
-    // Calcula a distância entre o dedo e o centro da base
     final dragVector = currentScreenPosition - joystickBase.position;
     
-    // Limita o movimento ao raio máximo
     if (dragVector.length > _maxRadius) {
       joystickKnob.position = joystickBase.position + (dragVector.normalized() * _maxRadius);
     } else {
       joystickKnob.position = currentScreenPosition;
     }
 
-    // CALCULA O DELTA (Isso é o que o Player usa para andar)
     final rawDelta = joystickKnob.position - joystickBase.position;
     joystickDelta = rawDelta / _maxRadius;
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
-    // Só reseta o joystick se o dedo que levantou for o Dono
     if (pointerId == _joystickPointerId) {
       _resetJoystick();
     }
@@ -317,21 +272,17 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   @override
   void onDragCancel(int pointerId) {
-    // Só cancela se for o Dono
     if (pointerId == _joystickPointerId) {
       _resetJoystick();
     }
   }
 
   void _resetJoystick() {
-    // Libera o joystick para um novo dedo no futuro
     _joystickPointerId = null; 
     
-    // Some com o joystick visualmente
     joystickBase.position = Vector2(-1000, -1000);
     joystickKnob.position = Vector2(-1000, -1000);
     
-    // Para o player
     joystickDelta = Vector2.zero();
   }
 
@@ -377,12 +328,34 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-    //AudioManager.playBgm('8bit_menu.mp3');
+    AudioManager.playBgm('8bit_menu.mp3');
   }
 
-  void startLevel() {
+  void startLevel({continuar = false}) {
     player.position = Vector2(0, 250); 
-    roomManager.startRoom(currentRoom);
+    roomManager.startRoom(currentRoom,continuar: continuar);
+  }
+
+  void continueGame() async {
+    // 1. Limpa o mundo ANTES de carregar para evitar fantasmas da sessão anterior!
+    world.removeAll(world.children.where((c) => c != player && c != arenaBorder && c != roomManager));
+
+    // 2. Carrega o Save
+    String? savedClassId = await SaveManager.loadRun(this);
+
+    selectedClass = CharacterRoster.getClassById(savedClassId);
+
+    // 3. RECONSTRÓI AS POOLS! (É isto que impedia o jogador de atirar!)
+    itensComunsPoolCurrent = retornaItensComuns(player);
+    itensRarosPoolCurrent = retornaItensRaros(player);
+
+    // 4. Muda a UI e retoma o motor
+    overlays.remove('MainMenu');
+    overlays.add('HUD');
+    resumeEngine();
+
+    // 5. Inicia a fase avisando que é um load
+    startLevel(continuar: true);
   }
 
   void nextLevel(CollectibleType chosenReward,{bool mesmaSala = false}) {
@@ -455,7 +428,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     itensComunsPoolCurrent.shuffle();
     itensRarosPoolCurrent.shuffle();
     
-   // AudioManager.playBgm('funny_bit.mp3');
+    AudioManager.playBgm('funny_bit.mp3');
     startLevel();
   }
 }

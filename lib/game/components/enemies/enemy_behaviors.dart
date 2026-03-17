@@ -271,8 +271,9 @@ class BouncerBehavior extends MovementBehavior {
   }
 
   void _checkBounds() {
-    double halfWidth = enemy.size.x / 2;
-    double halfHeight = enemy.size.y / 2;
+    
+    double halfWidth = enemy.size.x / 2 + 10;
+    double halfHeight = enemy.size.y / 2 + 10;
 
     double rightLimit = (TowerGame.gameWidth / 2) - halfWidth;
     double leftLimit = -(TowerGame.gameWidth / 2) + halfWidth;
@@ -810,10 +811,11 @@ class ChargeAttackBehavior extends AttackBehavior {
     }
     else if (_state == 3) {
       _timer += dt;
-      if (_timer >= 1.5) { 
+      if (_timer >= 0.5) { 
+        enemy.canMove = true;
         _state = 0; 
         _timer = 0;
-        enemy.canMove = true; 
+         
         visual?.setColor(enemy.originalColor); 
       }
     }
@@ -827,7 +829,6 @@ class ChargeAttackBehavior extends AttackBehavior {
         _stopCharge();
       }
       
-      // Se bater no jogador ou no decoy, também para o charge
       final target = getEnemyTarget(enemy);
       if (other == target) {
          _stopCharge();
