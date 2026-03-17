@@ -46,7 +46,7 @@ class SaveManager {
       'critChance': game.player.critChance,
       'critDamage': game.player.critDamage,
       'fireRate': game.player.fireRate,
-      'fireRateInicial': game.player.fireRateInicial,
+      'fireRateInicial': game.player.fireRateIni,
       'moveSpeed': game.player.moveSpeed,
       'dashDuration': game.player.dashDuration,
       'dashSpeed': game.player.dashSpeed,
@@ -165,7 +165,7 @@ class SaveManager {
     game.player.critChance = (runData['critChance'] ?? 5).toDouble();
     game.player.critDamage = (runData['critDamage'] ?? 2.0).toDouble();
     game.player.fireRate = (runData['fireRate'] ?? 0.4).toDouble();
-    game.player.fireRateInicial = (runData['fireRateInicial'] ?? 0.4).toDouble();
+    game.player.fireRateIni = (runData['fireRateInicial'] ?? 0.4).toDouble();
     game.player.moveSpeed = (runData['moveSpeed'] ?? 150.0).toDouble();
     game.player.dashDuration = (runData['dashDuration'] ?? 0.2).toDouble();
     game.player.dashSpeed = (runData['dashSpeed'] ?? 450).toDouble();

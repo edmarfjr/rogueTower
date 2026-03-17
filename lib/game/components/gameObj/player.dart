@@ -46,17 +46,22 @@ class Player extends PositionComponent
   double _invincibilityTimer = 0;
   double invincibilityDuration = 0.5; 
   // -----------------------
-  double attackRange = 1.0; // tempo que o tiro demora pra sumir
- // late CircleComponent _rangeIndicator;
+  double attackRange = 1.0; 
+  double attackRangeIni = 1.0;
   double _attackTimer = 0;
   double damage = 10.0;
+  double damageIni = 10.0;
+  double dotIni = 1.0;
   double dot = 1.0;
   double critChance = 5;
+  double critChanceIni = 5;
   double critDamage = 2.0;
+  double critDamageIni = 2.0;
   double fireRate = 0.4; 
-  double fireRateInicial = 0.4; 
+  double fireRateIni = 0.4; 
   double moveSpeed = 150.0;
-   int stackBonus = 0;
+  double moveSpeedIni = 150.0;
+  int stackBonus = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
   double bombButtonTimer = 0;
@@ -483,15 +488,21 @@ class Player extends PositionComponent
       bombNotifier.value = charClass.startingBombs;
       
       moveSpeed = charClass.speed;
+      //moveSpeedIni = charClass.speed;
       damage = charClass.damage;
+      //damageIni = charClass.damage;
       fireRate = charClass.fireRate;
-      fireRateInicial = charClass.fireRate;
+      //fireRateIni = charClass.fireRate;
       critChance = charClass.critChance;
+      //critChanceIni = charClass.critChance;
       critDamage = charClass.critDamage;
+      //critDamageIni = charClass.critDamage;
       attackRange = charClass.attackRange;
+      attackRangeIni = charClass.attackRange;
      // _rangeIndicator.radius = attackRange;
       dashCooldown = charClass.dashCooldown;
       dot = charClass.dot;
+      //dotIni = charClass.dot;
       stackBonus = charClass.stackBonus;
 
       isShotgun = charClass.isShotgun;
@@ -651,9 +662,9 @@ class Player extends PositionComponent
       _handleDustEffect(dt);
       if(isLicantropia || isUnicorn) _createGhostEffect(dt);
       if(criaPocaVeneno) _createHazard(dt); 
-      if(isConcentration) fireRate = fireRateInicial * 1.15;
+      if(isConcentration) fireRate = fireRateIni * 1.15;
     }else{
-      if(isConcentration) fireRate = fireRateInicial * 0.5;
+      if(isConcentration) fireRate = fireRateIni * 0.5;
     } 
     
     position.addScaled(velocity, dt); 
@@ -1024,7 +1035,7 @@ class Player extends PositionComponent
     critChance = 5;
     critDamage = 2.0;
     fireRate = 0.4; 
-    fireRateInicial = 0.4;
+    fireRateIni = 0.4;
     moveSpeed = 150.0;
     dashDuration = 0.3; 
     dashSpeed = 450;    
@@ -1154,7 +1165,7 @@ class Player extends PositionComponent
   void increaseFireRate(double multiplier) { 
     fireRate *= multiplier; 
     if (fireRate < 0.1) fireRate = 0.1; 
-    fireRateInicial = fireRate;
+    fireRateIni = fireRate;
   }
 
   void increaseMovementSpeed(double multiplier){
