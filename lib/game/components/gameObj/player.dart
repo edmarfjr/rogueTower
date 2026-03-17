@@ -12,6 +12,7 @@ import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:TowerRogue/game/components/projectiles/laser_beam.dart';
 import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
 //import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
@@ -136,6 +137,9 @@ class Player extends PositionComponent
   bool isUnicorn = false;
   double unicornTmr = 0;
   bool isCritHeal = false;
+  bool isLaser = false;
+  bool isWave = false;
+  bool isBomber = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -325,7 +329,7 @@ class Player extends PositionComponent
       }
     }
     _animateMovement(dt);
-    if(!isUnicorn)_handleAutoAttack(dt);
+    if(!isUnicorn && !isBomber)_handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
     _handleLicantropia(dt);
@@ -461,7 +465,7 @@ class Player extends PositionComponent
         if (foiSucesso)itemData.currentCharge = 0; 
       } else if (slotIndex == 1) {
         // Destrói o de uso único
-        currentItems[1] = null; 
+        if (foiSucesso) currentItems[1] = null;
       }
       activeItems.value = currentItems;
     }
@@ -506,6 +510,7 @@ class Player extends PositionComponent
       stackBonus = charClass.stackBonus;
 
       isShotgun = charClass.isShotgun;
+      isBomber = charClass.isBomber;
 
       for (var itemType in charClass.startingItems) {
 
@@ -810,7 +815,11 @@ class Player extends PositionComponent
     }
     if(artificialHealthNotifier.value > 0){
       artificialHealthNotifier.value -= amount;
-      maxArtificialHealth -= amount;
+      
+      if (artificialHealthNotifier.value % 2 == 0 ){
+        maxArtificialHealth -= 2;
+        print(maxArtificialHealth);
+      }
     }else{
       healthNotifier.value -= amount;
     }
@@ -874,7 +883,6 @@ class Player extends PositionComponent
     }
 
     if (target != null) {
-      print("🎯 ALVO ENCONTRADO! Tentando atirar...");
       _attackTimer = 0;
       if(isMorteiro){
         gameRef.world.add(MortarShell(
@@ -887,6 +895,10 @@ class Player extends PositionComponent
           explosionRadius: 100,
           isPlayer: true,
         ));
+      }else if(isLaser){
+        final dir = (target.position - position.clone()).normalized();
+        final angle = atan2(dir.y, dir.x);
+        criaLaser(dir,angle,target);
       }else{
         if(isShotgun){
           _shootAt(target,angleOffset: 0.075);
@@ -901,10 +913,22 @@ class Player extends PositionComponent
           }
         }
       }
-      
-      
     }
   }
+
+  void criaLaser(Vector2 dir,ang,target)
+  {
+    gameRef.world.add(LaserBeam(
+      position: position + (dir * 10),
+      angleRad: ang,
+      chargeTime: 0,
+      fireTime: fireRate,
+      target: target,
+      owner: this,
+      damage: gameRef.player.damage
+    ));
+  }
+
 
   double returnDamage(){
     double dmg = damage;
@@ -979,7 +1003,7 @@ class Player extends PositionComponent
       position: position.clone(), 
       direction: _tempDirection.clone(), 
       damage: dmg, 
-      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : 500,
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
       dieTimer: isBoomerang ? 1.0 : aRange,
       apagaTiros: hasAntimateria,
@@ -991,15 +1015,20 @@ class Player extends PositionComponent
       isOrbital: isOrbitalShot,
       isBoomerang: isBoomerang,
       splits: isShootSplits,
-      splitCount: isShootSplits? 5 : 0
+      splitCount: isShootSplits? 5 : 0,
+      isWave: isWave,         // <-- Transforma em onda!
+      maxRadius: 150,       // <-- Tamanho máximo
+      growthRate: 100,      // <-- Velocidade de expansão
+      sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
     ));
   }
 
   void criaBomba(){
+    if(!gameRef.usouBomba)gameRef.usouBomba = true;
     if(bombButtonTimer>0) return;
     bombButtonTimer = 0.5;
-    if (bombNotifier.value > 0){
-      bombNotifier.value--;
+    if (bombNotifier.value > 0 || isBomber){
+      if(!isBomber)bombNotifier.value--;
       gameRef.world.add(Bomb(
         position: position.clone(), 
         damage:30, 
@@ -1090,6 +1119,8 @@ class Player extends PositionComponent
     goldDmg = false;
     shieldCrit = false;
     isCritHeal = false;
+    isLaser = false;
+    isWave = false;
 
     _visual.setColor(Pallete.branco);
   }
@@ -1188,6 +1219,10 @@ class Player extends PositionComponent
   }
 
   void curaHp([int val = 1]){ 
+    if(maxArtificialHealth > 0 && artificialHealthNotifier.value < maxArtificialHealth){
+      artificialHealthNotifier.value ++;
+      val --;
+    }
     healthNotifier.value+=val;
     healthNotifier.value = min(healthNotifier.value,maxHealth);
   }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/game_progress.dart';
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -134,11 +135,15 @@ class EnemyBoss extends Enemy {
       switch (gameRef.currentLevel) {
         case 3:
           clasId = 'arqueiro';
-          clasNome = 'ARQUEIRO';
+          clasNome = 'arqueiro'.tr();
           break;
         case 5:
           clasId = 'exterminador';
-          clasNome = 'EXTERMINADOR';
+          clasNome = 'exterminador'.tr();
+          if(!gameRef.usouBomba){
+            clasId = 'bomberman';
+            clasNome = 'bomberman'.tr();
+          }
           break;
         default:
       }

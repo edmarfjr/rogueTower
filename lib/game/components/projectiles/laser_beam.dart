@@ -28,6 +28,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   bool _hasFired = false;
 
   final PositionComponent? owner;
+  final PositionComponent? target;
 
   RectangleHitbox? _hitbox;
 
@@ -36,6 +37,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
+    this.target,
     this.damage = 1,
     double length = 400,
     this.chargeTime = 1,
@@ -75,9 +77,19 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       AudioManager.playSfx('laser.mp3');
     }
 
-    if(isMoving && _hasFired){
-        angle += speed;
+    if (owner is Player) {
+      // 1. A origem do feixe fica colada no jogador
+      position = owner!.position.clone();
+      
+      // 2. A ponta aponta para o alvo (se ele ainda existir no mundo)
+      if (target != null && target!.isMounted) {
+        final directionVector = target!.position - position;
+        angle = atan2(directionVector.y, directionVector.x);
       }
+    } else if (isMoving && _hasFired) {
+      // Mantém a sua lógica original para os lasers inimigos que giram
+      angle += speed;
+    }
 
     _updateLaserLength(); 
 
@@ -185,28 +197,26 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     if (isEnemyProjectile) {
       if (other is Player) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-        other.takeDamage(1); // Jogador toma 1 de dano (1 coração)
-        //removeFromParent();
+        other.takeDamage(1); 
       }
     } 
     else {
       if (other is Enemy) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
         other.takeDamage(damage,critico:critico);
-        //removeFromParent();
       }
     } 
     /*
     if (other is ScreenHitbox) {
       createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
       removeFromParent();
-    }
+    }*/
     if (other is Wall) {
       other.vida--;
       if (other.vida <=0) other.removeFromParent();
-      createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
-      removeFromParent(); 
+      createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
+      //removeFromParent(); 
     }
-    */
+    
   }
 }

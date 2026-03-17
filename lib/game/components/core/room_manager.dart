@@ -125,8 +125,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeBombardeioUnico));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.molotov));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeHeal));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeArtHp));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -284,6 +284,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _triggerBossSpawnSequence() {
+    AudioManager.stopBgm();
     isSpawnningBoss = true;
     // A posição onde o Boss vai cair/nascer
     final spawnPos = Vector2(0, -150);
@@ -318,6 +319,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         } else if (gameRef.currentLevel == 5) {
           gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
         }
+        AudioManager.playBgm('retro_plat.mp3');
         isSpawnningBoss = false;
         // 5. Interface: 
         // Aqui o Boss já foi adicionado. Se você tiver uma classe de HUD para a vida do Boss,

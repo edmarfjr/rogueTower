@@ -16,22 +16,23 @@ enum FamiliarType {
   decoy,
   block,
   atira,
-  fly
+  fly,
+  turret
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   GameIcon? visual;
-  double followDistance = 0;//120.0; 
-  double speed = 0; 
+  double followDistance;//120.0; 
+  double speed; 
   final FamiliarType type;
   final Vector2 _tempDirection = Vector2.zero(); 
   double _attackTimer = 0;
-  double fireRate = 2;
+  double fireRate;
   final Player player;
   double offsetX;
   double offsetY;
   double detectRadius = 600;
-  bool retorna = true;
+  bool retorna;
 
   //variaveis do fly
   double _currentAngle = 0;
@@ -49,6 +50,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     this.offsetX = 0,
     this.offsetY = 0,
     this.angleOffset = 0, 
+    this.retorna = true,
+    this.fireRate = 2,
     }) : super(position: position , size: Vector2.all(32), anchor: Anchor.center) {
     priority = 10; 
   }
@@ -79,6 +82,9 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         speed = 4;
         size = Vector2.all(16);
         ang = pi/4;
+      case FamiliarType.turret:
+        icon = MdiIcons.towerFire;
+        cor = Pallete.vermelho.withOpacity(0.7);
     }
 
 
@@ -141,7 +147,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         position += direction * speed * dt;
       }
 
-      if(type == FamiliarType.atira){
+      if(type == FamiliarType.atira || type == FamiliarType.turret){
         _handleAutoAttack(dt);
       }
     }

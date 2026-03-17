@@ -28,6 +28,8 @@ class SaveManager {
       'coins': game.coinsNotifier.value,
       'keys': game.keysNotifier.value,
       'souls': game.progress.soulsNotifier.value,
+
+      'usouBomba': game.usouBomba,
       
       // Vida e Recursos do Jogador
       'hp': game.player.healthNotifier.value,
@@ -101,6 +103,7 @@ class SaveManager {
       'goldDmg':game.player.goldDmg,
       'shieldCrit':game.player.shieldCrit,
       'isCritHeal':game.player.isCritHeal,
+      'isLaser':game.player.isLaser
     };
 
     String jsonString = jsonEncode(runData);
@@ -121,6 +124,7 @@ class SaveManager {
     // --- CARREGA PROGRESSO DO MUNDO ---
     game.currentLevelNotifier.value = runData['level'] ?? 1;
     game.currentRoomNotifier.value = runData['room'] ?? 1;
+    game.usouBomba = runData['usouBomba'] ?? false;
 
     // Carrega Economia
     game.coinsNotifier.value = runData['coins'] ?? 0;
@@ -224,6 +228,7 @@ class SaveManager {
     game.player.shieldCrit = runData['shieldCrit'] ?? false;
     game.player.isCritHeal = runData['isCritHeal'] ?? false;
     game.player.isUnicorn = false;
+    game.player.isLaser = runData['isLaser'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

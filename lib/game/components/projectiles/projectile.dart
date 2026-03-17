@@ -52,9 +52,17 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   final bool isSpectral;
 
-  // 7. BUMERANGUE (BOOMERANG)
   final bool isBoomerang;
-  bool _isReturning = false; // Controle de ida e volta
+  bool _isReturning = false; 
+
+  // --- PROPRIEDADES DA ONDA (WAVE) ---
+  final bool isWave;
+  final double growthRate; 
+  final double maxRadius; 
+  final double sweepAngle; 
+  double _currentRadius; 
+  late final Paint _wavePaint;
+  CircleHitbox? _waveCircleHitbox;
 
   GameIcon? visual;
   double visualAngle = 0;
@@ -85,52 +93,98 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.homingTurnSpeed = 4.0, 
     this.isPiercing = false,
     this.isSpectral = false,
-    this.isBoomerang = false, // Novo Parâmetro!
+    this.isBoomerang = false,
+    
+    // --- INIT ONDA ---
+    this.isWave = false,
+    this.growthRate = 60.0,
+    this.maxRadius = 250.0,
+    this.sweepAngle = pi / 2, // 90 graus de varredura padrão
+
     Vector2? iniPosition,
-  }): super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
+  }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
+      super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
     this.iniPosition = iniPosition?.clone() ?? position.clone();
   }
 
   @override
   Future<void> onLoad() async {
-    IconData icon = Icons.circle;
     Color color = isEnemyProjectile ? Pallete.vermelho : Pallete.branco;
-    Vector2 tamanho = size ;
-    if (explodes) {
-      icon = Icons.brightness_high;
-    } else if (isBoomerang) {
-      icon = MdiIcons.boomerang; 
-      color = Pallete.marrom;
-      tamanho = tamanho * 2;
-    } else if (isHoming) {
-      icon = Icons.rocket_launch;
-      visualAngle = -pi / 4; 
-      tamanho = tamanho * 2;
-    } else if (gameRef.selectedClass.name == 'PIROMANTE'){
-      icon = MdiIcons.fire; 
-      color = Pallete.laranja;
-      tamanho = tamanho * 2;
-    }
-
-    visual = GameIcon(
-      icon: icon, 
-      color: color,
-      size: tamanho,
-      anchor: Anchor.center,
-      position: size / 2,
-    );
-    add(visual!);
     
-    add(CircleHitbox(
-      radius: size.x / 2.5,
-      anchor: Anchor.center,
-      position: size / 2,
-      isSolid: true, 
-    ));
+    if (isWave) {
+      color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
+      _wavePaint = Paint()
+        ..color = color.withOpacity(0.8)
+        ..style = PaintingStyle.stroke 
+        ..strokeWidth = 8.0;
+
+      _waveCircleHitbox = CircleHitbox(
+        radius: _currentRadius,
+        anchor: Anchor.center,
+        position: size / 2, // Centrado perfeitamente no projétil
+      );
+      add(_waveCircleHitbox!);
+    } 
+    else {
+      // Lógica de visual padrão para tiros normais
+      IconData icon = Icons.circle;
+      Vector2 tamanho = size;
+      
+      if (explodes) {
+        icon = Icons.brightness_high;
+      } else if (isBoomerang) {
+        icon = MdiIcons.boomerang; 
+        color = Pallete.marrom;
+        tamanho = tamanho * 2;
+      } else if (isHoming) {
+        icon = Icons.rocket_launch;
+        visualAngle = -pi / 4; 
+        tamanho = tamanho * 2;
+      } else if (gameRef.selectedClass.name == 'PIROMANTE'){
+        icon = MdiIcons.fire; 
+        color = Pallete.laranja;
+        tamanho = tamanho * 2;
+      }
+
+      visual = GameIcon(
+        icon: icon, 
+        color: color,
+        size: tamanho,
+        anchor: Anchor.center,
+        position: size / 2,
+      );
+      add(visual!);
+      
+      add(CircleHitbox(
+        radius: size.x / 2.5,
+        anchor: Anchor.center,
+        position: size / 2,
+        isSolid: true, 
+      ));
+    }
 
     _updateRotation();
 
     if (owner is Enemy) critico = false;
+  }
+
+  // --- GERAÇÃO DOS PONTOS DA ONDA ---
+  List<Vector2> _generateWavePoints({double radius = 1.0}) {
+   final List<Vector2> points = [];
+    const int segments = 10;
+    
+    // O seu updateRotation adiciona 1.54. Precisamos subtrair aqui para o arco nascer virado para a frente.
+    double offsetCorrecao = -1.54 - visualAngle;
+    double start = offsetCorrecao - (sweepAngle / 2);
+
+    for (int i = 0; i <= segments; i++) {
+      final double segAngle = start + (sweepAngle * (i / segments));
+      points.add(Vector2(
+        radius * cos(segAngle),
+        radius * sin(segAngle),
+      ));
+    }
+    return points;
   }
 
   @override
@@ -150,7 +204,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // --- LÓGICA DO BUMERANGUE ---
     if (isBoomerang) {
       visualAngle += 15 * dt; 
-      // Garante que a rotação visual funcione mesmo sem o homing
       if (!isHoming || _isReturning) _updateRotation();
 
       if (!_isReturning && _timer >= dieTimer / 2) {
@@ -173,15 +226,11 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         }
 
         _desiredDirection.normalize();
-        
-        // --- AQUI ESTÁ A MUDANÇA ---
-        // Em vez de fazer a curva suave, ele aponta DIRETAMENTE para o alvo
-        // criando uma linha reta de retorno perfeita.
         direction.setFrom(_desiredDirection);
       }
     }
     
-    // --- LÓGICA HOMING (TELEGUIDADO) ---
+    // --- LÓGICA HOMING ---
     if (isHoming && !isOrbital && !_isReturning) {
       _updateHomingTarget();
       
@@ -195,6 +244,15 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         direction.normalize();
 
         if (!isBoomerang) _updateRotation();
+      }
+    }
+
+    // --- LÓGICA DE CRESCIMENTO DA ONDA ---
+    if (isWave) {
+      if (_currentRadius < maxRadius) {
+        _currentRadius += growthRate * dt;
+        // Atualiza a hitbox poligonal com o novo tamanho
+        _waveCircleHitbox?.radius = _currentRadius;
       }
     }
 
@@ -212,20 +270,39 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       position.addScaled(direction, speed * dt);
     }
 
-  /*  // --- VISUAL (PISCAR) ---
-    double flashSpeed = (_timer > dieTimer - 1) ? 0.1 : 0.2;
-    if (_timer % flashSpeed < (flashSpeed / 2)){ 
-      visual?.setColor(Pallete.amarelo);
-    } else {
-      isEnemyProjectile ? visual?.setColor(Pallete.vermelho) : visual?.setColor(Pallete.azulCla);
-    }
-  */
-
     if (_timer >= dieTimer){
       kill(triggerEffects: true); 
     }
     
     if (position.length > 3000) removeFromParent();
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas); // Renderiza os ícones normais, se existirem
+    
+    // --- DESENHO EXCLUSIVO DA ONDA ---
+    if (isWave) {
+      double start = -sweepAngle / 2;
+      final center = size / 2;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(center.x, center.y), radius: _currentRadius),
+        start, 
+        sweepAngle, 
+        false, 
+        _wavePaint,
+      );
+    }
+  }
+
+  double get danoAtual {
+    if (!isWave) return damage; 
+
+    double progresso = (_currentRadius / maxRadius).clamp(0.0, 1.0);
+    double multiplicador = 1.0 - (0.75 * progresso);
+
+    return (damage * multiplicador) + 1;
   }
 
   void _updateHomingTarget() {
@@ -261,7 +338,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (splits) _doSplit();
     }
     
-    //createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 5);
     removeFromParent();
   }
 
@@ -282,9 +358,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         canBounce: false,
         explodes: false, 
         splits: false, 
-        //isHoming: isHoming, 
-        //isPiercing: isPiercing,
-        //isBoomerang: isBoomerang, 
       ));
     }
   }
@@ -293,15 +366,30 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    if (_isDead) return;
+    if (_isDead || _hitTargets.contains(other)) return;
 
-    if (_hitTargets.contains(other)) return;
+  // FILTRO PARA VER SE O ALVO ESTÁ NA FRENTE OU ATRAS DA ONDA
+    if (isWave && (other is Enemy || other is Player)) {
+      Vector2 diff = other.absoluteCenter - absoluteCenter;
+      
+      if (diff.length2 > 0) { 
+        Vector2 dirToTarget = diff.normalized();
+        Vector2 forwardDir = Vector2(cos(absoluteAngle), sin(absoluteAngle));
+
+        double dotProduct = forwardDir.dot(dirToTarget);
+        double angleDiff = acos(dotProduct.clamp(-1.0, 1.0)); 
+
+        if (angleDiff > sweepAngle / 2) {
+          return; 
+        }
+      }
+    }
 
     final hitPos = intersectionPoints.firstOrNull ?? position;
 
     // 1. COLISÃO COM PAREDES
     if (!isSpectral && (other is Wall || other is ScreenHitbox)) {
-      createExplosionEffect(gameRef.world, position, Pallete.branco, count: 5);
+      createExplosionEffect(gameRef.world, hitPos, Pallete.branco, count: 5);
       if (canBounce && _bounceCount < maxBounces) {
         _handleBounce(other, hitPos);
         if (other is Wall) other.vida--; 
@@ -319,34 +407,33 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // 2. COLISÃO COM INIMIGOS / PLAYER
     if (isEnemyProjectile) {
       if (other is Player) {
-        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
         other.takeDamage(1);
         
-        // Bumerangue perfura alvos vivos naturalmente!
-        if (!isPiercing && !isBoomerang) kill(); 
+        // Bumerangue e Ondas normalmente perfuram alvos vivos!
+        if (!isPiercing && !isBoomerang && !isWave) kill(); 
       } else if (other is Familiar && other.type == FamiliarType.block ){
-        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         kill();
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel && !other.isCharmed) {
-        createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 10);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
-        other.takeDamage(damage,critico:critico);
+        other.takeDamage(danoAtual, critico: critico);
         
-        if ((isPiercing || isBoomerang) && _homingTarget == other) {
+        if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {
           _homingTarget = null;
         }
 
-        // Bumerangue perfura inimigos para conseguir voltar
-        if (!isPiercing && !isBoomerang) kill();
+        if (!isPiercing && !isBoomerang && !isWave) kill();
       }
       
       if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
         _hitTargets.add(other);
         other.removeFromParent();
-        if (!isPiercing && !isBoomerang) kill();
+        if (!isPiercing && !isBoomerang && !isWave) kill();
       }
     }
   }
@@ -370,6 +457,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void _updateRotation() {
-    angle = atan2(direction.y, direction.x) + 1.54 + visualAngle; 
+    if (isWave) {
+      angle = atan2(direction.y, direction.x);
+    } else {
+      angle = atan2(direction.y, direction.x) + 1.54 + visualAngle; 
+    }
   }
 }

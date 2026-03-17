@@ -44,13 +44,13 @@ enum CollectibleType {
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
-  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico,
+  activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
-  activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov
+  activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno
 }
 
 
@@ -70,6 +70,7 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeFairy,
     CollectibleType.activeUnicorn,
     CollectibleType.activeBombardeio,
+    CollectibleType.activeTurret,
   ];
   return recarregaveis.contains(type);
 }
@@ -88,6 +89,8 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeBandage,
     CollectibleType.activeUnicornUnico,
     CollectibleType.activeBombardeioUnico,
+    CollectibleType.activeTurretUnico,
+    CollectibleType.activeSuborno,
   ];
   return usoUnico.contains(type);
 }
@@ -665,6 +668,16 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'curaCrit'.tr(), 'desc': 'curaCritDesc'.tr(), 'icon': MdiIcons.bloodBag, 'color': Pallete.vermelho};
       case CollectibleType.molotov:
         return {'name': 'molotov'.tr(), 'desc': 'molotovDesc'.tr(), 'icon': MdiIcons.bottleWine, 'color': Pallete.laranja};
+      case CollectibleType.laser:
+        return {'name': 'laser'.tr(), 'desc': 'laserDesc'.tr(), 'icon': MdiIcons.laserPointer, 'color': Pallete.vermelho};
+      case CollectibleType.activeTurret:
+        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.towerFire, 'color': Pallete.vermelho};
+      case CollectibleType.activeTurretUnico:
+        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.towerFire, 'color': Pallete.laranja};
+      case CollectibleType.wave:
+        return {'name': 'wave'.tr(), 'desc': 'waveDesc'.tr(), 'icon': MdiIcons.waves, 'color': Pallete.azulCla};
+      case CollectibleType.activeSuborno:
+        return {'name': 'activeSuborno'.tr(), 'desc': 'activeSubornoDesc'.tr(), 'icon': MdiIcons.accountCash, 'color': Pallete.verdeEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -866,6 +879,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeUnicorn,
       CollectibleType.activeBombardeio,
       CollectibleType.molotov,
+      CollectibleType.laser,
+      CollectibleType.wave,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -896,14 +911,18 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.sanduiche:
-          if (player.healthNotifier.value < player.maxHealth) {
+        if (player.healthNotifier.value >= player.maxHealth 
+          && player.artificialHealthNotifier.value >= player.maxArtificialHealth) {
+            return {
+              'text': "Vida Cheia!", 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
             player.curaHp(6); 
             text = "Curado!";
             //color = Pallete.vermelho; 
-          } else {
-            text = "Cheio!";
-           // color = Pallete.cinzaCla;
-          }
+          
           break;  
           
         case CollectibleType.key:
@@ -1227,6 +1246,14 @@ class CollectibleLogic {
           break; 
 
         case CollectibleType.activeHeal:
+          if (player.healthNotifier.value >= player.maxHealth 
+          && player.artificialHealthNotifier.value >= player.maxArtificialHealth) {
+            return {
+              'text': "Vida Cheia!", 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
           player.curaHp(2);
           text = "activeHeal";
           //color = Pallete.vermelho;
@@ -1405,6 +1432,13 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeHeartConverter:
+          if (game.player.maxHealth < 2) {
+            return {
+              'text': "noHp".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
           player.increaseArtificialHp(6);
           player.increaseHp(-2);
           text = "activeHeartConverter!";
@@ -1423,7 +1457,7 @@ class CollectibleLogic {
           final itensNoChao = game.world.children.whereType<Collectible>().toList();
 
           final naoRolar = [
-            CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+            CollectibleType.coin, CollectibleType.potion,
             CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
             CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
             CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
@@ -1465,6 +1499,13 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeRitualDagger:
+          if (game.player.healthNotifier.value < 1) {
+            return {
+              'text': "noHp".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
           player.takeDamage(1);
           player.tempDmgBonus = true;
           text = "activeRitualDagger!";
@@ -1481,7 +1522,7 @@ class CollectibleLogic {
           final itensNoChao = game.world.children.whereType<Collectible>().toList();
 
           final naoRolar = [
-            CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
+            CollectibleType.coin, CollectibleType.potion,
             CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
             CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
             CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
@@ -1615,6 +1656,68 @@ class CollectibleLogic {
           text = "molotov";
           //color = Pallete.vermelho;
           break;
+
+        case CollectibleType.laser:
+          player.isLaser = true;
+          text = "laser";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.wave:
+          player.isWave = true;
+          text = "wave";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.activeSuborno:
+         // if (game.coinsNotifier.value < 15) break;
+         if (game.coinsNotifier.value < 15) {
+            return {
+              'text': "noCoins".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
+          game.player.collectCoin(-15);
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            isCharm: true, 
+            radius:100,
+            cor:Pallete.verdeCla.withAlpha(50),
+            corBorda:Pallete.verdeEsc.withAlpha(50)
+          ));
+          text = "Suborno!";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.activeTurret:
+          final f = Familiar(position: player.position.clone(),
+                                type: FamiliarType.turret, 
+                                player: player,
+                                retorna: false,
+                                speed: 0,
+                                fireRate: 0.5
+                              );
+          player.familiars.add(f);
+          game.world.add(f);
+          text = "Turret!";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeTurretUnico:
+          final f = Familiar(position: player.position.clone(),
+                                type: FamiliarType.turret, 
+                                player: player,
+                                retorna: false,
+                                speed: 0,
+                                fireRate: 0.5
+                              );
+          player.familiars.add(f);
+          game.world.add(f);
+          text = "Turret!";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

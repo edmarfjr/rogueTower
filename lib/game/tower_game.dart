@@ -75,6 +75,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   double _hitStopTimer = 0.0;
 
+  bool usouBomba = false;
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -142,6 +144,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     await progress.loadSettings(this);
     useCRTEffect = false;
+
+    AudioManager.playBgm('retro_forest.mp3');
   }
 
  @override
@@ -312,12 +316,14 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void pauseGame() {
+    AudioManager.pauseBgm();
     pauseEngine();
     overlays.remove('HUD');
     overlays.add('PauseMenu');
   }
 
   void resumeGame() {
+    AudioManager.resumeBgm();
     overlays.remove('PauseMenu');
     overlays.add('HUD');
     resumeEngine();
@@ -328,7 +334,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('GameOver');
     overlays.remove('HUD');
     overlays.add('MainMenu');
-    AudioManager.playBgm('8bit_menu.mp3');
+    AudioManager.playBgm('retro_forest.mp3');
   }
 
   void startLevel({continuar = false}) {
@@ -410,6 +416,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('VictoryMenu'); 
     resumeEngine();
 
+    usouBomba = false;
+
     currentRoomNotifier.value = 0;
     currentLevelNotifier.value = 1;
     coinsNotifier.value = 0;
@@ -428,7 +436,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     itensComunsPoolCurrent.shuffle();
     itensRarosPoolCurrent.shuffle();
     
-    AudioManager.playBgm('funny_bit.mp3');
+    AudioManager.playBgm('8_bit_adventure.mp3');
     startLevel();
   }
 }

@@ -110,6 +110,14 @@ class AudioManager {
     _isBgmPlaying = false;
     _currentBgm = '';
   }
+
+  static void pauseBgm(){
+    FlameAudio.bgm.pause();
+  }
+
+  static void resumeBgm(){
+    FlameAudio.bgm.resume();
+  }
   
   static void toggleMuteMusic(bool mute) {
     _isMutedMusic = mute;

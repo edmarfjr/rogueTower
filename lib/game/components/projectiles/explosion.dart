@@ -19,6 +19,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final PositionComponent? owner;
   final bool isFreeze;
   final bool isStun;
+  final bool isCharm;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -32,6 +33,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.owner,
     this.isFreeze = false,
     this.isStun = false,
+    this.isCharm = false,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
@@ -62,6 +64,9 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
               e.setFreeze();
             }if(isStun){
               e.setConfuse();
+            if(isCharm){
+              e.setCharm();
+            }
             }else{
               e.takeDamage(damage,critico: false); 
             }

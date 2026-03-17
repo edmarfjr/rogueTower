@@ -829,6 +829,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     _knockbackVelocity.setFrom(knockbackDir * forcaDoEmpurrao);
   
-    other._knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
+    if(other is Enemy)other._knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
   }
 }

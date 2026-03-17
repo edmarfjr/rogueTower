@@ -39,6 +39,7 @@ class CharacterClass {
   final int startingBombs; 
   final int startingKeys;
   final int startingShield;
+  final bool isBomber;
 
   final bool isUnlockedByDefault;
   final String unlockConditionText;
@@ -76,6 +77,7 @@ class CharacterClass {
     this.startingItems = const [],
     this.semAcessorio = false,
     this.mudaIcone = false,
+    this.isBomber = false,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -87,14 +89,13 @@ class CharacterRoster {
     CharacterClass(
       id: "guerreiro",
       name: "guerreiro".tr(),
-      description: "guerreiroDesc".tr(),//"Equilibrado e resistente.",
+      description: "guerreiroDesc".tr(),
       icon: MdiIcons.sword,
       accessoryOffsetX: 30.0, 
       accessoryOffsetY: 10.0,
       accessorySize: 24.0,
       flipAccessoryBase: true,
       color: Pallete.cinzaCla, 
-      //startingShield: 2,
       maxHp: 6,
       maxDash: 2,
       speed: 150.0,
@@ -108,7 +109,7 @@ class CharacterRoster {
     CharacterClass(
       id: 'piromante',
       name: "piromante".tr(),
-      description: "piromanteDesc".tr(),//"Só causa Dano ao longo do tempo.",
+      description: "piromanteDesc".tr(),
       icon: MdiIcons.fire, 
       accessoryOffsetX: 30.0, 
       accessoryOffsetY: 10.0,
@@ -133,7 +134,7 @@ class CharacterRoster {
     CharacterClass(
       id: 'ladino',
       name: "ladino".tr(),
-      description: "ladinoDesc".tr(),//"Frágil, porém mortal.",
+      description: "ladinoDesc".tr(),
       icon: MdiIcons.knifeMilitary, 
       accessorySize: 12.0,
       accessoryOffsetX: 30.0, 
@@ -152,12 +153,12 @@ class CharacterRoster {
       startingKeys: 1,
       attackRange: 0.5,
       isUnlockedByDefault: false,
-      unlockConditionText: "ladinoCond".tr(),//"Acumule 100 moedas em uma run"
+      unlockConditionText: "ladinoCond".tr(),
     ),
     CharacterClass(
       id: 'arqueiro',
       name: "arqueiro".tr(),
-      description: "arqueiroDesc".tr(),//"Atira a longas distancias.",
+      description: "arqueiroDesc".tr(),
       icon: MdiIcons.bowArrow, 
       accessorySize: 24.0,
       accessoryOffsetX: 30.0, 
@@ -174,12 +175,12 @@ class CharacterRoster {
       dashCooldown: 2.0, 
       attackRange: 1.0,
       isUnlockedByDefault: false,
-      unlockConditionText: "arqueiroCond".tr(),//"Derrote o terceiro boss"
+      unlockConditionText: "arqueiroCond".tr(),
     ),
     CharacterClass(
       id: 'exterminador',
       name: "exterminador".tr(),
-      description: "exterminadorDesc".tr(),//"Usa uma poderosa escopeta de curto alcance.",
+      description: "exterminadorDesc".tr(),
       icon: MdiIcons.sunglasses, 
       accessorySize: 6.0,
       accessoryOffsetX: 18.0, 
@@ -196,12 +197,12 @@ class CharacterRoster {
       attackRange: 0.2,
       isShotgun: true,
       isUnlockedByDefault: false,
-      unlockConditionText: "exterminadorCond".tr(),//""Derrote o quinto boss"
+      unlockConditionText: "exterminadorCond".tr(),
     ),
     CharacterClass(
       id: "defensor",
       name: "defensor".tr(),
-      description: "defensorDesc".tr(),//"Inicia com escudos protetores",
+      description: "defensorDesc".tr(),
       icon: MdiIcons.shield,
       accessoryOffsetX: 8.0, 
       accessoryOffsetY: 15.0,
@@ -221,12 +222,12 @@ class CharacterRoster {
         CollectibleType.orbitalShield,
       ],
       isUnlockedByDefault: false,
-      unlockConditionText: "defensorCond".tr(),//"Acumule 6 escudos"
+      unlockConditionText: "defensorCond".tr(),
     ),
     CharacterClass(
       id: "licantropo",
       name: "licantropo".tr(),
-      description: "licantropoDesc".tr(),//"Pode se transformar em lobo",
+      description: "licantropoDesc".tr(),
       icon: MdiIcons.dogSide,
       semAcessorio: true,
       accessoryOffsetX: 8.0, 
@@ -246,12 +247,12 @@ class CharacterRoster {
         CollectibleType.activeLicantropia,
       ],
       isUnlockedByDefault: false,
-      unlockConditionText: "licantropoCond".tr(),//"Adquira Licantropia"
+      unlockConditionText: "licantropoCond".tr(),
     ),
     CharacterClass(
       id: "multidao",
       name: "multidao".tr(),
-      description: "multidaoDesc".tr(),//"Pode se transformar em lobo",
+      description: "multidaoDesc".tr(),
       icon: MdiIcons.humanQueue,
       semAcessorio: true,
       mudaIcone: true,
@@ -269,7 +270,29 @@ class CharacterRoster {
         CollectibleType.molotov,
       ],
       isUnlockedByDefault: false,
-      unlockConditionText: "multidaoCond".tr(),//"Adquira Licantropia"
+      unlockConditionText: "multidaoCond".tr(),
+    ),
+    CharacterClass(
+      id: "bomberman",
+      name: "bomberman".tr(),
+      description: "bombermanDesc".tr(),
+      icon: MdiIcons.bomb,
+      accessoryOffsetX: 30.0, 
+      accessoryOffsetY: 10.0,
+      accessorySize: 24.0,
+      color: Pallete.lilas, 
+      maxHp: 6,
+      maxDash: 2,
+      speed: 150.0,
+      damage: 10.0,
+      fireRate: 0.8,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      isBomber: true,
+      isUnlockedByDefault: true,
+      unlockConditionText: "bombermanCond".tr(),
     ),
   ];
 
