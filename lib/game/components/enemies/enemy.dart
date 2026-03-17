@@ -33,6 +33,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   // Controle
   bool canMove = true; 
   late Color originalColor;
+  double _meleeCooldown = 0.0;
+
+  // --- VARIÁVEIS DE KNOCKBACK ---
+  final Vector2 _knockbackVelocity = Vector2.zero();
+  final double _knockbackFriction = 1500.0;
   
   // Efeitos de Status
   bool _isHit = false;
@@ -235,6 +240,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     // Atualiza o timer da aura visual
    // _auraTimer += dt * 5; 
 
+    if (_meleeCooldown > 0) {
+      _meleeCooldown -= dt;
+    }
+
+    _handleKnockBack(dt);
+
     if(isConfuse){
       confuseBehavior.update(dt);
     }else{
@@ -362,7 +373,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     } 
     else if(other is Enemy){
       if(other.isCharmed){
-        takeDamage(gameRef.player.damage / 2,critico:false);
+        if (_meleeCooldown <= 0) {
+          takeDamage(gameRef.player.damage / 2,critico:false);
+          _meleeCooldown = 0.5; 
+          other._meleeCooldown = 0.5;
+          setKnockBack(other);
+        }
       }else if (!voa && !other.voa|| (voa && !other.voa)) {
         _handleEnemyCollision(other);
       }
@@ -787,5 +803,32 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         visual?.setColor(cor);
       }
     }
+  }
+  
+  void _handleKnockBack(double dt) {
+    if (!_knockbackVelocity.isZero()) {
+      // 1. Move o personagem na direção do empurrão
+      position.addScaled(_knockbackVelocity, dt);
+      
+      // 2. Aplica o atrito (freio)
+      double drop = _knockbackFriction * dt;
+      if (_knockbackVelocity.length > drop) {
+        // Reduz a velocidade mantendo a mesma direção
+        _knockbackVelocity.setFrom(_knockbackVelocity - _knockbackVelocity.normalized() * drop);
+      } else {
+        // Parou completamente
+        _knockbackVelocity.setZero();
+      }
+    }
+  }
+  
+  void setKnockBack(other) {
+    Vector2 knockbackDir = (position - other.position).normalized();
+          
+    double forcaDoEmpurrao = 150.0; 
+
+    _knockbackVelocity.setFrom(knockbackDir * forcaDoEmpurrao);
+  
+    other._knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
   }
 }
