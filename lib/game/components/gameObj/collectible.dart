@@ -45,12 +45,14 @@ enum CollectibleType {
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
+  saw,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
-  decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familarBlock, familarAtira, confuseCrit, pregos, bombDecoy,
+  decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familiarBlock, familiarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
-  activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno
+  activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
+  pilNanicolina
 }
 
 
@@ -523,7 +525,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.audacious:
         return {'name': 'audaz'.tr(), 'desc': 'audazDesc'.tr(), 'icon': MdiIcons.shieldOff, 'color': Pallete.vermelho};
       case CollectibleType.steroids:
-        return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.verdeEsc};
+        return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': MdiIcons.needle, 'color': Pallete.vermelho};
       case CollectibleType.cafe:
         return {'name': 'cafe'.tr(), 'desc': 'cafeDesc'.tr(), 'icon': Icons.coffee, 'color': Pallete.marrom};
       case CollectibleType.alcool:
@@ -620,10 +622,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeD6'.tr(), 'desc': 'activeD6Desc'.tr(), 'icon': MdiIcons.dice6, 'color': Pallete.verdeCla};
       case CollectibleType.splitShot:
         return {'name': 'splitShot'.tr(), 'desc': 'splitShotDesc'.tr(), 'icon': MdiIcons.axisArrow, 'color': Pallete.vermelho};
-      case CollectibleType.familarBlock:
-        return {'name': 'familarBlock'.tr(), 'desc': 'familarBlockDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.azulCla};
-      case CollectibleType.familarAtira:
-        return {'name': 'familarAtira'.tr(), 'desc': 'familarAtiraDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.vermelho};
+      case CollectibleType.familiarBlock:
+        return {'name': 'familiarBlock'.tr(), 'desc': 'familiarBlockDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.azulCla};
+      case CollectibleType.familiarAtira:
+        return {'name': 'familiarAtira'.tr(), 'desc': 'familiarAtiraDesc'.tr(), 'icon': MdiIcons.fire, 'color': Pallete.vermelho};
       case CollectibleType.confuseCrit:
         return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': MdiIcons.headQuestion, 'color': Pallete.amarelo};
       case CollectibleType.pregos:
@@ -678,6 +680,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'wave'.tr(), 'desc': 'waveDesc'.tr(), 'icon': MdiIcons.waves, 'color': Pallete.azulCla};
       case CollectibleType.activeSuborno:
         return {'name': 'activeSuborno'.tr(), 'desc': 'activeSubornoDesc'.tr(), 'icon': MdiIcons.accountCash, 'color': Pallete.verdeEsc};
+      case CollectibleType.pilNanicolina:
+        return {'name': 'pilNanicolina'.tr(), 'desc': 'pilNanicolinaDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.azulCla};
+      case CollectibleType.saw:
+        return {'name': 'saw'.tr(), 'desc': 'sawDesc'.tr(), 'icon': MdiIcons.sawBlade, 'color': Pallete.cinzaCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -865,8 +871,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.magicMush,
       CollectibleType.activeMagicKeyChain,
       CollectibleType.splitShot,
-      CollectibleType.familarBlock,
-      CollectibleType.familarAtira,
+      CollectibleType.familiarBlock,
+      CollectibleType.familiarAtira,
       CollectibleType.confuseCrit,
       CollectibleType.pregos,
       CollectibleType.bombDecoy,
@@ -881,6 +887,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.molotov,
       CollectibleType.laser,
       CollectibleType.wave,
+      CollectibleType.pilNanicolina,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1389,16 +1396,20 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break;
 
-        case CollectibleType.familarBlock:
+        case CollectibleType.familiarBlock:
           //if (player.activeDecoy == null) {
-            final block = Familiar(position: player.position.clone(),type: FamiliarType.block, player: player);
+            final block = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.block, 
+                                  player: player,
+                                  followDistance: 25
+                                  );
             player.familiars.add(block);
             game.world.add(block);
          // }
           text = "Decoy Ativado!";
           break;
 
-        case CollectibleType.familarAtira:
+        case CollectibleType.familiarAtira:
           //if (player.activeDecoy == null) {
             final block = Familiar(position: player.position.clone(),
                                   type: FamiliarType.atira, 
@@ -1716,6 +1727,22 @@ class CollectibleLogic {
           player.familiars.add(f);
           game.world.add(f);
           text = "Turret!";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.pilNanicolina:
+          player.changeSize(0.75);
+          player.increaseDamage(0.8);
+          player.increaseRange(0.8);
+          player.increaseMovementSpeed(1.2);
+          text = "SHRINK!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.saw:
+          player.isSaw = true;
+          player.increaseDamage(1.2);
+          text = "saw!";
           //color = Pallete.vermelho;
           break; 
 

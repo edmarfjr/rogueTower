@@ -422,6 +422,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     currentLevelNotifier.value = 1;
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
+    challengeHitsNotifier.value = -1;
     nextRoomReward = CollectibleType.nextlevel;
 
     // Limpa tudo

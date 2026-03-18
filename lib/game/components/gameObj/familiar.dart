@@ -115,6 +115,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     final playerPos = gameRef.player.position  + Vector2(offsetX,offsetY) ;
     final dist = position.distanceTo(playerPos);
 
+    if(type == FamiliarType.block && speed !=  player.moveSpeed){
+      speed = player.moveSpeed;
+    }
+
     if(type == FamiliarType.fly){
       
       PositionComponent? target = getTarget();
@@ -157,7 +161,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if(other is Enemy && !other.isIntangivel){
+    if(type == FamiliarType.fly && other is Enemy && !other.isIntangivel){
       other.takeDamage(gameRef.player.damage * 2);
       retorna = false;
       removeFromParent();

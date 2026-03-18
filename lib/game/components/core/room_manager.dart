@@ -125,12 +125,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeHeal));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeArtHp));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.saw));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.saw));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){

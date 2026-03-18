@@ -16,7 +16,7 @@ import '../effects/explosion_effect.dart';
 class Projectile extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   // --- PROPRIEDADES ORIGINAIS ---
   Vector2 direction; 
-  final double speed; 
+  double speed; 
   final double damage;
   final bool isEnemyProjectile;
   final bool apagaTiros;
@@ -55,7 +55,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final bool isBoomerang;
   bool _isReturning = false; 
 
-  // --- PROPRIEDADES DA ONDA (WAVE) ---
   final bool isWave;
   final double growthRate; 
   final double maxRadius; 
@@ -63,6 +62,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   double _currentRadius; 
   late final Paint _wavePaint;
   CircleHitbox? _waveCircleHitbox;
+  
+  final bool isSaw;
+  final double acceleration;
+  final double maxSpeed;
 
   GameIcon? visual;
   double visualAngle = 0;
@@ -94,12 +97,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isPiercing = false,
     this.isSpectral = false,
     this.isBoomerang = false,
-    
-    // --- INIT ONDA ---
     this.isWave = false,
     this.growthRate = 60.0,
     this.maxRadius = 250.0,
-    this.sweepAngle = pi / 2, // 90 graus de varredura padrão
+    this.sweepAngle = pi / 2,
+    this.isSaw = false,
+    this.acceleration = 600.0,
+    this.maxSpeed = 1000.0,
 
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
@@ -140,6 +144,11 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         icon = Icons.rocket_launch;
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
+      } else if (isSaw) {
+        icon = MdiIcons.sawBlade;
+        visualAngle = -pi / 4; 
+        tamanho = tamanho * 2;
+        color = Pallete.cinzaCla;
       } else if (gameRef.selectedClass.name == 'PIROMANTE'){
         icon = MdiIcons.fire; 
         color = Pallete.laranja;
@@ -254,6 +263,16 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         // Atualiza a hitbox poligonal com o novo tamanho
         _waveCircleHitbox?.radius = _currentRadius;
       }
+    }
+
+    if (isSaw) {
+      if (speed < maxSpeed) {
+        speed += acceleration * dt;
+      }
+      
+      visualAngle += (speed * 0.05) * dt; 
+      
+      if (!isHoming || _isReturning) _updateRotation(); 
     }
 
     // --- MOVIMENTO ---

@@ -183,7 +183,7 @@ class EnemyFactory {
       ],
       phase1Attacks: [
         ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true), 
-        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 16), 
+        SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 16, isSpiral: true), 
       ],
        
         // --- ATIVANDO A FASE 2 ---
@@ -192,7 +192,6 @@ class EnemyFactory {
         // --- COMPORTAMENTOS DA FASE 2 ---
         phase2Movements: [
         FollowPlayerBehavior(speedMod: 1.2), 
-        GoToCenterBehavior(),                  
         GoToCenterBehavior(),                  
       ],
       phase2Attacks: [

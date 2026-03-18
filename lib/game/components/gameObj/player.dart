@@ -140,6 +140,7 @@ class Player extends PositionComponent
   bool isLaser = false;
   bool isWave = false;
   bool isBomber = false;
+  bool isSaw = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -154,6 +155,7 @@ class Player extends PositionComponent
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   late GameIcon _visual;
+  late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
   GameIcon? _currentAccessory;
@@ -241,7 +243,8 @@ class Player extends PositionComponent
     
     add(_dodgeAura!);
 
-    add(ShadowComponent(parentSize: size));
+    _shadow =  ShadowComponent(parentSize: size); 
+    add(_shadow);
     
   }
 
@@ -638,7 +641,7 @@ class Player extends PositionComponent
       // Trata a inversão de lado e o "amasso" (escala X)
       if (facingDirection < 0) {
         // Virado para a Esquerda
-        _currentAccessory!.position.x = -_baseAccessoryOffsetX + 32.0; // O nosso ajuste fino!
+        _currentAccessory!.position.x = -_baseAccessoryOffsetX + size.x; // O nosso ajuste fino!
         _currentAccessory!.scale.x = -_baseAccessoryScaleX * currentScaleX;
       } else {
         // Virado para a Direita
@@ -1003,9 +1006,9 @@ class Player extends PositionComponent
       position: position.clone(), 
       direction: _tempDirection.clone(), 
       damage: dmg, 
-      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : 500,
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
-      dieTimer: isBoomerang ? 1.0 : aRange,
+      dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: isHoming || isHomingTemp,
       iniPosition: position.clone(),
@@ -1020,6 +1023,7 @@ class Player extends PositionComponent
       maxRadius: 150,       // <-- Tamanho máximo
       growthRate: 100,      // <-- Velocidade de expansão
       sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
+      isSaw: isSaw,
     ));
   }
 
@@ -1121,6 +1125,7 @@ class Player extends PositionComponent
     isCritHeal = false;
     isLaser = false;
     isWave = false;
+    isSaw = false;
 
     _visual.setColor(Pallete.branco);
   }
@@ -1167,11 +1172,11 @@ class Player extends PositionComponent
   // UPGRADES
   void changeSize(double sizeMod){
     _visual.removeFromParent();
-
+    size = size*sizeMod;
     _visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
-      size: size*sizeMod,
+      size: size,
       anchor: Anchor.center, 
       position: size / 2,    
     );
@@ -1186,6 +1191,39 @@ class Player extends PositionComponent
       isSolid: true,
     );
     add(_hitbox);
+
+    _shadow.removeFromParent();
+    _shadow =  ShadowComponent(parentSize: size); 
+    add(_shadow);
+
+    if (_currentAccessory != null) {
+      // Guarda os valores atuais antes de destruir o acessório antigo
+      double currentOffsetY = _currentAccessory!.position.y;
+      double currentAngle = _currentAccessory!.angle;
+      IconData currentIcon = _currentAccessory!.icon;
+      Color currentAccessoryColor = _currentAccessory!.color;
+      Vector2 newAccessorySize = _currentAccessory!.size * sizeMod;
+      
+      _currentAccessory!.removeFromParent();
+
+      // Escala o deslocamento X (offset) para ele não afundar no corpo
+      _baseAccessoryOffsetX *= sizeMod;
+      double newOffsetY = currentOffsetY * sizeMod;
+
+      // Recria o acessório com o novo tamanho
+      _currentAccessory = GameIcon(
+        icon: currentIcon,     
+        color: currentAccessoryColor,   
+        size: newAccessorySize,
+      );
+
+      _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, newOffsetY);
+      _currentAccessory!.scale.x = _baseAccessoryScaleX;
+      _currentAccessory!.angle = currentAngle;
+      _currentAccessory!.priority = 1;
+      
+      add(_currentAccessory!);
+    }
   }
 
 

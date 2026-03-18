@@ -66,7 +66,7 @@ class AudioManager {
         'music/retro_plat.mp3',
       ]);
     } catch (e) {
-      print("⚠️ AVISO: Falha ao carregar Músicas do Cache. Erro: $e");
+      print("AVISO: Falha ao carregar Músicas do Cache. Erro: $e");
     }
   }
 
@@ -77,19 +77,15 @@ class AudioManager {
 
     try {
       if (_sfxSources.containsKey(poolKey)) {
-        // --- PLAY INSTANTÂNEO COM ZERO LATÊNCIA! ---
         SoLoud.instance.play(_sfxSources[poolKey]!, volume: sfxVolume);
       } else {
-        // print("🚨 ALERTA: O som '$filename' não foi pré-carregado no init()!");
+         print("ALERTA: O som '$filename' não foi pré-carregado no init()!");
       }
     } catch (e) {
        print("Erro ao tocar SFX ($filename) no SoLoud: $e");
     }
   }
 
-  // ==========================================================
-  // O RESTO DO CÓDIGO (BGM) CONTINUA EXATAMENTE IGUAL
-  // ==========================================================
   static void playBgm(String filename) {
     if (_isMutedMusic) return;
     if (_isBgmPlaying && _currentBgm == filename) return; 
