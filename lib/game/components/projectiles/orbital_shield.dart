@@ -39,12 +39,15 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
   @override
   Future<void> onLoad() async {
     _currentAngle = angleOffset;
+
+    Color cor = Pallete.lilas;
+    if(isFlail) cor = Pallete.vermelho;
     
     // Visual do escudo
     if(isFoice){
       add(GameIcon(
         icon: MdiIcons.sickle,
-        color: Pallete.lilas,
+        color: cor,
         size: size, 
         anchor: Anchor.center,
         position: size / 2,
@@ -149,7 +152,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if(isFoice || isFlail){ // <-- Atualizado aqui para o Flail dar dano também!
+    if(isFoice || isFlail){ 
       if (other is Enemy && !isEnemy && !other.isInvencivel && !other.isIntangivel) {
         other.takeDamage(gameRef.player.damage);
       }else if (other is Player && isEnemy) {

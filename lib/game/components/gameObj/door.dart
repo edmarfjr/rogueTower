@@ -28,6 +28,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   GameIcon? _lockIcon;
   GameIcon? _blockIcon;
   GameIcon? _bitesIcon;
+  GameIcon? rewardIcon;
 
   InteractButton? _currentButton;
 
@@ -130,13 +131,14 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       default: iconData = Icons.help_outline;
     }
     
-    add(GameIcon(
+    rewardIcon = GameIcon(
       icon: iconData,
       color: Pallete.branco,
       size: Vector2(20, 20),
       position: Vector2(size.x / 2, -20), 
       anchor: Anchor.center,
-    ));
+    );
+    add(rewardIcon!);
   }
 
   void destranca(){
@@ -154,6 +156,13 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     isOpen = true;
     _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
     _addRewardIcon();
+  }  
+
+  void close() {
+    if (!isOpen) return;
+    isOpen = false;
+    _updateDoorIcon(MdiIcons.tunnel, Pallete.cinzaEsc);
+    rewardIcon!.removeFromParent();
   }  
 
   @override
@@ -234,6 +243,13 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
           }
           
           _hideButton(); 
+          
+          //AGIOTA
+          if (gameRef.isCurrentRoomBank && gameRef.dividaNotifier.value > 0) {
+              gameRef.player.position.y += 50; 
+              gameRef.roomManager.triggerAgiotaTrap();
+              return; 
+          }
           _isEntering = true; 
           
           // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
@@ -241,7 +257,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
             Rectangle.fromLTWH(-2000, -2000, 4000, 4000),
             considerViewport: false,
           );
-          
+
+
           gameRef.transitionEffect.startTransition(() {
             _isEntering = false; 
             
@@ -261,7 +278,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               game.player.curaHp(1);
               gameRef.player.regenCount -= 1;
             }
-            
+
             gameRef.nextLevel(rewardType);
           });
         }

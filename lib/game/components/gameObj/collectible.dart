@@ -1071,15 +1071,15 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.foice:
-          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFoice: true, radius: 20, speed:5));
-          game.world.add(OrbitalShield(angleOffset: 2*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
-          game.world.add(OrbitalShield(angleOffset: 4*pi/3, owner: player, isFoice: true, radius: 20, speed:5));
+          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFoice: true, radius: player.size.y, speed:5));
+          game.world.add(OrbitalShield(angleOffset: 2*pi/3, owner: player, isFoice: true, radius: player.size.y, speed:5));
+          game.world.add(OrbitalShield(angleOffset: 4*pi/3, owner: player, isFoice: true, radius: player.size.y, speed:5));
           text = "Foices Orbitais!";
          // color = Pallete.azulCla;
           break;  
 
         case CollectibleType.flail:
-          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFlail: true, radius: 10, speed:10));
+          game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFlail: true, radius: player.size.y*3, speed:10));
           text = "Flail Orbitais!";
          // color = Pallete.azulCla;
           break; 

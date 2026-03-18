@@ -77,6 +77,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool usouBomba = false;
 
+  // --- SISTEMA DE EMPRÉSTIMO ---
+  final ValueNotifier<int> dividaNotifier = ValueNotifier<int>(0);
+  bool isCurrentRoomBank = false;
+
   @override
   Color backgroundColor() => Pallete.preto;
 

@@ -51,5 +51,7 @@ class GhostParticle extends PositionComponent with HasPaint {
       Vector2(0, -5),
       EffectController(duration: 0.3),
     ));
+
+    priority = position.y.toInt() - 10;
   }
 }

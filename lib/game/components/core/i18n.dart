@@ -226,6 +226,8 @@ class I18n {
       'pilNanicolinaDesc':'Diminui seu tamanho, alcance e dano, aumenta velocidade',
       'saw':'Serra Circular',
       'sawDesc':'substitui seus tiros por uma Serra Circular, aumenta o dano',
+      'boloDinheiro':'maço de dinheiro',
+      'boloDinheiroDesc':'contém 50 moedas em dinheiro',
       'guerreiro':'GUERREIRO',
       'guerreiroDesc':'Equilibrado e resistente.',
       'piromante':'PIROMANTE',
@@ -255,6 +257,7 @@ class I18n {
       'ghostKnight': 'O Cavaleiro Fantasma',
       'truQueen': 'A Rainha Verdadeira',
       'beast': 'A Besta de Caerbannog',
+      'agiota':'agiota',
       'ai':'UI!'
     },
     'en': {
@@ -469,6 +472,14 @@ class I18n {
       "laserDesc": "Replaces your shot with a laser beam",
       "activeTurret": "Turret",
       "activeTurretDesc": "Summon a turret in the current room",
+      "activeSuborno": "Bribe",
+      "activeSubornoDesc": "Spend 15 coins to turn enemies into allies",
+      "pilNanicolina": "Shrinking Pill",
+      "pilNanicolinaDesc": "Reduces your size, range, and damage, increases speed",
+      "saw": "Circular Saw",
+      "sawDesc": "Replaces your shots with a circular saw, increases damage",
+      "boloDinheiro": "Cash Bundle",
+      "boloDinheiroDesc": "Contains 50 coins in cash",
       "guerreiro": "WARRIOR",
       "guerreiroDesc": "Balanced and resilient.",
       "piromante": "PYROMANCER",
@@ -498,6 +509,7 @@ class I18n {
       'ghostKnight': 'The Ghost Knight',
       'truQueen': 'The True Queen',
       'beast': 'The Beast of Caerbannog',
+      'agiota':'loan shark',
       'ai':'OUCH!'
       
     },
@@ -713,6 +725,14 @@ class I18n {
       "laserDesc": "Reemplaza tu disparo por un rayo láser",
       "activeTurret": "Torreta",
       "activeTurretDesc": "Invoca una torreta en la sala actual",
+      "activeSuborno": "Soborno",
+      "activeSubornoDesc": "Usa 15 monedas para convertir enemigos en aliados",
+      "pilNanicolina": "Pastillas de Chiquitolina",
+      "pilNanicolinaDesc": "Reduce tu tamaño, alcance y daño, aumenta la velocidad",
+      "saw": "Sierra Circular",
+      "sawDesc": "Reemplaza tus disparos por una sierra circular, aumenta el daño",
+      "boloDinheiro": "Fajo de Dinero",
+      "boloDinheiroDesc": "Contiene 50 monedas en efectivo",
       "guerreiro": "GUERRERO",
       "guerreiroDesc": "Equilibrado y resistente.",
       "piromante": "PIROMANTE",
@@ -742,6 +762,7 @@ class I18n {
       'ghostKnight': 'El Caballero Fantasma',
       'truQueen': 'La Reina Verdadera',
       'beast': 'La Bestia de Caerbannog',
+      'agiota':'usurero',
       'ai':'AY!'
     }
   };

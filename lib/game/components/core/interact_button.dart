@@ -16,7 +16,7 @@ class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandle
 
   // AGORA ELE EXIGE RECEBER A POSIÇÃO NA HORA DE SER CRIADO!
   InteractButton({required this.onTrigger, required Vector2 position}) 
-      : super(size: Vector2(35, 35), anchor: Anchor.center, position: position);
+      : super(size: Vector2(40,40), anchor: Anchor.center, position: position);
 
   @override
   Future<void> onLoad() async {

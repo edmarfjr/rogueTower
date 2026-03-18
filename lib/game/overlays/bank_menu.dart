@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
-import '../components/core/pallete.dart'; // Assumindo que você tem sua paleta
 
 class BankMenu extends StatelessWidget {
   final TowerGame game;
@@ -37,18 +36,18 @@ class BankMenu extends StatelessWidget {
               const Divider(color: Colors.white24, height: 30),
 
               // --- MOSTRADORES DE SALDO ---
-              // Carteira (Atual)
               _buildBalanceRow("Na Carteira", game.coinsNotifier, Colors.white),
-              
-              // Banco (Persistente - Vindo do GameProgress)
               _buildBalanceRow("No Cofre", game.progress.bankNotifier, Colors.amberAccent),
+              
+              // NOVO: Mostrador de Dívida (Fica Vermelho para assustar!)
+              _buildBalanceRow("Dívida Ativa", game.dividaNotifier, Colors.redAccent),
 
               const Divider(color: Colors.white24, height: 30),
 
-              // --- AÇÕES ---
+              // --- AÇÕES NORMAIS DO BANCO ---
               _buildActionSection("DEPOSITAR (Guardar)", Colors.blue, (amount) {
                 if (amount == -1) {
-                  game.depositCoins(game.coinsNotifier.value); // Tudo
+                  game.depositCoins(game.coinsNotifier.value);
                 } else {
                   game.depositCoins(amount);
                 }
@@ -58,13 +57,71 @@ class BankMenu extends StatelessWidget {
 
               _buildActionSection("SACAR (Retirar)", Colors.green, (amount) {
                 if (amount == -1) {
-                  game.withdrawCoins(game.progress.bankBalance); // Tudo
+                  game.withdrawCoins(game.progress.bankBalance); 
                 } else {
                   game.withdrawCoins(amount);
                 }
               }),
 
-              const SizedBox(height: 25),
+              const Divider(color: Colors.white24, height: 30),
+
+              // --- AGIOTA / EMPRÉSTIMO ---
+              ValueListenableBuilder<int>(
+                valueListenable: game.dividaNotifier,
+                builder: (context, divida, child) {
+                  // SE NÃO TEM DÍVIDA: Oferece o empréstimo
+                  if (divida == 0) {
+                    return SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          // Pega 50, fica a dever 75 (50% de juros)
+                          game.coinsNotifier.value += 50;
+                          game.dividaNotifier.value += 75;
+                        },
+                        child: const Text("PEGAR EMPRÉSTIMO (+50G)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  } 
+                  
+                  // SE TEM DÍVIDA: Obriga a pagar (Desativa o botão se não tiver dinheiro)
+                  else {
+                    return ValueListenableBuilder<int>(
+                      valueListenable: game.coinsNotifier,
+                      builder: (context, moedasAtuais, child) {
+                        bool conseguePagar = moedasAtuais >= divida;
+
+                        return SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: conseguePagar ? Colors.orange : Colors.grey,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            onPressed: conseguePagar 
+                              ? () {
+                                  // Quita a dívida!
+                                  game.coinsNotifier.value -= divida;
+                                  game.dividaNotifier.value = 0;
+                                }
+                              : null, // Desativa o botão se for pobre
+                            child: Text(
+                              conseguePagar ? "PAGAR DÍVIDA (-${divida}G)" : "FALTAM MOEDAS PARA PAGAR!", 
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                            ),
+                          ),
+                        );
+                      }
+                    );
+                  }
+                },
+              ),
+
+              const SizedBox(height: 15),
 
               // Botão Sair
               SizedBox(

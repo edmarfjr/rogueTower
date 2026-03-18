@@ -55,6 +55,7 @@ class EnemyBoss extends Enemy {
     super.weight = 10.0,
     super.rotates = false,
     super.hasGhostEffect = false,
+    super.hasFlail = false,
     super.iconData,
     super.originalColor,
     super.size,

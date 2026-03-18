@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
@@ -121,12 +122,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, 50)));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -150)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.saw));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.saw));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.orbitalShield));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.foice));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.flail));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -232,7 +234,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     int targetEnemyCount = baseCount + rng.nextInt(3);
     if (targetEnemyCount > 12) targetEnemyCount = 12;
 
-    if(gameRef.nextRoomReward == CollectibleType.desafio) targetEnemyCount = 12;
+    if(gameRef.nextRoomReward == CollectibleType.desafio) targetEnemyCount = 10;
 
     int enemiesSpawned = 0;
     int attempts = 0; 
@@ -480,11 +482,38 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       bites: bites2,
     ));
   }
+
   void _spawnBankRoom() {
       // 1. Cria o ATM no centro
+      if(gameRef.dividaNotifier.value > 0)gameRef.isCurrentRoomBank = true;
       gameRef.world.add(BankAtm(position: Vector2(0, 0)));
       
+  }
+
+  void triggerAgiotaTrap() {
+    // 1. Zera a dívida (afinal, agora o jogador vai pagar com a alma)
+    gameRef.dividaNotifier.value = 0;
+    
+    // 2. Tranca a sala para o combate
+    _levelCleared = false;
+    
+    // Tranca visualmente as portas
+    final doors = gameRef.world.children.query<Door>();
+    for (var door in doors) {
+      door.close(); // Chame a sua função de fechar a porta ou mude o sprite
     }
+
+    // 3. Efeitos de Terror!
+    gameRef.shakeCamera(intensity: 8.0, duration: 1.0);
+    // AudioManager.playSfx('boss_spawn.mp3');
+
+    // 4. SPAWNA O AGIOTA!
+    gameRef.world.add(FloatingText(text: "ACHOU QUE IA FUGIR?!", position: Vector2(0, -50), color: Pallete.vermelho, fontSize: 24));
+    
+    // Substitua pelo seu método de spawnar o boss Agiota
+    gameRef.world.add(EnemyFactory.createAgiota(Vector2(0, 0))); 
+  }
+
   void _generateShopRoom(){
     gameRef.world.add(Collectible(
         position: Vector2(160, 0),

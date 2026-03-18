@@ -28,6 +28,43 @@ class EnemyFactory {
     );
   }
 
+  static EnemyBoss createAgiota(Vector2 pos) {
+    return EnemyBoss(
+      bossName: "agiota".tr(),
+      hp: 1500, // Vida da Fase 1
+      position: Vector2(0, -100),
+      speed: 100,
+      soul: 250, 
+      iconData: MdiIcons.accountTie,
+      size: Vector2.all(64), 
+      originalColor: Pallete.vermelho,
+      behaviorChangeInterval: 4.0,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        phase1Movements:[
+          FollowPlayerBehavior(),
+        ],
+        phase1Attacks: [
+          ProjectileAttackBehavior(interval: 2.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+          MortarAttackBehavior(interval: 2.0),
+        ],
+        
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movements:[
+          FollowPlayerBehavior(speedMod: 1.2),
+        ],
+        phase2Attacks: [
+          ProjectileAttackBehavior(interval: 2.0, isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false, size: Vector2.all(20)),
+          MortarAttackBehavior(interval: 3.0,isBarragem: true),
+          SpinnerAttackBehavior(interval: 0.8, projectilesPerWave: 16, isSpiral: true), 
+        ],
+        
+    );
+  }
+
   // inimigos fase 1
   
   static Enemy createRat(Vector2 pos) {
@@ -311,6 +348,7 @@ class EnemyFactory {
       position: Vector2(0, -100),
       speed: 100,
       soul: 250, 
+      hasFlail: true,
       iconData: MdiIcons.horseHuman,
       hasGhostEffect: true,
       size: Vector2.all(64), 
@@ -539,7 +577,7 @@ class EnemyFactory {
     return Enemy(
       position: pos,
       hp: 200,
-      speed: 90,
+      speed: 100,
       hbSize: Vector2(24,20),
       weight: 3.0,
       iconData: MdiIcons.elephant,

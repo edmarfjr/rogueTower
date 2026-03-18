@@ -103,6 +103,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   final IconData iconData;
 
   final bool hasShield;
+  final bool hasFlail;
   final Vector2 _collisionBuffer = Vector2.zero();
   final bool isDummy;
 
@@ -132,6 +133,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     Vector2? hbSize,
     Vector2? hbOffset,
     this.hasShield = false,
+    this.hasFlail = false,
     this.isBoss = false,
   }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
@@ -179,6 +181,17 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           angleOffset: ang,
         ));
       }
+    }
+
+    if (hasFlail) {
+      add(OrbitalShield(
+        owner: this,
+        speed: 8.0,
+        isEnemy: true,
+        angleOffset: 0,
+        radius: size.y * 2,
+        isFlail: true
+      ));
     }
 
     add(ShadowComponent(parentSize: size));
@@ -307,7 +320,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         GhostParticle(
           icon: visual!.icon,
           color: originalColor.withOpacity(0.3),
-          position: position.clone(), 
+          position: position.clone() - Vector2(0, size.y/5), 
           size: size,
           anchor: anchor,
           scale: visual!.scale

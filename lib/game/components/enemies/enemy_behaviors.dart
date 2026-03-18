@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/effects/attack_warning.dart';
 import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
@@ -393,6 +394,15 @@ class ProjectileAttackBehavior extends AttackBehavior {
     }
 
     _timer += dt;
+    if(_timer >= interval - 1 && _timer <= interval + dt - 1){
+      enemy.gameRef.world.add(AttackWarningEffect(
+          position: enemy.position.clone(), 
+          //duration: tempoDeAviso,
+          owner:enemy,
+          maxRadius: enemy.size.y,
+          color: Pallete.vermelho,
+        ));
+    }
     if (_timer >= interval) {
       if (isBurst) {
         _isBurstActive = true;
@@ -617,6 +627,15 @@ class SpinnerAttackBehavior extends AttackBehavior {
     if (enemy == null || enemy!.isFreeze) return; 
 
     _timer += dt;
+    if(_timer >= interval - 1 && _timer <= interval + dt - 1){
+      enemy.gameRef.world.add(AttackWarningEffect(
+          position: enemy.position.clone(), 
+          //duration: tempoDeAviso,
+          owner:enemy,
+          maxRadius: enemy.size.y,
+          color: Pallete.vermelho,
+        ));
+    }
     if (_timer >= interval) {
       AudioManager.playSfx('enemyShot.mp3');
       
@@ -704,7 +723,14 @@ class DashAttackBehavior extends AttackBehavior {
       if (_timer >= 1.0) {
         _state = 1; 
         _timer = 0;
-        if(visual != null) visual.setColor(Pallete.vermelho);
+       // if(visual != null) visual.setColor(Pallete.vermelho);
+        enemy.gameRef.world.add(AttackWarningEffect(
+          owner:enemy,
+          position: enemy.position.clone(), 
+          //duration: tempoDeAviso,
+          maxRadius: enemy.size.y,
+          color: Pallete.vermelho,
+        ));
       }
       
     } else if (_state == 1) { 
@@ -782,8 +808,15 @@ class ChargeAttackBehavior extends AttackBehavior {
       if (dist <= detectRange) {
         _state = 1;
         _timer = 0;
-        enemy.canMove = false; 
-        visual?.setColor(Pallete.vermelho);
+        enemy.canMove = false;
+        enemy.gameRef.world.add(AttackWarningEffect(
+          owner:enemy,
+          position: enemy.position.clone(), 
+          //duration: tempoDeAviso,
+          maxRadius: enemy.size.y,
+          color: Pallete.vermelho,
+        )); 
+     //   visual?.setColor(Pallete.vermelho);
       }
     }
     else if (_state == 1) {

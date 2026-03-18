@@ -197,6 +197,19 @@ class Player extends PositionComponent
   @override
   Future<void> onLoad() async {
     // Cache do visual para acesso instantâneo
+    criaVisual();
+    
+  }
+
+  void criaVisual({reset = false}){
+
+    if (reset){
+      _visual.removeFromParent();
+      _hitbox.removeFromParent();
+      _dodgeAura!.removeFromParent();
+      _shadow.removeFromParent();
+    }
+    
     _visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
@@ -217,6 +230,7 @@ class Player extends PositionComponent
     */
     
     // Hitbox
+    
     _hitbox=RectangleHitbox(
       size: Vector2(12,24),
       anchor: Anchor.center, 
@@ -245,7 +259,6 @@ class Player extends PositionComponent
 
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
-    
   }
 
   @override
@@ -1051,6 +1064,7 @@ class Player extends PositionComponent
   }
 
   void reset() {
+    size = Vector2.all(32);
     maxHealth = 4;
     healthNotifier.value = 4;
     maxArtificialHealth = 0;
@@ -1126,7 +1140,7 @@ class Player extends PositionComponent
     isLaser = false;
     isWave = false;
     isSaw = false;
-
+    criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
   }
 
