@@ -81,6 +81,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final ValueNotifier<int> dividaNotifier = ValueNotifier<int>(0);
   bool isCurrentRoomBank = false;
 
+  double difficultyMultiplier = 1.0;
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -143,13 +145,15 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     transitionEffect = ScreenTransition();
     camera.viewport.add(transitionEffect);
     camera.viewfinder.anchor = Anchor.center;
-
-    FlameAudio.bgm.initialize();
-
+    
     await progress.loadSettings(this);
-    useCRTEffect = false;
-
-    AudioManager.playBgm('retro_forest.mp3');
+   // useCRTEffect = false;
+    if (AudioManager.isMutedMusic) {
+      AudioManager.stopBgm(); 
+    } else {
+      AudioManager.playBgm('retro_forest.mp3');
+    }
+    
   }
 
  @override
@@ -443,5 +447,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     
     AudioManager.playBgm('8_bit_adventure.mp3');
     startLevel();
+  }
+
+  @override
+  void onRemove() {
+    // Garante que o motor de áudio desliga a música quando o jogo é destruído/recarregado
+    AudioManager.stopBgm(); 
+    
+    super.onRemove();
   }
 }

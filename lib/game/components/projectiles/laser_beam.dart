@@ -119,7 +119,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       final hitParent = result.hitbox!.parent;
       
       // Se for parede ou o limite da tela, corta o laser ali
-      if (hitParent is Wall || result.hitbox is ScreenHitbox) {
+      if (hitParent is Wall || result.hitbox is ScreenHitbox || hitParent is Enemy || hitParent is Player) {
         currentLength = result.distance!;
       } else {
         // Se bateu em outra coisa (Player/Enemy), ignora e atravessa

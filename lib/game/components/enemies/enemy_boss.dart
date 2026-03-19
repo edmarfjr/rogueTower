@@ -38,6 +38,8 @@ class EnemyBoss extends Enemy {
   late BossHealthBar healthBar;
 
   bool _isEpicDying = false;
+  
+  List<CollectibleType> dropList;
 
   EnemyBoss({
     required this.bossName,
@@ -49,6 +51,7 @@ class EnemyBoss extends Enemy {
     this.hasSecondForm = false,
     this.phase2Movements = const [],
     this.phase2Attacks = const [],
+    this.dropList = const [],
     super.deathBehavior,
     super.speed = 100,
     super.soul = 50,
@@ -195,6 +198,14 @@ class EnemyBoss extends Enemy {
           AudioManager.playSfx('explosion.mp3');
           gameRef.shakeCamera(intensity: 3.0, duration: 0.2); // Tremor leve e contínuo
 
+        if (dropList.isNotEmpty){
+          dropList.shuffle();
+          final item = Collectible(position: position, type: dropList[0]);
+            gameRef.world.add(item);
+            double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+            double altura = Random().nextDouble() * 100 + 150 * -1;
+            item.pop(Vector2(direcaoX, 0), altura:altura);
+        }
         /*  if (explosionCount % 2 == 0){
 
             bool isCoin = Random().nextBool();

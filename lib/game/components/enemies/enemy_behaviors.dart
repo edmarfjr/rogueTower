@@ -259,6 +259,10 @@ class RandomWanderBehavior extends MovementBehavior {
 class BouncerBehavior extends MovementBehavior {
   Vector2 _velocity = Vector2.zero();
 
+  final double speedMod;
+
+  BouncerBehavior({this.speedMod = 1});
+
   @override
   void update(double dt) {
     if (_velocity == Vector2.zero()) {
@@ -272,14 +276,25 @@ class BouncerBehavior extends MovementBehavior {
   }
 
   void _checkBounds() {
-    
-    double halfWidth = enemy.size.x / 2 + 10;
-    double halfHeight = enemy.size.y / 2 + 10;
 
-    double rightLimit = (TowerGame.gameWidth / 2) - halfWidth;
-    double leftLimit = -(TowerGame.gameWidth / 2) + halfWidth;
-    double topLimit = -(TowerGame.gameHeight / 2) + halfHeight;
-    double bottomLimit = (TowerGame.gameHeight / 2) - halfHeight;
+    /*
+    double limitX = TowerGame.gameWidth/2 - size.x;
+    double limitY = TowerGame.gameHeight/2 - size.y;
+    double arenaBorder = 10;
+
+    position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
+    position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
+    */
+    
+    double limitX = TowerGame.gameWidth/2 - enemy.size.x;
+    double limitY = TowerGame.gameHeight/2 - enemy.size.y;
+
+    double arenaBorder = 10;
+
+    double rightLimit = limitX - arenaBorder;
+    double leftLimit = -limitX + arenaBorder;
+    double topLimit = -limitY + arenaBorder;
+    double bottomLimit = limitY - arenaBorder;
 
     if (enemy.position.x >= rightLimit) {
       _velocity.x = -_velocity.x.abs(); 

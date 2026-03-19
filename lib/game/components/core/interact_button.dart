@@ -8,7 +8,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandler {
   final VoidCallback onTrigger;
-
+  double pressTmr = 0.0 ;
   // Pega o tamanho real da tela neste exato frame
     //final screenSize = gameRef.camera.viewport.size;
     // Define a posição no canto inferior direito
@@ -47,10 +47,18 @@ class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandle
       position: size / 2,    
     ));
   }
+  @override
+  void update(double dt) {
+    if(pressTmr > 0) pressTmr -=dt;
+  }
 
   @override
   void onTapDown(TapDownEvent event) {
-    onTrigger();
+    if(pressTmr <= 0){
+      pressTmr = 0.3;
+      onTrigger();
+    }
+    
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:TowerRogue/game/components/projectiles/web.dart';
@@ -38,6 +39,10 @@ class EnemyFactory {
       iconData: MdiIcons.accountTie,
       size: Vector2.all(64), 
       originalColor: Pallete.vermelho,
+      dropList: [
+        CollectibleType.boloDinheiro,
+        CollectibleType.goldDmg
+      ],
       behaviorChangeInterval: 4.0,
       
         // --- COMPORTAMENTOS DA FASE 1 ---
@@ -495,7 +500,7 @@ class EnemyFactory {
         BouncerBehavior(),            
       ],
       phase1Attacks: [
-        SpinnerAttackBehavior(interval: 2.5),
+        SpinnerAttackBehavior(interval: 2.5, isSpiral: true, projectilesPerWave: 12),
         MortarAttackBehavior(interval: 3.0),
       ],
         // --- ATIVANDO A FASE 2 ---
@@ -503,10 +508,10 @@ class EnemyFactory {
         
         // --- COMPORTAMENTOS DA FASE 2 ---
       phase2Movements: [
-        BouncerBehavior(),            
+        BouncerBehavior(speedMod:2),            
       ],
       phase2Attacks: [
-        SpinnerAttackBehavior(interval: 2, isChangeDir: true),
+        SpinnerAttackBehavior(interval: 2, isChangeDir: true, isSpiral: true, projectilesPerWave: 12),
         JumpAttackBehavior(
           jumpRange: 300,    
           minRange: 50,      

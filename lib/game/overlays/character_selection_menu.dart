@@ -1,12 +1,14 @@
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/game_progress.dart';
+import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
-import '../components/core/character_class.dart';
-import '../components/core/pallete.dart';
+// import '../components/core/pallete.dart'; // Se for necessário no futuro
 
 class CharacterSelectionMenu extends StatefulWidget {
   final TowerGame game;
+  
   const CharacterSelectionMenu({super.key, required this.game});
 
   @override
@@ -16,14 +18,16 @@ class CharacterSelectionMenu extends StatefulWidget {
 class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
   int _selectedIndex = 0;
   bool _isCurrentClassUnlocked = true;
+  
+  // --- VARIÁVEL DA DIFICULDADE ---
+  double _selectedDifficulty = 1.0; // Começa no "Normal"
 
   @override
   void initState() {
     super.initState();
-    _checkUnlockStatus(); // Checa o primeiro personagem ao abrir a tela
+    _checkUnlockStatus();
   }
 
-  // Função que lê o save
   void _checkUnlockStatus() async {
     final charClass = CharacterRoster.classes[_selectedIndex];
     bool unlocked = await GameProgress.isClassUnlocked(charClass);
@@ -37,13 +41,13 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
     final charClass = CharacterRoster.classes[_selectedIndex];
 
     return Material(
-      color: Colors.black87, // Fundo semi-transparente
+      color: Colors.black87,
       child: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8, // Aumentei um pouquinho para caber a dificuldade
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E), // Fundo da caixa
+            color: const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: charClass.color, width: 3),
           ),
@@ -52,22 +56,19 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
             children: [
               const Text(
                 "ESCOLHA SUA CLASSE",
-                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Pallete.branco, fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  // O ícone da classe (Fica cinza se estiver bloqueado!)
                   Icon(
                     charClass.icon, 
                     size: 100, 
-                    color: _isCurrentClassUnlocked ? charClass.color : Colors.white24
+                    color: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaEsc
                   ),
-                  
-                  // O Cadeado gigante em cima
                   if (!_isCurrentClassUnlocked)
-                    const Icon(Icons.lock, size: 60, color: Colors.white),
+                    const Icon(Icons.lock, size: 60, color: Pallete.branco),
                 ],
               ),
               
@@ -75,20 +76,19 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               Text(
                 _isCurrentClassUnlocked ? charClass.name : "???",
                 style: TextStyle(
-                  color: _isCurrentClassUnlocked ? charClass.color : Colors.grey, 
+                  color: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaCla, 
                   fontSize: 32, 
                   letterSpacing: 2
                 ),
               ),
               
-              // Mostra a descrição normal se liberado, ou a Dica se bloqueado
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Text(
                   _isCurrentClassUnlocked ? charClass.description : charClass.unlockConditionText,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _isCurrentClassUnlocked ? Colors.white70 : Colors.redAccent, 
+                    color: _isCurrentClassUnlocked ? Pallete.cinzaCla : Pallete.vermelho, 
                     fontSize: 16,
                     fontWeight: _isCurrentClassUnlocked ? FontWeight.normal : FontWeight.bold,
                   ),
@@ -96,14 +96,31 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               ),
 
               const Spacer(),
+              const Spacer(),
 
-              // Botões de Navegação e Confirmar
+              // --- SELETOR DE DIFICULDADE AQUI ---
+              const Text("DIFICULDADE", style: TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              const SizedBox(height: 8),
+              // Envolvi num Wrap (ou SingleChildScrollView) caso a tela do telemóvel seja muito pequena
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildDifficultyButton("facil".tr(), 1.0, Pallete.verdeCla),
+                  _buildDifficultyButton("normal".tr(), 1.5, Pallete.azulCla),
+                  _buildDifficultyButton("dificil".tr(), 2.0, Pallete.laranja),
+                  _buildDifficultyButton("pesadelo".tr(), 2.5, Pallete.vermelho),
+                ],
+              ),
+              
+              const Spacer(),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Seta para a Esquerda
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 30),
+                    icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 30),
                     onPressed: () {
                       setState(() {
                         if (_selectedIndex > 0){
@@ -116,46 +133,82 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                     },
                   ),
                   
-                  // Botão de COMEÇAR JOGO
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Colors.grey,
+                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaCla,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
                     onPressed: _isCurrentClassUnlocked ? () {
-                      // CHAMA A FUNÇÃO QUE ALTERAMOS NO PASSO 3!
+                      
+                      // 1. INJETA A DIFICULDADE NO JOGO
+                      widget.game.difficultyMultiplier = _selectedDifficulty;
+                      
+                      // 2. INICIA O JOGO NORMALMENTE
                       widget.game.selectedClass = charClass;
                       widget.game.startGame(charClass);
                       widget.game.overlays.remove('CharacterSelectionMenu');
+                      
                     } : null,
-                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
 
-                  // Seta para a Direita
                   IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
+                    icon: const Icon(Icons.arrow_forward_ios, color: Pallete.branco, size: 30),
                     onPressed: () {
                       setState(() {
                         if (_selectedIndex < CharacterRoster.classes.length - 1){
                           _selectedIndex++;
                         } else {
                           _selectedIndex = 0;
-                        }_checkUnlockStatus();
+                        }
+                        _checkUnlockStatus();
                       });
                     },
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               
-              // Botão Fechar
               TextButton(
                 onPressed: () => widget.game.overlays.remove('CharacterSelectionMenu'),
-                child: const Text("VOLTAR", style: TextStyle(color: Colors.grey)),
-              )
+                child: const Text("VOLTAR", style: TextStyle(color: Pallete.cinzaCla)),
+              ),
+              const SizedBox(height: 10),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // --- FUNÇÃO AUXILIAR PARA CRIAR OS BOTÕES DE DIFICULDADE ---
+  Widget _buildDifficultyButton(String label, double multiplier, Color color) {
+    bool isSelected = _selectedDifficulty == multiplier;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedDifficulty = multiplier;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color : const Color(0xFF2C2C2C), // Fundo mais escuro se não selecionado
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Pallete.branco : Colors.transparent, 
+            width: 2
+          ),
+        ),
+        child: Text(
+          label, 
+          style: TextStyle(
+            color: isSelected ? Pallete.branco : Pallete.cinzaCla,
+            fontWeight: FontWeight.bold,
+            fontSize: 12
+          )
         ),
       ),
     );

@@ -17,7 +17,8 @@ enum FamiliarType {
   block,
   atira,
   fly,
-  turret
+  turret,
+  freeze
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -34,24 +35,26 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double detectRadius = 600;
   bool retorna;
 
-  //variaveis do fly
   double _currentAngle = 0;
-  double radius = 32;
+  double radius;
   final double angleOffset; 
   
   PositionComponent? target;
+
+  final Set<PositionComponent> _slowedEntities = {};
 
   Familiar({
     required Vector2 position ,
     required this.type,
     required this.player,
     this.followDistance = 50,
-    this.speed = 200.0,
+    this.speed = 100.0,
     this.offsetX = 0,
     this.offsetY = 0,
     this.angleOffset = 0, 
     this.retorna = true,
     this.fireRate = 2,
+    this.radius = 32,
     }) : super(position: position , size: Vector2.all(32), anchor: Anchor.center) {
     priority = 10; 
   }
@@ -85,6 +88,13 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.turret:
         icon = MdiIcons.towerFire;
         cor = Pallete.vermelho.withOpacity(0.7);
+      case FamiliarType.freeze:
+        detectRadius = 100;
+        icon = MdiIcons.snowflake;
+        cor = Pallete.azulCla.withOpacity(0.7);
+      default:
+        icon = MdiIcons.fire;
+        cor = Pallete.branco.withOpacity(0.7);
     }
 
 
@@ -100,12 +110,23 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
     visual!.angle = ang;
 
-    add(RectangleHitbox(
-      size: size , 
-      anchor: Anchor.center,
-      position: size / 2 , 
-      isSolid: true,
-    ));
+    if(type == FamiliarType.freeze){
+      add(CircleHitbox(
+          radius: detectRadius,
+          anchor: Anchor.center,
+          position: size / 2, // Centrado no familiar
+          isSolid: true, // Falso para não bloquear o movimento físico de ninguém!
+        ));
+    }else{
+      add(RectangleHitbox(
+        size: size , 
+        anchor: Anchor.center,
+        position: size / 2 , 
+        isSolid: true,
+      ));
+    }
+    
+
   }
 
   @override
@@ -156,6 +177,63 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
 
+    if (type == FamiliarType.freeze) {
+      final List<PositionComponent> toRemove = [];
+
+      for (final entity in _slowedEntities) {
+        // 1. Se o inimigo ou tiro morreu/foi destruído, apenas removemos da lista
+        if (!entity.isMounted) {
+          toRemove.add(entity);
+          continue;
+        }
+
+        // 2. Calcula a distância real entre os centros
+        double distance = absoluteCenter.distanceTo(entity.absoluteCenter);
+
+        // 3. Se ele saiu do círculo (colocamos +10 de margem para o efeito não "piscar" na borda)
+        if (distance > detectRadius + 10.0) {
+          
+          // Devolve a velocidade normal
+          if (entity is Enemy){
+            entity.freezeTimer = entity.freezeDuration;
+            
+            //print('saiu freeze $distance - $detectRadius ');
+            // entity.speed *= 2.0;
+          }
+          if (entity is Projectile) entity.speed *= 2.0;
+          
+          toRemove.add(entity); // Marca para remover da lista
+        }
+      }
+
+      // Limpa todos os que saíram ou morreram
+      _slowedEntities.removeAll(toRemove);
+    }
+
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    // --- DESENHO DA AURA DE GELO ---
+    if (type == FamiliarType.freeze) {
+      final center = Offset(size.x / 2, size.y / 2);
+      
+      // Fundo azul clarinho transparente
+      final fillPaint = Paint()
+        ..color = Pallete.azulCla.withOpacity(0.1)
+        ..style = PaintingStyle.fill;
+        
+      // Borda azul mais forte
+      final borderPaint = Paint()
+        ..color = Pallete.azulCla.withOpacity(0.4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+
+      canvas.drawCircle(center, detectRadius, fillPaint);
+      canvas.drawCircle(center, detectRadius, borderPaint);
+    }
   }
 
   @override
@@ -166,6 +244,29 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       retorna = false;
       removeFromParent();
     }
+    if (type == FamiliarType.freeze) {
+      if (!_slowedEntities.contains(other)) {
+        
+        if (other is Enemy) {
+          //other.speed *= 0.5; 
+          other.setFreeze();
+          _slowedEntities.add(other);
+        } 
+        else if (other is Projectile && other.isEnemyProjectile) {
+          other.speed *= 0.5;
+          _slowedEntities.add(other);
+        }
+        
+      }
+    }
+  }
+
+  @override
+  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+
+    // --- LÓGICA DE ENTRAR NA AURA ---
+    
   }
 
   PositionComponent? getTarget(){
@@ -219,6 +320,19 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       size: Vector2.all(10),
       iniPosition: position.clone(),
     ));
+  }
+
+  @override
+  void onRemove() {
+    // Garante que todos voltem ao normal caso o familiar seja destruído
+    if (type == FamiliarType.freeze) {
+      for (final entity in _slowedEntities) {
+        if (entity is Enemy) entity.speed *= 2.0;
+        if (entity is Projectile) entity.speed *= 2.0;
+      }
+      _slowedEntities.clear();
+    }
+    super.onRemove();
   }
 
 }

@@ -112,10 +112,10 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     super.onCollisionStart(intersectionPoints, other);
     if (isMine){
       if (!isEnemy && other is Enemy && !other.isIntangivel) {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:60));
+        gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:false, damage:damage, radius:60));
         removeFromParent();
       }else if (isEnemy && other is Player) {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:1, radius:60));
+        gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
         removeFromParent();
       }
     }

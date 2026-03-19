@@ -33,6 +33,7 @@ class CharacterClass {
   final double attackRange;
   final double dot;
   final int stackBonus;
+  final bool noDamage;
 
   // Bônus Passivos (Flags)
   final bool isShotgun;
@@ -45,6 +46,7 @@ class CharacterClass {
   final String unlockConditionText;
 
   final List<CollectibleType> startingItems;
+  final List<CollectibleType> itemsExcluidos;
 
   const CharacterClass({
     required this.id,
@@ -75,9 +77,11 @@ class CharacterClass {
     this.isUnlockedByDefault = true, 
     this.unlockConditionText = "",
     this.startingItems = const [],
+    this.itemsExcluidos = const [],
     this.semAcessorio = false,
     this.mudaIcone = false,
     this.isBomber = false,
+    this.noDamage = false,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -101,7 +105,7 @@ class CharacterRoster {
       speed: 150.0,
       damage: 10.0,
       fireRate: 0.4,
-      critChance: 5,
+      critChance: 95,
       critDamage: 1.5,
       dashCooldown: 2.5,
       attackRange: 0.7,
@@ -118,7 +122,8 @@ class CharacterRoster {
       maxHp: 4, 
       maxDash: 2,
       speed: 130.0, 
-      damage: 0.0, 
+      damage: 10.0, 
+      noDamage: true,
       fireRate: 0.05, 
       critChance: 5,
       critDamage: 2,
@@ -127,8 +132,17 @@ class CharacterRoster {
         CollectibleType.fogo, 
         CollectibleType.dotBook
       ],
+      itemsExcluidos: [
+        CollectibleType.damage,
+        CollectibleType.audacious,
+        CollectibleType.steroids,
+        CollectibleType.activeConvBruta,
+        CollectibleType.activeRitualDagger,
+        CollectibleType.goldDmg,
+        CollectibleType.mine,
+      ],
       stackBonus: 5,
-      dot: 1,
+      dot: 2,
       attackRange: 0.6,
     ),
     CharacterClass(

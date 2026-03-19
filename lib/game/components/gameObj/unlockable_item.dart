@@ -23,6 +23,9 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   final double _interactRange = 60.0;
   InteractButton? _currentButton;
 
+  TextComponent? _nameText;
+  TextComponent? _descText;
+
   UnlockableItem({
     required Vector2 position,
     required this.id,
@@ -51,11 +54,61 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     double dist = position.distanceTo(player.position);
 
     if (dist <= _interactRange) {
-      if (!_isInfoVisible && !_isPicked) _showButton();
+      if (!_isInfoVisible && !_isPicked){
+        _showButton();
+        _showItemInfo();  
+      } 
     } else {
-      if (_isInfoVisible) _hideButton();
+      if (_isInfoVisible){
+        _hideButton();
+        _hideItemInfo();
+      }
     }
     priority = position.y.toInt();
+  }
+
+  void _showItemInfo() {
+    final attrs = Collectible.getAttributes(type); 
+    String itemName = attrs['name'] ?? "Unknown Item";
+    String itemDesc = attrs['desc'] ?? "Unknown Description";
+
+    _nameText = TextComponent(
+      text: itemName.toUpperCase(),
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 12, 
+          color: Pallete.amarelo, 
+          fontWeight: FontWeight.bold,
+        )
+      ),
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, -25), 
+    );
+    add(_nameText!);
+
+    _descText = TextComponent(
+      text: itemDesc,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 10, 
+          color: Colors.white,
+        )
+      ),
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, -10), 
+    );
+    add(_descText!);
+  }
+
+  void _hideItemInfo() {
+    if (_nameText != null) {
+      remove(_nameText!);
+      _nameText = null;
+    }
+    if (_descText != null) {
+      remove(_descText!);
+      _descText = null;
+    }
   }
 
   void _showButton() {

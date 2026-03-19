@@ -38,6 +38,7 @@ Future<void> main() async {
 
 class GameEntry extends StatelessWidget {
   const GameEntry({super.key});
+  
 
   @override
   Widget build(BuildContext context) {

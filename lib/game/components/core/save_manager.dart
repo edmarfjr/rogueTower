@@ -103,7 +103,12 @@ class SaveManager {
       'goldDmg':game.player.goldDmg,
       'shieldCrit':game.player.shieldCrit,
       'isCritHeal':game.player.isCritHeal,
-      'isLaser':game.player.isLaser
+      'isLaser':game.player.isLaser,
+      'isWave':game.player.isWave,
+      'isSaw':game.player.isSaw,
+      'noDamage':game.player.noDamage,
+      'explodeHit':game.player.explodeHit,
+      'restock':game.player.restock,
     };
 
     String jsonString = jsonEncode(runData);
@@ -229,6 +234,12 @@ class SaveManager {
     game.player.isCritHeal = runData['isCritHeal'] ?? false;
     game.player.isUnicorn = false;
     game.player.isLaser = runData['isLaser'] ?? false;
+    game.player.isWave = runData['isWave'] ?? false;
+    game.player.isSaw = runData['isSaw'] ?? false;
+    game.player.noDamage = runData['noDamage'] ?? false;
+    game.player.explodeHit = runData['explodeHit'] ?? false;
+    game.player.restock = runData['restock'] ?? false;
+    
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

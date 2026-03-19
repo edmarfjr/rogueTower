@@ -71,6 +71,7 @@ class AudioManager {
   }
 
   static void playSfx(String filename) {
+    
     if (_isMutedSfx) return;
     
     String poolKey = filename.replaceAll('.wav', '.mp3');
@@ -79,7 +80,7 @@ class AudioManager {
       if (_sfxSources.containsKey(poolKey)) {
         SoLoud.instance.play(_sfxSources[poolKey]!, volume: sfxVolume);
       } else {
-         print("ALERTA: O som '$filename' não foi pré-carregado no init()!");
+         //print("ALERTA: O som '$filename' não foi pré-carregado no init()!");
       }
     } catch (e) {
        print("Erro ao tocar SFX ($filename) no SoLoud: $e");
@@ -87,6 +88,7 @@ class AudioManager {
   }
 
   static void playBgm(String filename) {
+    FlameAudio.bgm.stop();
     if (_isMutedMusic) return;
     if (_isBgmPlaying && _currentBgm == filename) return; 
 

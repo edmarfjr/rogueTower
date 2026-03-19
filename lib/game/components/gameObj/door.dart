@@ -200,6 +200,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       onTrigger: () {
         if(trancada){
           if(gameRef.keysNotifier.value>0){
+            gameRef.keysNotifier.value --;
             destranca();
           }else{
             if(gameRef.player.hasChaveNegra){

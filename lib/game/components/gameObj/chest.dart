@@ -131,10 +131,13 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
       gameRef.keysNotifier.value--;
     }
-    
+    gameRef.itensComunsPoolCurrent.shuffle();
     List<CollectibleType> possibleRewards = gameRef.itensComunsPoolCurrent;
 
-    if(isLock) possibleRewards = gameRef.itensRarosPoolCurrent;
+    if(isLock){
+      gameRef.itensComunsPoolCurrent.shuffle();
+      possibleRewards = gameRef.itensRarosPoolCurrent;
+    } 
 
     final CollectibleType lootType = possibleRewards[0];
 

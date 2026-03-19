@@ -45,14 +45,14 @@ enum CollectibleType {
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
-  saw,
+  saw, boloDinheiro, restock,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familiarBlock, familiarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
-  pilNanicolina
+  pilNanicolina, retaliar, familiarFreeze, encolheOnCrit
 }
 
 
@@ -381,8 +381,46 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         gameRef.player.maxHealth -= 6;
         gameRef.player.healthNotifier.value = min(gameRef.player.healthNotifier.value,gameRef.player.maxHealth);
       }
-      
     }
+
+    if ((custo > 0 || custoKeys > 0 || custoBombs > 0 || custoVida) && gameRef.player.restock) {
+      final rng = Random();
+      final rngPool = rng.nextDouble();
+      List<CollectibleType> pool = [];
+
+      if(custo>0){
+        if (rngPool <= 0.2){
+          pool = retornaItensRaros(gameRef.player);
+        }else if(rngPool > 0.2 && rngPool <= 0.6){
+          pool = retornaItensComuns(gameRef.player);
+        }else{
+          pool = retornaPocoes();
+        }
+      }else if(custoKeys> 0 || custoBombs>0){
+        pool = retornaPocoes();
+      }else if(custoVida){
+        pool = retornaItensRaros(gameRef.player);
+      }
+      
+      
+      if (pool.isNotEmpty) {
+        pool.shuffle();
+        
+        final novoItem = Collectible(
+          position: position.clone(),
+          type: pool.first,
+          custo: custo, 
+          custoKeys: custoKeys,
+          custoBombs: custoBombs,
+          custoVida: custoVida,
+        );
+        
+        gameRef.world.add(novoItem);
+        
+        createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 10);
+      }
+    }
+
     //desbloqueia classes
 
     String clasId = '';
@@ -684,6 +722,16 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'pilNanicolina'.tr(), 'desc': 'pilNanicolinaDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.azulCla};
       case CollectibleType.saw:
         return {'name': 'saw'.tr(), 'desc': 'sawDesc'.tr(), 'icon': MdiIcons.sawBlade, 'color': Pallete.cinzaCla};
+      case CollectibleType.boloDinheiro:
+        return {'name': 'boloDinheiro'.tr(), 'desc': 'boloDinheiroDesc'.tr(), 'icon': MdiIcons.cashMultiple, 'color': Pallete.verdeEsc};
+      case CollectibleType.retaliar:
+        return {'name': 'retaliar'.tr(), 'desc': 'retaliarDesc'.tr(), 'icon': MdiIcons.shieldSwordOutline, 'color': Pallete.vermelho};
+      case CollectibleType.restock:
+        return {'name': 'restock'.tr(), 'desc': 'restockDesc'.tr(), 'icon': MdiIcons.cart, 'color': Pallete.vermelho};
+      case CollectibleType.familiarFreeze:
+        return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': MdiIcons.snowflake, 'color': Pallete.azulCla};
+      case CollectibleType.encolheOnCrit:
+        return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': MdiIcons.snowflake, 'color': Pallete.azulCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -712,6 +760,11 @@ List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player pl
   ];
 
   poolOriginal.removeWhere((itemType) {
+
+    if (player.itemsExcluidos.contains(itemType)) {
+      return true; 
+    }
+
     if (stackables.contains(itemType)) return false; 
 
     bool temPassiva = player.items.any((adquirido) => adquirido.type == itemType);
@@ -825,6 +878,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeMidas,
       CollectibleType.goldDmg,
       CollectibleType.activeBombardeioUnico,
+      CollectibleType.boloDinheiro,
     ];
     
     return _filtrarPool(itens, player);
@@ -1421,7 +1475,7 @@ class CollectibleLogic {
             player.familiars.add(block);
             game.world.add(block);
          // }
-          text = "Decoy Ativado!";
+          text = "familiarAtira!";
           break;
 
         case CollectibleType.confuseCrit:
@@ -1481,7 +1535,7 @@ class CollectibleLogic {
           final pool = retornaItensComuns(player);
 
           for (var item in itensNoChao) {
-            if (!naoRolar.contains(item.type)) {
+            if (!naoRolar.contains(item.type) && item.custo==0 && item.custoBombs==0 && item.custoKeys==0) {
               if (pool.isNotEmpty) {
                 CollectibleType novoTipo;
                 if (poolRaros.contains(item.type)) {
@@ -1542,7 +1596,7 @@ class CollectibleLogic {
           ];
 
           for (var item in itensNoChao) {
-              if (!naoRolar.contains(item.type)) {
+              if (!naoRolar.contains(item.type) && item.custo==0 && item.custoBombs==0 && item.custoKeys==0) {
                 Vector2 pos = item.position.clone();
                 item.removeFromParent();
                 game.world.add(Collectible(position: pos, type: CollectibleType.damage)); 
@@ -1745,6 +1799,45 @@ class CollectibleLogic {
           text = "saw!";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.boloDinheiro:
+          game.player.collectCoin(50);
+          text = "CASH!";
+          //color = Pallete.vermelho;
+          break;   
+
+        case CollectibleType.retaliar:
+          game.player.explodeHit = true ;
+          text = "retaliar!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.restock:
+          game.player.restock = true ;
+          text = "restock!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.familiarFreeze:
+          //if (player.activeDecoy == null) {
+            final block = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.freeze, 
+                                  player: player,
+                                  radius: 100, 
+                                  followDistance: 25
+
+                                  );
+            player.familiars.add(block);
+            game.world.add(block);
+         // }
+          text = "familiarFreeze";
+          break;
+
+        case CollectibleType.encolheOnCrit:
+          game.player.encolheOnCrit = true ;
+          text = "encolheOnCrit!";
+          //color = Pallete.vermelho;
+          break;
 
         default:
           text = "";

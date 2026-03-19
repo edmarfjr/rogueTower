@@ -180,8 +180,8 @@ class MainMenu extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 80,
-            left: 100,
+            top: 30,
+            left: MediaQuery.of(context).size.width / 2 - 150,
             child:Transform.rotate( 
               angle :- pi / 4,
               child:Icon(MdiIcons.bat, color: Pallete.lilas, size: 50),

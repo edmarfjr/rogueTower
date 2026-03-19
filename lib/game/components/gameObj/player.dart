@@ -141,6 +141,9 @@ class Player extends PositionComponent
   bool isWave = false;
   bool isBomber = false;
   bool isSaw = false;
+  bool explodeHit = false;
+  bool restock = false;
+  bool encolheOnCrit = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -172,18 +175,21 @@ class Player extends PositionComponent
 
   //lista de itens
   List<AcquiredItemData> items = [];
+  List<CollectibleType> itemsExcluidos = [];
+
+  bool noDamage = false;
 
   final ValueNotifier<List<ActiveItemData?>> activeItems = ValueNotifier([null, null]);
 
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
-    if (type == CollectibleType.activePoisonBomb) return 3; 
+    if (type == CollectibleType.activePoisonBomb) return 2; 
     if (type == CollectibleType.activeLicantropia) return 6;    
     if (type == CollectibleType.activeHeal) return 5;   
     if (type == CollectibleType.activeMagicKeyChain) return 5;
     if (type == CollectibleType.activeGift) return 5;
     if (type == CollectibleType.activeHeartConverter) return 5;
-    if (type == CollectibleType.activeRitualDagger) return 5;
+    if (type == CollectibleType.activeRitualDagger) return 1;
     if (type == CollectibleType.activeConvBruta) return 5;
     return 5; 
   }
@@ -528,6 +534,10 @@ class Player extends PositionComponent
       isShotgun = charClass.isShotgun;
       isBomber = charClass.isBomber;
 
+      noDamage = charClass.noDamage;
+
+      itemsExcluidos = charClass.itemsExcluidos;
+
       for (var itemType in charClass.startingItems) {
 
         if (isItemAtivo(itemType)) {
@@ -794,7 +804,7 @@ class Player extends PositionComponent
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
-      if( isUnicorn || isDashing && isDashDamages){
+      if( isUnicorn || isDashing && isDashDamages || other.encolhido){
         double dmg = isUnicorn? damage*2 : damage;
         other.takeDamage(dmg);
       }else{
@@ -808,6 +818,9 @@ class Player extends PositionComponent
    // if (healthNotifier.value <= 0) return;
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     gameRef.triggerHitStop(0.05);
+    if(explodeHit){
+      gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:false, damage:30, radius:60));
+    }
     if (hasShield) {
       _breakShield(); 
       return; 
@@ -1018,7 +1031,7 @@ class Player extends PositionComponent
       owner: this,
       position: position.clone(), 
       direction: _tempDirection.clone(), 
-      damage: dmg, 
+      damage: noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
@@ -1069,6 +1082,7 @@ class Player extends PositionComponent
     healthNotifier.value = 4;
     maxArtificialHealth = 0;
     artificialHealthNotifier.value = 0;
+    shieldNotifier.value = 0;
     maxDash = 2;
     dashNotifier.value = 2;
     _dashCooldownTimer = 0;
@@ -1140,6 +1154,10 @@ class Player extends PositionComponent
     isLaser = false;
     isWave = false;
     isSaw = false;
+    noDamage = false;
+    explodeHit = false;
+    restock = false;
+    encolheOnCrit = false;
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
   }

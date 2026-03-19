@@ -64,8 +64,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double confuseTime = 3.0;
   int numCondicoes = 0;
   MovementBehavior confuseBehavior = RandomWanderBehavior();
+  MovementBehavior encolhidoBehavior = FollowPlayerBehavior(speedMod:-1);
   PositionComponent? lureTarget;
   bool isCharmed = false;
+  bool encolhido = false;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -77,6 +79,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
  // final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameIcon? visual;
+  late ShadowComponent _shadow;
+  late RectangleHitbox _hitbox;
   GameIcon? burnIcon;
   GameIcon? freezeIcon;
   GameIcon? poisonIcon;
@@ -141,6 +145,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
     confuseBehavior.enemy = this;
+    encolhidoBehavior.enemy = this;
     this.deathBehavior.enemy = this;
     if (attack2Behavior != null) {
       attack2Behavior!.enemy = this;
@@ -153,23 +158,26 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   @override
   Future<void> onLoad() async {
     speedInicial = speed;
+
+    hp = (hp * gameRef.difficultyMultiplier).ceil().toDouble();
     
-    final gameIcon = GameIcon(
+    visual = GameIcon(
       icon: iconData,
       color: originalColor,
       size: size,
       anchor: Anchor.center,
       position: size / 2, 
     );
-    add(gameIcon);
-    visual = gameIcon;
+    add(visual!);
 
-    add(RectangleHitbox(
+    _hitbox=RectangleHitbox(
       size: hbSize , 
       anchor: Anchor.center,
       position: size / 2 + hbOffset, 
       isSolid: true,
-    ));
+    );
+
+    add(_hitbox);
 
     if (hasShield) {
       List<double> angles = [0, pi/2, pi, 3*pi/2];
@@ -194,7 +202,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       ));
     }
 
-    add(ShadowComponent(parentSize: size));
+    
+    _shadow=ShadowComponent(parentSize: size);
+    add(_shadow);
 
     add(TimerComponent(
       period: 0.2, // A cada 0.2 segundos cospe uma fumaça
@@ -259,7 +269,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     _handleKnockBack(dt);
 
-    if(isConfuse){
+    if(encolhido){
+      encolhidoBehavior.update(dt);
+    }
+    else if(isConfuse){
       confuseBehavior.update(dt);
     }else{
       if (lureTarget != null) {
@@ -469,6 +482,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if(gameRef.player.charmOnCrit){
         setCharm();
       }
+      if(gameRef.player.encolheOnCrit){
+        setEncolhido();
+      }
+      
       if(gameRef.player.isCritHeal){
         double rng = Random().nextDouble();
         if(rng < 0.5){
@@ -506,12 +523,42 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void _keepInsideArena() {
-    double halfWidth = TowerGame.gameWidth / 2;
-    double halfHeight = TowerGame.gameHeight / 2;
-    double padding = size.x / 2 + 10; 
+    double limitX = TowerGame.gameWidth/2 - size.x;
+    double limitY = TowerGame.gameHeight/2 - size.y;
+    double arenaBorder = 10;
 
-    position.x = position.x.clamp(-halfWidth + padding, halfWidth - padding);
-    position.y = position.y.clamp(-halfHeight + padding, halfHeight - padding);
+    position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
+    position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
+  }
+
+  void setEncolhido(){
+    if (encolhido) return;
+    encolhido = true;
+    //hp = 1;
+    visual!.removeFromParent();
+    size = size*0.5;
+    visual = GameIcon(
+      icon: iconData, 
+      color: originalColor, 
+      size: size,
+      anchor: Anchor.center, 
+      position: size / 2,    
+    );
+    add(visual!);
+
+    _hitbox.removeFromParent();
+
+    _hitbox=RectangleHitbox(
+      size: Vector2(12,24)*0.2,
+      anchor: Anchor.center, 
+      position: size / 2 + Vector2(0,4),    
+      isSolid: true,
+    );
+    add(_hitbox);
+
+    _shadow.removeFromParent();
+    _shadow =  ShadowComponent(parentSize: size); 
+    add(_shadow);
   }
 
   void setCharm() {
@@ -521,7 +568,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       charmIcon = GameIcon(
         icon: MdiIcons.heart,
         color: Pallete.rosa,
-        size: size/4,
+        size: size/2,
         anchor: Anchor.center,
         position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
       );
@@ -532,6 +579,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void setFreeze(){
     if (isFreeze) return;
+    print('FREEZE');
     numCondicoes ++;
     isFreeze = true;
     if (isBoss){
@@ -543,14 +591,14 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     freezeIcon = GameIcon(
       icon: Icons.ac_unit,
       color: Pallete.azulCla,
-      size: size/4,
+      size: size/2,
       anchor: Anchor.center,
       position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
     );
     
     add(freezeIcon!);
-
   }
+
 
   void setConfuse(){
     if (isConfuse || isBoss) return;
@@ -560,7 +608,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     confuseIcon = GameIcon(
       icon: MdiIcons.help,
       color: Pallete.amarelo,
-      size: size/4,
+      size: size/2,
       anchor: Anchor.center,
       position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
     );
