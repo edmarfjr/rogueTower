@@ -23,6 +23,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final int splitCount;
   final bool isDecoy;
   final double attractionRadius = 150;
+  final bool isGlitterBomb; 
 
   late final Vector2 direction;
   Bomb({required Vector2 position, 
@@ -34,6 +35,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         this.splits = false,
         this.splitCount = 8,
         this.isDecoy = false,
+        this.isGlitterBomb = false,
         Vector2? direction}) 
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center) {
     this.direction = direction ?? Vector2.zero();
@@ -92,7 +94,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       if (isEnemy) {
         gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:100, owner: owner));
       } else {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:100, owner: owner));
+        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:100, owner: owner, isGlitter:isGlitterBomb));
       }
 
       if(splits){

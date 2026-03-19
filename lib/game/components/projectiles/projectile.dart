@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
@@ -18,7 +19,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   Vector2 direction; 
   double speed; 
   final double damage;
-  final bool isEnemyProjectile;
+  bool isEnemyProjectile;
   final bool apagaTiros;
   final PositionComponent? owner;
 
@@ -74,6 +75,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool critico = true;
 
+  bool goldShot = false;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -102,6 +105,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.maxRadius = 250.0,
     this.sweepAngle = pi / 2,
     this.isSaw = false,
+    this.goldShot = false,
     this.acceleration = 600.0,
     this.maxSpeed = 1000.0,
 
@@ -113,7 +117,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   @override
   Future<void> onLoad() async {
-    Color color = isEnemyProjectile ? Pallete.vermelho : Pallete.branco;
+    Color color = isEnemyProjectile ? Pallete.vermelho : goldShot? Pallete.amarelo : Pallete.branco;
     
     if (isWave) {
       color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
@@ -315,6 +319,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
+  void refletir(){
+    isEnemyProjectile = false;
+    direction *= -1;
+    visual!.setColor(Pallete.branco);
+    _timer = 0;
+  }
+
   double get danoAtual {
     if (!isWave) return damage; 
 
@@ -362,13 +373,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   void _doSplit() {
     for (int i = 0; i < splitCount; i++) {
-      double angle = (2 * pi / splitCount) * i; 
+      double angle = Random().nextDouble() * 2*pi; 
       Vector2 newDir = Vector2(cos(angle), sin(angle));
       
       gameRef.world.add(Projectile(
-        position: position.clone(), 
+        position: position.clone() - direction * 10, 
         direction: newDir,
-        speed: speed * 0.8, 
+        speed: speed * 0.6, 
         damage: damage / 2, 
         isEnemyProjectile: isEnemyProjectile,
         owner: owner,
@@ -444,6 +455,17 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {
           _homingTarget = null;
+        }
+
+        if(goldShot){
+          int rnd = Random().nextInt(100);
+          if(rnd <= 5){
+            final item = Collectible(position: position, type: CollectibleType.coin);
+            gameRef.world.add(item);
+            double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+            double altura = Random().nextDouble() * 100 + 150 * -1;
+            item.pop(Vector2(direcaoX, 0), altura:altura);
+          }
         }
 
         if (!isPiercing && !isBoomerang && !isWave) kill();

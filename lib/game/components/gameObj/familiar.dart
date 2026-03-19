@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
+import 'package:TowerRogue/game/components/gameObj/wall.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -18,7 +19,10 @@ enum FamiliarType {
   atira,
   fly,
   turret,
-  freeze
+  freeze,
+  glitch,
+  dmgBuff,
+  circProt,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -41,7 +45,16 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   
   PositionComponent? target;
 
-  final Set<PositionComponent> _slowedEntities = {};
+  final Set<PositionComponent> _entitiesList = {};
+
+  Vector2 _velocity = Vector2.zero();
+
+  double _colorTimer = 0;
+  final double _colorChangeInterval = 0.2;
+
+  final bool noVisual;
+
+  double _dmgTmr = 0;
 
   Familiar({
     required Vector2 position ,
@@ -55,6 +68,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     this.retorna = true,
     this.fireRate = 2,
     this.radius = 32,
+    this.noVisual = false,
     }) : super(position: position , size: Vector2.all(32), anchor: Anchor.center) {
     priority = 10; 
   }
@@ -92,25 +106,41 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         detectRadius = 100;
         icon = MdiIcons.snowflake;
         cor = Pallete.azulCla.withOpacity(0.7);
+      case FamiliarType.glitch:
+        speed = 150;
+        icon = MdiIcons.circleOpacity;
+        cor = Pallete.azulCla.withOpacity(0.7);
+      case FamiliarType.dmgBuff:
+        speed = 80;
+        detectRadius = 80;
+        icon = MdiIcons.satelliteVariant;
+        cor = Pallete.vermelho.withOpacity(0.7);
+      case FamiliarType.circProt:
+        speed = 200;
+        detectRadius = 60;
+        icon = MdiIcons.circleDouble;
+        cor = Pallete.branco.withOpacity(0.7);
+        followDistance = 0;
       default:
         icon = MdiIcons.fire;
         cor = Pallete.branco.withOpacity(0.7);
     }
 
+    if(!noVisual){
+      visual=GameIcon(
+        icon: icon,
+        color: cor, 
+        size: size,
+        anchor: Anchor.center,
+        position: size / 2,
+      );
 
-    visual=GameIcon(
-      icon: icon,
-      color: cor, 
-      size: size,
-      anchor: Anchor.center,
-      position: size / 2,
-    );
+      add(visual!);
 
-    add(visual!);
-
-    visual!.angle = ang;
-
-    if(type == FamiliarType.freeze){
+      visual!.angle = ang;
+    }
+    
+    if(type == FamiliarType.freeze || type == FamiliarType.circProt){
       add(CircleHitbox(
           radius: detectRadius,
           anchor: Anchor.center,
@@ -166,6 +196,47 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         position.setValues(newX, newY);
       }
 
+    }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff){
+      if (_velocity == Vector2.zero()) {
+        final rng = Random();
+        double angle = rng.nextDouble() * 2 * pi;
+        _velocity = Vector2(cos(angle), sin(angle)) * speed;
+      }
+      
+      position += _velocity * dt;
+      _checkBounds();
+
+      if (visual != null && type == FamiliarType.glitch) {
+        _colorTimer += dt;
+        
+        if (_colorTimer >= _colorChangeInterval) {
+          
+          _colorTimer = 0;
+
+          List<Color> cores=[
+            Pallete.vermelho,
+            Pallete.azulCla,
+            Pallete.verdeCla,
+            Pallete.rosa,
+            Pallete.lilas,
+            Pallete.amarelo,
+            Pallete.laranja,
+            Pallete.cinzaCla,
+            Pallete.branco,
+            Pallete.marrom,
+            Pallete.bege,
+            Pallete.vinho,
+            Pallete.verdeEsc,
+          ];
+          
+          final rng = Random();
+          Color cor = cores[rng.nextInt(cores.length)];
+
+          visual!.setColor(cor);
+        }
+      }
+    }else if(type == FamiliarType.circProt){
+      position = player.position.clone();
     }else{
       if (dist > followDistance) {
         final direction = (playerPos - position).normalized();
@@ -177,39 +248,76 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
 
-    if (type == FamiliarType.freeze) {
+    if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
       final List<PositionComponent> toRemove = [];
 
-      for (final entity in _slowedEntities) {
-        // 1. Se o inimigo ou tiro morreu/foi destruído, apenas removemos da lista
+      for (final entity in _entitiesList) {
         if (!entity.isMounted) {
           toRemove.add(entity);
           continue;
         }
+        if (type == FamiliarType.circProt){
+          _dmgTmr += dt;
+          if(_dmgTmr >= 1.0){
+            if (entity is Enemy){
+              _dmgTmr = 0;
+              entity.takeDamage(player.damage/2,critico: false);
+            }
+          }
+        }
 
-        // 2. Calcula a distância real entre os centros
         double distance = absoluteCenter.distanceTo(entity.absoluteCenter);
 
-        // 3. Se ele saiu do círculo (colocamos +10 de margem para o efeito não "piscar" na borda)
         if (distance > detectRadius + 10.0) {
-          
-          // Devolve a velocidade normal
-          if (entity is Enemy){
-            entity.freezeTimer = entity.freezeDuration;
-            
-            //print('saiu freeze $distance - $detectRadius ');
-            // entity.speed *= 2.0;
+          if (type == FamiliarType.freeze){
+            if (entity is Enemy){
+              entity.freezeTimer = entity.freezeDuration;
+            }
+            if (entity is Projectile) entity.speed *= 2.0;
           }
-          if (entity is Projectile) entity.speed *= 2.0;
           
-          toRemove.add(entity); // Marca para remover da lista
+          
+          toRemove.add(entity); 
         }
       }
+      _entitiesList.removeAll(toRemove);
+    }
+    if (type == FamiliarType.dmgBuff) {
+      double distance = absoluteCenter.distanceTo(player.absoluteCenter);
+      if (distance > detectRadius + 10.0) {
+        player.dmgBuff = false;
+      }
+    }
+  }
 
-      // Limpa todos os que saíram ou morreram
-      _slowedEntities.removeAll(toRemove);
+  void _checkBounds() {
+    double limitX = TowerGame.gameWidth/2 - size.x;
+    double limitY = TowerGame.gameHeight/2 - size.y;
+
+    double arenaBorder = 10;
+
+    double rightLimit = limitX - arenaBorder;
+    double leftLimit = -limitX + arenaBorder;
+    double topLimit = -limitY + arenaBorder;
+    double bottomLimit = limitY - arenaBorder;
+
+    if (position.x >= rightLimit) {
+      _velocity.x = -_velocity.x.abs(); 
+      position.x = rightLimit;      
+    } 
+    else if (position.x <= leftLimit) {
+      _velocity.x = _velocity.x.abs();  
+      position.x = leftLimit;       
     }
 
+    if (position.y >= bottomLimit) {
+      _velocity.y = -_velocity.y.abs(); 
+      position.y = bottomLimit;     
+    } 
+    else if (position.y <= topLimit) {
+      _velocity.y = _velocity.y.abs();  
+      position.y = topLimit;        
+    }
   }
 
   @override
@@ -217,17 +325,19 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     super.render(canvas);
     
     // --- DESENHO DA AURA DE GELO ---
-    if (type == FamiliarType.freeze) {
+    if (type == FamiliarType.freeze || type == FamiliarType.dmgBuff || type == FamiliarType.circProt) {
       final center = Offset(size.x / 2, size.y / 2);
+
+      Color cor = visual!.color;
       
       // Fundo azul clarinho transparente
       final fillPaint = Paint()
-        ..color = Pallete.azulCla.withOpacity(0.1)
+        ..color = cor.withOpacity(0.1)
         ..style = PaintingStyle.fill;
         
       // Borda azul mais forte
       final borderPaint = Paint()
-        ..color = Pallete.azulCla.withOpacity(0.4)
+        ..color = cor.withOpacity(0.4)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
@@ -244,28 +354,64 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       retorna = false;
       removeFromParent();
     }
-    if (type == FamiliarType.freeze) {
-      if (!_slowedEntities.contains(other)) {
+    if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
+      if (!_entitiesList.contains(other)) {
         
         if (other is Enemy) {
           //other.speed *= 0.5; 
-          other.setFreeze();
-          _slowedEntities.add(other);
+          if (type == FamiliarType.freeze)other.setFreeze();
+          _entitiesList.add(other);
         } 
         else if (other is Projectile && other.isEnemyProjectile) {
-          other.speed *= 0.5;
-          _slowedEntities.add(other);
+          if (type == FamiliarType.freeze){
+            other.speed *= 0.5;
+            _entitiesList.add(other);
+          }else{
+            double rnd = Random().nextDouble();
+            if(rnd <= 0.3)other.refletir();
+          }
         }
         
       }
     }
+    if (type == FamiliarType.dmgBuff) {
+      if(other is Player){
+        other.dmgBuff = true;
+      }
+    }
+    
   }
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
-    // --- LÓGICA DE ENTRAR NA AURA ---
+    if(type == FamiliarType.glitch){
+      if(other is Enemy){
+        setRndStatus(other);
+      }
+      if (other is Wall) {
+        final myRect = toAbsoluteRect();
+        final otherRect = other.toAbsoluteRect();
+        final intersection = myRect.intersect(otherRect);
+
+        if (intersection.width < intersection.height) {
+          if (_velocity.x > 0 && position.x < other.position.x) {
+              _velocity.x = -_velocity.x; 
+          }
+          else if (_velocity.x < 0 && position.x > other.position.x) {
+              _velocity.x = -_velocity.x; 
+          }
+        } else {
+          if (_velocity.y > 0 && position.y < other.position.y) {
+              _velocity.y = -_velocity.y; 
+          }
+          else if (_velocity.y < 0 && position.y > other.position.y) {
+              _velocity.y = -_velocity.y; 
+          }
+        }
+      }
+    }
     
   }
 
@@ -326,13 +472,42 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   void onRemove() {
     // Garante que todos voltem ao normal caso o familiar seja destruído
     if (type == FamiliarType.freeze) {
-      for (final entity in _slowedEntities) {
+      for (final entity in _entitiesList) {
         if (entity is Enemy) entity.speed *= 2.0;
         if (entity is Projectile) entity.speed *= 2.0;
       }
-      _slowedEntities.clear();
+      _entitiesList.clear();
     }
     super.onRemove();
+  }
+  
+  void setRndStatus(Enemy other) {
+    int rng = Random().nextInt(7);
+    switch (rng){
+      case 0:
+        other.setBleed();
+        break;
+      case 1:
+        other.setBurn();
+        break;
+      case 2:
+        other.setFreeze();
+        break;
+      case 3:
+        other.setConfuse();
+        break;
+      case 4:
+        other.setCharm();
+        break;
+      case 5:
+        other.setEncolhido();
+        break;
+      case 6:
+        other.takeDamage(gameRef.player.damage*3);
+        break;
+        
+        
+    }    
   }
 
 }

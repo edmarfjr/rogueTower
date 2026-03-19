@@ -18,6 +18,7 @@ import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/math.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
@@ -144,6 +145,10 @@ class Player extends PositionComponent
   bool explodeHit = false;
   bool restock = false;
   bool encolheOnCrit = false;
+  bool dmgBuff = false;
+  bool isGlitterBomb = false;
+  bool goldShot = false;
+  int clusterShot = -1;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -912,6 +917,7 @@ class Player extends PositionComponent
     }
 
     if (target != null) {
+      
       _attackTimer = 0;
       if(isMorteiro){
         gameRef.world.add(MortarShell(
@@ -929,6 +935,16 @@ class Player extends PositionComponent
         final angle = atan2(dir.y, dir.x);
         criaLaser(dir,angle,target);
       }else{
+        if(clusterShot > -1){
+          clusterShot ++;
+        }
+        if(clusterShot >= 15){
+          clusterShot = 0;
+          for(var i=0;i<10;i++){
+            double rndAng = Random().nextDouble() -0.5;
+            _shootAt(target,angleOffset: rndAng);
+          }
+        }
         if(isShotgun){
           _shootAt(target,angleOffset: 0.075);
           _shootAt(target,angleOffset: -0.075);
@@ -981,6 +997,9 @@ class Player extends PositionComponent
     }
     if(isLicantropia){
        dmg = dmg * 1.5;
+    }
+    if(dmgBuff){
+      dmg = dmg * 1.5;
     }
 
     return dmg;
@@ -1044,7 +1063,8 @@ class Player extends PositionComponent
       isOrbital: isOrbitalShot,
       isBoomerang: isBoomerang,
       splits: isShootSplits,
-      splitCount: isShootSplits? 5 : 0,
+      splitCount: Random().nextInt(5) + 1,
+      goldShot: goldShot,
       isWave: isWave,         // <-- Transforma em onda!
       maxRadius: 150,       // <-- Tamanho máximo
       growthRate: 100,      // <-- Velocidade de expansão
@@ -1064,7 +1084,8 @@ class Player extends PositionComponent
         damage:30, 
         owner: this, 
         splits: isBombSplits,
-        isDecoy: isBombDecoy
+        isDecoy: isBombDecoy,
+        isGlitterBomb: isGlitterBomb
       ));
     } else {
       gameRef.world.add(FloatingText(
@@ -1158,6 +1179,9 @@ class Player extends PositionComponent
     explodeHit = false;
     restock = false;
     encolheOnCrit = false;
+    isGlitterBomb = false;
+    goldShot = false;
+    clusterShot = -1;
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
   }

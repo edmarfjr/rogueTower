@@ -68,6 +68,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   PositionComponent? lureTarget;
   bool isCharmed = false;
   bool encolhido = false;
+  double encolhidoTimer = 0.0;
+  double encolhidoTime = 3.0;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -429,7 +431,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
   }
 
-  void takeDamage(double damage, {bool isDot = false, critico = true}) { // <-- ADICIONADO AQUI
+  void takeDamage(double damage, {bool isDot = false, critico = true}) 
+  { 
     if (hp <= 0) return;
     bool isCrit = false;
     double dmg = damage;
@@ -472,8 +475,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double fontSize = 14;
 
     if(isCrit){
-      gameRef.shakeCamera(intensity: 2.0, duration: 0.1);
-      gameRef.triggerHitStop(0.1);
+      gameRef.shakeCamera(intensity: 1.0, duration: 0.1);
+      //gameRef.triggerHitStop(0.1);
       cor = Pallete.amarelo;
       fontSize = 18;
       if(gameRef.player.confuseOnCrit){
@@ -531,12 +534,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
   }
 
-  void setEncolhido(){
-    if (encolhido) return;
-    encolhido = true;
-    //hp = 1;
+  void changeSize(sizeMod){
     visual!.removeFromParent();
-    size = size*0.5;
+    size = size*sizeMod;
     visual = GameIcon(
       icon: iconData, 
       color: originalColor, 
@@ -549,7 +549,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     _hitbox.removeFromParent();
 
     _hitbox=RectangleHitbox(
-      size: Vector2(12,24)*0.2,
+      size: Vector2(12,24)*sizeMod,
       anchor: Anchor.center, 
       position: size / 2 + Vector2(0,4),    
       isSolid: true,
@@ -559,6 +559,14 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     _shadow.removeFromParent();
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
+  }
+
+  void setEncolhido(){
+    if (encolhido) return;
+    encolhido = true;
+    changeSize(0.5);
+    hp *= 0.5;
+    
   }
 
   void setCharm() {
@@ -851,6 +859,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           confuseIcon!.removeFromParent();
           confuseIcon = null; // IMPORTANTE
         }
+      }
+    }
+
+    if (encolhido){
+      encolhidoTimer += dt;
+      if (encolhidoTimer >= encolhidoTime){
+        encolhido = false;
+        changeSize(2);
+        hp *= 2;
       }
     }
     

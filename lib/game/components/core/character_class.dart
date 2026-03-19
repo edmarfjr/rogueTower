@@ -105,7 +105,7 @@ class CharacterRoster {
       speed: 150.0,
       damage: 10.0,
       fireRate: 0.4,
-      critChance: 95,
+      critChance: 5,
       critDamage: 1.5,
       dashCooldown: 2.5,
       attackRange: 0.7,

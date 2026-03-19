@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
 import 'package:TowerRogue/game/components/gameObj/wall.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
@@ -20,6 +23,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final bool isFreeze;
   final bool isStun;
   final bool isCharm;
+  final bool isGlitter;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -34,6 +38,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.isFreeze = false,
     this.isStun = false,
     this.isCharm = false,
+    this.isGlitter = false,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
@@ -68,6 +73,36 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
               e.setCharm();
             }
             }else{
+              if(isGlitter){
+                int rnd = Random().nextInt(6);
+                Collectible? item;
+                switch (rnd){
+                  case 0:
+                    item = Collectible(position: position, type: CollectibleType.coin);
+                    break;
+                  case 1:
+                    item = Collectible(position: position, type: CollectibleType.potion);
+                    break;
+                  case 2:
+                    item = Collectible(position: position, type: CollectibleType.shield);
+                    break;
+                  case 3:
+                    item = Collectible(position: position, type: CollectibleType.key);
+                    break;
+                  case 4:
+                    item = Collectible(position: position, type: CollectibleType.bomba);
+                    break;
+                  case 5:
+                    e.setCharm();
+                    break;
+                }
+                if(item != null){
+                  gameRef.world.add(item);
+                    double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+                    double altura = Random().nextDouble() * 100 + 150 * -1;
+                    item.pop(Vector2(direcaoX, 0), altura:altura);
+                }
+              }
               e.takeDamage(damage,critico: false); 
             }
          }

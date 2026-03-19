@@ -10,7 +10,7 @@ class GameIcon extends PositionComponent {
     required this.icon,
     required this.color,
     required Vector2 size,
-    Vector2? scale, // Agora é opcional (sem o 'required')
+    Vector2? scale, 
     Anchor anchor = Anchor.center,
     Vector2? position,
   }) : super(
@@ -18,21 +18,19 @@ class GameIcon extends PositionComponent {
           anchor: anchor,
           position: position,
         ) {
-    // Se um scale foi passado no construtor, aplica ele
     if (scale != null) {
       this.scale.setFrom(scale);
     }
-  } // Inicializa a variável privada
+  } 
 
   final TextPainter _textPainter = TextPainter(
     textDirection: TextDirection.ltr,
     textAlign: TextAlign.center,
   );
 
-  // --- MÉTODO NOVO: Necessário para o Boss piscar ao tomar dano ---
   void setColor(Color newColor) {
     color = newColor;
-    _updatePainter(); // Força o redesenho com a nova cor
+    _updatePainter(); 
   }
 
   @override
@@ -44,7 +42,7 @@ class GameIcon extends PositionComponent {
     _textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        color: color, // Mudança 2: Usa a cor mutável
+        color: color,
         fontSize: size.x, 
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
@@ -56,13 +54,10 @@ class GameIcon extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    // Segurança extra
     if (_textPainter.width == 0) {
       _updatePainter();
     }
 
-    // SUA LÓGICA DE ALINHAMENTO (MANTIDA)
-    // Isso garante que o ícone fique centralizado na Hitbox
     final offset = Offset(
       (size.x - _textPainter.width) / 2,
       (size.y - _textPainter.height) / 2,
@@ -70,4 +65,5 @@ class GameIcon extends PositionComponent {
     
     _textPainter.paint(canvas, offset);
   }
+  
 }

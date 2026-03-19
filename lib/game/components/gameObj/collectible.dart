@@ -45,14 +45,14 @@ enum CollectibleType {
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
-  saw, boloDinheiro, restock,
+  saw, boloDinheiro, restock, goldShot, clusterShot,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familiarBlock, familiarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
-  pilNanicolina, retaliar, familiarFreeze, encolheOnCrit
+  pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb
 }
 
 
@@ -732,6 +732,18 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': MdiIcons.snowflake, 'color': Pallete.azulCla};
       case CollectibleType.encolheOnCrit:
         return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': MdiIcons.accountArrowDown, 'color': Pallete.marrom};
+      case CollectibleType.familiarGlitch:
+        return {'name': 'familiarGlitch'.tr(), 'desc': 'familiarGlitchDesc'.tr(), 'icon': MdiIcons.circleOpacity, 'color': Pallete.rosa};
+      case CollectibleType.familiarDmgBuff:
+        return {'name': 'familiarDmgBuff'.tr(), 'desc': 'familiarDmgBuffDesc'.tr(), 'icon': MdiIcons.satelliteVariant, 'color': Pallete.vermelho};
+      case CollectibleType.familiarCircProt:
+        return {'name': 'familiarCircProt'.tr(), 'desc': 'familiarCircProtDesc'.tr(), 'icon': MdiIcons.circleDouble, 'color': Pallete.branco};
+      case CollectibleType.glitterBomb:
+        return {'name': 'glitterBomb'.tr(), 'desc': 'glitterBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.rosa};
+      case CollectibleType.goldShot:
+        return {'name': 'goldShot'.tr(), 'desc': 'goldShotDesc'.tr(), 'icon': MdiIcons.gold, 'color': Pallete.laranja};
+      case CollectibleType.clusterShot:
+        return {'name': 'clusterShot'.tr(), 'desc': 'clusterShotDesc'.tr(), 'icon': MdiIcons.gamepadCircle, 'color': Pallete.vinho};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -880,6 +892,8 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeBombardeioUnico,
       CollectibleType.boloDinheiro,
       CollectibleType.restock,
+      CollectibleType.goldShot,
+      CollectibleType.clusterShot,
     ];
     
     return _filtrarPool(itens, player);
@@ -946,6 +960,11 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.encolheOnCrit,
       CollectibleType.retaliar , 
       CollectibleType.familiarFreeze , 
+      CollectibleType.familiarGlitch,
+      CollectibleType.familiarDmgBuff,
+      CollectibleType.familiarCircProt,
+      CollectibleType.glitterBomb,
+      
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1496,6 +1515,7 @@ class CollectibleLogic {
 
         case CollectibleType.bombDecoy:
           player.isBombDecoy = true;
+          game.player.bombNotifier.value += 5;
           text = "bombDecoy!";
           //color = Pallete.vermelho;
           break;
@@ -1824,15 +1844,15 @@ class CollectibleLogic {
 
         case CollectibleType.familiarFreeze:
           //if (player.activeDecoy == null) {
-            final block = Familiar(position: player.position.clone(),
+            final freeze = Familiar(position: player.position.clone(),
                                   type: FamiliarType.freeze, 
                                   player: player,
                                   radius: 100, 
                                   followDistance: 25
 
                                   );
-            player.familiars.add(block);
-            game.world.add(block);
+            player.familiars.add(freeze);
+            game.world.add(freeze);
          // }
           text = "familiarFreeze";
           break;
@@ -1840,6 +1860,63 @@ class CollectibleLogic {
         case CollectibleType.encolheOnCrit:
           game.player.encolheOnCrit = true ;
           text = "encolheOnCrit!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.familiarGlitch:
+          //if (player.activeDecoy == null) {
+            final glitch = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.glitch, 
+                                  player: player,
+                                  );
+            player.familiars.add(glitch);
+            game.world.add(glitch);
+         // }
+          text = "familiarGlitch";
+          break;
+
+        case CollectibleType.familiarDmgBuff:
+          //if (player.activeDecoy == null) {
+            final glitch = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.dmgBuff, 
+                                  player: player,
+                                  speed:0
+                                  );
+            player.familiars.add(glitch);
+            game.world.add(glitch);
+         // }
+          text = "familiarDmgBuff";
+          break;
+        
+        case CollectibleType.familiarCircProt:
+          //if (player.activeDecoy == null) {
+            final circProt = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.circProt, 
+                                  player: player,
+                                  speed:0
+                                  );
+            player.familiars.add(circProt);
+            game.world.add(circProt);
+         // }
+          text = "familiarCircProt";
+          break;
+
+        case CollectibleType.glitterBomb:
+          game.player.isGlitterBomb = true ;
+          game.player.bombNotifier.value += 5;
+          text = "glitterBomb!";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.goldShot:
+          game.player.goldShot = true ;
+          text = "goldShot!";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.clusterShot:
+          game.player.clusterShot = 0 ;
+          text = "clusterShot!";
           //color = Pallete.vermelho;
           break;
 

@@ -109,6 +109,10 @@ class SaveManager {
       'noDamage':game.player.noDamage,
       'explodeHit':game.player.explodeHit,
       'restock':game.player.restock,
+      'isGlitterBomb':game.player.isGlitterBomb,
+      'goldShot':game.player.goldShot,
+      'clusterShot':game.player.clusterShot,
+      
     };
 
     String jsonString = jsonEncode(runData);
@@ -239,7 +243,9 @@ class SaveManager {
     game.player.noDamage = runData['noDamage'] ?? false;
     game.player.explodeHit = runData['explodeHit'] ?? false;
     game.player.restock = runData['restock'] ?? false;
-    
+    game.player.isGlitterBomb = runData['isGlitterBomb'] ?? false;
+    game.player.goldShot = runData['goldShot'] ?? false;
+    game.player.clusterShot = runData['clusterShot'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

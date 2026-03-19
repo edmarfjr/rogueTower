@@ -276,16 +276,6 @@ class BouncerBehavior extends MovementBehavior {
   }
 
   void _checkBounds() {
-
-    /*
-    double limitX = TowerGame.gameWidth/2 - size.x;
-    double limitY = TowerGame.gameHeight/2 - size.y;
-    double arenaBorder = 10;
-
-    position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
-    position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
-    */
-    
     double limitX = TowerGame.gameWidth/2 - enemy.size.x;
     double limitY = TowerGame.gameHeight/2 - enemy.size.y;
 
