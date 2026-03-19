@@ -240,6 +240,8 @@ class I18n {
       'familiarFreezeDesc':'Invoca um elemental de gelo que desacelera inimigos e projeteis',
       'bombdecoy':'Bomba Chamaríz',
       'bombdecoyDesc':'Suas bombas atraem inimigos',
+      'encolheOnCrit':'tiro encolhedor',
+      'encolheOnCritDesc':'ataques criticos tem chance de encolher o inimigo',
       'guerreiro':'GUERREIRO',
       'guerreiroDesc':'Equilibrado e resistente.',
       'piromante':'PIROMANTE',

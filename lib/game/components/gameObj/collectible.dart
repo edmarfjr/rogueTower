@@ -731,7 +731,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.familiarFreeze:
         return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': MdiIcons.snowflake, 'color': Pallete.azulCla};
       case CollectibleType.encolheOnCrit:
-        return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': MdiIcons.snowflake, 'color': Pallete.azulCla};
+        return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': MdiIcons.accountArrowDown, 'color': Pallete.marrom};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -879,6 +879,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.goldDmg,
       CollectibleType.activeBombardeioUnico,
       CollectibleType.boloDinheiro,
+      CollectibleType.restock,
     ];
     
     return _filtrarPool(itens, player);
@@ -942,6 +943,9 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.laser,
       CollectibleType.wave,
       CollectibleType.pilNanicolina,
+      CollectibleType.encolheOnCrit,
+      CollectibleType.retaliar , 
+      CollectibleType.familiarFreeze , 
     ];
     return _filtrarPool(itRaros, player);
   }
