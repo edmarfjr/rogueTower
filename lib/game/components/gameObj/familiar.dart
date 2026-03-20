@@ -27,6 +27,7 @@ enum FamiliarType {
   bouncer,
   eye,
   prisma,
+  refletor,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -143,6 +144,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         radius = 64;
         speed = 2;
         cor = Pallete.branco.withOpacity(0.7);
+      case FamiliarType.refletor:
+        icon = MdiIcons.mirrorVariant;
+        radius = 64;
+        speed = 2;
+        cor = Pallete.cinzaCla.withOpacity(0.7);
       default:
         icon = MdiIcons.fire;
         cor = Pallete.branco.withOpacity(0.7);
@@ -217,7 +223,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         position.setValues(newX, newY);
       }
 
-    }else if(type == FamiliarType.eye || type == FamiliarType.prisma){
+    }else if(type == FamiliarType.eye || type == FamiliarType.prisma || type == FamiliarType.refletor){
       _currentAngle += speed * dt;
       
         double centerX;
@@ -459,6 +465,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     if(type == FamiliarType.prisma){
       if(other is Projectile && !other.isEnemyProjectile){
         other.refrata();
+      }
+    }
+    if(type == FamiliarType.refletor){
+      if(other is Projectile && !other.isEnemyProjectile){
+        other.refletir();
       }
     }
     

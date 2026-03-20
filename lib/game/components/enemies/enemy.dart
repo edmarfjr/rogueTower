@@ -71,6 +71,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool encolhido = false;
   double encolhidoTimer = 0.0;
   double encolhidoTime = 3.0;
+  bool isFear = false;
+  double fearTimer = 0.0;
+  double fearTime = 5.0;
 
   // --- VARIÁVEIS DA AURA VISUAL ---
   //double _auraTimer = 0; // Timer para a aura "pulsar"
@@ -90,6 +93,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameIcon? bleedIcon;
   GameIcon? confuseIcon;
   GameIcon? charmIcon;
+  GameIcon? fearIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
@@ -274,7 +278,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     _handleKnockBack(dt);
 
-    if(encolhido){
+    if(encolhido || isFear){
       encolhidoBehavior.update(dt);
     }
     else if(isConfuse){
@@ -538,6 +542,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.primeiroInimigoPocaVeneno = true;
       pocaVenenoQuandoMorre = true;
     }
+    if(gameRef.player.killCharge > -1){
+      gameRef.player.killCharge ++;
+      if(gameRef.player.killCharge == 10){
+        gameRef.player.rechargeActiveItem();
+        gameRef.player.killCharge = 0;
+      }
+    }
     if(pocaVenenoQuandoMorre){
       gameRef.world.add(
         PoisonPuddle(
@@ -611,6 +622,23 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       );
       
       add(charmIcon!);
+    }
+  }
+
+  void setFear() {
+    print('fear');
+    if (!isFear && !isBoss) {
+      isFear = true;
+      numCondicoes ++;
+      fearIcon = GameIcon(
+        icon: MdiIcons.skull,
+        color: Pallete.branco,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+      );
+      
+      add(fearIcon!);
     }
   }
 
@@ -888,6 +916,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         if (confuseIcon != null) {
           confuseIcon!.removeFromParent();
           confuseIcon = null; // IMPORTANTE
+        }
+      }
+    }
+
+    //fear
+    if (isFear){
+      fearTimer += dt;
+      if (fearTimer >= fearTime){
+        isFear = false;
+        if (fearIcon != null) {
+          fearIcon!.removeFromParent();
+          fearIcon = null; // IMPORTANTE
         }
       }
     }

@@ -116,6 +116,7 @@ class SaveManager {
       'primeiroInimigoPocaVeneno':game.player.primeiroInimigoPocaVeneno,
       'adrenalina':game.player.adrenalina,
       'eutanasia':game.player.eutanasia,
+      'killCharge':game.player.killCharge,
       
     };
 
@@ -254,6 +255,7 @@ class SaveManager {
     game.player.primeiroInimigoPocaVeneno = runData['primeiroInimigoPocaVeneno'] ?? false;
     game.player.adrenalina = runData['adrenalina'] ?? false;
     game.player.eutanasia = runData['eutanasia'] ?? false;
+    game.player.killCharge = runData['killCharge'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

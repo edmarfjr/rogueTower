@@ -11,6 +11,7 @@ import 'package:TowerRogue/game/components/projectiles/bombardmentEffect.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 //import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 //import 'package:flame/events.dart'; 
@@ -45,7 +46,8 @@ enum CollectibleType {
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
-  saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,
+  saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,familiarRefletor,
+  jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -53,7 +55,7 @@ enum CollectibleType {
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
   pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb,
-  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart
+  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss,
 }
 
 
@@ -74,6 +76,9 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeUnicorn,
     CollectibleType.activeBombardeio,
     CollectibleType.activeTurret,
+    CollectibleType.activeCircularShots,
+    CollectibleType.activeRandPill,
+    CollectibleType.activeDiarreiaExplosiva,
   ];
   return recarregaveis.contains(type);
 }
@@ -94,6 +99,10 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeBombardeioUnico,
     CollectibleType.activeTurretUnico,
     CollectibleType.activeSuborno,
+    CollectibleType.keysToBombs,
+    CollectibleType.activeRandPillUnico,
+    CollectibleType.portalBoss,
+    CollectibleType.activeFear,
   ];
   return usoUnico.contains(type);
 }
@@ -674,7 +683,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.pregos:
         return {'name': 'pregos'.tr(), 'desc': 'pregosDesc'.tr(), 'icon': MdiIcons.nail, 'color': Pallete.cinzaCla};
       case CollectibleType.bombDecoy:
-        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.verdeEsc};
+        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.azulEsc};
       case CollectibleType.activeHeartConverter:
         return {'name': 'activeHeartConverter'.tr(), 'desc': 'activeHeartConverterDesc'.tr(), 'icon': MdiIcons.heartOutline, 'color': Pallete.azulCla};
       case CollectibleType.activeDivineShield:
@@ -748,7 +757,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.goldShot:
         return {'name': 'goldShot'.tr(), 'desc': 'goldShotDesc'.tr(), 'icon': MdiIcons.gold, 'color': Pallete.laranja};
       case CollectibleType.clusterShot:
-        return {'name': 'clusterShot'.tr(), 'desc': 'clusterShotDesc'.tr(), 'icon': MdiIcons.gamepadCircle, 'color': Pallete.vinho};
+        return {'name': 'clusterShot'.tr(), 'desc': 'clusterShotDesc'.tr(), 'icon': MdiIcons.dotsHexagon, 'color': Pallete.vinho};
       case CollectibleType.evasao:
         return {'name': 'evasao'.tr(), 'desc': 'evasaoDesc'.tr(), 'icon': MdiIcons.runFast, 'color': Pallete.azulCla};
       case CollectibleType.primeiroInimigoPocaVeneno:
@@ -767,6 +776,24 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'goldHeart'.tr(), 'desc': 'goldHeartDesc'.tr(), 'icon': MdiIcons.heart, 'color': Pallete.laranja};
       case CollectibleType.familiarPrisma:
         return {'name': 'familiarPrisma'.tr(), 'desc': 'familiarPrismaDesc'.tr(), 'icon': MdiIcons.triangle, 'color': Pallete.branco};
+      case CollectibleType.familiarRefletor:
+        return {'name': 'familiarRefletor'.tr(), 'desc': 'familiarRefletorDesc'.tr(), 'icon': MdiIcons.mirrorVariant, 'color': Pallete.cinzaCla};
+      case CollectibleType.jumpersCable:
+        return {'name': 'jumpersCable'.tr(), 'desc': 'jumpersCableDesc'.tr(), 'icon': MdiIcons.jumpRope, 'color': Pallete.cinzaEsc};
+      case CollectibleType.activeCircularShots:
+        return {'name': 'activeCircularShots'.tr(), 'desc': 'activeCircularShotsDesc'.tr(), 'icon': MdiIcons.dotsCircle, 'color': Pallete.branco};
+      case CollectibleType.keysToBombs:
+        return {'name': 'keysToBombs'.tr(), 'desc': 'keysToBombsDesc'.tr(), 'icon': MdiIcons.keyArrowRight, 'color': Pallete.lilas};
+      case CollectibleType.activeRandPill:
+        return {'name': 'activeRandPill'.tr(), 'desc': 'activeRandPillDesc'.tr(), 'icon': MdiIcons.medication, 'color': Pallete.laranja};
+      case CollectibleType.activeRandPillUnico:
+        return {'name': 'activeRandPill'.tr(), 'desc': 'activeRandPillDesc'.tr(), 'icon': MdiIcons.medication, 'color': Pallete.verdeEsc};
+      case CollectibleType.portalBoss:
+        return {'name': 'portalBoss'.tr(), 'desc': 'portalBossDesc'.tr(), 'icon': MdiIcons.tunnelOutline, 'color': Pallete.vermelho};
+      case CollectibleType.activeFear:
+        return {'name': 'activeFear'.tr(), 'desc': 'activeFearDesc'.tr(), 'icon': MdiIcons.emoticonAngryOutline, 'color': Pallete.vinho};
+      case CollectibleType.activeDiarreiaExplosiva:
+        return {'name': 'activeDiarreiaExplosiva'.tr(), 'desc': 'activeDiarreiaExplosivaDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.marrom};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -920,6 +947,11 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.familiarFinger,
       CollectibleType.familiarBouncer,
       CollectibleType.familiarPrisma,
+      CollectibleType.familiarRefletor,
+      CollectibleType.jumpersCable,
+      CollectibleType.activeCircularShots,
+      CollectibleType.keysToBombs,
+      CollectibleType.activeRandPillUnico,
     ];
     
     return _filtrarPool(itens, player);
@@ -996,6 +1028,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.adrenalina,
       CollectibleType.eutanasia,
       CollectibleType.goldHeart,
+      CollectibleType.activeRandPill,
+      CollectibleType.portalBoss,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -2040,6 +2074,204 @@ class CollectibleLogic {
             game.world.add(prisma);
          // }
           text = "prisma";
+          break;
+
+        case CollectibleType.familiarRefletor:
+          //if (player.activeDecoy == null) {
+            final refletor = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.refletor, 
+                                  player: player,
+                                  );
+            player.familiars.add(refletor);
+            game.world.add(refletor);
+         // }
+          text = "refletor";
+          break;  
+
+        case CollectibleType.jumpersCable:
+          game.player.killCharge = 0 ;
+          text = "jumpersCable!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeCircularShots:
+          for (int i = 0; i < 16; i++) {
+            double angle = (i * (2 * pi / 16));
+            Vector2 direction = Vector2(cos(angle), sin(angle));
+
+            game.world.add(Projectile(
+              owner: game.player,
+              position: game.player.position.clone(), 
+              direction: direction.clone(), 
+              damage: game.player.noDamage? 0 : game.player.returnDamage(), 
+              speed: game.player.isOrbitalShot ? 4.0 : game.player.isHeavyShot ? 250 : game.player.isWave ? 350 : game.player.isSaw ? 50 : 500,
+              size: game.player.isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+              dieTimer: game.player.isBoomerang ? 1.0 : game.player.isOrbitalShot ? 2 : game.player.isSaw ? game.player.attackRange*1.5 : game.player.attackRange,
+              apagaTiros: game.player.hasAntimateria,
+              isHoming: game.player.isHoming || game.player.isHomingTemp,
+              iniPosition: game.player.position.clone(),
+              canBounce: game.player.canBounce,
+              isSpectral: game.player.isSpectral,
+              isPiercing: game.player.isPiercing,
+              isBoomerang: game.player.isBoomerang,
+              splits: game.player.isShootSplits,
+              splitCount: Random().nextInt(3) + 1,
+              goldShot:game.player. goldShot,
+              isWave: game.player.isWave,         // <-- Transforma em onda!
+              maxRadius: 150,       // <-- Tamanho máximo
+              growthRate: 100,      // <-- Velocidade de expansão
+              sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
+              isSaw: game.player.isSaw,
+            ));
+          }
+
+        case CollectibleType.keysToBombs:
+          int bombs = (game.player.bombNotifier.value * 1.5).floor();
+          int keys = (game.keysNotifier.value * 1.5).floor() ;
+
+          game.player.bombNotifier.value = keys;
+          game.keysNotifier.value = bombs;
+          
+          text = "keysToBombs".tr();
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.activeRandPill:
+          String txt = '';
+          int rnd = Random().nextInt(8);
+
+          switch(rnd){
+            case 0:
+              game.player.increaseDamage(1.2);
+              txt = 'dano';
+              break;
+            case 1:
+              game.player.increaseFireRate(0.8);
+              txt = 'taxa de tiro';
+              break;
+            case 2:
+              game.player.increaseMovementSpeed(1.2);
+              txt = 'velocidade';
+              break;
+            case 3:
+              game.player.increaseRange(1.2);
+              txt = 'alcançe';
+              break;
+            case 4:
+              game.player.critChance += 5;
+              txt = 'chance crítica';
+              break;
+            case 5:
+              game.player.critDamage *= 1.15;
+              txt = 'dano crítico';
+              break;
+            case 6:
+              game.player.increaseHp(2);
+              txt = 'HP';
+              break;
+            case 7:
+              game.player.dot *= 1.5;
+              txt = 'dano por tempo';
+              break;
+          }
+          text = txt;
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeRandPillUnico:
+          String txt = '';
+          int rnd = Random().nextInt(8);
+
+          switch(rnd){
+            case 0:
+              game.player.increaseDamage(1.2);
+              txt = 'dano';
+              break;
+            case 1:
+              game.player.increaseFireRate(0.8);
+              txt = 'taxa de tiro';
+              break;
+            case 2:
+              game.player.increaseMovementSpeed(1.2);
+              txt = 'velocidade';
+              break;
+            case 3:
+              game.player.increaseRange(1.2);
+              txt = 'alcançe';
+              break;
+            case 4:
+              game.player.critChance += 5;
+              txt = 'chance crítica';
+              break;
+            case 5:
+              game.player.critDamage *= 1.15;
+              txt = 'dano crítico';
+              break;
+            case 6:
+              game.player.increaseHp(2);
+              txt = 'HP';
+              break;
+            case 7:
+              game.player.dot *= 1.5;
+              txt = 'dano por tempo';
+              break;
+          }
+
+          text = txt;
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.portalBoss:
+          game.transitionEffect.startTransition(() async {   
+          game.currentRoomNotifier.value = 10;
+          
+          final coisasParaApagar = game.world.children.where((component) {
+            return component.runtimeType.toString() == 'Enemy' ||
+                    component.runtimeType.toString() == 'Door' ||
+                    component.runtimeType.toString() == 'Collectible' ||
+                    component.runtimeType.toString() == 'Projectile' ||
+                    component.runtimeType.toString() == 'UnlockableItem' ||
+                    component.runtimeType.toString() == 'LaserBeam';
+                    
+          });
+          
+          game.world.removeAll(coisasParaApagar);
+          game.overlays.add('HUD');
+
+          game.roomManager.startRoom(10);
+
+          game.player.position = Vector2(0, 250); 
+        });
+          
+          text = "TO BOSS".tr();
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeFear:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            isFear: true, 
+            radius:150,
+            cor:Pallete.vermelho.withAlpha(50),
+            corBorda:Pallete.vinho.withAlpha(50)
+          ));
+          text = "FEAR!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeDiarreiaExplosiva:
+          game.player.bombTimer = 5.0; 
+          var tmrC=TimerComponent(
+            period: 0.5,
+            repeat: true,
+            onTick: () {
+              game.player.criaBomba(semCusto:true);
+          });
+          game.player.bombTmr = tmrC;
+          game.world.add(tmrC);
+          text = "activeDiarreiaExplosiva".tr();
+          //color = Pallete.vermelho;
           break;
 
         default:

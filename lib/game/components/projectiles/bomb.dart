@@ -22,7 +22,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final bool splits;
   final int splitCount;
   final bool isDecoy;
-  final double attractionRadius = 150;
+  final double attractionRadius = 100;
   final bool isGlitterBomb; 
 
   late final Vector2 direction;
@@ -106,6 +106,27 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     if (isMine && _timer <= duration/4) {
       // Movimento Lento
       position.addScaled(direction, 200 * dt);
+    }
+  }
+
+@override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    
+    if (isDecoy) {
+      final center = Offset(size.x / 2, size.y / 2);
+
+      final fillPaint = Paint()
+        ..color = Pallete.azulEsc.withOpacity(0.5)
+        ..style = PaintingStyle.fill;
+
+      final borderPaint = Paint()
+        ..color = Pallete.lilas.withOpacity(0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+
+      canvas.drawCircle(center, attractionRadius, fillPaint);
+      canvas.drawCircle(center, attractionRadius, borderPaint);
     }
   }
 

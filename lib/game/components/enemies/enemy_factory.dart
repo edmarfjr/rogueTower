@@ -207,7 +207,7 @@ class EnemyFactory {
   static EnemyBoss createRatKing(Vector2 pos) {
     return EnemyBoss(
       bossName: "reiRato".tr(),
-      hp: 500, // Vida da Fase 1
+      hp: 1000, // Vida da Fase 1
       position: Vector2(0, -100),
       speed: 80,
       soul: 100,
@@ -216,7 +216,7 @@ class EnemyFactory {
       hbSize: Vector2(56,36),
       hbOffset: Vector2(0, 8), 
       originalColor: Pallete.vermelho,
-      behaviorChangeInterval: 4.0,
+      behaviorChangeInterval: 3.0,
       
         // --- COMPORTAMENTOS DA FASE 1 ---
         phase1Movements: [
@@ -237,12 +237,12 @@ class EnemyFactory {
         GoToCenterBehavior(),                  
       ],
       phase2Attacks: [
-        ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
+        ProjectileAttackBehavior(interval: 1.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
         SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 24),
         MortarAttackBehavior(interval:1, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
           minionBuilder: (p) => EnemyFactory.createRat(p), 
-          interval: 3.0, 
+          interval: 1.0, 
           maxMinions: 4,
         ),
       ]
@@ -349,7 +349,7 @@ class EnemyFactory {
   static EnemyBoss createGhostKnight(Vector2 pos) {
     return EnemyBoss(
       bossName: "ghostKnight".tr(),
-      hp: 700, // Vida da Fase 1
+      hp: 1500, // Vida da Fase 1
       position: Vector2(0, -100),
       speed: 100,
       soul: 250, 
@@ -483,7 +483,7 @@ class EnemyFactory {
   static EnemyBoss createTruQueen(Vector2 pos) {
     return EnemyBoss(
       bossName: "truQueen".tr(),
-      hp: 1200, // Vida da Fase 1
+      hp: 2000, // Vida da Fase 1
       position: Vector2(0, -100),
       speed: 120,
       soul: 300, 
@@ -501,7 +501,7 @@ class EnemyFactory {
       ],
       phase1Attacks: [
         SpinnerAttackBehavior(interval: 2.5, isSpiral: true, projectilesPerWave: 12),
-        MortarAttackBehavior(interval: 3.0),
+        MortarAttackBehavior(interval: 3.0, isBarragem: true),
       ],
         // --- ATIVANDO A FASE 2 ---
         hasSecondForm: true,
@@ -511,13 +511,14 @@ class EnemyFactory {
         BouncerBehavior(speedMod:2),            
       ],
       phase2Attacks: [
-        SpinnerAttackBehavior(interval: 2, isChangeDir: true, isSpiral: true, projectilesPerWave: 12),
+        SpinnerAttackBehavior(interval: 1, isChangeDir: true, isSpiral: true, projectilesPerWave: 12),
         JumpAttackBehavior(
           jumpRange: 300,    
           minRange: 50,      
           jumpDuration: 1.0, 
-          cooldown: 3,     
+          cooldown: 2,     
         ),
+        MortarAttackBehavior(interval: 3.0, isBarragem: true),
       ]
     );
   }
@@ -622,7 +623,7 @@ class EnemyFactory {
   static EnemyBoss createBeast(Vector2 pos) {
     return EnemyBoss(
       bossName: "beast".tr(),
-      hp: 1500, // Vida da Fase 1
+      hp: 2500, // Vida da Fase 1
       position: Vector2(0, -100),
       speed: 0,
       iconData: MdiIcons.rabbit,
@@ -696,7 +697,7 @@ class EnemyFactory {
   static Enemy createFishBowl(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 80,
+      hp: 150,
       speed: 0,
       weight: 3,
       hbSize: Vector2(26,26),
@@ -765,7 +766,7 @@ class EnemyFactory {
   static Enemy createTurtle(Vector2 pos) {
     return Enemy(
       position: pos,
-      hp: 80,
+      hp: 120,
       speed: 80,
       hbSize: Vector2(26,26),
       hasShield: true,
@@ -785,7 +786,7 @@ class EnemyFactory {
   static EnemyBoss createMegalodon(Vector2 pos) {
     return EnemyBoss(
       bossName: "megalodon".tr(),
-      hp: 1800, // Vida da Fase 1
+      hp: 3000, // Vida da Fase 1
       position: Vector2(0, -100),
       speed: 120,
       iconData: MdiIcons.shark,

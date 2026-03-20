@@ -153,6 +153,8 @@ class Player extends PositionComponent
   bool adrenalina = false;
   bool eutanasia = false;
   bool primeiroInimigoPocaVeneno = false;
+  int killCharge = -1;
+  double bombTimer = 0;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -187,6 +189,8 @@ class Player extends PositionComponent
   List<CollectibleType> itemsExcluidos = [];
 
   bool noDamage = false;
+
+  TimerComponent? bombTmr;
 
   final ValueNotifier<List<ActiveItemData?>> activeItems = ValueNotifier([null, null]);
 
@@ -373,6 +377,15 @@ class Player extends PositionComponent
     if (bombButtonTimer > 0) bombButtonTimer -= dt;
 
     priority = position.y.toInt();
+
+    if(bombTimer > 0){
+      bombTimer -= dt;
+    }else{
+      if(bombTmr!=null){
+        bombTmr!.removeFromParent();
+      }
+    }
+
   }
 
   void ativaLicantropia(){
@@ -1094,11 +1107,11 @@ class Player extends PositionComponent
     ));
   }
 
-  void criaBomba(){
+  void criaBomba({bool semCusto = false}){
     if(!gameRef.usouBomba)gameRef.usouBomba = true;
-    if(bombButtonTimer>0) return;
+    if(bombButtonTimer>0 && !semCusto) return;
     bombButtonTimer = 0.5;
-    if (bombNotifier.value > 0 || isBomber){
+    if (bombNotifier.value > 0 || isBomber || semCusto){
       if(!isBomber)bombNotifier.value--;
       gameRef.world.add(Bomb(
         position: position.clone(), 
@@ -1207,6 +1220,7 @@ class Player extends PositionComponent
     primeiroInimigoPocaVeneno = false;
     adrenalina = false;
     eutanasia = false;
+    killCharge = -1;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);

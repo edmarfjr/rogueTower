@@ -24,6 +24,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final bool isStun;
   final bool isCharm;
   final bool isGlitter;
+  final bool isFear;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -39,6 +40,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.isStun = false,
     this.isCharm = false,
     this.isGlitter = false,
+    this.isFear = false,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
@@ -48,7 +50,6 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   @override
   Future<void> onLoad() async {
     priority = 500;
-    
     AudioManager.playSfx('explosion.mp3');
 
     createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 30, lifespan: _duration*2, velocity: 300);
@@ -69,9 +70,11 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
               e.setFreeze();
             }if(isStun){
               e.setConfuse();
-            if(isCharm){
+            }if(isCharm){
               e.setCharm();
             }
+            if(isFear){
+              e.setFear();
             }else{
               if(isGlitter){
                 int rnd = Random().nextInt(6);

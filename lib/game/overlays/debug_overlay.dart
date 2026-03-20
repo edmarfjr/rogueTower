@@ -128,13 +128,7 @@ class _DebugMenuState extends State<DebugMenu> {
       });
       
       widget.game.world.removeAll(coisasParaApagar);
-
-     /* await widget.game.world.add(ArenaBorder(
-        size: Vector2(TowerGame.gameWidth, TowerGame.gameHeight),
-        wallThickness: 54, 
-        radius: 40,       
-      ));
-      */widget.game.overlays.add('HUD');
+      widget.game.overlays.add('HUD');
 
       widget.game.roomManager.startRoom(_selectedRoom);
 
