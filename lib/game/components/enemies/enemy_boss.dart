@@ -246,7 +246,7 @@ class EnemyBoss extends Enemy {
     
     visual?.angle = 0;
     visual?.scale.setValues(1.0, 1.0);
-    hp = maxHp; 
+    hp = (maxHp * gameRef.difficultyMultiplier).ceil().toDouble();
 
     // Reseta o timer e o índice para a Fase 2 começar limpa
     _behaviorTimer = 0;
@@ -311,7 +311,7 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
     canvas.drawRect(size.toRect(), Paint()..color = Colors.black87);
 
     // Barra Cheia (Calcula Porcentagem)
-    double hpPercent = (boss.hp / boss.maxHp).clamp(0.0, 1.0);
+    double hpPercent = (boss.hp / (boss.maxHp * gameRef.difficultyMultiplier).ceil().toDouble()).clamp(0.0, 1.0);
     Color barColor = Pallete.vermelho;
     
     canvas.drawRect(

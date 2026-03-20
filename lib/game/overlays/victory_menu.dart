@@ -47,8 +47,8 @@ class VictoryMenu extends StatelessWidget {
               const SizedBox(height: 20),
               
               // Estatísticas
-              _buildStatRow("Almas Coletadas", "${game.progress.souls}", Icons.whatshot),
-              _buildStatRow("Ouro Acumulado", "${game.coinsNotifier.value}", Icons.monetization_on),
+              _buildStatRow("Almas Coletadas", "${game.soulsTotal}", Icons.whatshot),
+              _buildStatRow("Ouro Acumulado", "${game.coinsTotal}", Icons.monetization_on),
               _buildStatRow("Vida Restante", "${game.player.healthNotifier.value}", Icons.favorite),
               
               const Divider(color: Pallete.cinzaCla, thickness: 2, height: 30),

@@ -184,6 +184,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
   void _handleTake() {
     if(!_isPicked){
+      _hideItemInfo();
       _giveItem(gameRef.player);
       _isPicked = true;
       _updateVisuals();

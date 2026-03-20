@@ -39,20 +39,21 @@ class ActiveItemData {
 
 enum CollectibleType {
   //tipos de porta 
-  coin, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop, 
+  coin, coinUm, souls, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop, 
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
-  saw, boloDinheiro, restock, goldShot, clusterShot,
+  saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
   decoy, magicMush, activeMagicKeyChain, activeD6, splitShot, familiarBlock, familiarAtira, confuseCrit, pregos, bombDecoy,
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
-  pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb
+  pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb,
+  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart
 }
 
 
@@ -444,7 +445,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         gameRef.world.add(
           UnlockNotification(
             message: "NOVA CLASSE: $clasNome!",
-            position: position.clone(), // Nasce no cadáver do Boss
+            position: position.clone(),
           )
         );
       }
@@ -453,15 +454,13 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     //logica para itens ativos
     if (isItemAtivo(type)) {
-      // Passa a carga que estava no chão para o Player
       ActiveItemData? droppedData = gameRef.player.equipActiveItem(type, activeCharge);
 
-      // Se o bolso estava cheio, dropa o antigo no chão COM A CARGA DELE!
       if (droppedData != null) {
         final droppedItem = Collectible(
           position: gameRef.player.position.clone(),
           type: droppedData.type,
-          activeCharge: droppedData.currentCharge, // A MEMÓRIA!
+          activeCharge: droppedData.currentCharge,
         );
         gameRef.world.add(droppedItem);
         droppedItem.pop(Vector2((Random().nextDouble() - 0.5) * 60, 10));
@@ -489,7 +488,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
     */
-    // --- NOVA LÓGICA DE INVENTÁRIO ---
+    // ---LÓGICA DE INVENTÁRIO ---
     // 3. Define quais itens são consumíveis ou mapa (NÃO vão pro inventário)
     final List<CollectibleType> consumiveis = [
       CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
@@ -511,6 +510,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         attrs['icon'] as IconData,
         attrs['color'] as Color,
       );
+
+      gameRef.progress.discoverItem(type.toString());
     }
     
     if (!naoEsgota) removeFromParent();
@@ -522,6 +523,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     switch (t) {
       case CollectibleType.coin:
         return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
+      case CollectibleType.coinUm:
+        return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
+      case CollectibleType.souls:
+        return {'name': 'soul'.tr(), 'desc': '+10 Ouro', 'icon': MdiIcons.fire, 'color': Pallete.lilas};
       case CollectibleType.potion:
         return {'name': 'heart'.tr(), 'desc': 'heartDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
       case CollectibleType.sanduiche:
@@ -744,6 +749,24 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'goldShot'.tr(), 'desc': 'goldShotDesc'.tr(), 'icon': MdiIcons.gold, 'color': Pallete.laranja};
       case CollectibleType.clusterShot:
         return {'name': 'clusterShot'.tr(), 'desc': 'clusterShotDesc'.tr(), 'icon': MdiIcons.gamepadCircle, 'color': Pallete.vinho};
+      case CollectibleType.evasao:
+        return {'name': 'evasao'.tr(), 'desc': 'evasaoDesc'.tr(), 'icon': MdiIcons.runFast, 'color': Pallete.azulCla};
+      case CollectibleType.primeiroInimigoPocaVeneno:
+        return {'name': 'primeiroInimigoPocaVeneno'.tr(), 'desc': 'primeiroInimigoPocaVenenoDesc'.tr(), 'icon': MdiIcons.needle, 'color': Pallete.verdeCla};
+      case CollectibleType.familiarFinger:
+        return {'name': 'familiarFinger'.tr(), 'desc': 'familiarFingerDesc'.tr(), 'icon': MdiIcons.handPointingRight, 'color': Pallete.bege};
+      case CollectibleType.familiarBouncer:
+        return {'name': 'familiarBouncer'.tr(), 'desc': 'familiarBouncerDesc'.tr(), 'icon': MdiIcons.weatherTornado, 'color': Pallete.branco};
+      case CollectibleType.familiarEye:
+        return {'name': 'familiarEye'.tr(), 'desc': 'familiarEyeDesc'.tr(), 'icon': MdiIcons.eyeCircle, 'color': Pallete.rosa};
+      case CollectibleType.adrenalina:
+        return {'name': 'adrenalina'.tr(), 'desc': 'adrenalinaDesc'.tr(), 'icon': MdiIcons.needle, 'color': Pallete.rosa};
+      case CollectibleType.eutanasia:
+        return {'name': 'eutanasia'.tr(), 'desc': 'eutanasiaDesc'.tr(), 'icon': MdiIcons.needle, 'color': Pallete.cinzaEsc};
+      case CollectibleType.goldHeart:
+        return {'name': 'goldHeart'.tr(), 'desc': 'goldHeartDesc'.tr(), 'icon': MdiIcons.heart, 'color': Pallete.laranja};
+      case CollectibleType.familiarPrisma:
+        return {'name': 'familiarPrisma'.tr(), 'desc': 'familiarPrismaDesc'.tr(), 'icon': MdiIcons.triangle, 'color': Pallete.branco};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -893,7 +916,10 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.boloDinheiro,
       CollectibleType.restock,
       CollectibleType.goldShot,
-      CollectibleType.clusterShot,
+      CollectibleType.primeiroInimigoPocaVeneno,
+      CollectibleType.familiarFinger,
+      CollectibleType.familiarBouncer,
+      CollectibleType.familiarPrisma,
     ];
     
     return _filtrarPool(itens, player);
@@ -964,7 +990,12 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.familiarDmgBuff,
       CollectibleType.familiarCircProt,
       CollectibleType.glitterBomb,
-      
+      CollectibleType.clusterShot,
+      CollectibleType.evasao,
+      CollectibleType.familiarEye,
+      CollectibleType.adrenalina,
+      CollectibleType.eutanasia,
+      CollectibleType.goldHeart,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -980,6 +1011,18 @@ class CollectibleLogic {
           int c = Random().nextInt(20)+5;
           game.player.collectCoin(c);
           text = "+ $c\$ ";
+          //color = Pallete.amarelo;
+          break;
+
+         case CollectibleType.coinUm:
+          game.player.collectCoin(1);
+          text = "+ 1\$ ";
+          //color = Pallete.amarelo;
+          break;
+
+         case CollectibleType.souls:
+          game.progress.soulsNotifier.value += 1000;
+          text = "alma";
           //color = Pallete.amarelo;
           break;
           
@@ -1454,6 +1497,7 @@ class CollectibleLogic {
               break;
             case 5:
               game.progress.addSouls(50);
+              game.soulsTotal += 50;
               txt = 'Almas!';
               break;
           }
@@ -1893,7 +1937,6 @@ class CollectibleLogic {
             final circProt = Familiar(position: player.position.clone(),
                                   type: FamiliarType.circProt, 
                                   player: player,
-                                  speed:0
                                   );
             player.familiars.add(circProt);
             game.world.add(circProt);
@@ -1918,6 +1961,85 @@ class CollectibleLogic {
           game.player.clusterShot = 0 ;
           text = "clusterShot!";
           //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.evasao:
+          game.player.evasao = true ;
+          text = "evasao!";
+          //color = Pallete.vermelho;
+          break;
+        
+        case CollectibleType.primeiroInimigoPocaVeneno:
+          game.player.primeiroInimigoPocaVeneno = true ;
+          text = "primeiroInimigoPocaVeneno!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.familiarFinger:
+          //if (player.activeDecoy == null) {
+            final finger = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.finger, 
+                                  player: player,
+                                  );
+            player.familiars.add(finger);
+            game.world.add(finger);
+         // }
+          text = "finger";
+          break;
+
+        case CollectibleType.familiarBouncer:
+          //if (player.activeDecoy == null) {
+            final bouncer = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.bouncer, 
+                                  player: player,
+                                  );
+            player.familiars.add(bouncer);
+            game.world.add(bouncer);
+         // }
+          text = "bouncer";
+          break;
+
+        case CollectibleType.familiarEye:
+          //if (player.activeDecoy == null) {
+            final eye = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.eye, 
+                                  player: player,
+                                  );
+            player.familiars.add(eye);
+            game.world.add(eye);
+         // }
+          text = "eye";
+          break;
+
+        case CollectibleType.adrenalina:
+          game.player.adrenalina = true ;
+          text = "adrenalina!";
+          //color = Pallete.vermelho;
+          break;
+        
+        case CollectibleType.eutanasia:
+          game.player.eutanasia = true ;
+          text = "eutanasia!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.goldHeart:
+          int v = (game.coinsNotifier.value / 25 ).floor()*2;
+          player.increaseHp(v);
+          text = "goldHeart!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.familiarPrisma:
+          //if (player.activeDecoy == null) {
+            final prisma = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.prisma, 
+                                  player: player,
+                                  );
+            player.familiars.add(prisma);
+            game.world.add(prisma);
+         // }
+          text = "prisma";
           break;
 
         default:

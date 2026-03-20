@@ -77,6 +77,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool goldShot = false;
 
+  Color cor;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -108,7 +110,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.goldShot = false,
     this.acceleration = 600.0,
     this.maxSpeed = 1000.0,
-
+    this.cor = Pallete.preto,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
       super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
@@ -157,6 +159,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         icon = MdiIcons.fire; 
         color = Pallete.laranja;
         tamanho = tamanho * 2;
+      }
+
+      if(cor != Pallete.preto){
+        color = cor;
       }
 
       visual = GameIcon(
@@ -326,6 +332,62 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     _timer = 0;
   }
 
+  
+  void refrata() {
+    List<double> angs =[-0.2,-0.1,0.2,0.1];
+    for(int i = 0; i < angs.length; i++)
+    {
+      double angleOffset = angs[i];
+      Color cor = Pallete.branco;
+      switch(i){
+        case 0:
+          cor = Pallete.azulCla;
+          break;
+        case 1:
+          cor = Pallete.verdeCla;
+          break;
+        case 2:
+          cor = Pallete.amarelo;
+          break;
+        case 3:
+          cor = Pallete.vermelho;
+          break;
+      }
+
+      double x = direction.x * cos(angleOffset) - direction.y * sin(angleOffset);
+      double y = direction.x * sin(angleOffset) + direction.y * cos(angleOffset);
+      direction.setValues(x, y);
+
+      gameRef.world.add(Projectile(
+        owner: owner,
+        position: position.clone() + direction.clone()*32, 
+        direction: direction.clone(), 
+        damage:damage, 
+        speed: speed,
+        size: size,
+        dieTimer: dieTimer,
+        apagaTiros: apagaTiros,
+        isHoming: isHoming ,
+        iniPosition: position.clone(),
+        canBounce: canBounce,
+        isSpectral: isSpectral,
+        isPiercing: isPiercing,
+        isOrbital: isOrbital,
+        isBoomerang: isBoomerang,
+        splits: splits,
+        splitCount: Random().nextInt(3) + 1,
+        goldShot: goldShot,
+        isWave: isWave,         // <-- Transforma em onda!
+        maxRadius: 150,       // <-- Tamanho máximo
+        growthRate: 100,      // <-- Velocidade de expansão
+        sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
+        isSaw: isSaw,
+        cor: cor,
+      ));
+    }
+    removeFromParent();
+  }
+
   double get danoAtual {
     if (!isWave) return damage; 
 
@@ -365,7 +427,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     if (triggerEffects) {
       if (explodes) gameRef.world.add(Explosion(position: position, damagesPlayer:isEnemyProjectile, damage:damage));
-      if (splits) _doSplit();
     }
     
     removeFromParent();
@@ -430,6 +491,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         other.vida--;
         if (other.vida <= 0) other.removeFromParent();
       }
+      if (splits) _doSplit();
       kill(); 
       return;
     }
@@ -460,14 +522,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         if(goldShot){
           int rnd = Random().nextInt(100);
           if(rnd <= 5){
-            final item = Collectible(position: position, type: CollectibleType.coin);
+            final item = Collectible(position: position, type: CollectibleType.coinUm);
             gameRef.world.add(item);
             double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
             double altura = Random().nextDouble() * 100 + 150 * -1;
             item.pop(Vector2(direcaoX, 0), altura:altura);
           }
         }
-
+        if (splits) _doSplit();
         if (!isPiercing && !isBoomerang && !isWave) kill();
       }
       
@@ -504,4 +566,5 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       angle = atan2(direction.y, direction.x) + 1.54 + visualAngle; 
     }
   }
+
 }

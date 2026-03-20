@@ -23,6 +23,10 @@ enum FamiliarType {
   glitch,
   dmgBuff,
   circProt,
+  finger,
+  bouncer,
+  eye,
+  prisma,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -121,6 +125,24 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = MdiIcons.circleDouble;
         cor = Pallete.branco.withOpacity(0.7);
         followDistance = 0;
+      case FamiliarType.finger:
+        icon = MdiIcons.handPointingRight;
+        cor = Pallete.bege.withOpacity(0.7);
+      case FamiliarType.bouncer:
+        speed = 150;
+        icon = MdiIcons.weatherTornado;
+        cor = Pallete.branco.withOpacity(0.7);
+      case FamiliarType.eye:
+        icon = MdiIcons.eyeCircle;
+        radius = 48;
+        speed = 3;
+        cor = Pallete.rosa.withOpacity(0.7);
+        fireRate = 0.5;
+      case FamiliarType.prisma:
+        icon = MdiIcons.triangle;
+        radius = 64;
+        speed = 2;
+        cor = Pallete.branco.withOpacity(0.7);
       default:
         icon = MdiIcons.fire;
         cor = Pallete.branco.withOpacity(0.7);
@@ -180,7 +202,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         final direction = (targetPos - position).normalized();
         position += direction * speed * dt;
       }else{
-        speed = 4;
         _currentAngle += speed * dt;
       
         double centerX;
@@ -196,7 +217,24 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         position.setValues(newX, newY);
       }
 
-    }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff){
+    }else if(type == FamiliarType.eye || type == FamiliarType.prisma){
+      _currentAngle += speed * dt;
+      
+        double centerX;
+        double centerY;
+
+        centerX = playerPos.x;
+        centerY = playerPos.y;
+
+        // Cálculo da nova posição
+        final newX = centerX + cos(_currentAngle) * radius;
+        final newY = centerY + sin(_currentAngle) * radius;
+        
+        position.setValues(newX, newY);
+
+        if(type == FamiliarType.eye)_handleAutoAttack(dt);
+    
+    }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff || type == FamiliarType.bouncer){
       if (_velocity == Vector2.zero()) {
         final rng = Random();
         double angle = rng.nextDouble() * 2 * pi;
@@ -237,6 +275,9 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }else if(type == FamiliarType.circProt){
       position = player.position.clone();
+    }else if(type == FamiliarType.finger){
+      position = player.position.clone() + player.velocityDash.normalized() * 50;
+      angle = atan2(player.velocityDash.y, player.velocityDash.x);
     }else{
       if (dist > followDistance) {
         final direction = (playerPos - position).normalized();
@@ -349,10 +390,13 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if(type == FamiliarType.fly && other is Enemy && !other.isIntangivel){
+    if(type == FamiliarType.fly &&  other is Enemy && !other.isIntangivel){
       other.takeDamage(gameRef.player.damage * 2);
       retorna = false;
       removeFromParent();
+    }
+    if(type == FamiliarType.eye && type == FamiliarType.bouncer && type == FamiliarType.finger &&  other is Enemy && !other.isIntangivel){
+      other.takeDamage(gameRef.player.damage);
     }
     if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
       if (!_entitiesList.contains(other)) {
@@ -412,6 +456,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         }
       }
     }
+    if(type == FamiliarType.prisma){
+      if(other is Projectile && !other.isEnemyProjectile){
+        other.refrata();
+      }
+    }
     
   }
 
@@ -454,9 +503,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     _tempDirection.setValues(x, y);
 
     double dmg = player.damage;
-    double aRange = 1.0;
+   //double aRange = 1.0;
 
-    
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 

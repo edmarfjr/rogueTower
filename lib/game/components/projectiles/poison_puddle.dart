@@ -22,6 +22,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   final double _bounceSpeed = 15.0;     
   final double _bounceAmplitude = 0.15; 
   final Set<Enemy> _enemiesInside = {};
+  final bool alastra;
 
   GameIcon? visual;
 
@@ -31,6 +32,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     this.damage = 1.0, 
     this.isPlayer = false,
     this.isFire = false,
+    this.alastra = false,
     Vector2? size,
   }) : super(position: position, size: size ?? Vector2.all(20), anchor: Anchor.center);
 
@@ -119,7 +121,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
           if (isFire) {
             enemy.setBurn();
           } else {
-            enemy.setPoison();
+            enemy.setPoison(alastra: true);
           }
         }
       }

@@ -112,6 +112,10 @@ class SaveManager {
       'isGlitterBomb':game.player.isGlitterBomb,
       'goldShot':game.player.goldShot,
       'clusterShot':game.player.clusterShot,
+      'evasao':game.player.evasao,
+      'primeiroInimigoPocaVeneno':game.player.primeiroInimigoPocaVeneno,
+      'adrenalina':game.player.adrenalina,
+      'eutanasia':game.player.eutanasia,
       
     };
 
@@ -246,6 +250,10 @@ class SaveManager {
     game.player.isGlitterBomb = runData['isGlitterBomb'] ?? false;
     game.player.goldShot = runData['goldShot'] ?? false;
     game.player.clusterShot = runData['clusterShot'] ?? false;
+    game.player.evasao = runData['evasao'] ?? false;
+    game.player.primeiroInimigoPocaVeneno = runData['primeiroInimigoPocaVeneno'] ?? false;
+    game.player.adrenalina = runData['adrenalina'] ?? false;
+    game.player.eutanasia = runData['eutanasia'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

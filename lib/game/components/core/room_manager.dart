@@ -39,8 +39,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   int get bossRoom => gameRef.bossRoom;
 
-  final double _minTimeBeforeClear = 0.5; // Tempo mínimo para evitar clear instantâneo
-  
+  final double _minTimeBeforeClear = 0.1; // Tempo mínimo para evitar clear instantâneo
+
   final List<EnemyFactoryFunction> _enemyRoster1 = [
     (pos) => EnemyFactory.createRat(pos), 
     (pos) => EnemyFactory.createFungi(pos),  
@@ -122,13 +122,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
+      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.splitShot));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.restock));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.flail));
+      gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.familiarPrisma));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.goldHeart));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.adrenalina));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.eutanasia));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));

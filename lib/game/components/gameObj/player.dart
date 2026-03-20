@@ -149,6 +149,10 @@ class Player extends PositionComponent
   bool isGlitterBomb = false;
   bool goldShot = false;
   int clusterShot = -1;
+  bool evasao = false;
+  bool adrenalina = false;
+  bool eutanasia = false;
+  bool primeiroInimigoPocaVeneno = false;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -820,7 +824,10 @@ class Player extends PositionComponent
 
   void takeDamage(int amount) {
     if(_isInvincible || isDashing) return;
-   // if (healthNotifier.value <= 0) return;
+
+    if(evasao){
+      if(Random().nextDouble() <= 0.2) return;
+    }
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     gameRef.triggerHitStop(0.05);
     if(explodeHit){
@@ -938,11 +945,21 @@ class Player extends PositionComponent
         if(clusterShot > -1){
           clusterShot ++;
         }
-        if(clusterShot >= 15){
+        if(clusterShot >= 20){
           clusterShot = 0;
           for(var i=0;i<10;i++){
-            double rndAng = Random().nextDouble() -0.5;
-            _shootAt(target,angleOffset: rndAng);
+            Vector2 offset = Vector2(-30 + Random().nextInt(60).toDouble(),
+                                     -30 + Random().nextInt(60).toDouble());
+            gameRef.world.add(Projectile(
+            owner: this,
+            position: position.clone() + offset, 
+            direction: _tempDirection.clone(), 
+            damage: damage, 
+            speed: 300,
+            size: Vector2.all(15),
+            dieTimer: attackRange,
+            cor : Pallete.vinho,
+          ));
           }
         }
         if(isShotgun){
@@ -1000,6 +1017,10 @@ class Player extends PositionComponent
     }
     if(dmgBuff){
       dmg = dmg * 1.5;
+    }
+    if(adrenalina){
+      int hpVazio = ((maxHealth - healthNotifier.value)/2).floor();
+      dmg = dmg * (1 + (hpVazio * 0.2));
     }
 
     return dmg;
@@ -1063,7 +1084,7 @@ class Player extends PositionComponent
       isOrbital: isOrbitalShot,
       isBoomerang: isBoomerang,
       splits: isShootSplits,
-      splitCount: Random().nextInt(5) + 1,
+      splitCount: Random().nextInt(3) + 1,
       goldShot: goldShot,
       isWave: isWave,         // <-- Transforma em onda!
       maxRadius: 150,       // <-- Tamanho máximo
@@ -1182,6 +1203,11 @@ class Player extends PositionComponent
     isGlitterBomb = false;
     goldShot = false;
     clusterShot = -1;
+    evasao = false;
+    primeiroInimigoPocaVeneno = false;
+    adrenalina = false;
+    eutanasia = false;
+
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
   }
@@ -1345,6 +1371,7 @@ class Player extends PositionComponent
 
   void collectCoin(int value) async {
     gameRef.coinsNotifier.value+=value;
+    gameRef.coinsTotal += value;
     
     if (gameRef.coinsNotifier.value == 100) { 
       bool isNewUnlock = await GameProgress.unlockClass('ladino');

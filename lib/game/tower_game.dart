@@ -50,8 +50,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   int numLevels = 5;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
+  int coinsTotal = 0;
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> challengeHitsNotifier = ValueNotifier<int>(-1);
+  int soulsTotal = 0;
   
   CollectibleType nextRoomReward = CollectibleType.nextlevel;
 
@@ -76,6 +78,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   double _hitStopTimer = 0.0;
 
   bool usouBomba = false;
+
+  bool primeiroInimigoPocaVeneno = false;
 
   // --- SISTEMA DE EMPRÉSTIMO ---
   final ValueNotifier<int> dividaNotifier = ValueNotifier<int>(0);
@@ -373,6 +377,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   }
 
   void nextLevel(CollectibleType chosenReward,{bool mesmaSala = false}) {
+    primeiroInimigoPocaVeneno = false;
     player.rechargeActiveItem();
     //reseta upgrades temporarios
     if(player.isHomingTemp) player.isHomingTemp = false;

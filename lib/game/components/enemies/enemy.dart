@@ -3,6 +3,7 @@ import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
+import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
@@ -115,6 +116,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   late final Vector2 hbSize;
   late final Vector2 hbOffset;
+
+  bool pocaVenenoQuandoMorre = false;
 
   Enemy({
     required Vector2 position,
@@ -442,6 +445,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       dmg *= gameRef.player.critDamage;
       isCrit = true;
     }
+
+    if(gameRef.player.eutanasia){
+      if(Random().nextInt(100) <= 3){
+        if(isBoss){
+          dmg *= 3;
+        }else{
+          dmg = hp;
+        }
+
+      }
+    }
+
     hp -= dmg;
     
     if (!isDot) {
@@ -519,9 +534,23 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void die() {
+    if (gameRef.player.primeiroInimigoPocaVeneno && !gameRef.primeiroInimigoPocaVeneno){
+      gameRef.primeiroInimigoPocaVeneno = true;
+      pocaVenenoQuandoMorre = true;
+    }
+    if(pocaVenenoQuandoMorre){
+      gameRef.world.add(
+        PoisonPuddle(
+          position: position.clone() + Vector2(0, size.y/2), 
+          isPlayer: true,
+          alastra: true,
+          size: Vector2.all(80)
+        ));
+    }
     AudioManager.playSfx('enemy_die.mp3');
     deathBehavior.onDeath();
     gameRef.progress.addSouls(soul);
+    gameRef.soulsTotal += soul;
     removeFromParent();
   }
 
@@ -696,7 +725,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     bleedText?.text = bleedStacks.value.toString();
   }
 
-  void setPoison(){
+  void setPoison({bool alastra = false}){
+    if(alastra) pocaVenenoQuandoMorre = true;
     if (poisonStacks.value >= 10 + gameRef.player.stackBonus) return;
     if(!isPoisoned) numCondicoes ++;
     isPoisoned = true;

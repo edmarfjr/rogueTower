@@ -2,7 +2,9 @@ import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/tower_game.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart'; // Necessário para ValueNotifier
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GameProgress {
