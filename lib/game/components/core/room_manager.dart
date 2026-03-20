@@ -122,11 +122,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
+      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bombDecoy));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bombDecoy));
       //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeRandPillUnico));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.activeFear));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.eutanasia));
