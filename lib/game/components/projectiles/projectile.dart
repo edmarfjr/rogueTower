@@ -481,7 +481,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // 1. COLISÃO COM PAREDES
     if (!isSpectral && (other is Wall || other is ScreenHitbox)) {
       createExplosionEffect(gameRef.world, hitPos, Pallete.branco, count: 5);
-      if (canBounce && _bounceCount < maxBounces) {
+      if (canBounce /*&& _bounceCount < maxBounces*/) {
         _handleBounce(other, hitPos);
         if (other is Wall) other.vida--; 
         return; 
@@ -501,7 +501,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (other is Player) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
-        other.takeDamage(1);
+        other.takeDamage(damage.toInt());
         
         // Bumerangue e Ondas normalmente perfuram alvos vivos!
         if (!isPiercing && !isBoomerang && !isWave) kill(); 
@@ -530,7 +530,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
           }
         }
         if (splits) _doSplit();
-        if (!isPiercing && !isBoomerang && !isWave) kill();
+        if(canBounce) _handleBounce(other, hitPos);
+        if (!isPiercing && !isBoomerang && !isWave && !canBounce) kill();
       }
       
       if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
@@ -552,7 +553,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       direction.y = -direction.y;
     }
 
-    position += direction * 5;
+    if(obstacle is Enemy){
+      direction.x = Random().nextDouble()*2 -1;
+      direction.y = Random().nextDouble()*2 -1;
+    }
+
+    direction.normalize();
+
+    position += direction * obstacle.size.y;
     
     _homingTarget = null; 
 

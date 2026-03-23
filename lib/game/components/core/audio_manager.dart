@@ -89,6 +89,7 @@ class AudioManager {
 
   static void playBgm(String filename) {
     FlameAudio.bgm.stop();
+    _currentBgm = filename;
     if (_isMutedMusic) return;
     if (_isBgmPlaying && _currentBgm == filename) return; 
 
@@ -97,7 +98,7 @@ class AudioManager {
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
       _isBgmPlaying = true;
-      _currentBgm = filename;
+      //_currentBgm = filename;
     } catch (e) {
       print("Erro ao tocar BGM: $e");
     }

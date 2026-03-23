@@ -9,9 +9,10 @@ import '../../tower_game.dart';
 import '../core/game_icon.dart';
 
 class Wall extends PositionComponent with HasGameRef<TowerGame> {
-  int vida = 3;
-  Wall({required Vector2 position}) 
-      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+  int vida;
+  Wall({required Vector2 position,
+        this.vida = 3,
+  }) : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

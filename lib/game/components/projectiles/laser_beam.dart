@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
@@ -34,6 +35,9 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   bool critico = true;
 
+  Color cor;
+  bool refratado;
+
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
@@ -46,8 +50,11 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     this.isEnemyProjectile = false,
     this.isMoving = false,
     this.speed = 0.01,
+    this.cor = Pallete.vermelho,
+    this.refratado = false,
   }): maxLength = length, 
       currentLength = length, 
+      
       super(position: position, anchor: Anchor.centerLeft);
 
   @override
@@ -119,7 +126,8 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       final hitParent = result.hitbox!.parent;
       
       // Se for parede ou o limite da tela, corta o laser ali
-      if (hitParent is Wall || result.hitbox is ScreenHitbox || hitParent is Enemy || hitParent is Player) {
+      if (hitParent is Wall || result.hitbox is ScreenHitbox || hitParent is Enemy || hitParent is Player
+      || hitParent is Familiar && hitParent.type == FamiliarType.prisma) {
         currentLength = result.distance!;
       } else {
         // Se bateu em outra coisa (Player/Enemy), ignora e atravessa
@@ -139,7 +147,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   void _fire() {
     _hasFired = true;
     
-    // Cria a Hitbox usando o tamanho ATUAL
     _hitbox = RectangleHitbox(
       position: Vector2(0, -10), 
       size: Vector2(currentLength, 20), 
@@ -173,7 +180,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       
       // 1. Brilho Externo (Glow)
       final paintGlow = Paint()
-        ..color = Pallete.vermelho.withOpacity(0.6)
+        ..color = cor.withOpacity(0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 12
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4); 
@@ -187,6 +194,42 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintGlow);
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintCore);
     }
+  }
+
+  void refrata(Vector2 hitPos) {
+    if (refratado) return; 
+    refratado = true;
+
+    List<double> angs = [-0.2, -0.1, 0.2, 0.1];
+    for (int i = 0; i < angs.length; i++) {
+      double angleOffset = angs[i];
+      Color novaCor = Pallete.branco;
+      switch (i) {
+        case 0: novaCor = Pallete.azulCla; break;
+        case 1: novaCor = Pallete.verdeCla; break;
+        case 2: novaCor = Pallete.amarelo; break;
+        case 3: novaCor = Pallete.vermelho; break;
+      }
+
+      double newAngle = angleRad + angleOffset;
+
+      double tempoRestante = (chargeTime + fireTime) - _timer;
+      if (tempoRestante <= 0) tempoRestante = 0.1;
+
+      gameRef.world.add(LaserBeam(
+        position: hitPos.clone(), 
+        angleRad: newAngle,
+        damage: damage,
+        length: maxLength,
+        chargeTime: 0, 
+        fireTime: tempoRestante, 
+        owner: owner,
+        isEnemyProjectile: isEnemyProjectile,
+        cor: novaCor,
+        refratado: true
+      ));
+    }
+    
   }
 
   @override

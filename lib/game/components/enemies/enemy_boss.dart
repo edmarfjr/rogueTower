@@ -39,7 +39,6 @@ class EnemyBoss extends Enemy {
 
   bool _isEpicDying = false;
   
-  List<CollectibleType> dropList;
 
   EnemyBoss({
     required this.bossName,
@@ -51,7 +50,7 @@ class EnemyBoss extends Enemy {
     this.hasSecondForm = false,
     this.phase2Movements = const [],
     this.phase2Attacks = const [],
-    this.dropList = const [],
+    super.dropList = const [],
     super.deathBehavior,
     super.speed = 100,
     super.soul = 50,
@@ -64,6 +63,7 @@ class EnemyBoss extends Enemy {
     super.size,
     super.hbSize,
     super.hbOffset,
+    super.noChamp = true,
   })  : maxHp = hp,
         // Passa o primeiro comportamento da Fase 1 para o super inicializar o Enemy corretamente
         super(
@@ -77,7 +77,8 @@ class EnemyBoss extends Enemy {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Garante que os comportamentos iniciais conheçam o chefe
+    dmg = 2;
+
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
 
@@ -215,15 +216,7 @@ class EnemyBoss extends Enemy {
           AudioManager.playSfx('enemy_die.mp3');
           gameRef.shakeCamera(intensity: 12.0, duration: 1.5);
 
-          if (dropList.isNotEmpty){
-            dropList.shuffle();
-            final item = Collectible(position: position, type: dropList[0]);
-              gameRef.world.add(item);
-              double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
-              double altura = Random().nextDouble() * 100 + 150 * -1;
-              item.pop(Vector2(direcaoX, 0), altura:altura);
-          }
-          
+          AudioManager.playBgm('8_bit_adventure.mp3');
           super.die(); 
         }
       },

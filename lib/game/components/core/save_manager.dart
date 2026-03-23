@@ -117,6 +117,7 @@ class SaveManager {
       'adrenalina':game.player.adrenalina,
       'eutanasia':game.player.eutanasia,
       'killCharge':game.player.killCharge,
+      'voo':game.player.voo,
       
     };
 
@@ -256,6 +257,7 @@ class SaveManager {
     game.player.adrenalina = runData['adrenalina'] ?? false;
     game.player.eutanasia = runData['eutanasia'] ?? false;
     game.player.killCharge = runData['killCharge'] ?? false;
+    game.player.voo = runData['voo'] ?? false;
     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

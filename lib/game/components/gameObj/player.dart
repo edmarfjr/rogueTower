@@ -95,7 +95,7 @@ class Player extends PositionComponent
   bool hasFoice = false;
   bool magicShield = false;
   bool hasShield = false;
-  bool revive = false;
+  int revive = 0;
   bool pegouRevive = false;
   bool hasAntimateria = false;
   bool isHoming = false;
@@ -155,11 +155,25 @@ class Player extends PositionComponent
   bool primeiroInimigoPocaVeneno = false;
   int killCharge = -1;
   double bombTimer = 0;
+  bool voo = false;
+  bool cardinalShot = false;
+  bool isPac = false;
+  double pacTmr = 0;
+
+  int numIcons = 0;
+
+  GameIcon? reviveIcon;
+  TextComponent? reviveText;
+  GameIcon? cuponIcon;
+  GameIcon? kineticIcon;
+  TextComponent? kineticText;
+  GameIcon? dmgBuffIcon;
 
   // Variáveis de Animação
   double _walkTimer = 0;
   final double _bounceSpeed = 15.0;     
   final double _bounceAmplitude = 0.15; 
+  bool animContrario = false;
 
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
@@ -174,7 +188,9 @@ class Player extends PositionComponent
   Color currentColor = Pallete.branco;
   GameIcon? _currentAccessory;
   double _baseAccessoryOffsetX = 0.0;
+  double _baseAccessoryOffsetY = 0.0;
   double _baseAccessoryScaleX = 1.0;
+  double _acessorySize = 0;
   IconData icone = Icons.directions_walk;
 
   CircleComponent? _dodgeAura;
@@ -222,19 +238,37 @@ class Player extends PositionComponent
 
   void criaVisual({reset = false}){
 
+    bool acessorio = false;
+    IconData? acessIcon;
+    Color? acessCor;
+    double? acessAng;
+
     if (reset){
       _visual.removeFromParent();
       _hitbox.removeFromParent();
       _dodgeAura!.removeFromParent();
       _shadow.removeFromParent();
+      if(_currentAccessory != null){
+        _currentAccessory!.removeFromParent(); 
+        acessIcon= _currentAccessory!.icon ;
+        acessCor = _currentAccessory!.color ;
+        acessAng = _currentAccessory!.angle;
+        acessorio = true;
+      }
+      currentColor = Pallete.branco;
     }
-    
+
+    Vector2 vooOffset = Vector2(0, 0);
+    if(voo){
+      vooOffset = Vector2(0, -15);
+      animContrario = true;
+    }    
     _visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
       size: size,
       anchor: Anchor.center, 
-      position: size / 2,    
+      position: size / 2 + vooOffset,    
     );
     add(_visual);
 
@@ -253,7 +287,7 @@ class Player extends PositionComponent
     _hitbox=RectangleHitbox(
       size: Vector2(12,24),
       anchor: Anchor.center, 
-      position: size / 2 + Vector2(0,4),    
+      position: size / 2 + Vector2(0,4) + vooOffset,    
       isSolid: true,
     );
     add(_hitbox);
@@ -261,7 +295,7 @@ class Player extends PositionComponent
     _dodgeAura = CircleComponent(
       radius: size.x * 0.7, // Um pouco maior que o corpo do player
       anchor: Anchor.center,
-      position: size / 2, // Fica centralizada no jogador
+      position: size / 2 + vooOffset, // Fica centralizada no jogador
       priority: -1, // Prioridade negativa para ficar ATRÁS do corpo do player
       paint: Paint()
         ..color = Colors.transparent // Começa invisível
@@ -275,6 +309,20 @@ class Player extends PositionComponent
     _dodgeAura!.scale.y = 0.6; 
     
     add(_dodgeAura!);
+
+    if(acessorio){
+      _currentAccessory = GameIcon(
+          icon: acessIcon!,     
+          color: acessCor!,   
+          size: Vector2(_acessorySize,_acessorySize),
+        );
+
+        _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, _baseAccessoryOffsetY) + vooOffset;
+        _currentAccessory!.scale.x = _baseAccessoryScaleX;
+        _currentAccessory!.angle = acessAng!;
+        _currentAccessory!.priority = 1;
+        add(_currentAccessory!);
+    }
 
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
@@ -331,12 +379,24 @@ class Player extends PositionComponent
       }
     }
 
-    if(isKinetic){
+    if(isKinetic && kineticStacks> 0){
       if(kineticTimer >=0){
         kineticTimer -= dt;
       }else{
-        kineticStacks = 0;
+        kineticStacks --;
+        kineticTimer = 3.0;
+        kineticText?.text = kineticStacks.toString();
       }
+    }else{
+        if (kineticText != null) {
+          kineticText!.removeFromParent();
+          kineticText = null;
+        }
+        if (kineticIcon != null) {
+          numIcons --;
+          kineticIcon!.removeFromParent();
+          kineticIcon = null; 
+        }  
     }
 
     if (isDashing) {
@@ -364,11 +424,12 @@ class Player extends PositionComponent
       }
     }
     _animateMovement(dt);
-    if(!isUnicorn && !isBomber)_handleAutoAttack(dt);
+    if(!isUnicorn && !isBomber && !isPac)_handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
     _handleLicantropia(dt);
     _handleUnicorn(dt);
+    _handlePacmen(dt);
 
     if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
       _die();
@@ -390,7 +451,9 @@ class Player extends PositionComponent
 
   void ativaLicantropia(){
     isLicantropia = true;
+    animContrario = false;
     _visual.removeFromParent();
+    _currentAccessory!.removeFromParent();
 
     _visual = GameIcon(
       icon: MdiIcons.dogSide,
@@ -407,25 +470,45 @@ class Player extends PositionComponent
       licantropiaTmr += dt;
       if (licantropiaTmr >= 30){
         isLicantropia = false;
-        _visual.removeFromParent();
+        criaVisual(reset:true);
+      }
+    }
+  }
 
-        _visual = GameIcon(
-          icon: icone,
-          color: Pallete.branco,
-          size: size * 1.2, 
-          anchor: Anchor.center,
-          position: size / 2,
-        );
-        currentColor = Pallete.branco;
-        add(_visual);
+  void ativaPacmen(){
+    isPac = true;
+    animContrario = false;
+    _isInvincible = true;
+    _visual.removeFromParent();
+    _currentAccessory!.removeFromParent();
+
+    _visual = GameIcon(
+      icon: MdiIcons.pacMan,
+      color: Pallete.amarelo,
+      size: size, 
+      anchor: Anchor.center,
+      position: size / 2,
+    );
+    currentColor = Pallete.amarelo;
+    add(_visual);
+  }
+  void _handlePacmen(double dt){
+    if (isPac){
+      pacTmr += dt;
+      if (pacTmr >= 6){
+        isPac = false;
+        _isInvincible = false;
+        criaVisual(reset:true);
       }
     }
   }
 
   void ativaUnicorn(){
     isUnicorn = true;
+    animContrario = false;
     _isInvincible = true;
     _visual.removeFromParent();
+    _currentAccessory!.removeFromParent();
 
     _visual = GameIcon(
       icon: MdiIcons.unicorn,
@@ -443,17 +526,7 @@ class Player extends PositionComponent
       if (unicornTmr >= 10){
         isUnicorn = false;
         _isInvincible = false;
-        _visual.removeFromParent();
-
-        _visual = GameIcon(
-          icon: icone,
-          color: Pallete.branco,
-          size: size * 1.2, 
-          anchor: Anchor.center,
-          position: size / 2,
-        );
-        currentColor = Pallete.branco;
-        add(_visual);
+        criaVisual(reset:true);
       }
     }
   }
@@ -611,7 +684,9 @@ class Player extends PositionComponent
         );
 
         _baseAccessoryOffsetX = charClass.accessoryOffsetX;
+        _baseAccessoryOffsetY = charClass.accessoryOffsetY;
         _baseAccessoryScaleX = charClass.flipAccessoryBase ? -1.0 : 1.0;
+        _acessorySize = charClass.accessorySize;
 
         _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, charClass.accessoryOffsetY);
         _currentAccessory!.scale.x = _baseAccessoryScaleX;
@@ -656,13 +731,22 @@ class Player extends PositionComponent
     if (velocity.x < -0.1) facingDirection = -1.0;
     if (velocity.x > 0.1) facingDirection = 1.0;
 
+    double bSpeed = voo ? _bounceSpeed/2 : _bounceSpeed;
+
     // Variáveis base de animação
     double currentScaleX = 1.0;
     double currentScaleY = 1.0;
     double currentAngle = 0.0;
 
-    if (!velocity.isZero()) {
-      _walkTimer += dt * _bounceSpeed;
+    bool anim = false;
+
+    if(animContrario){
+      if(velocity.isZero())anim = true;
+    }else{
+      if(!velocity.isZero())anim = true;
+    }
+    if (anim) {
+      _walkTimer += dt * bSpeed;
 
       double wave = sin(_walkTimer);
       currentScaleY = 1.0 + (wave * _bounceAmplitude); 
@@ -731,6 +815,34 @@ class Player extends PositionComponent
     if(isKinetic){
       kineticStacks++;
       kineticTimer = 3.0;
+
+      if(kineticIcon == null){
+        numIcons ++;
+        kineticIcon = GameIcon(
+          icon: MdiIcons.sword,
+          color: Pallete.verdeCla,
+          size: size/2,
+          anchor: Anchor.center,
+          position: Vector2(size.x / 2, - size.y / 4 - 14* numIcons), 
+        );
+        add(kineticIcon!);
+      }
+      if (kineticText == null){
+        kineticText = TextComponent(
+          text: kineticStacks.toString(),
+          position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numIcons),
+          anchor: Anchor.center,
+          textRenderer: TextPaint(
+            style: const TextStyle(
+              color: Pallete.verdeCla,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        add(kineticText!);
+      }
+      kineticText?.text = kineticStacks.toString();
     }
 
     if(isFreezeDash){
@@ -762,7 +874,7 @@ class Player extends PositionComponent
     if (_dustSpawnTimer <= 0) {
       _dustSpawnTimer = 0.05; 
       
-      final offset = Vector2(0, size.y / 2);
+      var offset = Vector2(0, size.y / 2);
       gameRef.world.add(Dust(
         position: position + offset,
       ));
@@ -826,16 +938,16 @@ class Player extends PositionComponent
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
-      if( isUnicorn || isDashing && isDashDamages || other.encolhido){
-        double dmg = isUnicorn? damage*2 : damage;
+      if( isUnicorn || isDashing && isDashDamages || other.encolhido || isPac){
+        double dmg = (isUnicorn || isPac)? damage*2 : damage;
         other.takeDamage(dmg);
       }else{
-        takeDamage(1);
+        takeDamage(other.dmg.toInt());
       }
     }
   }
 
-  void takeDamage(int amount) {
+  void takeDamage(int amount,{bool roubaMoeda = false}) {
     if(_isInvincible || isDashing) return;
 
     if(evasao){
@@ -846,6 +958,9 @@ class Player extends PositionComponent
     if(explodeHit){
       gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:false, damage:30, radius:60));
     }
+
+    if(roubaMoeda && gameRef.coinsNotifier.value > 0) collectCoin(Random().nextInt(10) + 5);
+
     if (hasShield) {
       _breakShield(); 
       return; 
@@ -905,10 +1020,26 @@ class Player extends PositionComponent
   }
 
   void _die() {
-    if(revive){
-      revive = false;
-      curaHp((maxHealth/2).ceil());
+    if(revive > 0){
+      revive --;
+      reviveText?.text = revive.toString();
+
+      if(maxHealth > 2){
+        curaHp((maxHealth/2).ceil());
+      }else{
+        curaHp(maxHealth);
+      }
+      
     }else{
+      if (reviveText != null) {
+        reviveText!.removeFromParent();
+        reviveText = null; 
+      }
+      if (reviveIcon != null) {
+        reviveIcon!.removeFromParent();
+        reviveIcon = null;
+        numIcons --;
+      }
       AudioManager.playSfx('game_over.mp3');
       gameRef.onGameOver();
     }
@@ -980,11 +1111,27 @@ class Player extends PositionComponent
           _shootAt(target,angleOffset: -0.075);
           _shootAt(target,angleOffset: 0.2);
           _shootAt(target,angleOffset: -0.2);
+          if(cardinalShot){
+            int rnd = Random().nextInt(100);
+            if(rnd <= 25){
+              _shootAt(target,angleOffset: pi/2);
+              _shootAt(target,angleOffset: -pi/2);
+              _shootAt(target,angleOffset: pi);
+            }
+          }
         }else{
           _shootAt(target);
           if(tripleShot){
             _shootAt(target,angleOffset: 0.2);
             _shootAt(target,angleOffset: -0.2);
+          }
+          if(cardinalShot){
+            int rnd = Random().nextInt(100);
+            if(rnd <= 25){
+              _shootAt(target,angleOffset: pi/2);
+              _shootAt(target,angleOffset: -pi/2);
+              _shootAt(target,angleOffset: pi);
+            }
           }
         }
       }
@@ -1165,7 +1312,7 @@ class Player extends PositionComponent
     hasFoice = false;
     magicShield = false;
     hasShield = false;
-    revive = false;
+    revive = 0;
     pegouRevive = false;
     hasAntimateria = false;
     isHoming = false;
@@ -1221,6 +1368,9 @@ class Player extends PositionComponent
     adrenalina = false;
     eutanasia = false;
     killCharge = -1;
+    voo = false;
+    cardinalShot = false;
+    animContrario = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
@@ -1235,10 +1385,12 @@ class Player extends PositionComponent
   }
 
   void _handleWallCollision(Set<Vector2> points, PositionComponent wall) {
+    if(!voo){
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(wall.position);
       _collisionBuffer.normalize();
       position.addScaled(_collisionBuffer, 2.0);
+    }
   }
 
   @override
@@ -1386,6 +1538,8 @@ class Player extends PositionComponent
   void collectCoin(int value) async {
     gameRef.coinsNotifier.value+=value;
     gameRef.coinsTotal += value;
+
+    if(gameRef.coinsNotifier.value < 0) gameRef.coinsNotifier.value = 0;
     
     if (gameRef.coinsNotifier.value == 100) { 
       bool isNewUnlock = await GameProgress.unlockClass('ladino');

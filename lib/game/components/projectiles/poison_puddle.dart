@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/pallete.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
+import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
@@ -147,7 +148,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other == gameRef.player && !isPlayer) {
+    if (other is Player && !isPlayer && !other.voo) {
       _playerIsInside = true;
     }
     

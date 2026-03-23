@@ -15,11 +15,12 @@ class DiaryScreen extends StatelessWidget {
 
     // Filtra itens que não devem aparecer no diário
     final ignoreList = [
-      CollectibleType.coin, CollectibleType.key, CollectibleType.keys,
+      CollectibleType.potion, CollectibleType.potionUm, CollectibleType.coinUm, CollectibleType.shield,
+      CollectibleType.coin, CollectibleType.key, CollectibleType.keys, CollectibleType.souls,
       CollectibleType.bomba, CollectibleType.bombas, CollectibleType.healthContainer,
       CollectibleType.chest, CollectibleType.rareChest, CollectibleType.bank,
       CollectibleType.nextlevel, CollectibleType.shop, CollectibleType.boss,
-      CollectibleType.alquimista, CollectibleType.desafio, CollectibleType.darkShop
+      CollectibleType.alquimista, CollectibleType.desafio, CollectibleType.darkShop, CollectibleType.doacaoSangue
     ];
 
     // 1. Pega em todos os itens válidos

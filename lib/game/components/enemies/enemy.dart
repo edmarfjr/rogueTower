@@ -2,8 +2,12 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
+import 'package:TowerRogue/game/components/gameObj/chest.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
@@ -34,6 +38,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   // Controle
   bool canMove = true; 
   late Color originalColor;
+  late Color auxColor;
   double _meleeCooldown = 0.0;
 
   // --- VARIÁVEIS DE KNOCKBACK ---
@@ -74,15 +79,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool isFear = false;
   double fearTimer = 0.0;
   double fearTime = 5.0;
-
+  double fearTimeBase = 5.0;
+  
   // --- VARIÁVEIS DA AURA VISUAL ---
-  //double _auraTimer = 0; // Timer para a aura "pulsar"
+  double _auraTimer = 0; // Timer para a aura "pulsar"
   
   // CACHE DE TINTAS PARA A AURA (Evita lags por Garbage Collection)
- // final Paint _burnAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
- // final Paint _poisonAuraPaint = Paint()..color = Pallete.verdeCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
- // final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
- // final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  Paint championAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  //final Paint _poisonAuraPaint = Paint()..color = Pallete.verdeCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  //final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+  //final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameIcon? visual;
   late ShadowComponent _shadow;
@@ -123,6 +129,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   bool pocaVenenoQuandoMorre = false;
 
+  List<CollectibleType> dropList;
+
+  int championType;
+  bool noChamp;
+  bool dropChest = false;
+  bool isSpectral = false;
+
+  double dmg = 1;
+
   Enemy({
     required Vector2 position,
     required this.movementBehavior,
@@ -148,6 +163,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.hasShield = false,
     this.hasFlail = false,
     this.isBoss = false,
+    this.dropList = const [],
+    this.championType = 0,
+    this.noChamp = false,
   }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
     _baseSpeed = speed;
@@ -166,6 +184,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   Future<void> onLoad() async {
+
+    auxColor = originalColor;
+
+    if(!noChamp && championType == 0)criaChampion();
+    if(championType > 0) setChampion();
+
     speedInicial = speed;
 
     hp = (hp * gameRef.difficultyMultiplier).ceil().toDouble();
@@ -257,7 +281,72 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       },
     ));
 
-    
+  }
+
+  void criaChampion(){
+    int rng = Random().nextInt(100);
+    if(rng <= 10 && rng > 5){
+      championType = Random().nextInt(5) + 1;
+    }else if(rng <5){
+      championType = Random().nextInt(4) + 6;
+    }
+  }
+
+  void setChampion(){
+    size *= 1.3;
+    hbSize * 1.3;
+    hbOffset * 1.3;
+    double hpBonus = 2;
+
+    switch(championType){
+      case 0:
+        break;
+      case 1:
+        originalColor = Pallete.vermelho;
+        hpBonus = 2.5;
+        dropList = [CollectibleType.potion];
+        break;
+      case 2:
+        originalColor = Pallete.lilas;
+        dropList = [CollectibleType.bomba];
+        break;
+      case 3:
+        originalColor = Pallete.amarelo;
+        dropList = [CollectibleType.key];
+        speed *= 1.5;
+        break;
+      case 4:
+        originalColor = Pallete.azulCla;
+        dropList = [CollectibleType.shield];
+        break;
+      case 5:
+        originalColor = Pallete.verdeEsc;
+        break;
+      case 6:
+        originalColor = Pallete.laranja;
+        dropList = [CollectibleType.coin];
+        break;
+      case 7:
+        originalColor = Pallete.branco.withOpacity(0.1);
+        isSpectral = true;
+        dropChest = true;
+        voa = true;
+        break; 
+      case 8:
+        originalColor = Pallete.branco;
+        dropList = [CollectibleType.healthContainer];
+        break;
+      case 9:
+        originalColor = Pallete.rosa;
+        var itens = retornaItensComuns(gameRef.player);
+        dropList = [itens[0]];
+        break;
+        
+    }
+
+    dmg = 2;
+    hp *= hpBonus;
+    championAuraPaint = Paint()..color = originalColor.withOpacity(0.2)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
   }
 
   @override
@@ -269,8 +358,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     super.update(dt);
     
+    if(gameRef.player.isPac && !isFear){
+      setFear();
+      fearTime = 6.0;
+    }
+    
     // Atualiza o timer da aura visual
-   // _auraTimer += dt * 5; 
+    if(championType>0) _auraTimer += dt * 5; 
 
     if (_meleeCooldown > 0) {
       _meleeCooldown -= dt;
@@ -299,9 +393,54 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (lureTarget == null) {
         movementBehavior.update(dt);
       }
+      //comportamento normal
       attackBehavior.update(dt);
       attack2Behavior?.update(dt);
+
+      if (championType == 9) {
+      const double pullRadius = 150.0; // O tamanho do campo gravitacional
+      const double playerPullForce = 50.0; // Quão forte puxa o player (pixels por segundo)
+      const double projGravity = 4.0; // Quão rápido curva os tiros do player
+
+      // 1. ATRAIR O PLAYER
+      final player = gameRef.player;
+      double distToPlayer = absoluteCenter.distanceTo(player.absoluteCenter);
+      
+      if (distToPlayer < pullRadius) {
+        // Cria um vetor que aponta do player PARA o inimigo
+        Vector2 pullDir = (absoluteCenter - player.absoluteCenter).normalized();
+        
+        // Arrasta o jogador contra a vontade dele!
+        player.position += pullDir * playerPullForce * dt;
+      }
+
+      // 2. ATRAIR OS TIROS (Projéteis)
+      // Pega em todos os projéteis que estão no mundo
+      final projectiles = gameRef.world.children.whereType<Projectile>();
+      
+      for (var proj in projectiles) {
+        // Se o tiro NÃO for do inimigo (ou seja, é um tiro do player tentando acertá-lo)
+        if (!proj.isEnemyProjectile) {
+          double distToProj = absoluteCenter.distanceTo(proj.absoluteCenter);
+          
+          if (distToProj < pullRadius) {
+            // Vetor que aponta do tiro PARA o inimigo
+            Vector2 pullDir = (absoluteCenter - proj.absoluteCenter).normalized();
+            
+            // EFEITO GRAVIDADE: Entorta a direção do tiro em direção ao buraco negro
+            proj.direction = (proj.direction + (pullDir * projGravity * dt)).normalized();
+            
+            // Atualiza a rotação do sprite para o tiro virar de lado visualmente!
+            proj.angle = atan2(proj.direction.y, proj.direction.x);
+          }
+        }
+      }
     }
+
+    }
+
+
+
     _keepInsideArena();
     _updateStatus(dt);
 
@@ -309,30 +448,47 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     priority = position.y.toInt();
   }
-/*
+
   // --- LÓGICA DE RENDERIZAÇÃO DA AURA ---
   @override
   void render(Canvas canvas) {
     // 1. Desenha as auras PRIMEIRO para ficarem atrás do inimigo
-    if (isBurned || isPoisoned || isBleed || isFreeze) {
+    if (championType > 0) {
       // Cria uma pulsação matemática suave que vai de 0.9 a 1.1x do tamanho
       double pulse = sin(_auraTimer) * 0.1 + 1.0; 
       double baseRadius = size.x / 2;
       final center = Offset(size.x / 2, size.y / 2);
 
+      canvas.drawCircle(center, baseRadius * pulse, championAuraPaint);
+
       // Usamos multiplicadores levemente diferentes (1.0, 0.9, 1.1) 
       // para que, se o inimigo tomar todas as condições juntas, as auras
       // não sobreponham perfeitamente umas as outras, mesclando as cores.
       //if (isBurned) canvas.drawCircle(center, baseRadius * pulse, _burnAuraPaint);
-      if (isBleed) canvas.drawCircle(center, (baseRadius * 1.1) * pulse, _bleedAuraPaint);
-      if (isPoisoned) canvas.drawCircle(center, (baseRadius * 0.9) * pulse, _poisonAuraPaint);
-      if (isFreeze) canvas.drawCircle(center, (baseRadius * 0.8) * pulse, _freezeAuraPaint);
+      //if (isBleed) canvas.drawCircle(center, (baseRadius * 1.1) * pulse, _bleedAuraPaint);
+      //if (isPoisoned) canvas.drawCircle(center, (baseRadius * 0.9) * pulse, _poisonAuraPaint);
+      //if (isFreeze) canvas.drawCircle(center, (baseRadius * 0.8) * pulse, _freezeAuraPaint);
+      if (championType == 9) {
+        final center = Offset(size.x / 2, size.y / 2);
+        
+        final pullPaint = Paint()
+          ..color = Pallete.lilas.withOpacity(0.15)
+          ..style = PaintingStyle.fill;
+          
+        final borderPaint = Paint()
+          ..color = Pallete.rosa.withOpacity(0.5)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1;
+
+        canvas.drawCircle(center, 150.0, pullPaint);
+        canvas.drawCircle(center, 150.0, borderPaint);
+      }
     }
 
     // 2. Chama o método original para desenhar o Ícone e as TextComponents do Flame por cima
     super.render(canvas); 
   }
-  */
+  
   
  void _createGhostEffect(double dt) {
     if (visual == null) return;
@@ -441,6 +597,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void takeDamage(double damage, {bool isDot = false, critico = true}) 
   { 
     if (hp <= 0) return;
+    if(championType == 8){
+      final allEnemies = gameRef.world.children.query<Enemy>();
+      
+      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 3);
+      if (realEnemies.isNotEmpty){
+        print(realEnemies.length);
+        return;
+      }
+    }
     bool isCrit = false;
     double dmg = damage;
     double critChance = Random().nextDouble() * 100;
@@ -542,6 +707,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.primeiroInimigoPocaVeneno = true;
       pocaVenenoQuandoMorre = true;
     }
+
     if(gameRef.player.killCharge > -1){
       gameRef.player.killCharge ++;
       if(gameRef.player.killCharge == 10){
@@ -549,6 +715,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         gameRef.player.killCharge = 0;
       }
     }
+
     if(pocaVenenoQuandoMorre){
       gameRef.world.add(
         PoisonPuddle(
@@ -558,12 +725,97 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           size: Vector2.all(80)
         ));
     }
+
+    if(isDummy && !gameRef.killDummy) gameRef.killDummy = true;
+
+    if(championType == 2){
+      gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:2, radius:80));
+    }else if(championType == 4){
+        for (int i = 0; i < 8; i++) {
+        double angle =(i * (2 * pi / 8));
+        Vector2 direction = Vector2(cos(angle), sin(angle));
+        gameRef.world.add(Projectile(
+          position: position + direction * 20,
+          direction: direction,
+          damage: 1,
+          speed: 200,
+          size: Vector2.all(15),
+          dieTimer: 3.0,
+          isEnemyProjectile: true,
+        ));
+      }
+    }else if(championType == 5){
+      _splitIntoTwoNormalEnemies();
+    } 
+
     AudioManager.playSfx('enemy_die.mp3');
     deathBehavior.onDeath();
     gameRef.progress.addSouls(soul);
     gameRef.soulsTotal += soul;
+
+    if (dropList.isNotEmpty || dropChest){
+      //difuldades maiores, os campeoes tem chance de 33% de drop
+      if(championType > 0 && gameRef.difficultyMultiplier >= 2.0){
+        int rnd = Random().nextInt(100);
+        if(rnd > 33) removeFromParent();
+      }
+
+      if(dropChest){
+        gameRef.world.add(Chest(position: position.clone(),isLock: true));
+      }else{
+        dropList.shuffle();
+        final item = Collectible(position: position.clone(), type: dropList[0]);
+          gameRef.world.add(item);
+          double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+          double altura = Random().nextDouble() * 100 + 150 * -1;
+          item.pop(Vector2(direcaoX, 0), altura:altura);
+      }
+    }
+
+    if(gameRef.player.isPac) gameRef.player.curaHp(1);
+
     removeFromParent();
   }
+
+  Enemy criaCopiaNormal(Vector2 novaPos){
+    return Enemy(
+		position : novaPos ,
+		movementBehavior: movementBehavior,
+		attackBehavior:attackBehavior,
+		deathBehavior: deathBehavior,
+		attack2Behavior:attack2Behavior,
+		hp : hp,
+		speed : speed,
+		soul : soul,
+		weight : weight,
+		rotates : rotates,
+		rotateOff : rotateOff,
+		voa : voa,
+		animado : animado,
+		flipOposto : flipOposto,
+		hasGhostEffect : hasGhostEffect,
+		iconData : iconData,
+		originalColor : auxColor,
+		isDummy : isDummy,
+		size : size * 0.7,
+		hbSize : hbSize * 0.7,
+		hbOffset : hbOffset * 0.7,
+		hasShield : hasShield,
+		hasFlail : hasFlail,
+		isBoss : isBoss,
+		dropList : [],
+		noChamp : true,
+    );
+  }
+
+  void _splitIntoTwoNormalEnemies() {
+    final clone1 = criaCopiaNormal(position.clone() + Vector2(-20, 0));
+    final clone2 = criaCopiaNormal(position.clone() + Vector2(20, 0));
+
+    gameRef.world.add(clone1);
+    gameRef.world.add(clone2);
+  }
+  
 
   void _keepInsideArena() {
     double limitX = TowerGame.gameWidth/2 - size.x;
@@ -803,7 +1055,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         visual?.setColor(originalColor);
         if (freezeIcon != null) {
          freezeIcon!.removeFromParent();
-         freezeIcon = null; // IMPORTANTE
+         freezeIcon = null; 
         }
       }
     }
@@ -832,11 +1084,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           visual?.setColor(originalColor);
           if (burnIcon != null) {
             burnIcon!.removeFromParent();
-            burnIcon = null; // IMPORTANTE
+            burnIcon = null; 
           }
           if (burnText != null) {
             burnText!.removeFromParent();
-            burnText = null; // IMPORTANTE
+            burnText = null; 
           }
         }
       }
@@ -865,11 +1117,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           visual?.setColor(originalColor);
           if (poisonIcon != null) {
             poisonIcon!.removeFromParent();
-            poisonIcon = null; // IMPORTANTE
+            poisonIcon = null; 
           }
           if (poisonText != null) {
             poisonText!.removeFromParent();
-            poisonText = null; // IMPORTANTE
+            poisonText = null; 
           }
         }
       }
@@ -898,11 +1150,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           visual?.setColor(originalColor);
           if (bleedIcon != null) {
             bleedIcon!.removeFromParent();
-            bleedIcon = null; // IMPORTANTE
+            bleedIcon = null; 
           }
           if (bleedText != null) {
             bleedText!.removeFromParent();
-            bleedText = null; // IMPORTANTE
+            bleedText = null; 
           }
         }
       }
@@ -915,7 +1167,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         isConfuse = false;
         if (confuseIcon != null) {
           confuseIcon!.removeFromParent();
-          confuseIcon = null; // IMPORTANTE
+          confuseIcon = null; 
         }
       }
     }
@@ -927,8 +1179,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         isFear = false;
         if (fearIcon != null) {
           fearIcon!.removeFromParent();
-          fearIcon = null; // IMPORTANTE
+          fearIcon = null; 
         }
+        fearTime = fearTimeBase;
       }
     }
 

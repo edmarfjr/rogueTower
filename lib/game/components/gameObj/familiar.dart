@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/gameObj/wall.dart';
+import 'package:TowerRogue/game/components/projectiles/laser_beam.dart';
+import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -28,6 +30,7 @@ enum FamiliarType {
   eye,
   prisma,
   refletor,
+  dummy,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -47,6 +50,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double _currentAngle = 0;
   double radius;
   final double angleOffset; 
+
+  double dmg = 0;
   
   PositionComponent? target;
 
@@ -60,6 +65,29 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   final bool noVisual;
 
   double _dmgTmr = 0;
+
+  // Variáveis de Animação
+  double _walkTimer = 0;
+  final double _bounceSpeed = 15.0;     
+  final double _bounceAmplitude = 0.15; 
+
+  //status dummy
+  bool noDamage = false;
+  bool isOrbitalShot = false;
+  bool isHeavyShot = false;
+  bool isWave = false;
+  bool isSaw = false;
+  bool isBoomerang = false;
+  bool hasAntimateria = false;
+  bool isHoming = false;
+  bool canBounce = false;
+  bool isSpectral = false;
+  bool isPiercing = false;
+  bool isShootSplits = false;
+  bool goldShot = false;
+  double aRange = 1.0;
+  bool isLaser = false;
+  bool isMorteiro = false;
 
   Familiar({
     required Vector2 position ,
@@ -97,6 +125,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.atira:
         icon = MdiIcons.fire;
         cor = Pallete.vermelho.withOpacity(0.7);
+        dmg = player.damage / 2 ;
       case FamiliarType.fly:
         icon = MdiIcons.candy;
         cor = Pallete.amarelo.withOpacity(0.7);
@@ -104,9 +133,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         speed = 4;
         size = Vector2.all(16);
         ang = pi/4;
+        dmg = player.damage * 3 ;
       case FamiliarType.turret:
-        icon = MdiIcons.towerFire;
+        icon = MdiIcons.floorLampTorchiereVariant;
         cor = Pallete.vermelho.withOpacity(0.7);
+        dmg = player.damage ;
       case FamiliarType.freeze:
         detectRadius = 100;
         icon = MdiIcons.snowflake;
@@ -129,16 +160,19 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.finger:
         icon = MdiIcons.handPointingRight;
         cor = Pallete.bege.withOpacity(0.7);
+        dmg = player.damage / 2 ;
       case FamiliarType.bouncer:
         speed = 150;
         icon = MdiIcons.weatherTornado;
         cor = Pallete.branco.withOpacity(0.7);
+        dmg = player.damage / 2 ;
       case FamiliarType.eye:
         icon = MdiIcons.eyeCircle;
         radius = 48;
         speed = 3;
         cor = Pallete.rosa.withOpacity(0.7);
         fireRate = 0.5;
+        dmg = player.damage / 2 ;
       case FamiliarType.prisma:
         icon = MdiIcons.triangle;
         radius = 64;
@@ -149,6 +183,29 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         radius = 64;
         speed = 2;
         cor = Pallete.cinzaCla.withOpacity(0.7);
+      case FamiliarType.dummy:
+        followDistance = 100;
+        icon = MdiIcons.humanMale;
+        cor = Pallete.bege;
+        dmg = player.damage;
+        fireRate = player.fireRate;
+        speed = player.moveSpeed;
+        noDamage       = player.noDamage;
+        isOrbitalShot  = player.isOrbitalShot;
+        isHeavyShot    = player.isHeavyShot;
+        isWave         = player.isWave;
+        isSaw          = player.isSaw;
+        isBoomerang    = player.isBoomerang;
+        hasAntimateria = player.hasAntimateria;
+        isHoming       = player.isHoming;
+        canBounce      = player.canBounce;
+        isSpectral     = player.isSpectral;
+        isPiercing     = player.isPiercing;
+        isShootSplits  = player.isShootSplits;
+        goldShot       = player.goldShot;
+        aRange = player.attackRange;
+        isLaser = player.isLaser;
+        isMorteiro = player.isMorteiro;
       default:
         icon = MdiIcons.fire;
         cor = Pallete.branco.withOpacity(0.7);
@@ -199,6 +256,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }
 
     if(type == FamiliarType.fly){
+      _animateMovement(dt);
       
       PositionComponent? target = getTarget();
     
@@ -241,6 +299,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         if(type == FamiliarType.eye)_handleAutoAttack(dt);
     
     }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff || type == FamiliarType.bouncer){
+      _animateMovement(dt);
       if (_velocity == Vector2.zero()) {
         final rng = Random();
         double angle = rng.nextDouble() * 2 * pi;
@@ -286,11 +345,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       angle = atan2(player.velocityDash.y, player.velocityDash.x);
     }else{
       if (dist > followDistance) {
+        _animateMovement(dt);
         final direction = (playerPos - position).normalized();
         position += direction * speed * dt;
       }
 
-      if(type == FamiliarType.atira || type == FamiliarType.turret){
+      if(type == FamiliarType.atira || type == FamiliarType.turret|| type == FamiliarType.dummy){
         _handleAutoAttack(dt);
       }
     }
@@ -308,7 +368,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           if(_dmgTmr >= 1.0){
             if (entity is Enemy){
               _dmgTmr = 0;
-              entity.takeDamage(player.damage/2,critico: false);
+              entity.takeDamage(dmg,critico: false);
             }
           }
         }
@@ -335,6 +395,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         player.dmgBuff = false;
       }
     }
+
   }
 
   void _checkBounds() {
@@ -367,22 +428,45 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }
   }
 
+  void _animateMovement(double dt) {
+    double facingDirection = visual!.scale.x.sign; 
+    if (_velocity.x < -0.1) facingDirection = -1.0;
+    if (_velocity.x > 0.1) facingDirection = 1.0;
+
+    double currentScaleX = 1.0;
+    double currentScaleY = 1.0;
+    double currentAngle = 0.0;
+
+    if (!_velocity.isZero()) {
+      _walkTimer += dt * _bounceSpeed;
+
+      double wave = sin(_walkTimer);
+      currentScaleY = 1.0 + (wave * _bounceAmplitude); 
+      currentScaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
+      currentAngle = cos(_walkTimer) * 0.1; 
+      
+    } else {
+      _walkTimer = 0;
+    }
+
+    visual!.scale.setValues(facingDirection * currentScaleX, currentScaleY);
+    visual!.angle = currentAngle; 
+
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
     
-    // --- DESENHO DA AURA DE GELO ---
     if (type == FamiliarType.freeze || type == FamiliarType.dmgBuff || type == FamiliarType.circProt) {
       final center = Offset(size.x / 2, size.y / 2);
 
       Color cor = visual!.color;
       
-      // Fundo azul clarinho transparente
       final fillPaint = Paint()
         ..color = cor.withOpacity(0.1)
         ..style = PaintingStyle.fill;
         
-      // Borda azul mais forte
       final borderPaint = Paint()
         ..color = cor.withOpacity(0.4)
         ..style = PaintingStyle.stroke
@@ -397,12 +481,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if(type == FamiliarType.fly &&  other is Enemy && !other.isIntangivel){
-      other.takeDamage(gameRef.player.damage * 2);
+      other.takeDamage(dmg);
       retorna = false;
       removeFromParent();
     }
     if(type == FamiliarType.eye && type == FamiliarType.bouncer && type == FamiliarType.finger &&  other is Enemy && !other.isIntangivel){
-      other.takeDamage(gameRef.player.damage);
+      other.takeDamage(dmg);
     }
     if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
       if (!_entitiesList.contains(other)) {
@@ -466,6 +550,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       if(other is Projectile && !other.isEnemyProjectile){
         other.refrata();
       }
+      if (other is LaserBeam) {
+      final hitPos = intersectionPoints.firstOrNull ?? position;
+      other.refrata(hitPos); 
+    }
     }
     if(type == FamiliarType.refletor){
       if(other is Projectile && !other.isEnemyProjectile){
@@ -478,7 +566,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   PositionComponent? getTarget(){
     final enemies = gameRef.world.children.query<Enemy>();
     PositionComponent? target ;
-    double closestDist = double.infinity;//attackRange;
+    double closestDist = double.infinity;
 
     for (final enemy in enemies) {
       final dist = position.distanceTo(enemy.position);
@@ -499,8 +587,39 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     
     if (target != null) {
       _attackTimer = 0;
-      _shootAt(target);
+      if(isMorteiro){
+        gameRef.world.add(MortarShell(
+          startPos: position.clone(),
+          targetPos: target.position.clone(),
+          owner: this,
+          flightDuration: 1,
+          damage: dmg * 2,
+          isFire: true,
+          explosionRadius: 100,
+          isPlayer: true,
+        ));
+      }else if(isLaser){
+        final dir = (target.position - position.clone()).normalized();
+        final angle = atan2(dir.y, dir.x);
+        criaLaser(dir,angle,target);
+      }else{
+        _shootAt(target);
+      }
+      
     }
+  }
+
+  void criaLaser(Vector2 dir,ang,target)
+  {
+    gameRef.world.add(LaserBeam(
+      position: position + (dir * 10),
+      angleRad: ang,
+      chargeTime: 0,
+      fireTime: fireRate,
+      target: target,
+      owner: this,
+      damage: gameRef.player.damage
+    ));
   }
 
   void _shootAt(PositionComponent target, {double angleOffset = 0}) {
@@ -516,6 +635,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     double dmg = player.damage;
    //double aRange = 1.0;
 
+    /*
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 
@@ -525,11 +645,37 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       size: Vector2.all(10),
       iniPosition: position.clone(),
     ));
+    */
+    
+    gameRef.world.add(Projectile(
+      owner: this,
+      position: position.clone(), 
+      direction: _tempDirection.clone(), 
+      damage: noDamage? 0 : dmg, 
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
+      size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+      dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
+      apagaTiros: hasAntimateria,
+      isHoming: isHoming,
+      iniPosition: position.clone(),
+      canBounce: canBounce,
+      isSpectral: isSpectral,
+      isPiercing: isPiercing,
+      isOrbital: isOrbitalShot,
+      isBoomerang: isBoomerang,
+      splits: isShootSplits,
+      splitCount: Random().nextInt(3) + 1,
+      goldShot: goldShot,
+      isWave: isWave,        
+      maxRadius: 150,      
+      growthRate: 100,      
+      sweepAngle: pi / 1.5, 
+      isSaw: isSaw,
+    ));
   }
 
   @override
   void onRemove() {
-    // Garante que todos voltem ao normal caso o familiar seja destruído
     if (type == FamiliarType.freeze) {
       for (final entity in _entitiesList) {
         if (entity is Enemy) entity.speed *= 2.0;
@@ -564,9 +710,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case 6:
         other.takeDamage(gameRef.player.damage*3);
         break;
-        
-        
     }    
   }
-
 }

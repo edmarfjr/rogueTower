@@ -40,14 +40,16 @@ class ActiveItemData {
 
 enum CollectibleType {
   //tipos de porta 
-  coin, coinUm, souls, potion, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop, 
+  coin, coinUm, souls, potion, potionUm, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
+  doacaoSangue, 
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
   saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,familiarRefletor,
-  jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,
+  jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,familiarDummy, voo,
+  cardinalShot,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -55,7 +57,7 @@ enum CollectibleType {
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
   pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb,
-  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss,
+  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen
 }
 
 
@@ -103,6 +105,7 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activeRandPillUnico,
     CollectibleType.portalBoss,
     CollectibleType.activeFear,
+    CollectibleType.activePacmen,
   ];
   return usoUnico.contains(type);
 }
@@ -237,7 +240,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 13),
       ));
     }
-    priority = -500;
+    priority = 1500;
     add(ShadowComponent(parentSize: size));
   }
 
@@ -500,11 +503,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // ---LÓGICA DE INVENTÁRIO ---
     // 3. Define quais itens são consumíveis ou mapa (NÃO vão pro inventário)
     final List<CollectibleType> consumiveis = [
-      CollectibleType.coin, CollectibleType.potion, CollectibleType.sanduiche,
-      CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
-      CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+      CollectibleType.coin, CollectibleType.coinUm ,CollectibleType.potion, CollectibleType.sanduiche,
+      CollectibleType.potionUm,CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+      CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
       CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
-      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield,
+      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
       CollectibleType.healthContainer
     ];
 
@@ -531,13 +534,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   static Map<String, dynamic> getAttributes(CollectibleType t) {
     switch (t) {
       case CollectibleType.coin:
-        return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
+        return {'name': 'gold'.tr(), 'desc': 'goldDesc'.tr(), 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
       case CollectibleType.coinUm:
-        return {'name': 'gold'.tr(), 'desc': '+10 Ouro', 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
+        return {'name': 'goldUm'.tr(), 'desc': 'goldUmDesc'.tr(), 'icon': Icons.monetization_on, 'color': Pallete.amarelo};
       case CollectibleType.souls:
-        return {'name': 'soul'.tr(), 'desc': '+10 Ouro', 'icon': MdiIcons.fire, 'color': Pallete.lilas};
+        return {'name': 'soul'.tr(), 'desc': 'alma', 'icon': MdiIcons.fire, 'color': Pallete.lilas};
       case CollectibleType.potion:
         return {'name': 'heart'.tr(), 'desc': 'heartDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
+      case CollectibleType.potionUm:
+        return {'name': 'heartUm'.tr(), 'desc': 'heartUmDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
       case CollectibleType.sanduiche:
         return {'name': 'sanduiche'.tr(), 'desc': 'sanduiche'.tr(), 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
       case CollectibleType.key:
@@ -643,7 +648,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.tornado:
          return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': MdiIcons.weatherTornado, 'color': Pallete.branco};
       case CollectibleType.tripleShot:
-         return {'name': 'tripleShot'.tr(), 'desc': 'tripleShotDesc'.tr(), 'icon': MdiIcons.axisArrow, 'color': Pallete.branco};
+         return {'name': 'tripleShot'.tr(), 'desc': 'tripleShotDesc'.tr(), 'icon': MdiIcons.arrowDecision, 'color': Pallete.branco};
       case CollectibleType.activeHeal:
          return {'name': 'activeHeal'.tr(), 'desc': 'activeHealDesc'.tr(), 'icon': MdiIcons.bottleTonicPlusOutline, 'color': Pallete.vermelho};
       case CollectibleType.activePoisonBomb:
@@ -794,6 +799,16 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeFear'.tr(), 'desc': 'activeFearDesc'.tr(), 'icon': MdiIcons.emoticonAngryOutline, 'color': Pallete.vinho};
       case CollectibleType.activeDiarreiaExplosiva:
         return {'name': 'activeDiarreiaExplosiva'.tr(), 'desc': 'activeDiarreiaExplosivaDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.marrom};
+      case CollectibleType.familiarDummy:
+        return {'name': 'familiarDummy'.tr(), 'desc': 'familiarDummyDesc'.tr(), 'icon': MdiIcons.humanMale, 'color': Pallete.bege};
+      case CollectibleType.voo:
+        return {'name': 'voo'.tr(), 'desc': 'vooDesc'.tr(), 'icon': MdiIcons.humanHandsup, 'color': Pallete.azulCla};
+      case CollectibleType.cardinalShot:
+        return {'name': 'cardinalShot'.tr(), 'desc': 'cardinalShotDesc'.tr(), 'icon': MdiIcons.arrowExpandAll, 'color': Pallete.vermelho};
+      case CollectibleType.noveVidas:
+        return {'name': 'noveVidas'.tr(), 'desc': 'noveVidasDesc'.tr(), 'icon': MdiIcons.cat, 'color': Pallete.azulEsc};
+      case CollectibleType.activePacmen:
+        return {'name': 'activePacmen'.tr(), 'desc': 'activePacmenDesc'.tr(), 'icon': MdiIcons.nintendoGameBoy, 'color': Pallete.cinzaCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -952,6 +967,8 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeCircularShots,
       CollectibleType.keysToBombs,
       CollectibleType.activeRandPillUnico,
+      CollectibleType.voo,
+      CollectibleType.cardinalShot,
     ];
     
     return _filtrarPool(itens, player);
@@ -1030,6 +1047,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.goldHeart,
       CollectibleType.activeRandPill,
       CollectibleType.portalBoss,
+      CollectibleType.noveVidas,
+      CollectibleType.activePacmen,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1239,7 +1258,35 @@ class CollectibleLogic {
           break; 
 
         case CollectibleType.revive:
-          player.revive = true;
+          player.revive += 1;
+          if(player.reviveIcon == null){
+            player.numIcons ++;
+            player.reviveIcon = GameIcon(
+              icon: MdiIcons.cross,
+              color: Pallete.amarelo,
+              size: player.size/2,
+              anchor: Anchor.center,
+              position: Vector2(player.size.x / 2, - player.size.y / 4 - 14*player.numIcons), 
+            );
+            player.add(player.reviveIcon!);
+          }
+          
+          if (player.reviveText == null){
+            player.reviveText = TextComponent(
+              text: player.revive.toString(),
+              position: Vector2((player.size.x/2) - 12, - player.size.y / 4 - 14*player.numIcons),
+              anchor: Anchor.center,
+              textRenderer: TextPaint(
+                style: const TextStyle(
+                  color: Pallete.amarelo,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+            player.add(player.reviveText!);
+          }
+          player.reviveText?.text = player.revive.toString();
           text = "Ressurreição";
           //color = Pallete.vermelho;
           break;  
@@ -1363,6 +1410,19 @@ class CollectibleLogic {
 
         case CollectibleType.cupon:
           player.hasCupon = true;
+
+          if(player.cuponIcon == null){
+            player.numIcons ++;
+            player.cuponIcon = GameIcon(
+              icon: MdiIcons.ticketPercent,
+              color: Pallete.bege,
+              size: player.size/2,
+              anchor: Anchor.center,
+              position: Vector2(player.size.x / 2, - player.size.y / 4 - 10*player.numIcons), 
+            );
+            player.add(player.cuponIcon!);
+          }
+
           text = "Cupom de Desconto!";
           //color = Pallete.vermelho;
           break;
@@ -1675,6 +1735,19 @@ class CollectibleLogic {
           }
           player.takeDamage(1);
           player.tempDmgBonus = true;
+
+          if(player.dmgBuffIcon == null){
+            player.numIcons ++;
+            player.dmgBuffIcon = GameIcon(
+              icon: MdiIcons.knifeMilitary,
+              color: Pallete.vermelho,
+              size: player.size/2,
+              anchor: Anchor.center,
+              position: Vector2(player.size.x / 2, - player.size.y / 4 - 14*player.numIcons), 
+            );
+            player.add(player.dmgBuffIcon!);
+          }
+        
           text = "activeRitualDagger!";
           //color = Pallete.vermelho;
           break;
@@ -2273,6 +2346,74 @@ class CollectibleLogic {
           text = "activeDiarreiaExplosiva".tr();
           //color = Pallete.vermelho;
           break;
+
+        case CollectibleType.familiarDummy:
+          //if (player.activeDecoy == null) {
+            final refletor = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.dummy, 
+                                  player: player,
+                                  );
+            player.familiars.add(refletor);
+            game.world.add(refletor);
+         // }
+          text = "refletor";
+          break; 
+
+        case CollectibleType.voo:
+          game.player.voo = true ;
+          game.player.criaVisual(reset : true);
+          text = "voo!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.cardinalShot:
+          game.player.cardinalShot = true ;
+          text = "cardinalShot!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.noveVidas:
+          player.revive += 9;
+          player.maxHealth = 2;
+          player.healthNotifier.value = min(player.maxHealth,player.healthNotifier.value);
+
+          if(player.reviveIcon == null){
+            player.numIcons ++;
+            player.reviveIcon = GameIcon(
+              icon: MdiIcons.cross,
+              color: Pallete.amarelo,
+              size: player.size/2,
+              anchor: Anchor.center,
+              position: Vector2(player.size.x / 2, - player.size.y / 4 - 14*player.numIcons), 
+            );
+            player.add(player.reviveIcon!);
+          }
+
+          if (player.reviveText == null){
+            player.reviveText = TextComponent(
+              text: player.revive.toString(),
+              position: Vector2((player.size.x/2) - 12, - player.size.y / 4 - 14*player.numIcons),
+              anchor: Anchor.center,
+              textRenderer: TextPaint(
+                style: const TextStyle(
+                  color: Pallete.amarelo,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+            player.add(player.reviveText!);
+          }
+          player.reviveText?.text = player.revive.toString();
+          text = "noveVidas";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activePacmen:
+          player.ativaPacmen();
+          text = "activeLicantropia";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

@@ -128,6 +128,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.alquimista: iconData = MdiIcons.flaskEmptyOutline; break;
       case CollectibleType.desafio: iconData = MdiIcons.swordCross; break;
       case CollectibleType.darkShop: iconData = MdiIcons.emoticonDevil; break;
+      case CollectibleType.doacaoSangue: iconData = MdiIcons.bloodBag; break;
       default: iconData = Icons.help_outline;
     }
     
@@ -272,9 +273,25 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               Rectangle.fromLTWH(-60, -60, 120, 130),
               considerViewport: false,
             );
-            if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop) gameRef.player.hasCupon = false;
+            if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop){
+              gameRef.player.hasCupon = false;
+
+              if(gameRef.player.cuponIcon !=null){
+                gameRef.player.numIcons --;
+                gameRef.player.cuponIcon!.removeFromParent();
+                gameRef.player.cuponIcon = null;
+              }
+            }
             if(gameRef.player.hasShieldRegen)gameRef.player.increaseShield();
-            if(gameRef.player.tempDmgBonus)gameRef.player.tempDmgBonus = false;
+            if(gameRef.player.tempDmgBonus){
+              gameRef.player.tempDmgBonus = false;
+
+              if(gameRef.player.dmgBuffIcon !=null){
+                gameRef.player.numIcons --;
+                gameRef.player.dmgBuffIcon!.removeFromParent();
+                gameRef.player.dmgBuffIcon = null;
+              }
+            }
             if(gameRef.player.regenCount > 0){
               game.player.curaHp(1);
               gameRef.player.regenCount -= 1;

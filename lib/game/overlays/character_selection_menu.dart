@@ -110,7 +110,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   _buildDifficultyButton("facil".tr(), 1.0, Pallete.verdeCla),
                   _buildDifficultyButton("normal".tr(), 1.5, Pallete.azulCla),
                   _buildDifficultyButton("dificil".tr(), 2.0, Pallete.laranja),
-                  _buildDifficultyButton("pesadelo".tr(), 2.5, Pallete.vermelho),
+                  _buildDifficultyButton("pesadelo".tr(), 3.0, Pallete.vermelho),
                 ],
               ),
               

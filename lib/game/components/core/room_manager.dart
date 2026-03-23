@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
+import 'package:TowerRogue/game/components/gameObj/blood_machine.dart';
 import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
@@ -122,14 +123,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
       //teste de inimigos
-      //gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
+      if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
+      //if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createRat(Vector2(0, -150)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.bombDecoy));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeRandPillUnico));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.activeFear));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.eutanasia));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.kinetic));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.cupon));
+      gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.voo));
+      gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activePacmen));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -220,7 +222,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       if (tooClose) continue; 
 
-      gameRef.world.add(Wall(position: candidatePos));
+      gameRef.world.add(Wall(position: candidatePos, vida: 3 + Random().nextInt(8)));
       occupiedPositions.add(candidatePos);
     }
   }
@@ -365,7 +367,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (roomNumber > 1){
       possibleRewards.add(CollectibleType.rareChest);
-      
+      possibleRewards.add(CollectibleType.doacaoSangue);
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -469,7 +471,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(-100, -400), 
-      rewardType: rewardLeft,
+      rewardType: CollectibleType.doacaoSangue,//rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
       bites: bites1,
@@ -694,6 +696,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0)));
+    }else if (gameRef.nextRoomReward == CollectibleType.doacaoSangue) {
+      _explosaoCriaItem();
+      gameRef.world.add(BloodMachine(position: Vector2(100, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));

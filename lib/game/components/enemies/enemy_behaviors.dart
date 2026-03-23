@@ -454,8 +454,8 @@ class ProjectileAttackBehavior extends AttackBehavior {
     enemy.gameRef.world.add(Projectile(
       position: enemy.position + newDir * 20,
       direction: newDir,
-      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
-      speed: speed,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
+      speed: enemy.isFreeze? speed/2 : speed,
       size: size,
       owner: enemy,
       isOrbital: isOrbital,
@@ -464,6 +464,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
       isBoomerang: isBoomerang,
       dieTimer: isBoomerang ? 1.0 : 3.0,
       isEnemyProjectile: !enemy.isCharmed,
+      isSpectral: !enemy.isSpectral,
     ));
   }
 }
@@ -527,7 +528,7 @@ class MortarAttackBehavior extends AttackBehavior {
   void _spawnMortar(Vector2 target, double flightTime) {
     enemy.gameRef.world.add(TargetReticle(
       position: target,
-      duration: flightTime,
+      duration: enemy.isFreeze? flightTime*2 : flightTime,
       owner: enemy,
       radius: explosionRadius,
     ));
@@ -536,11 +537,11 @@ class MortarAttackBehavior extends AttackBehavior {
       startPos: enemy.position.clone(),
       targetPos: target,
       owner: enemy,
-      flightDuration: flightTime,
+      flightDuration: enemy.isFreeze? flightTime*2 : flightTime,
       isPoison: isPoison,
       explosionRadius: explosionRadius,
       isPlayer: enemy.isCharmed,
-      damage: enemy.isCharmed? enemy.gameRef.player.damage : 1,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage : enemy.dmg,
     ));
   }
 }
@@ -594,7 +595,7 @@ class LaserAttackBehavior extends AttackBehavior {
       owner: enemy,
       isMoving: isMoving,
       isEnemyProjectile: !enemy.isCharmed,
-      damage: enemy.isCharmed? enemy.gameRef.player.damage : 1,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage : enemy.dmg,
     ));
   }
 }
@@ -685,13 +686,14 @@ class SpinnerAttackBehavior extends AttackBehavior {
     enemy!.gameRef.world.add(Projectile(
       position: enemy!.position + dir * 20,
       direction: dir,
-      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
+      damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
       speed: 200,
       size: size,
       owner: enemy,
       isBoomerang: isBoomerang,
       dieTimer: isBoomerang ? 1.0 : 3.0,
       isEnemyProjectile: !enemy.isCharmed,
+      isSpectral: !enemy.isSpectral,
     ));
   }
 }
@@ -1027,7 +1029,7 @@ class JumpAttackBehavior extends AttackBehavior {
       
       if (enemy.position.distanceTo(_cachedTarget.position) <= impactRadius) {
         if (_cachedTarget is Player) {
-           (_cachedTarget as Player).takeDamage(1);
+           (_cachedTarget as Player).takeDamage(enemy.dmg.toInt());
         }else if (_cachedTarget is Enemy) {
            (_cachedTarget as Enemy).takeDamage(enemy.gameRef.player.damage/2);
         }
@@ -1041,10 +1043,11 @@ class JumpAttackBehavior extends AttackBehavior {
         enemy.gameRef.world.add(Projectile(
           position: enemy.position + dir * 20,
           direction: dir,
-          damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
-          speed: 200,
+          damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
+          speed: enemy.isFreeze? 100 : 200,
           owner: enemy,
           isEnemyProjectile: !enemy.isCharmed,
+          isSpectral: !enemy.isSpectral,
         ));
       } 
     }
@@ -1197,10 +1200,11 @@ class ProjectileBurstDeathBehavior extends DeathBehavior {
       enemy.gameRef.world.add(Projectile(
         position: enemy.position,
         direction: dir,
-        damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : 1,
-        speed: 150,
+        damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
+        speed: enemy.isFreeze? 100 : 200,
         owner: enemy,
         isEnemyProjectile: !enemy.isCharmed,
+        isSpectral: !enemy.isSpectral,
       ));
     }
   }

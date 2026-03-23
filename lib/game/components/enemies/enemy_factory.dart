@@ -18,6 +18,7 @@ class EnemyFactory {
   static Enemy createDummy(Vector2 pos) {
     return Enemy(
       position: pos,
+      noChamp: true,
       hp: 1000,
       speed: 100,
       isDummy: true,
@@ -26,6 +27,9 @@ class EnemyFactory {
       originalColor: Pallete.bege,
       movementBehavior: IdleBehavior(),
       attackBehavior: NoAttackBehavior(),       
+      dropList: [
+        CollectibleType.familiarDummy,
+      ],
     );
   }
 
@@ -72,9 +76,11 @@ class EnemyFactory {
 
   // inimigos fase 1
   
-  static Enemy createRat(Vector2 pos) {
+  static Enemy createRat(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 30,
       speed: 100,
       hbSize: Vector2(24,18),
@@ -86,9 +92,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createFungi(Vector2 pos) {
+  static Enemy createFungi(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 25,
       speed: 0,
       weight: 5,
@@ -99,9 +107,11 @@ class EnemyFactory {
     );
   }
   
-  static Enemy createBug(Vector2 pos) {
+  static Enemy createBug(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 20,
       speed: 80,
       hbSize: Vector2(24,24),
@@ -113,9 +123,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSnail(Vector2 pos) {
+  static Enemy createSnail(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 40,
       speed: 60,
       weight: 1.2,
@@ -136,9 +148,10 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createBee(Vector2 pos) {
+  static Enemy createBee(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: true,
       hp: 15,
       speed: 100,
       voa: true,
@@ -152,9 +165,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createBeeHive(Vector2 pos) {
+  static Enemy createBeeHive(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 50,
       speed: 0,
       weight: 2.0,
@@ -168,14 +183,15 @@ class EnemyFactory {
       ),
       deathBehavior: SpawnOnDeathBehavior(
         count: 3,
-        minionBuilder: (p) => EnemyFactory.createBee(p),
+        minionBuilder: (p) => EnemyFactory.createBee(p, noChamp: true),
       ),
     );
   }
 
-  static Enemy createSlimeP(Vector2 pos) {
+  static Enemy createSlimeP(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: true,
       hp: 20,
       speed: 120,
       size: Vector2.all(24),
@@ -187,9 +203,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSlimeM(Vector2 pos) {
+  static Enemy createSlimeM(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 50,
       speed: 80,
       hbSize: Vector2(28,24),
@@ -199,7 +217,7 @@ class EnemyFactory {
       attackBehavior: NoAttackBehavior(),   
       deathBehavior: SpawnOnDeathBehavior(
         count: 3,
-        minionBuilder: (p) => EnemyFactory.createSlimeP(p),
+        minionBuilder: (p) => EnemyFactory.createSlimeP(p, noChamp: true),
       ),    
     );
   }
@@ -241,7 +259,7 @@ class EnemyFactory {
         SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 24),
         MortarAttackBehavior(interval:1, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
-          minionBuilder: (p) => EnemyFactory.createRat(p), 
+          minionBuilder: (p) => EnemyFactory.createRat(p, noChamp: true), 
           interval: 1.0, 
           maxMinions: 4,
         ),
@@ -252,9 +270,11 @@ class EnemyFactory {
 
 // inimigos fase 2
 
-  static Enemy createBat(Vector2 pos) {
+  static Enemy createBat(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 45,
       speed: 100,
       hbSize: Vector2(28,16),
@@ -266,9 +286,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSpider(Vector2 pos) {
+  static Enemy createSpider(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 45,
       speed: 80,
       weight: 1.2,
@@ -285,9 +307,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createGhost(Vector2 pos) {
+  static Enemy createGhost(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 60,
       speed: 80,
       voa: true,
@@ -300,9 +324,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createCoffin(Vector2 pos) {
+  static Enemy createCoffin(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 70,
       speed: 0,
       weight: 100,
@@ -314,9 +340,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createMere(Vector2 pos) {
+  static Enemy createMere(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 60,
       speed: 80,
       hbSize: Vector2(28,28),
@@ -328,9 +356,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createHorseMan(Vector2 pos) {
+  static Enemy createHorseMan(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+      noChamp: noChamp,
+      championType: champType,
       hp: 70,
       speed: 100,
       hasGhostEffect: true,
@@ -395,9 +425,11 @@ class EnemyFactory {
 
   // inimigos fase 3
 
-  static Enemy createChessKnight(Vector2 pos) {
+  static Enemy createChessKnight(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 70,
       speed: 80, 
       weight: 2.0,
@@ -414,9 +446,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessPawn(Vector2 pos) {
+  static Enemy createChessPawn(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 60,
       speed: 80,
       hbSize: Vector2(16,28),
@@ -427,9 +461,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessRook(Vector2 pos) {
+  static Enemy createChessRook(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 120,
       speed: 0,
       hbSize: Vector2(16,28),
@@ -441,9 +477,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessBishop(Vector2 pos) {
+  static Enemy createChessBishop(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       hbSize: Vector2(16,28),
@@ -454,9 +492,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessKing(Vector2 pos) {
+  static Enemy createChessKing(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 100,
       hbSize: Vector2(16,28),
       speed: 60,
@@ -467,9 +507,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createChessQueen(Vector2 pos) {
+  static Enemy createChessQueen(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       hbSize: Vector2(16,28),
@@ -525,9 +567,11 @@ class EnemyFactory {
 
    // inimigos fase 4
 
-   static Enemy createRabbit(Vector2 pos) {
+   static Enemy createRabbit(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 0,
       hbSize: Vector2(26,26),
@@ -547,9 +591,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createUnicorn(Vector2 pos) {
+  static Enemy createUnicorn(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 100,
       speed: 100,
       hasGhostEffect: true,
@@ -565,9 +611,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createBird(Vector2 pos) {
+  static Enemy createBird(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       voa: true,
@@ -579,9 +627,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createElephant(Vector2 pos) {
+  static Enemy createElephant(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 200,
       speed: 100,
       hbSize: Vector2(24,20),
@@ -593,9 +643,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSnake(Vector2 pos) {
+  static Enemy createSnake(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 100,
       speed: 90,
       hbSize: Vector2(26,30),
@@ -606,9 +658,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createTortoise(Vector2 pos) {
+  static Enemy createTortoise(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 100,
       speed: 50,
       hbSize: Vector2(26,20),
@@ -677,9 +731,11 @@ class EnemyFactory {
 
   // inimigos fase 5
 
-   static Enemy createJellyfish(Vector2 pos) {
+   static Enemy createJellyfish(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 60,
       hbSize: Vector2(26,26),
@@ -694,9 +750,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createFishBowl(Vector2 pos) {
+  static Enemy createFishBowl(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 150,
       speed: 0,
       weight: 3,
@@ -711,9 +769,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createFish(Vector2 pos) {
+  static Enemy createFish(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       hbSize: Vector2(26,20),
@@ -728,9 +788,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createDolphin(Vector2 pos) {
+  static Enemy createDolphin(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       hbSize: Vector2(26,26),
@@ -746,9 +808,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createShark(Vector2 pos) {
+  static Enemy createShark(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 80,
       speed: 80,
       hbSize: Vector2(28,18),
@@ -763,9 +827,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createTurtle(Vector2 pos) {
+  static Enemy createTurtle(Vector2 pos,{bool noChamp = false, int champType = 0}) {
     return Enemy(
       position: pos,
+noChamp: noChamp,
+championType: champType,
       hp: 120,
       speed: 80,
       hbSize: Vector2(26,26),

@@ -87,6 +87,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   double difficultyMultiplier = 1.0;
 
+  bool killDummy = false;
+
   @override
   Color backgroundColor() => Pallete.preto;
 
