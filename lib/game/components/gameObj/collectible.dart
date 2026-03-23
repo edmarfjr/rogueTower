@@ -41,7 +41,7 @@ class ActiveItemData {
 enum CollectibleType {
   //tipos de porta 
   coin, coinUm, souls, potion, potionUm, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
-  doacaoSangue, 
+  doacaoSangue, slotMachine,
   //itens comuns
   damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
@@ -508,7 +508,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
       CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
       CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
-      CollectibleType.healthContainer
+      CollectibleType.healthContainer,CollectibleType.slotMachine
     ];
 
     // Se o item NÃO FOR consumível, adiciona na lista de adquiridos do Player
