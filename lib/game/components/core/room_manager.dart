@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/gameObj/blood_machine.dart';
+import 'package:TowerRogue/game/components/gameObj/slot_machine.dart';
 import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
@@ -700,6 +701,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }else if (gameRef.nextRoomReward == CollectibleType.doacaoSangue) {
       _explosaoCriaItem();
       gameRef.world.add(BloodMachine(position: Vector2(100, 0)));
+    }else if (gameRef.nextRoomReward == CollectibleType.slotMachine) {
+      _explosaoCriaItem();
+      gameRef.world.add(SlotMachine(position: Vector2(100, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));

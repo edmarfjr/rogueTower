@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ import '../effects/explosion_effect.dart';
 import '../effects/floating_text.dart';
 import 'collectible.dart';
 
-class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
+class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
   final double _interactRange = 60.0;
   InteractButton? _currentButton;
@@ -23,7 +24,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   // Evitar que o jogador clique 10x por segundo acidentalmente
   double _cooldown = 0;
 
-  BloodMachine({required Vector2 position}) 
+  SlotMachine({required Vector2 position}) 
     : super(position: position, size: Vector2.all(40), anchor: Anchor.center);
 
   @override
@@ -127,39 +128,53 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
         player.collectCoin(-5); 
       
       // Feedback visual do custo
-      gameRef.world.add(FloatingText(
-        text: "-5 MOEDAS",
-        position: player.position.clone() + Vector2(0, -30),
-        color: Pallete.vermelho,
-      ));
+        gameRef.world.add(FloatingText(
+          text: "-5 MOEDAS",
+          position: player.position.clone() + Vector2(0, -30),
+          color: Pallete.vermelho,
+        ));
 
-      // 4. Efeito Visual de Sangue jorrando da máquina
-      createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 15);
-      AudioManager.playSfx('hit.mp3'); 
+        // 4. Efeito Visual de Sangue jorrando da máquina
+        createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 15);
+        AudioManager.playSfx('hit.mp3'); 
 
-      int rng = Random().nextInt(100);
+        int rng = Random().nextInt(100);
 
-      var item;
+        var item;
 
-      if (rng > 40){
+        if (rng > 40){
+          if(rng < 50){
+            item = CollectibleType.coinUm;
+          }else if(rng >= 50 && rng < 60){
+            item = CollectibleType.coin;
+          }else if(rng >= 60 && rng < 70){
+            item = CollectibleType.bomba;
+          }else if(rng >= 70 && rng < 80){
+            item = CollectibleType.key;
+          }else if(rng >= 80 && rng < 90){
+            item = CollectibleType.potion;
+          }else if(rng >= 90 && rng < 98){
+            var pool = retornaItensComuns(player);
+            item = pool.first;
+          }else if(rng >= 98){
+            gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
+          }
+        }else{
+          return;
+        }
+
+        // ignore: curly_braces_in_flow_control_structures
+        if (item != null){
+          final newItem = Collectible(
+            position: Vector2(0, 10), 
+            type: item,
+          );
         
-      }
-
-      // ignore: curly_braces_in_flow_control_structures
-      if (item != null){
-        final newItem = Collectible(
-          position: Vector2(0, 10), 
-          type: item,
-        );
-      
-        gameRef.world.add(newItem);
-        
-        // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
-        newItem.pop(Vector2(0, 20));
-      }
-        
-      
-      
+          gameRef.world.add(newItem);
+          
+          // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
+          newItem.pop(Vector2(0, 20));
+        }
       }else{
         gameRef.world.add(FloatingText(
         text: "noCoin".tr(),
