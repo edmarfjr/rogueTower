@@ -368,6 +368,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber > 1){
       possibleRewards.add(CollectibleType.rareChest);
       possibleRewards.add(CollectibleType.doacaoSangue);
+      possibleRewards.add(CollectibleType.slotMachine);
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -471,7 +472,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(-100, -400), 
-      rewardType: CollectibleType.doacaoSangue,//rewardLeft,
+      rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
       bites: bites1,
