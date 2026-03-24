@@ -213,6 +213,9 @@ class CharacterRoster {
       isShotgun: true,
       isUnlockedByDefault: false,
       unlockConditionText: "exterminadorCond".tr(),
+      itemsExcluidos: [
+        CollectibleType.tripleShot,
+      ],
     ),
     CharacterClass(
       id: "defensor",
@@ -261,6 +264,10 @@ class CharacterRoster {
       startingItems: [
         CollectibleType.activeLicantropia,
       ],
+      itemsExcluidos: [
+        CollectibleType.activeUnicorn,
+        CollectibleType.activePacmen,
+      ],
       isUnlockedByDefault: false,
       unlockConditionText: "licantropoCond".tr(),
     ),
@@ -283,6 +290,13 @@ class CharacterRoster {
       attackRange: 0.7,
       startingItems: [
         CollectibleType.molotov,
+      ],
+      itemsExcluidos: [
+        CollectibleType.tripleShot,
+        CollectibleType.mine,
+        CollectibleType.laser,
+        CollectibleType.homing,
+        CollectibleType.activeHoming,
       ],
       isUnlockedByDefault: false,
       unlockConditionText: "multidaoCond".tr(),

@@ -2,8 +2,11 @@ import 'dart:math';
 import 'dart:async';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/core/save_manager.dart';
 import 'package:TowerRogue/game/components/core/screen_transition.dart';
+import 'package:TowerRogue/game/components/effects/floating_text.dart';
+import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -157,6 +160,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     if (AudioManager.isMutedMusic) {
       AudioManager.stopBgm(); 
     } else {
+      AudioManager.stopBgm(); 
       AudioManager.playBgm('retro_forest.mp3');
     }
     
@@ -349,11 +353,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('HUD');
     overlays.add('MainMenu');
     AudioManager.playBgm('retro_forest.mp3');
+    print('returnToMenu');
   }
 
   void startLevel({continuar = false}) {
     player.position = Vector2(0, 250); 
     roomManager.startRoom(currentRoom,continuar: continuar);
+    player.applyZodiac();
   }
 
   void continueGame() async {
@@ -383,6 +389,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     player.rechargeActiveItem();
     //reseta upgrades temporarios
     if(player.isHomingTemp) player.isHomingTemp = false;
+    if(player.takeOneDmg) player.takeOneDmg = false;
+    if(player.zodiacTaurusTransf) player.zodiacTaurusTransf = false;
 
     if(!mesmaSala)currentRoomNotifier.value++;
     if (currentRoom > bossRoom){

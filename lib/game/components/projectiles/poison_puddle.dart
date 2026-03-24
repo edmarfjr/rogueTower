@@ -19,6 +19,10 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   double _damageTickTimer = 0; 
   bool _playerIsInside = false;
   bool isFire;
+  bool isPoison;
+  bool isFreeze;
+  bool isAquarius;
+  bool isBleed;
   double _animTmr = 0;
   final double _bounceSpeed = 15.0;     
   final double _bounceAmplitude = 0.15; 
@@ -33,6 +37,10 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     this.damage = 1.0, 
     this.isPlayer = false,
     this.isFire = false,
+    this.isPoison = true,
+    this.isFreeze = false,
+    this.isBleed = false,
+    this.isAquarius = false,
     this.alastra = false,
     Vector2? size,
   }) : super(position: position, size: size ?? Vector2.all(20), anchor: Anchor.center);
@@ -44,6 +52,12 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     if(isFire) {
       icon = MdiIcons.fire;
       cor = Pallete.laranja;
+    }
+    if(isFreeze) {
+      cor = Pallete.azulCla;
+    }
+    if(isAquarius) {
+      cor = Pallete.lilas;
     }
 
     visual = GameIcon(
@@ -67,7 +81,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       period: 0.5, 
       repeat: true,
       onTick: () {
-        Color particleColor = isFire ? Pallete.laranja : Pallete.verdeCla;
+        Color particleColor = cor;
         final rng = Random();
 
         final double posX = rng.nextDouble() * size.x - size.x/2 ;
@@ -121,8 +135,15 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
         for (var enemy in _enemiesInside) {
           if (isFire) {
             enemy.setBurn();
-          } else {
-            enemy.setPoison(alastra: true);
+          } 
+          if (isPoison)  {
+            enemy.setPoison(alastra: alastra);
+          }
+          if (isBleed)  {
+            enemy.setBleed();
+          }
+          if(isAquarius){
+            enemy.takeDamage(damage);
           }
         }
       }
@@ -132,9 +153,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
 
     if (_lifeTimer > duration - 1.0) {
        double currentOpacity = (duration - _lifeTimer).clamp(0.0, 1.0);
-       if (visual != null) {
-         visual?.color = cor.withValues(alpha: 0.6 * currentOpacity);
-       }
+       //if (visual != null) {
+       //  visual?.color = cor.withValues(alpha: 0.6 * currentOpacity);
+       //}
     }
 
     if (_lifeTimer >= duration) {

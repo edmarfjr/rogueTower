@@ -216,6 +216,13 @@ class EnemyBoss extends Enemy {
           AudioManager.playSfx('enemy_die.mp3');
           gameRef.shakeCamera(intensity: 12.0, duration: 1.5);
 
+          bool isUm = Random().nextBool();
+          final item = Collectible(position: position, type: isUm? CollectibleType.potionUm : CollectibleType.potion);
+          gameRef.world.add(item);
+          double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+          double altura = Random().nextDouble() * 100 + 150 * -1;
+          item.pop(Vector2(direcaoX, 0), altura:altura);
+
           AudioManager.playBgm('8_bit_adventure.mp3');
           super.die(); 
         }

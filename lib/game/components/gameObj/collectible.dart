@@ -49,7 +49,7 @@ enum CollectibleType {
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
   saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,familiarRefletor,
   jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,familiarDummy, voo,
-  cardinalShot,
+  cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -57,7 +57,9 @@ enum CollectibleType {
   activeHeartConverter, activeDivineShield, activeRitualDagger, activeConvBruta, activeMagicMirror, charmOnCrit, freezeDash,
   activeStunBomb, activeFairy, activeUnicorn, activeBombardeio, curaCrit, molotov, laser, activeTurret, wave, activeSuborno,
   pilNanicolina, retaliar, familiarFreeze, encolheOnCrit, familiarGlitch, familiarDmgBuff, familiarCircProt,glitterBomb,
-  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen
+  clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen,
+  hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra, zodiacPisces,
+  zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac
 }
 
 
@@ -81,6 +83,9 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeCircularShots,
     CollectibleType.activeRandPill,
     CollectibleType.activeDiarreiaExplosiva,
+    CollectibleType.activeBloodBag,
+    CollectibleType.activeDullRazor,
+    CollectibleType.activeBoxSpider,
   ];
   return recarregaveis.contains(type);
 }
@@ -809,6 +814,38 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'noveVidas'.tr(), 'desc': 'noveVidasDesc'.tr(), 'icon': MdiIcons.cat, 'color': Pallete.azulEsc};
       case CollectibleType.activePacmen:
         return {'name': 'activePacmen'.tr(), 'desc': 'activePacmenDesc'.tr(), 'icon': MdiIcons.nintendoGameBoy, 'color': Pallete.cinzaCla};
+      case CollectibleType.hurtPac:
+        return {'name': 'hurtPac'.tr(), 'desc': 'hurtPacDesc'.tr(), 'icon': MdiIcons.gamepadSquare, 'color': Pallete.cinzaCla};
+      case CollectibleType.zodiacAquarius:
+        return {'name': 'zodiacAquarius'.tr(), 'desc': 'zodiacAquariusDesc'.tr(), 'icon': MdiIcons.zodiacAquarius, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacAries:
+        return {'name': 'zodiacAries'.tr(), 'desc': 'zodiacAriesDesc'.tr(), 'icon': MdiIcons.zodiacAries, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacCancer:
+        return {'name': 'zodiacCancer'.tr(), 'desc': 'zodiacCancerDesc'.tr(), 'icon': MdiIcons.zodiacCancer, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacCapricorn:
+        return {'name': 'zodiacCapricorn'.tr(), 'desc': 'zodiacCapricornDesc'.tr(), 'icon': MdiIcons.zodiacCapricorn, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacGemini:
+        return {'name': 'zodiacGemini'.tr(), 'desc': 'zodiacGeminiDesc'.tr(), 'icon': MdiIcons.zodiacGemini, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacLeo:
+        return {'name': 'zodiacLeo'.tr(), 'desc': 'zodiacLeoDesc'.tr(), 'icon': MdiIcons.zodiacLeo, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacLibra:
+        return {'name': 'zodiacLibra'.tr(), 'desc': 'zodiacLibraDesc'.tr(), 'icon': MdiIcons.zodiacLibra, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacPisces:
+        return {'name': 'zodiacPisces'.tr(), 'desc': 'zodiacPiscesDesc'.tr(), 'icon': MdiIcons.zodiacPisces, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacSargittarius:
+        return {'name': 'zodiacSargittarius'.tr(), 'desc': 'zodiacSargittariusDesc'.tr(), 'icon': MdiIcons.zodiacSagittarius, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacScorpio:
+        return {'name': 'zodiacScorpio'.tr(), 'desc': 'zodiacScorpioDesc'.tr(), 'icon': MdiIcons.zodiacScorpio, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacTaurus:
+        return {'name': 'zodiacTaurus'.tr(), 'desc': 'zodiacTaurusDesc'.tr(), 'icon': MdiIcons.zodiacTaurus, 'color': Pallete.azulCla};
+      case CollectibleType.zodiacVirgo:
+        return {'name': 'zodiacVirgo'.tr(), 'desc': 'zodiacVirgoDesc'.tr(), 'icon': MdiIcons.zodiacVirgo, 'color': Pallete.azulCla};
+      case CollectibleType.zodiac:
+        return {'name': 'zodiac'.tr(), 'desc': 'zodiacDesc'.tr(), 'icon': MdiIcons.starFourPoints, 'color': Pallete.azulCla};
+      case CollectibleType.activeDullRazor:
+        return {'name': 'activeDullRazor'.tr(), 'desc': 'activeDullRazorDesc'.tr(), 'icon': MdiIcons.razorDoubleEdge, 'color': Pallete.marrom};
+      case CollectibleType.activeBoxSpider:
+        return {'name': 'activeBoxSpider'.tr(), 'desc': 'activeBoxSpiderDesc'.tr(), 'icon': MdiIcons.spider, 'color': Pallete.azulCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -829,10 +866,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player player) {
 
   const stackables = [
-    CollectibleType.damage, CollectibleType.fireRate, CollectibleType.moveSpeed, 
-    CollectibleType.range, CollectibleType.healthContainer, CollectibleType.keys, 
-    CollectibleType.bombas, CollectibleType.sanduiche, CollectibleType.critChance, 
-    CollectibleType.critDamage, CollectibleType.dot, CollectibleType.dash,
+    CollectibleType.healthContainer, CollectibleType.potionUm, CollectibleType.coinUm,
     CollectibleType.coin, CollectibleType.potion, CollectibleType.key, CollectibleType.bomba
   ];
 
@@ -969,6 +1003,8 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeRandPillUnico,
       CollectibleType.voo,
       CollectibleType.cardinalShot,
+      CollectibleType.activeBloodBag,
+      CollectibleType.activeDullRazor,
     ];
     
     return _filtrarPool(itens, player);
@@ -1049,6 +1085,20 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.portalBoss,
       CollectibleType.noveVidas,
       CollectibleType.activePacmen,
+      CollectibleType.hurtPac,
+      CollectibleType.zodiacAquarius,
+      CollectibleType.zodiacAries,
+      CollectibleType.zodiacCancer,
+      CollectibleType.zodiacCapricorn,
+      CollectibleType.zodiacGemini,
+      CollectibleType.zodiacLeo,
+      CollectibleType.zodiacLibra,
+      CollectibleType.zodiacPisces,
+      CollectibleType.zodiacSargittarius,
+      CollectibleType.zodiacScorpio,
+      CollectibleType.zodiacTaurus,
+      CollectibleType.zodiacVirgo,
+      CollectibleType.zodiac,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1062,13 +1112,13 @@ class CollectibleLogic {
        switch (type) {
          case CollectibleType.coin:
           int c = Random().nextInt(20)+5;
-          game.player.collectCoin(c);
+          player.collectCoin(c);
           text = "+ $c\$ ";
           //color = Pallete.amarelo;
           break;
 
          case CollectibleType.coinUm:
-          game.player.collectCoin(1);
+          player.collectCoin(1);
           text = "+ 1\$ ";
           //color = Pallete.amarelo;
           break;
@@ -1120,13 +1170,13 @@ class CollectibleLogic {
         
         case CollectibleType.bomba:
           int b = Random().nextInt(2)+1;
-          game.player.bombNotifier.value += b;
+          player.bombNotifier.value += b;
           text = "$b Bombs(s)!";
           //color = Pallete.branco; 
           break;
 
         case CollectibleType.bombas:
-          game.player.bombNotifier.value+=10;
+          player.bombNotifier.value+=10;
           text = "10 Bombs!";
           //color = Pallete.branco; 
           break;
@@ -1404,6 +1454,7 @@ class CollectibleLogic {
 
         case CollectibleType.heavyShot:
           player.isHeavyShot = true;
+          player.bltSize += 20;
           text = "Heavy Shot!";
           //color = Pallete.vermelho;
           break;
@@ -1461,8 +1512,8 @@ class CollectibleLogic {
         
         case CollectibleType.tripleShot:
           player.tripleShot = true;
-          player.fireRate *= 0.6;
-          text = "tornado";
+          player.increaseFireRate(1.4);
+          text = "tripleShot";
           //color = Pallete.vermelho;
           break; 
 
@@ -1586,7 +1637,7 @@ class CollectibleLogic {
               break;
             case 4:
               final int c = Random().nextInt(20)+5;
-              game.player.collectCoin(c);
+              player.collectCoin(c);
               txt = 'Moedas!';
               break;
             case 5:
@@ -1653,13 +1704,13 @@ class CollectibleLogic {
 
         case CollectibleType.bombDecoy:
           player.isBombDecoy = true;
-          game.player.bombNotifier.value += 5;
+          player.bombNotifier.value += 5;
           text = "bombDecoy!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeHeartConverter:
-          if (game.player.maxHealth < 2) {
+          if (player.maxHealth < 2) {
             return {
               'text': "noHp".tr(), 
               'color': Pallete.branco, 
@@ -1726,7 +1777,7 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeRitualDagger:
-          if (game.player.healthNotifier.value < 1) {
+          if (player.healthNotifier.value < 1) {
             return {
               'text': "noHp".tr(), 
               'color': Pallete.branco, 
@@ -1806,7 +1857,7 @@ class CollectibleLogic {
           if(game.progress.soulsNotifier.value >= 1000)
           {
             game.progress.spendSouls(1000);
-            game.player.collectCoin(50);
+            player.collectCoin(50);
             text = "activeMidas!";
             return {'text': "activeMidas!", 'color': Pallete.branco, 'sucesso': true}; 
           }else{
@@ -1918,7 +1969,7 @@ class CollectibleLogic {
               'sucesso': false
             };
           }
-          game.player.collectCoin(-15);
+          player.collectCoin(-15);
           game.world.add(Explosion(
             position: player.position.clone(),
             damagesPlayer:false, 
@@ -1976,19 +2027,19 @@ class CollectibleLogic {
           break; 
 
         case CollectibleType.boloDinheiro:
-          game.player.collectCoin(50);
+          player.collectCoin(50);
           text = "CASH!";
           //color = Pallete.vermelho;
           break;   
 
         case CollectibleType.retaliar:
-          game.player.explodeHit = true ;
+          player.explodeHit = true ;
           text = "retaliar!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.restock:
-          game.player.restock = true ;
+          player.restock = true ;
           text = "restock!";
           //color = Pallete.vermelho;
           break;
@@ -2009,7 +2060,7 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.encolheOnCrit:
-          game.player.encolheOnCrit = true ;
+          player.encolheOnCrit = true ;
           text = "encolheOnCrit!";
           //color = Pallete.vermelho;
           break;
@@ -2052,32 +2103,32 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.glitterBomb:
-          game.player.isGlitterBomb = true ;
-          game.player.bombNotifier.value += 5;
+          player.isGlitterBomb = true ;
+          player.bombNotifier.value += 5;
           text = "glitterBomb!";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.goldShot:
-          game.player.goldShot = true ;
+          player.goldShot = true ;
           text = "goldShot!";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.clusterShot:
-          game.player.clusterShot = 0 ;
+          player.clusterShot = 0 ;
           text = "clusterShot!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.evasao:
-          game.player.evasao = true ;
+          player.evasao = true ;
           text = "evasao!";
           //color = Pallete.vermelho;
           break;
         
         case CollectibleType.primeiroInimigoPocaVeneno:
-          game.player.primeiroInimigoPocaVeneno = true ;
+          player.primeiroInimigoPocaVeneno = true ;
           text = "primeiroInimigoPocaVeneno!";
           //color = Pallete.vermelho;
           break;
@@ -2119,13 +2170,13 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.adrenalina:
-          game.player.adrenalina = true ;
+          player.adrenalina = true ;
           text = "adrenalina!";
           //color = Pallete.vermelho;
           break;
         
         case CollectibleType.eutanasia:
-          game.player.eutanasia = true ;
+          player.eutanasia = true ;
           text = "eutanasia!";
           //color = Pallete.vermelho;
           break;
@@ -2162,7 +2213,7 @@ class CollectibleLogic {
           break;  
 
         case CollectibleType.jumpersCable:
-          game.player.killCharge = 0 ;
+          player.killCharge = 0 ;
           text = "jumpersCable!";
           //color = Pallete.vermelho;
           break;
@@ -2173,36 +2224,36 @@ class CollectibleLogic {
             Vector2 direction = Vector2(cos(angle), sin(angle));
 
             game.world.add(Projectile(
-              owner: game.player,
-              position: game.player.position.clone(), 
+              owner: player,
+              position: player.position.clone(), 
               direction: direction.clone(), 
-              damage: game.player.noDamage? 0 : game.player.returnDamage(), 
-              speed: game.player.isOrbitalShot ? 4.0 : game.player.isHeavyShot ? 250 : game.player.isWave ? 350 : game.player.isSaw ? 50 : 500,
-              size: game.player.isHeavyShot ? Vector2.all(30) : Vector2.all(10),
-              dieTimer: game.player.isBoomerang ? 1.0 : game.player.isOrbitalShot ? 2 : game.player.isSaw ? game.player.attackRange*1.5 : game.player.attackRange,
-              apagaTiros: game.player.hasAntimateria,
-              isHoming: game.player.isHoming || game.player.isHomingTemp,
-              iniPosition: game.player.position.clone(),
-              canBounce: game.player.canBounce,
-              isSpectral: game.player.isSpectral,
-              isPiercing: game.player.isPiercing,
-              isBoomerang: game.player.isBoomerang,
-              splits: game.player.isShootSplits,
+              damage: player.noDamage? 0 : player.returnDamage(), 
+              speed: player.isOrbitalShot ? 4.0 : player.isHeavyShot ? 250 : player.isWave ? 350 : player.isSaw ? 50 : 500,
+              size: player.isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+              dieTimer: player.isBoomerang ? 1.0 : player.isOrbitalShot ? 2 : player.isSaw ? player.attackRange*1.5 : player.attackRange,
+              apagaTiros: player.hasAntimateria,
+              isHoming: player.isHoming || player.isHomingTemp,
+              iniPosition: player.position.clone(),
+              canBounce: player.canBounce,
+              isSpectral: player.isSpectral,
+              isPiercing: player.isPiercing,
+              isBoomerang: player.isBoomerang,
+              splits: player.isShootSplits,
               splitCount: Random().nextInt(3) + 1,
-              goldShot:game.player. goldShot,
-              isWave: game.player.isWave,         // <-- Transforma em onda!
+              goldShot:player. goldShot,
+              isWave: player.isWave,         // <-- Transforma em onda!
               maxRadius: 150,       // <-- Tamanho máximo
               growthRate: 100,      // <-- Velocidade de expansão
               sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
-              isSaw: game.player.isSaw,
+              isSaw: player.isSaw,
             ));
           }
 
         case CollectibleType.keysToBombs:
-          int bombs = (game.player.bombNotifier.value * 1.5).floor();
+          int bombs = (player.bombNotifier.value * 1.5).floor();
           int keys = (game.keysNotifier.value * 1.5).floor() ;
 
-          game.player.bombNotifier.value = keys;
+          player.bombNotifier.value = keys;
           game.keysNotifier.value = bombs;
           
           text = "keysToBombs".tr();
@@ -2215,35 +2266,35 @@ class CollectibleLogic {
 
           switch(rnd){
             case 0:
-              game.player.increaseDamage(1.2);
+              player.increaseDamage(1.2);
               txt = 'dano';
               break;
             case 1:
-              game.player.increaseFireRate(0.8);
+              player.increaseFireRate(0.8);
               txt = 'taxa de tiro';
               break;
             case 2:
-              game.player.increaseMovementSpeed(1.2);
+              player.increaseMovementSpeed(1.2);
               txt = 'velocidade';
               break;
             case 3:
-              game.player.increaseRange(1.2);
+              player.increaseRange(1.2);
               txt = 'alcançe';
               break;
             case 4:
-              game.player.critChance += 5;
+              player.critChance += 5;
               txt = 'chance crítica';
               break;
             case 5:
-              game.player.critDamage *= 1.15;
+              player.critDamage *= 1.15;
               txt = 'dano crítico';
               break;
             case 6:
-              game.player.increaseHp(2);
+              player.increaseHp(2);
               txt = 'HP';
               break;
             case 7:
-              game.player.dot *= 1.5;
+              player.dot *= 1.5;
               txt = 'dano por tempo';
               break;
           }
@@ -2257,35 +2308,35 @@ class CollectibleLogic {
 
           switch(rnd){
             case 0:
-              game.player.increaseDamage(1.2);
+              player.increaseDamage(1.2);
               txt = 'dano';
               break;
             case 1:
-              game.player.increaseFireRate(0.8);
+              player.increaseFireRate(0.8);
               txt = 'taxa de tiro';
               break;
             case 2:
-              game.player.increaseMovementSpeed(1.2);
+              player.increaseMovementSpeed(1.2);
               txt = 'velocidade';
               break;
             case 3:
-              game.player.increaseRange(1.2);
+              player.increaseRange(1.2);
               txt = 'alcançe';
               break;
             case 4:
-              game.player.critChance += 5;
+              player.critChance += 5;
               txt = 'chance crítica';
               break;
             case 5:
-              game.player.critDamage *= 1.15;
+              player.critDamage *= 1.15;
               txt = 'dano crítico';
               break;
             case 6:
-              game.player.increaseHp(2);
+              player.increaseHp(2);
               txt = 'HP';
               break;
             case 7:
-              game.player.dot *= 1.5;
+              player.dot *= 1.5;
               txt = 'dano por tempo';
               break;
           }
@@ -2313,7 +2364,7 @@ class CollectibleLogic {
 
           game.roomManager.startRoom(10);
 
-          game.player.position = Vector2(0, 250); 
+          player.position = Vector2(0, 250); 
         });
           
           text = "TO BOSS".tr();
@@ -2334,14 +2385,14 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeDiarreiaExplosiva:
-          game.player.bombTimer = 5.0; 
+          player.bombTimer = 5.0; 
           var tmrC=TimerComponent(
             period: 0.5,
             repeat: true,
             onTick: () {
-              game.player.criaBomba(semCusto:true);
+              player.criaBomba(semCusto:true);
           });
-          game.player.bombTmr = tmrC;
+          player.bombTmr = tmrC;
           game.world.add(tmrC);
           text = "activeDiarreiaExplosiva".tr();
           //color = Pallete.vermelho;
@@ -2360,14 +2411,14 @@ class CollectibleLogic {
           break; 
 
         case CollectibleType.voo:
-          game.player.voo = true ;
-          game.player.criaVisual(reset : true);
+          player.voo = true ;
+          player.criaVisual(reset : true);
           text = "voo!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.cardinalShot:
-          game.player.cardinalShot = true ;
+          player.cardinalShot = true ;
           text = "cardinalShot!";
           //color = Pallete.vermelho;
           break;
@@ -2410,11 +2461,159 @@ class CollectibleLogic {
           break; 
 
         case CollectibleType.activePacmen:
+          if (player.isPac) {
+            return {
+              'text': "PAC PAC PAC!", 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
           player.ativaPacmen();
-          text = "activeLicantropia";
+          text = "activePacmen";
           //color = Pallete.vermelho;
           break; 
 
+        case CollectibleType.hurtPac:
+          player.hurtPac = true;
+          text = "hurtPac";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBloodBag:
+          player.takeDamage(1,pulaEscudo:true);
+          int c = Random().nextInt(20)+5;
+          player.collectCoin(c);
+          text = "+ $c\$ ";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacAquarius:
+          player.zodiacAquarius = true;
+          text = "zodiacAquarius";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacAries:
+          player.zodiacAries = true;
+          text = "zodiacAries";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacCancer:
+          player.zodiacCancer = true;
+          player.increaseArtificialHp(6);
+          text = "zodiacCancer";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacCapricorn:
+          player.increaseHp(2);
+          player.increaseDamage(1.2);
+          player.increaseMovementSpeed(1.1);
+          player.increaseFireRate(0.85);
+          player.increaseRange(1.2);
+          player.collectCoin(10);
+          player.bombNotifier.value ++;
+          game.keysNotifier.value ++;
+
+          text = "zodiacCapricorn";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacGemini:
+          //if (player.activeDecoy == null) {
+            final gemini = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.gemini, 
+                                  player: player,
+                                  );
+            player.familiars.add(gemini);
+            game.world.add(gemini);
+         // }
+          text = "zodiacGemini";
+          break; 
+
+        case CollectibleType.zodiacLeo:
+          player.zodiacLeo = true;
+          text = "zodiacLeo";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacLibra:
+          player.zodiacLibra = true;
+          //player.applyLibraBalance();
+          player.collectCoin(20);
+          player.bombNotifier.value += 6;
+          game.keysNotifier.value += 6;
+          text = "zodiacLibra";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacPisces:
+          player.zodiacPisces = true;
+          player.bltSize *= 1.25;
+          player.increaseFireRate(0.8);
+          text = "zodiacPisces";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacSargittarius:
+          player.isPiercing = true;
+          player.increaseMovementSpeed(1.2);
+          text = "zodiacSargittarius";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacScorpio:
+          player.isPoison = true;
+          player.isPoisonAlastra;
+          text = "zodiacScorpio";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacTaurus:
+          player.zodiacTaurus = true;
+          player.increaseMovementSpeed(0.7);
+          text = "zodiacTaurus";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiacVirgo:
+          player.zodiacVirgo = true;
+          text = "zodiacVirgo";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.zodiac:
+          player.zodiac = true;
+          text = "zodiac";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeDullRazor:
+          player.takeDamage(0);
+          text = "ai".tr();
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBoxSpider:
+          //if (player.activeDecoy == null) {
+          int rnd = Random().nextInt(4) + 1;
+
+          for(var i=0;i<rnd;i++){
+            final aranha = Familiar(position: player.position.clone(),
+                                type: FamiliarType.aranha, 
+                                player: player,
+                                retorna: false,
+                                );
+          player.familiars.add(aranha);
+          game.world.add(aranha);
+          }
+          
+         // }
+          text = "boxOfSpiders";
+          break; 
+
+        
         default:
           text = "";
           break;

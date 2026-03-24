@@ -31,6 +31,8 @@ enum FamiliarType {
   prisma,
   refletor,
   dummy,
+  gemini,
+  aranha,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -51,7 +53,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double radius;
   final double angleOffset; 
 
-  double dmg = 0;
+  double dmg = 10;
   
   PositionComponent? target;
 
@@ -88,6 +90,22 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double aRange = 1.0;
   bool isLaser = false;
   bool isMorteiro = false;
+
+  //corrente do gemini
+  List<ChainNode> _chainNodes = []; 
+  final int _numLinks = 16; 
+  final double _targetLinkLength = 16.0; 
+  final double _gravity = 80.0; 
+
+  // --- VARIÁVEIS DE KNOCKBACK ---
+  final Vector2 knockbackVelocity = Vector2.zero();
+  final double _knockbackFriction = 1500.0;
+
+  //variaveis random wander
+  Vector2 _target = Vector2.zero();
+  final Vector2 _direction = Vector2.zero();
+  final Vector2 _tempCalc = Vector2.zero(); 
+  final Random _rng = Random();
 
   Familiar({
     required Vector2 position ,
@@ -206,6 +224,28 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         aRange = player.attackRange;
         isLaser = player.isLaser;
         isMorteiro = player.isMorteiro;
+      case FamiliarType.gemini:
+        icon = Icons.directions_walk;
+        detectRadius = 200;
+        speed = 150;
+        cor = Pallete.branco.withOpacity(0.7);
+
+        final Vector2 startPos = gameRef.player.absoluteCenter;
+        final Vector2 endPos = absoluteCenter;
+        
+        for (int i = 0; i < _numLinks; i++) {
+          // Cria nós interpolados em linha reta no início
+          double progress = i / (_numLinks - 1);
+          Vector2 nodePos = startPos + (endPos - startPos) * progress;
+          _chainNodes.add(ChainNode(nodePos));
+        }
+      case FamiliarType.aranha:
+        icon = MdiIcons.spider;
+        dmg = player.damage * 2 ;
+        size = Vector2.all(24);
+        detectRadius = 200;
+        speed = 100;
+        cor = Pallete.azulCla.withOpacity(0.7);
       default:
         icon = MdiIcons.fire;
         cor = Pallete.branco.withOpacity(0.7);
@@ -281,6 +321,63 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         position.setValues(newX, newY);
       }
 
+    }if(type == FamiliarType.fly){
+      _animateMovement(dt);
+      
+      PositionComponent? target = getTarget();
+    
+      if (target != null) {
+        speed = 150;
+        final targetPos = target.position;
+        final direction = (targetPos - position).normalized();
+        position += direction * speed * dt;
+      }else{
+        _currentAngle += speed * dt;
+      
+        double centerX;
+        double centerY;
+
+        centerX = playerPos.x;
+        centerY = playerPos.y;
+
+        // Cálculo da nova posição
+        final newX = centerX + cos(_currentAngle) * radius;
+        final newY = centerY + sin(_currentAngle) * radius;
+        
+        position.setValues(newX, newY);
+      }
+
+    }else if(type == FamiliarType.aranha) {
+      _handleKnockBack(dt);
+      
+      _animateMovement(dt);
+      
+      PositionComponent? target = getTarget();
+      
+
+      // Só persegue o inimigo se existir um alvo E se não estiver longe demais do player
+      if(knockbackVelocity.isZero()){
+        if (target != null) {
+          final targetPos = target.position;
+          final direction = (targetPos - position).normalized();
+          position += direction * speed * dt;
+          _animateMovement(dt);
+        } else {
+          if (_target == Vector2.zero() || position.distanceTo(_target) < 10) {
+            _pickNewTarget();
+          }
+          _direction
+            ..setFrom(_target)       
+            ..sub(position)    
+            ..normalize();
+
+          if (visual != null) {
+            visual!.angle = atan2(_direction.y, _direction.x);
+          }  
+
+          position.addScaled(_direction, speed * dt);
+        }
+      }
     }else if(type == FamiliarType.eye || type == FamiliarType.prisma || type == FamiliarType.refletor){
       _currentAngle += speed * dt;
       
@@ -456,8 +553,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   @override
   void render(Canvas canvas) {
-    super.render(canvas);
-    
     if (type == FamiliarType.freeze || type == FamiliarType.dmgBuff || type == FamiliarType.circProt) {
       final center = Offset(size.x / 2, size.y / 2);
 
@@ -475,18 +570,71 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       canvas.drawCircle(center, detectRadius, fillPaint);
       canvas.drawCircle(center, detectRadius, borderPaint);
     }
+    if (type == FamiliarType.gemini ) {
+      if (_chainNodes.isEmpty) {
+        super.render(canvas); // Garante que o familiar desenha mesmo sem corrente
+        return;
+      }
+
+      // --- RENDERIZAÇÃO DA CORRENTE DINÂMICA (Segmentada) ---
+      final paintChain = Paint()
+        ..color = Pallete.branco.withOpacity(0.7) // Uma cor mais clara para o reflexo do metal
+        ..style = PaintingStyle.fill;
+
+      for (int i = 0; i < _chainNodes.length - 1; i++) {
+        final node = _chainNodes[i];
+
+      // Conversão vital de Mundo para Local que resolvemos no passo anterior!
+      Vector2 localPos = absoluteToLocal(node.position);
+      final centerOffset = Offset(localPos.x, localPos.y);
+
+      // Desenhamos primeiro o preenchimento, depois a borda por cima
+      canvas.drawCircle(centerOffset, 4, paintChain);
+      }
+    }
+
+    super.render(canvas);
+  }
+
+  void setKnockBack(other) {
+    Vector2 knockbackDir = (position - other.position).normalized();
+          
+    double forcaDoEmpurrao = 150.0; 
+
+    knockbackVelocity.setFrom(knockbackDir * forcaDoEmpurrao * 2);
+  
+    if(other is Enemy)other.knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
+  }
+
+  void _handleKnockBack(double dt) {
+    if (!knockbackVelocity.isZero()) {
+      // 1. Move o personagem na direção do empurrão
+      position.addScaled(knockbackVelocity, dt);
+      
+      // 2. Aplica o atrito (freio)
+      double drop = _knockbackFriction * dt;
+      if (knockbackVelocity.length > drop) {
+        // Reduz a velocidade mantendo a mesma direção
+        knockbackVelocity.setFrom(knockbackVelocity - knockbackVelocity.normalized() * drop);
+      } else {
+        // Parou completamente
+        knockbackVelocity.setZero();
+      }
+    }
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if(type == FamiliarType.fly &&  other is Enemy && !other.isIntangivel){
+    if((type == FamiliarType.fly || type == FamiliarType.aranha) &&  other is Enemy && !other.isIntangivel){
       other.takeDamage(dmg);
       retorna = false;
       removeFromParent();
     }
-    if(type == FamiliarType.eye && type == FamiliarType.bouncer && type == FamiliarType.finger &&  other is Enemy && !other.isIntangivel){
+    if(other is Enemy && !other.isIntangivel && (type == FamiliarType.eye || type == FamiliarType.bouncer || type == FamiliarType.finger
+     || type == FamiliarType.gemini) ){
       other.takeDamage(dmg);
+      setKnockBack(other);
     }
     if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
       if (!_entitiesList.contains(other)) {
@@ -514,6 +662,31 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
     
+  }
+
+  void _pickNewTarget({Vector2? pushAwayFrom}) {
+    double w = TowerGame.gameWidth / 2 - 40; 
+    double h = TowerGame.gameHeight / 2 - 40;
+
+    if (pushAwayFrom != null) {
+      double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
+      double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
+      double finalAngle = baseAngle + noise;
+
+      double dist = 100 + _rng.nextDouble() * 100;
+      _target.setValues(
+        position.x + cos(finalAngle) * dist,
+        position.y + sin(finalAngle) * dist,
+      );
+    } else {
+      _target.setValues(
+        (_rng.nextDouble() * 2 * w) - w, 
+        (_rng.nextDouble() * 2 * h) - h
+      );
+    }
+
+    _target.x = _target.x.clamp(-w, w);
+    _target.y = _target.y.clamp(-h, h);
   }
 
   @override
@@ -712,4 +885,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         break;
     }    
   }
+}
+
+class ChainNode {
+  Vector2 position;
+  Vector2 oldPosition; // Usado para calcular velocidade (Verlet)
+
+  ChainNode(this.position) : oldPosition = position.clone();
 }

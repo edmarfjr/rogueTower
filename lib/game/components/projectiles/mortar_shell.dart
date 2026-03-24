@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   final double explosionRadius; 
   final bool isPlayer;
   final double damage;
+  final bool goldShot;
   
   double _timeElapsed = 0;
   final double _maxHeight = 150.0;
@@ -34,6 +36,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     this.explosionRadius = 60.0,
     this.isPlayer = false,
     this.damage = 1,
+    this.goldShot = false,
   }) : super(position: startPos, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
@@ -99,6 +102,16 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   }
   
   void _explode() {
+    if(goldShot){
+      int rnd = Random().nextInt(100);
+      if(rnd <= 5){
+        final item = Collectible(position: position, type: CollectibleType.coinUm);
+        gameRef.world.add(item);
+        double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+        double altura = Random().nextDouble() * 100 + 150 * -1;
+        item.pop(Vector2(direcaoX, 0), altura:altura);
+      }
+    }
     // Força a explosão no alvo exato
     if (isPoison) {
       gameRef.world.add(PoisonPuddle(position: targetPos, isPlayer: isPlayer, size: Vector2.all(explosionRadius*2)));

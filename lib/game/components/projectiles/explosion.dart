@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:TowerRogue/game/components/gameObj/door.dart';
+import 'package:TowerRogue/game/components/gameObj/slot_machine.dart';
 import 'package:TowerRogue/game/components/gameObj/wall.dart';
 import 'package:TowerRogue/game/components/projectiles/projectile.dart';
 import 'package:flame/components.dart';
@@ -128,7 +129,14 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       final walls = gameRef.world.children.query<Wall>();
       for(final w in walls){
          if (w.position.distanceTo(position) <= radius) {
-            w.removeFromParent(); 
+            w.die(); 
+         }
+      }
+      //quebra maquinas
+      final slotMac = gameRef.world.children.query<SlotMachine>();
+      for(final s in slotMac){
+         if (s.position.distanceTo(position) <= radius) {
+            s.explode(); 
          }
       }
     }

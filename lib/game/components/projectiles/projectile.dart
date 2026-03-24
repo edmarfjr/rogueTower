@@ -77,6 +77,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool goldShot = false;
 
+  double knockbackForce;
+
   Color cor;
 
   Projectile({
@@ -110,6 +112,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.goldShot = false,
     this.acceleration = 600.0,
     this.maxSpeed = 1000.0,
+    this.knockbackForce = 0,
     this.cor = Pallete.preto,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
@@ -483,12 +486,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       createExplosionEffect(gameRef.world, hitPos, Pallete.branco, count: 5);
       if (canBounce /*&& _bounceCount < maxBounces*/) {
         _handleBounce(other, hitPos);
-        if (other is Wall) other.vida--; 
+        if (other is Wall) other.takeDamage(); 
         return; 
       } 
       
       if (other is Wall) {
-        other.vida--;
+        other.takeDamage();
         if (other.vida <= 0) other.removeFromParent();
       }
       if (splits) _doSplit();
@@ -513,6 +516,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel && !other.isCharmed) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         _hitTargets.add(other); 
+        other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
         
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {

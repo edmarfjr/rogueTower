@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -99,7 +100,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     
     _currentButton = InteractButton(
       position: hudPosition,
-      onTrigger: _donate,
+      onTrigger: _sort,
     ); 
     gameRef.camera.viewport.add(_currentButton!);
   }
@@ -112,7 +113,44 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void _donate() {
+  void explode(){
+    final player = gameRef.player;
+    int rng = Random().nextInt(100);
+
+    var item;
+
+    if(rng < 35){
+      item = CollectibleType.coin;
+    }else if(rng >= 35 && rng < 55){
+      item = CollectibleType.potion;
+    }else if(rng >= 55 && rng < 70){
+      item = CollectibleType.key;
+    }else if(rng >= 70 && rng < 90){
+      item = CollectibleType.bomba;
+    }else if(rng >= 90 && rng < 95){
+      gameRef.world.add(Chest(position: position.clone()));
+    }else if(rng >= 95){
+      gameRef.world.add(Chest(position: position.clone(),isLock: true));
+    }
+    
+
+    // ignore: curly_braces_in_flow_control_structures
+    if (item != null){
+      final newItem = Collectible(
+        position: Vector2(0, 10), 
+        type: item,
+      );
+    
+      gameRef.world.add(newItem);
+      
+      // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
+      newItem.pop(Vector2(0, 20));
+    }
+
+    removeFromParent();
+  }
+
+  void _sort() {
     // 1. Previne spam de cliques
     if (_cooldown > 0) return;
     _cooldown = 0.5; // Meio segundo de cooldown entre doações
@@ -123,13 +161,13 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     if (player.healthNotifier.value > 0 || player.artificialHealthNotifier.value > 0) {
       
       // 3. Aplica o Dano (Usa a sua função padrão de dano)
-      if(gameRef.coinsNotifier.value >= 5)
+      if(gameRef.coinsNotifier.value > 0)
       {
-        player.collectCoin(-5); 
+        player.collectCoin(-1); 
       
       // Feedback visual do custo
         gameRef.world.add(FloatingText(
-          text: "-5 MOEDAS",
+          text: "-1\$",
           position: player.position.clone() + Vector2(0, -30),
           color: Pallete.vermelho,
         ));
@@ -153,9 +191,11 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
             item = CollectibleType.key;
           }else if(rng >= 80 && rng < 90){
             item = CollectibleType.potion;
-          }else if(rng >= 90 && rng < 98){
+          }else if(rng >= 90 && rng < 95){
             var pool = retornaItensComuns(player);
             item = pool.first;
+          }else if(rng >= 95 && rng < 98){
+            item = CollectibleType.boloDinheiro;
           }else if(rng >= 98){
             gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
           }

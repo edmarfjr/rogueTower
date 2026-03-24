@@ -42,7 +42,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double _meleeCooldown = 0.0;
 
   // --- VARIÁVEIS DE KNOCKBACK ---
-  final Vector2 _knockbackVelocity = Vector2.zero();
+  final Vector2 knockbackVelocity = Vector2.zero();
   final double _knockbackFriction = 1500.0;
   
   // Efeitos de Status
@@ -398,7 +398,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       attack2Behavior?.update(dt);
 
       if (championType == 9) {
-      const double pullRadius = 150.0; // O tamanho do campo gravitacional
+      const double pullRadius = 600.0; // O tamanho do campo gravitacional
       const double playerPullForce = 50.0; // Quão forte puxa o player (pixels por segundo)
       const double projGravity = 4.0; // Quão rápido curva os tiros do player
 
@@ -471,17 +471,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (championType == 9) {
         final center = Offset(size.x / 2, size.y / 2);
         
-        final pullPaint = Paint()
+        /*final pullPaint = Paint()
           ..color = Pallete.lilas.withOpacity(0.15)
           ..style = PaintingStyle.fill;
-          
+        */  
         final borderPaint = Paint()
           ..color = Pallete.rosa.withOpacity(0.5)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1;
 
-        canvas.drawCircle(center, 150.0, pullPaint);
-        canvas.drawCircle(center, 150.0, borderPaint);
+        //canvas.drawCircle(center, 150.0, pullPaint);
+        canvas.drawCircle(center, 80.0, borderPaint);
+        canvas.drawCircle(center, 40.0, borderPaint);
       }
     }
 
@@ -600,9 +601,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(championType == 8){
       final allEnemies = gameRef.world.children.query<Enemy>();
       
-      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 3);
+      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 8);
+
+      print('inimigos: ${realEnemies.length}');
       if (realEnemies.isNotEmpty){
-        print(realEnemies.length);
         return;
       }
     }
@@ -640,8 +642,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         setBurn();
       }
 
-      if(gameRef.player.isPoison){
-        setPoison();
+      if(gameRef.player.isPoison || gameRef.player.tempPoison){
+        setPoison(alastra: gameRef.player.isPoisonAlastra || gameRef.player.tempPoisonAlastra);
       }
 
       if(gameRef.player.isBleed){
@@ -878,7 +880,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void setFear() {
-    print('fear');
     if (!isFear && !isBoss) {
       isFear = true;
       numCondicoes ++;
@@ -896,7 +897,6 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void setFreeze(){
     if (isFreeze) return;
-    print('FREEZE');
     numCondicoes ++;
     isFreeze = true;
     if (isBoss){
@@ -1207,29 +1207,29 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
   
   void _handleKnockBack(double dt) {
-    if (!_knockbackVelocity.isZero()) {
+    if (!knockbackVelocity.isZero()) {
       // 1. Move o personagem na direção do empurrão
-      position.addScaled(_knockbackVelocity, dt);
+      position.addScaled(knockbackVelocity, dt);
       
       // 2. Aplica o atrito (freio)
       double drop = _knockbackFriction * dt;
-      if (_knockbackVelocity.length > drop) {
+      if (knockbackVelocity.length > drop) {
         // Reduz a velocidade mantendo a mesma direção
-        _knockbackVelocity.setFrom(_knockbackVelocity - _knockbackVelocity.normalized() * drop);
+        knockbackVelocity.setFrom(knockbackVelocity - knockbackVelocity.normalized() * drop);
       } else {
         // Parou completamente
-        _knockbackVelocity.setZero();
+        knockbackVelocity.setZero();
       }
     }
   }
   
-  void setKnockBack(other) {
+  void setKnockBack(other,{double force = 150}) {
     Vector2 knockbackDir = (position - other.position).normalized();
           
-    double forcaDoEmpurrao = 150.0; 
+    double forcaDoEmpurrao = force; 
 
-    _knockbackVelocity.setFrom(knockbackDir * forcaDoEmpurrao);
+    knockbackVelocity.setFrom(knockbackDir * forcaDoEmpurrao);
   
-    if(other is Enemy)other._knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
+    if(other is Enemy)other.knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
   }
 }

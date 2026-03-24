@@ -55,7 +55,9 @@ class SaveManager {
       'dashCooldown': game.player.dashCooldown,
       'invincibilityDuration': game.player.invincibilityDuration,
       'stackBonus': game.player.stackBonus,
-
+      'bltSize': game.player.bltSize,
+      'knockbackForce': game.player.knockbackForce,
+      
       // --- FLAGS E POWER-UPS (BOOLEANOS) ---
       'isBerserk': game.player.isBerserk,
       'isAudaz': game.player.isAudaz,
@@ -74,6 +76,7 @@ class SaveManager {
       'isSpectral': game.player.isSpectral,
       'isBurn': game.player.isBurn,
       'isPoison': game.player.isPoison,
+      'isPoisonAlastra': game.player.isPoisonAlastra,
       'hasChaveNegra': game.player.hasChaveNegra,
       'isConcentration': game.player.isConcentration,
       'isOrbitalShot': game.player.isOrbitalShot,
@@ -118,7 +121,18 @@ class SaveManager {
       'eutanasia':game.player.eutanasia,
       'killCharge':game.player.killCharge,
       'voo':game.player.voo,
-      
+      'cardinalShot':game.player.cardinalShot,
+      'animContrario':game.player.animContrario,
+      'hurtPac':game.player.hurtPac,
+      'zodiacAquarius':game.player.zodiacAquarius,
+      'zodiacAries':game.player.zodiacAries,
+      'zodiacCancer':game.player.zodiacCancer,
+      'zodiacLeo':game.player.zodiacLeo,
+      'zodiacLibra':game.player.zodiacLibra,
+      'zodiacPisces':game.player.zodiacPisces,
+      'zodiacTaurus':game.player.zodiacTaurus,
+      'zodiacVirgo':game.player.zodiacVirgo,
+      'zodiac':game.player.zodiac,
     };
 
     String jsonString = jsonEncode(runData);
@@ -190,6 +204,8 @@ class SaveManager {
     game.player.dashSpeed = (runData['dashSpeed'] ?? 450).toDouble();
     game.player.dashCooldown = (runData['dashCooldown'] ?? 2.5).toDouble();
     game.player.invincibilityDuration = (runData['invincibilityDuration'] ?? 0.5).toDouble();
+    game.player.bltSize = (runData['bltSize'] ?? 0.5).toDouble();
+    game.player.knockbackForce = (runData['knockbackForce'] ?? 0.5).toDouble();
     game.player.stackBonus = (runData['stackBonus'] ?? 0).toInt();
     game.player.maxArtificialHealth = (runData['maxArtificialHealth'] ?? 0).toInt();
     game.player.artificialHealthNotifier.value = (runData['artificialHealthNotifier'] ?? 0).toInt();
@@ -215,6 +231,7 @@ class SaveManager {
     game.player.isSpectral = runData['isSpectral'] ?? false;
     game.player.isBurn = runData['isBurn'] ?? false;
     game.player.isPoison = runData['isPoison'] ?? false;
+    game.player.isPoisonAlastra = runData['isPoisonAlastra'] ?? false;
     game.player.hasChaveNegra = runData['hasChaveNegra'] ?? false;
     game.player.isConcentration = runData['isConcentration'] ?? false;
     game.player.isOrbitalShot = runData['isOrbitalShot'] ?? false;
@@ -258,7 +275,19 @@ class SaveManager {
     game.player.eutanasia = runData['eutanasia'] ?? false;
     game.player.killCharge = runData['killCharge'] ?? false;
     game.player.voo = runData['voo'] ?? false;
-    
+    game.player.cardinalShot = runData['cardinalShot'] ?? false;
+    game.player.animContrario = runData['animContrario'] ?? false;
+    game.player.hurtPac = runData['hurtPac'] ?? false;
+    game.player.zodiacAquarius = runData['zodiacAquarius'] ?? false;
+    game.player.zodiacAries = runData['zodiacAries'] ?? false;
+    game.player.zodiacCancer = runData['zodiacCancer'] ?? false;
+    game.player.zodiacLeo = runData['zodiacLeo'] ?? false;
+    game.player.zodiacLibra = runData['zodiacLibra'] ?? false;
+    game.player.zodiacPisces = runData['zodiacPisces'] ?? false;
+    game.player.zodiacTaurus = runData['zodiacTaurus'] ?? false;
+    game.player.zodiacVirgo = runData['zodiacVirgo'] ?? false;
+    game.player.zodiac = runData['zodiac'] ?? false;
+     
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }

@@ -67,6 +67,8 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 2,
       ));
     }*/
+
+    priority = position.y.toInt() - 500;
   }
 
    @override

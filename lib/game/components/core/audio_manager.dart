@@ -98,6 +98,7 @@ class AudioManager {
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
       _isBgmPlaying = true;
+      print('tocando $filename');
       //_currentBgm = filename;
     } catch (e) {
       print("Erro ao tocar BGM: $e");

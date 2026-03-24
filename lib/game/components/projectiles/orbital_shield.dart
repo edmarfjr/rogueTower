@@ -131,20 +131,6 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
         // Desenha o elo (um círculo de raio 2.0)
         canvas.drawCircle(Offset(linkX, linkY), 2.0, _chainPaint);
       }
-
-      /* // SE PREFERIR UMA LINHA RETA CONTÍNUA EM VEZ DE PONTILHADA,
-      // APAGUE O 'for' ACIMA E DESCOMENTE ESTE CÓDIGO:
-      
-      final targetX = startX - cos(_currentAngle) * radius;
-      final targetY = startY - sin(_currentAngle) * radius;
-      
-      final linePaint = Paint()
-        ..color = Pallete.cinzaEsc
-        ..strokeWidth = 2.0
-        ..style = PaintingStyle.stroke;
-        
-      canvas.drawLine(Offset(startX, startY), Offset(targetX, targetY), linePaint);
-      */
     }
   }
 

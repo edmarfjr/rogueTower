@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:TowerRogue/game/components/core/pallete.dart';
+import 'package:TowerRogue/game/components/gameObj/collectible.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,28 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
     ));
 
     priority = position.y.toInt();
+  }
+
+  void takeDamage(){
+    vida--;
+    if (vida<=0){
+      die();
+    }
+  }
+
+  void die(){
+    int rnd = Random().nextInt(100);
+    if(rnd <= 5){
+      final newItem = Collectible(
+            position: Vector2(0, 10), 
+            type: CollectibleType.coinUm,
+          );
+        
+      gameRef.world.add(newItem);
+      
+      newItem.pop(Vector2(0, 20));
+    }
+    removeFromParent();
   }
 
 }

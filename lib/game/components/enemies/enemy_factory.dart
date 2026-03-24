@@ -15,10 +15,11 @@ import '../core/pallete.dart';
 
 class EnemyFactory {
 
-  static Enemy createDummy(Vector2 pos) {
+  static Enemy createDummy(Vector2 pos,{int champType = 0}) {
     return Enemy(
       position: pos,
       noChamp: true,
+      championType: champType,
       hp: 1000,
       speed: 100,
       isDummy: true,

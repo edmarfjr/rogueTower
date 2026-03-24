@@ -1,6 +1,7 @@
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/game_progress.dart';
+import 'package:TowerRogue/game/components/core/i18n.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
@@ -46,8 +47,8 @@ class Player extends PositionComponent
   
   bool _isInvincible = false;
   double _invincibilityTimer = 0;
-  double invincibilityDuration = 0.5; 
-  // -----------------------
+  double invincibilityDuration = 1.0; 
+
   double attackRange = 1.0; 
   double attackRangeIni = 1.0;
   double _attackTimer = 0;
@@ -63,7 +64,20 @@ class Player extends PositionComponent
   double fireRateIni = 0.4; 
   double moveSpeed = 150.0;
   double moveSpeedIni = 150.0;
+  double moveSpeedTaurus = 150.0;
+  final double acceleration = 250.0; 
+  final double friction = 750.0;
+  bool velMax = false;
+  TextComponent? velMaxText;
   int stackBonus = 0;
+  double knockbackForce = 0;
+
+  double bltSize = 10;
+
+  double _rawDamage = 0;
+  double _rawSpeed = 0;
+  double _rawFireRate = 0;
+  double _rawRange = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
   double bombButtonTimer = 0;
@@ -89,6 +103,9 @@ class Player extends PositionComponent
   bool isFreeze = false;
   bool isBurn = false;
   bool isPoison = false;
+  bool isPoisonAlastra = false;
+  bool tempPoison = false;
+  bool tempPoisonAlastra = false;
   bool isBleed = false;
   bool isBebado = false;
   bool hasOrbShield = false;
@@ -102,6 +119,7 @@ class Player extends PositionComponent
   bool isHomingTemp = false;
   bool canBounce = false;
   bool isPiercing = false;
+  bool tempPiercing = false;
   bool isSpectral = false;
   bool hasChaveNegra = false;
   bool isConcentration = false;
@@ -159,6 +177,26 @@ class Player extends PositionComponent
   bool cardinalShot = false;
   bool isPac = false;
   double pacTmr = 0;
+  bool hurtPac = false;
+  bool zodiacAquarius = false;
+  bool zodiacAries = false;
+  bool zodiacCancer = false;
+  bool takeOneDmg = false;
+  bool zodiacLeo = false;
+  bool zodiacVirgo = false;
+  bool zodiacLibra = false;
+  bool zodiacPisces = false;
+  bool zodiacTaurus = false;
+  bool zodiacTaurusTransf = false;
+  bool zodiac = false;
+  bool tempZodiacAquarius = false;
+  bool tempZodiacAries = false;
+  bool tempZodiacCancer = false;
+  bool tempZodiacLeo = false;
+  bool tempZodiacVirgo = false;
+  bool tempZodiacLibra = false;
+  bool tempZodiacPisces = false;
+  bool tempZodiacTaurus = false;
 
   int numIcons = 0;
 
@@ -168,6 +206,7 @@ class Player extends PositionComponent
   GameIcon? kineticIcon;
   TextComponent? kineticText;
   GameIcon? dmgBuffIcon;
+  GameIcon? ariesIcon;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -218,8 +257,17 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeMagicKeyChain) return 5;
     if (type == CollectibleType.activeGift) return 5;
     if (type == CollectibleType.activeHeartConverter) return 5;
-    if (type == CollectibleType.activeRitualDagger) return 1;
+    if (type == CollectibleType.activeRitualDagger) return 0;
+    if (type == CollectibleType.activeStunBomb) return 3;
+    if (type == CollectibleType.activeFairy) return 4;
+    if (type == CollectibleType.activeUnicorn) return 6;
     if (type == CollectibleType.activeConvBruta) return 5;
+    if (type == CollectibleType.activeBloodBag) return 0;
+    if (type == CollectibleType.activeDullRazor) return 2;
+    if (type == CollectibleType.activeCircularShots) return 2;
+    if (type == CollectibleType.activeDiarreiaExplosiva) return 2;
+    if (type == CollectibleType.activeBoxSpider) return 2;
+    
     return 5; 
   }
 
@@ -450,6 +498,7 @@ class Player extends PositionComponent
   }
 
   void ativaLicantropia(){
+    if(isLicantropia) return;
     isLicantropia = true;
     animContrario = false;
     _visual.removeFromParent();
@@ -476,6 +525,7 @@ class Player extends PositionComponent
   }
 
   void ativaPacmen(){
+    if(isPac) return;
     isPac = true;
     animContrario = false;
     _isInvincible = true;
@@ -491,6 +541,13 @@ class Player extends PositionComponent
     );
     currentColor = Pallete.amarelo;
     add(_visual);
+
+    gameRef.world.add(FloatingText(
+      text: "PAC PAC PAC!!",
+      position: position.clone(), 
+      color: Pallete.branco,
+      fontSize: 12,
+    ));
   }
   void _handlePacmen(double dt){
     if (isPac){
@@ -504,6 +561,7 @@ class Player extends PositionComponent
   }
 
   void ativaUnicorn(){
+    if(isUnicorn) return;
     isUnicorn = true;
     animContrario = false;
     _isInvincible = true;
@@ -609,15 +667,15 @@ class Player extends PositionComponent
       bombNotifier.value = charClass.startingBombs;
       
       moveSpeed = charClass.speed;
-      //moveSpeedIni = charClass.speed;
+      moveSpeedIni = charClass.speed;
       damage = charClass.damage;
-      //damageIni = charClass.damage;
+      damageIni = charClass.damage;
       fireRate = charClass.fireRate;
-      //fireRateIni = charClass.fireRate;
+      fireRateIni = charClass.fireRate;
       critChance = charClass.critChance;
-      //critChanceIni = charClass.critChance;
+      critChanceIni = charClass.critChance;
       critDamage = charClass.critDamage;
-      //critDamageIni = charClass.critDamage;
+      critDamageIni = charClass.critDamage;
       attackRange = charClass.attackRange;
       attackRangeIni = charClass.attackRange;
      // _rangeIndicator.radius = attackRange;
@@ -781,30 +839,116 @@ class Player extends PositionComponent
   }
 
   void _handleMovement(double dt) {
-    velocity.setZero();
+    // 1. Definição do Limite de Velocidade
     double movVel = moveSpeed;
-    if(isLicantropia || isUnicorn) movVel = moveSpeed * 1.5;
+    if (isLicantropia || isUnicorn) movVel = moveSpeed * 1.5;
 
-    if (gameRef.joystickDelta != Vector2.zero()) {
-       velocity.setFrom(gameRef.joystickDelta);
-       velocity.scale(movVel);
-    } else if (_keyboardInput != Vector2.zero()) {
-       velocity.setFrom(_keyboardInput);
-       velocity.normalize();
-       velocity.scale(movVel);
+    if((zodiacTaurus || tempZodiacTaurus) && !isUnicorn){
+      movVel = moveSpeedIni * 2;
     }
 
-    if (!velocity.isZero()) {
-      velocityDash.setFrom(velocity); 
+    // 2. Captura o Input
+    Vector2 input = Vector2.zero();
+    if (gameRef.joystickDelta != Vector2.zero()) {
+       input.setFrom(gameRef.joystickDelta);
+    } else if (_keyboardInput != Vector2.zero()) {
+       input.setFrom(_keyboardInput);
+       input.normalize();
+    }
+
+    // --- O SEGREDO ANTES DE MOVER ---
+    // Guardamos a velocidade e a direção do frame anterior
+    double speedAntes = velocity.length;
+    Vector2 direcaoAntes = speedAntes > 0 ? velocity.normalized() : Vector2.zero();
+
+    // 3. Aplica a Força (Aceleração ou Atrito)
+    Vector2 targetVelocity = input * movVel;
+    double rate = input.isZero() ? friction : acceleration;
+
+    Vector2 diferenca = targetVelocity - velocity;
+    if (diferenca.length < rate * dt) {
+      velocity.setFrom(targetVelocity);
+    } else {
+      velocity.addScaled(diferenca.normalized(), rate * dt);
+    }
+
+    // 4. --- MÁGICA DA PRESERVAÇÃO DE MOMENTUM ---
+    if (!input.isZero() && speedAntes > 0) {
+      // O dot product retorna: 1 (Mesma direção), 0 (90 graus), -1 (Direção Oposta)
+      double dot = direcaoAntes.dot(input.normalized());
+      
+      // Se a curva for mais suave que um retorno brusco (> -0.5, permite curvas até 120º)
+      if (dot > -0.5) {
+        // Se o cálculo da curva roubou velocidade, nós a restauramos!
+        if (velocity.length < speedAntes) {
+          velocity.scaleTo(speedAntes);
+        }
+      }
+    }
+    
+    // Segurança extra: Garante que o momentum restaurado não quebre o limite máximo
+    if (velocity.length > movVel) {
+      velocity.scaleTo(movVel);
+    }
+
+    // 5. --- Lógica de Efeitos ---
+    bool isMoving = velocity.length > 10.0;
+
+    if (isMoving) {
+      if (!input.isZero()) {
+         velocityDash.setFrom(input.normalized() * movVel); 
+      } else {
+         velocityDash.setFrom(velocity.normalized() * movVel);
+      }
+      
       _handleDustEffect(dt);
       if(isLicantropia || isUnicorn) _createGhostEffect(dt);
-      if(criaPocaVeneno) _createHazard(dt); 
+      if(criaPocaVeneno || zodiacAquarius) _createHazard(dt); 
       if(isConcentration) fireRate = fireRateIni * 1.15;
-    }else{
+    } else {
       if(isConcentration) fireRate = fireRateIni * 0.5;
     } 
     
-    position.addScaled(velocity, dt); 
+    // 6. Atualiza Posição e Status Max Speed
+    position.addScaled(velocity, dt);
+
+    if (velocity.length >= movVel - dt) {
+      velMax = true;
+      if(zodiacAries){
+        if (ariesIcon == null) {
+          numIcons ++;
+          ariesIcon = GameIcon(
+            icon: MdiIcons.zodiacAries,
+            color: Pallete.azulCla,
+            size: size/2,
+            anchor: Anchor.center,
+            position: Vector2(size.x / 2, - size.y / 4 - 10*numIcons), 
+          );
+          add(ariesIcon!);
+        }
+      }
+      if(zodiacTaurus || tempZodiacTaurus){
+          if(!zodiacTaurusTransf){
+            zodiacTaurusTransf = true;
+            gameRef.world.add(FloatingText(
+              text: "TAURUS",
+              position: position.clone(), 
+              color: Pallete.branco,
+              fontSize: 12,
+            ));
+            ativaUnicorn();
+          }
+        }
+    } else {
+      velMax = false;
+      if(zodiacAries){
+        if (ariesIcon != null) {
+         ariesIcon!.removeFromParent();
+         ariesIcon = null;
+         numIcons --; 
+        }
+      }
+    }
   }
 
   void startDash() {
@@ -898,16 +1042,36 @@ class Player extends PositionComponent
     }
   }
 
-  void _createHazard(double dt,{bool isFire = false, double tmp = 0.1}) {
+  void _createHazard(double dt,{bool isFire = false, bool isVeneno = true,bool isGelo = false,bool isBlood = false,double tmp = 0.1}) {
     criaHazardTmr += dt;
+  
     if (criaHazardTmr >= tmp) {
-      gameRef.world.add(
+      if(zodiacAquarius){
+        gameRef.world.add(
+          PoisonPuddle(
+            position: position.clone() + Vector2(0, size.y/2), 
+            isPlayer: true,
+            isAquarius: true,
+            isFire: isBurn,
+            isPoison: isPoison,
+            isFreeze: isFreeze,
+            isBleed: isBleed,
+            size: Vector2.all(10)
+          ),
+        );
+      }else{
+        gameRef.world.add(
         PoisonPuddle(
-          position: position.clone() + Vector2(0, size.y/2), 
-          isPlayer: true,
-          isFire: isFire,
-        ),
-      );
+            position: position.clone() + Vector2(0, size.y/2), 
+            isPlayer: true,
+            isFire: isFire,
+            isPoison: isVeneno,
+            isFreeze: isGelo,
+            isBleed: isBlood
+          ),
+        );
+      }
+      
       criaHazardTmr = 0;
     }
   }
@@ -933,21 +1097,15 @@ class Player extends PositionComponent
     position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
   }
 
+/*
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     
-    if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
-      if( isUnicorn || isDashing && isDashDamages || other.encolhido || isPac){
-        double dmg = (isUnicorn || isPac)? damage*2 : damage;
-        other.takeDamage(dmg);
-      }else{
-        takeDamage(other.dmg.toInt());
-      }
-    }
+    
   }
-
-  void takeDamage(int amount,{bool roubaMoeda = false}) {
+*/
+  void takeDamage(int amount,{bool roubaMoeda = false,bool pulaEscudo = false}) {
     if(_isInvincible || isDashing) return;
 
     if(evasao){
@@ -961,10 +1119,19 @@ class Player extends PositionComponent
 
     if(roubaMoeda && gameRef.coinsNotifier.value > 0) collectCoin(Random().nextInt(10) + 5);
 
-    if (hasShield) {
+    if(hurtPac){
+      int rnd = Random().nextInt(100);
+      if(rnd <= 5){ 
+        ativaPacmen();
+      }
+    }
+
+    if (hasShield && !pulaEscudo && amount>0) {
       _breakShield(); 
       return; 
     }
+
+    if(takeOneDmg) amount = 1;
 
     if (gameRef.challengeHitsNotifier.value >= 0) {
       
@@ -973,8 +1140,9 @@ class Player extends PositionComponent
       }
     }
 
-    if (shieldNotifier.value > 0){
-      shieldNotifier.value-- ;
+    if (shieldNotifier.value > 0 && !pulaEscudo){
+      int dano = amount>1? 1: amount;
+      shieldNotifier.value-=dano ;
       _isInvincible = true;
       _invincibilityTimer = invincibilityDuration;
       if(defensiveBurst){
@@ -992,8 +1160,25 @@ class Player extends PositionComponent
     }else{
       healthNotifier.value -= amount;
     }
-    
-    setInvencibility(invincibilityDuration);
+
+    if(zodiacCancer){
+      takeOneDmg = true;
+    }
+
+    double invTmr = invincibilityDuration;
+    if(zodiacVirgo){
+      int rnd = Random().nextInt(100);
+      if(rnd <= 20) {
+        invTmr = 10;
+        gameRef.world.add(FloatingText(
+          text: "INVINCIBLE",
+          position: position.clone(), 
+          color: Pallete.branco,
+          fontSize: 12,
+        ));
+      }
+    }
+    setInvencibility(invTmr);
     
   }
 
@@ -1080,6 +1265,7 @@ class Player extends PositionComponent
           isFire: true,
           explosionRadius: 100,
           isPlayer: true,
+          goldShot: goldShot,
         ));
       }else if(isLaser){
         final dir = (target.position - position.clone()).normalized();
@@ -1147,7 +1333,7 @@ class Player extends PositionComponent
       fireTime: fireRate,
       target: target,
       owner: this,
-      damage: gameRef.player.damage
+      damage: damage
     ));
   }
 
@@ -1233,14 +1419,14 @@ class Player extends PositionComponent
       direction: _tempDirection.clone(), 
       damage: noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
-      size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+      size: Vector2.all(bltSize),
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: isHoming || isHomingTemp,
       iniPosition: position.clone(),
       canBounce: canBounce,
       isSpectral: isSpectral,
-      isPiercing: isPiercing,
+      isPiercing: isPiercing || tempPiercing,
       isOrbital: isOrbitalShot,
       isBoomerang: isBoomerang,
       splits: isShootSplits,
@@ -1251,6 +1437,7 @@ class Player extends PositionComponent
       growthRate: 100,      // <-- Velocidade de expansão
       sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
       isSaw: isSaw,
+      knockbackForce: knockbackForce
     ));
   }
 
@@ -1295,6 +1482,7 @@ class Player extends PositionComponent
     attackRange = 1.0; 
     _attackTimer = 0;
     damage = 10.0;
+    knockbackForce = 0;
     critChance = 5;
     critDamage = 2.0;
     fireRate = 0.4; 
@@ -1322,6 +1510,7 @@ class Player extends PositionComponent
     stackBonus = 0;
     isBurn = false;
     isPoison = false;
+    isPoisonAlastra = false;
     hasChaveNegra = false;
     isConcentration = false;
     isOrbitalShot = false;
@@ -1371,6 +1560,16 @@ class Player extends PositionComponent
     voo = false;
     cardinalShot = false;
     animContrario = false;
+    hurtPac = false;
+    zodiacAquarius = false;
+    zodiacAries = false;
+    zodiacCancer = false;
+    zodiacLeo = false;
+    zodiacVirgo = false;
+    zodiacLibra = false;
+    zodiacPisces = false;
+    zodiacTaurus = false;
+    zodiac = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
@@ -1381,6 +1580,17 @@ class Player extends PositionComponent
     super.onCollision(intersectionPoints, other);
     if (other is Wall || other is Door || other is UnlockableItem) {
       _handleWallCollision(intersectionPoints, other);
+      if(other is Wall && zodiacLeo){
+        other.die();
+      }
+    }
+    if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
+      if( isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax){
+        double dmg = (isUnicorn || isPac)? damage*2 : damage;
+        other.takeDamage(dmg);
+      }else{
+        takeDamage(other.dmg.toInt());
+      }
     }
   }
 
@@ -1416,7 +1626,169 @@ class Player extends PositionComponent
       );
     }
   }
+  
+  void applyZodiac(){
+    if(zodiac){
+      if(tempZodiacTaurus)moveSpeed = moveSpeedTaurus;
+      tempZodiacAquarius = false;
+      tempZodiacAries = false;
+      tempZodiacCancer = false;
+      tempZodiacLeo = false;
+      tempZodiacLibra = false;
+      tempZodiacPisces = false;
+      tempZodiacTaurus = false;
+      tempZodiacVirgo = false;
 
+      int rng = Random().nextInt(12);
+      String text = '';
+
+      //bool tst = Random().nextBool();
+      //rng = tst?4:10;
+      switch (rng){
+        case 0:
+          tempZodiacAquarius = true;
+          text = "zodiacAquarius";
+          break;
+        case 1:
+          tempZodiacAries = true;
+          text = "zodiacAries";
+          break;
+        case 2:
+          tempZodiacCancer = true;
+          increaseArtificialHp(6);
+          text = "zodiacCancer";
+          break;
+        case 3:
+          increaseHp(2);
+          increaseDamage(1.2);
+          increaseMovementSpeed(1.1);
+          increaseFireRate(0.85);
+          increaseRange(1.2);
+          text = "zodiacCapricorn";
+          break;
+        case 4:
+          final gemini = Familiar(position: position.clone(),
+                                    type: FamiliarType.gemini, 
+                                    player: this,
+                                    retorna: false,
+                                    );
+              familiars.add(gemini);
+              gameRef.world.add(gemini);
+          // }
+            text = "zodiacGemini";
+          break;
+        case 5:
+          tempZodiacLeo = true;
+          text = "zodiacLeo";
+          break;
+        case 6:
+          tempZodiacLibra = true;
+          applyLibraBalance();
+          text = "zodiacLibra";
+          break;
+        case 7:
+          tempZodiacPisces = true;
+          bltSize *= 1.25;
+          increaseFireRate(0.8);
+          text = "zodiacPisces";
+          break;
+        case 8:
+          tempPiercing = true;
+          increaseMovementSpeed(1.2);
+          text = "zodiacSargittarius";
+          break;
+        case 9:
+          tempPoison = true;
+          tempPoisonAlastra;
+          text = "zodiacScorpio";
+          break;
+        case 10:
+          tempZodiacTaurus = true;
+          moveSpeedTaurus = moveSpeed;
+          increaseMovementSpeed(0.7);
+          text = "zodiacTaurus";
+          break;
+        case 11:
+          tempZodiacVirgo = true;
+          text = "zodiacVirgo";
+          break;
+      }
+      gameRef.world.add(FloatingText(
+        text: text.tr(),
+        position: position.clone(), 
+        color: Pallete.branco,
+        fontSize: 12,
+      ));
+
+    }
+  }
+
+  void applyLibraBalance() {
+    if (!zodiacLibra) return;
+    double safeRawFR = fireRate <= 0.01 ? 0.01 : fireRate;
+    double safeBaseFR = fireRateIni <= 0.01 ? 0.01 : fireRateIni;
+
+    // 2. CALCULA A PROPORÇÃO (RATIO) DE CADA STATUS (1.0 = Normal, 2.0 = O dobro)
+    double ratioDmg = damage / damageIni;
+    double ratioSpd = moveSpeed / moveSpeedIni;
+    double ratioRng = attackRange / attackRangeIni;
+    
+    // ATENÇÃO: O Fire Rate é Invertido! (Delay menor = Ratio maior)
+    // Se o delay base é 0.5 e agora é 0.25, a força (ratio) é 2.0!
+    double ratioFR = safeBaseFR / safeRawFR; 
+
+    // 3. CALCULA A MÉDIA DE FORÇA GLOBAL DO PERSONAGEM
+    // Se usar Range, some ratioRng e divida por 4.0
+    double averageRatio = (ratioDmg + ratioSpd + ratioFR + ratioRng) / 4.0; 
+
+    // 4. APLICA A FORÇA GLOBAL DE VOLTA AOS STATUS
+    damage = damageIni * averageRatio;
+    moveSpeed = moveSpeedIni * averageRatio;
+    attackRange = attackRangeIni * averageRatio;
+    fireRate = safeBaseFR / averageRatio;
+
+    // 5. TRAVA DE SEGURANÇA (Para o menu de pause e metralhadora infinita)
+    if (fireRate < 0.05) {
+      fireRate = 0.05;
+    }
+/*
+    print('--- DEBUG DA LIBRA ---');
+    print('Dano  -> Raw: $damage | Base: $damageIni | Ratio: $ratioDmg');
+    print('Speed -> Raw: $moveSpeed | Base: $moveSpeedIni | Ratio: $ratioSpd');
+    print('Tiro  -> Raw: $fireRate | Base: $fireRateIni | Ratio: $ratioFR');
+    print('Range  -> Raw: $attackRange | Base: $attackRangeIni | Ratio: $ratioRng');
+    print('Média Global (Average Ratio): $averageRatio');
+    print('Dano Final Aplicado: $damage');
+    print('----------------------');
+    */
+  }
+/*
+  void recalculateStats() {
+    // 1. Reseta para os status base do personagem
+    _rawDamage = damage;
+    _rawSpeed = moveSpeed;
+    _rawFireRate = fireRate;
+    _rawRange = attackRange;
+
+    // 2. Soma todos os bónus dos itens normais que ele tem no inventário
+    for (var item in items) {
+       _rawDamage += item.bonusDamage;
+       _rawSpeed += item.bonusSpeed;
+       // ...
+    }
+
+    // 3. Aplica aos status reais (caso ele não tenha a Libra)
+    damage = _rawDamage;
+    moveSpeed = _rawSpeed;
+    fireRate = _rawFireRate;
+    // ...
+
+    // 4. A MÁGICA: Se tiver a Libra, ela esmaga os status reais e os substitui pela média!
+    if (zodiacLibra) {
+      applyLibraBalance();
+    }
+  }
+*/
   // UPGRADES
   void changeSize(double sizeMod){
     _visual.removeFromParent();
@@ -1477,20 +1849,24 @@ class Player extends PositionComponent
 
   void increaseDamage(double multiplier) { 
     damage *= multiplier; 
+    applyLibraBalance();
   }
 
   void increaseFireRate(double multiplier) { 
     fireRate *= multiplier; 
     if (fireRate < 0.1) fireRate = 0.1; 
     fireRateIni = fireRate;
+    applyLibraBalance();
   }
 
   void increaseMovementSpeed(double multiplier){
     moveSpeed *= multiplier; 
+    applyLibraBalance();
   }
   
   void increaseRange(double multiplier){ 
     attackRange *= multiplier; 
+    applyLibraBalance();
     //_rangeIndicator.radius = attackRange;
   }
 

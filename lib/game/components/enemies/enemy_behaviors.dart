@@ -462,7 +462,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
       orbitalRadius: orbitalRadius,
       isHoming: isHoming,
       isBoomerang: isBoomerang,
-      dieTimer: isBoomerang ? 1.0 : 3.0,
+      dieTimer: isBoomerang ? 1.0 : 4.0,
       isEnemyProjectile: !enemy.isCharmed,
       isSpectral: !enemy.isSpectral,
     ));

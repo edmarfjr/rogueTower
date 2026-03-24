@@ -296,7 +296,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               game.player.curaHp(1);
               gameRef.player.regenCount -= 1;
             }
-
             gameRef.nextLevel(rewardType);
           });
         }

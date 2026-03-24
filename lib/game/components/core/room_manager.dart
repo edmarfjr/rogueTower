@@ -125,14 +125,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createRat(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(0, -150), champType: 8));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.kinetic));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.cupon));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.voo));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activePacmen));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.zodiacLibra));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeBoxSpider));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiac));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
