@@ -133,6 +133,8 @@ class SaveManager {
       'zodiacTaurus':game.player.zodiacTaurus,
       'zodiacVirgo':game.player.zodiacVirgo,
       'zodiac':game.player.zodiac,
+      'defensiveFairys':game.player.defensiveFairys,
+      'itemExtraBoss':game.player.itemExtraBoss,
     };
 
     String jsonString = jsonEncode(runData);
@@ -287,7 +289,9 @@ class SaveManager {
     game.player.zodiacTaurus = runData['zodiacTaurus'] ?? false;
     game.player.zodiacVirgo = runData['zodiacVirgo'] ?? false;
     game.player.zodiac = runData['zodiac'] ?? false;
-     
+    game.player.defensiveFairys = runData['defensiveFairys'] ?? false;
+    game.player.itemExtraBoss = runData['itemExtraBoss'] ?? false;
+   
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }

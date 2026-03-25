@@ -6,6 +6,7 @@ import 'package:TowerRogue/game/components/gameObj/familiar.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import '../gameObj/wall.dart';
 import 'package:flame/components.dart';
@@ -218,6 +219,97 @@ class RandomWanderBehavior extends MovementBehavior {
     }
 
     enemy.position.addScaled(_direction, enemy.speed * dt);
+  }
+
+  void _pickNewTarget({Vector2? pushAwayFrom}) {
+    double w = TowerGame.gameWidth / 2 - 40; 
+    double h = TowerGame.gameHeight / 2 - 40;
+
+    if (pushAwayFrom != null) {
+      double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
+      double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
+      double finalAngle = baseAngle + noise;
+
+      double dist = 100 + _rng.nextDouble() * 100;
+      _target.setValues(
+        enemy.position.x + cos(finalAngle) * dist,
+        enemy.position.y + sin(finalAngle) * dist,
+      );
+    } else {
+      _target.setValues(
+        (_rng.nextDouble() * 2 * w) - w, 
+        (_rng.nextDouble() * 2 * h) - h
+      );
+    }
+
+    _target.x = _target.x.clamp(-w, w);
+    _target.y = _target.y.clamp(-h, h);
+  }
+  
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+     if (other is Web || other is PoisonPuddle) return;
+     if (other.position.distanceTo(_target) > other.position.distanceTo(enemy.position)) return;
+
+     _tempCalc.setFrom(enemy.position);
+     _tempCalc.sub(other.position);
+     _pickNewTarget(pushAwayFrom: _tempCalc);
+  }
+}
+
+class UnderGroundWanderBehavior extends MovementBehavior {
+  final Vector2 _target = Vector2.zero();
+  final Vector2 _direction = Vector2.zero();
+  final Vector2 _tempCalc = Vector2.zero(); 
+  final Random _rng = Random(); 
+  double cimaDur;
+  double cimaTmr = 0;
+  int _stage = 0;
+
+  UnderGroundWanderBehavior({this.cimaDur = 2});
+  @override
+  void update(double dt) {
+    if(_stage == 0){//em cima
+      if(cimaTmr<cimaDur){
+        cimaTmr += dt;
+      }else{
+        enemy.add(
+          ScaleEffect.to(Vector2.all(0),
+            EffectController(duration: 0.5),
+            onComplete: () =>{
+              cimaTmr = 0,
+              _stage = 2,
+              _pickNewTarget(),
+              enemy.isInvencivel = true,
+              enemy.isIntangivel = true,
+              enemy.canAttack = false,
+            } ,
+          )
+        );
+        _stage = 1;
+      }
+    }else if(_stage == 2){//andando debaixo da terra
+      if(enemy.position.distanceTo(_target) > 10){
+        _direction
+        ..setFrom(_target)       
+        ..sub(enemy.position)    
+        ..normalize();
+        enemy.position.addScaled(_direction, enemy.speed * dt);
+      }else{
+        _stage = 3;
+        enemy.add(
+          ScaleEffect.to(Vector2.all(1),
+            EffectController(duration: 0.5),
+            onComplete: () =>{
+              _stage = 0,
+              enemy.isInvencivel = false,
+              enemy.isIntangivel = false,
+              enemy.canAttack = true,
+            } ,
+          )
+        );
+      }
+    }
   }
 
   void _pickNewTarget({Vector2? pushAwayFrom}) {
@@ -630,7 +722,7 @@ class SpinnerAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null || enemy!.isFreeze) return; 
+    if (enemy == null || enemy.isFreeze) return; 
 
     _timer += dt;
     if(_timer >= interval - 1 && _timer <= interval + dt - 1){

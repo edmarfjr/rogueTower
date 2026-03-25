@@ -4,6 +4,7 @@ import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/shadow_component.dart';
 import 'package:TowerRogue/game/components/gameObj/chest.dart';
 import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:TowerRogue/game/components/projectiles/bomb.dart';
 import 'package:TowerRogue/game/components/projectiles/explosion.dart';
 import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
 import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
@@ -37,6 +38,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool isBoss;
   // Controle
   bool canMove = true; 
+  bool canAttack = true;
   late Color originalColor;
   late Color auxColor;
   double _meleeCooldown = 0.0;
@@ -82,7 +84,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double fearTimeBase = 5.0;
   
   // --- VARIÁVEIS DA AURA VISUAL ---
-  double _auraTimer = 0; // Timer para a aura "pulsar"
+  double _auraTimer = 0;
   
   // CACHE DE TINTAS PARA A AURA (Evita lags por Garbage Collection)
   Paint championAuraPaint = Paint()..color = Pallete.laranja.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
@@ -346,7 +348,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     dmg = 2;
     hp *= hpBonus;
-    championAuraPaint = Paint()..color = originalColor.withOpacity(0.2)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+    championAuraPaint = Paint()..color = originalColor.withOpacity(0.3)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
   }
 
   @override
@@ -394,8 +396,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         movementBehavior.update(dt);
       }
       //comportamento normal
-      attackBehavior.update(dt);
-      attack2Behavior?.update(dt);
+      if(canAttack){
+        attackBehavior.update(dt);
+        attack2Behavior?.update(dt);
+      }
 
       if (championType == 9) {
       const double pullRadius = 600.0; // O tamanho do campo gravitacional
@@ -732,6 +736,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     if(championType == 2){
       gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:2, radius:80));
+      int rng = Random().nextInt(100);
+      if(rng <= 90){
+        gameRef.world.add(Bomb(
+          position: position.clone(), 
+          damage:1, 
+          //owner: this, 
+          isEnemy: true,
+        ));
+      }
     }else if(championType == 4){
         for (int i = 0; i < 8; i++) {
         double angle =(i * (2 * pi / 8));
@@ -767,14 +780,25 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }else{
         dropList.shuffle();
         final item = Collectible(position: position.clone(), type: dropList[0]);
-          gameRef.world.add(item);
-          double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
-          double altura = Random().nextDouble() * 100 + 150 * -1;
-          item.pop(Vector2(direcaoX, 0), altura:altura);
+        gameRef.world.add(item);
+        double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
+        double altura = Random().nextDouble() * 100 + 150 * -1;
+        item.pop(Vector2(direcaoX, altura/2), altura:altura);
       }
     }
 
     if(gameRef.player.isPac) gameRef.player.curaHp(1);
+
+    if (gameRef.player.activeItems.value[0]!.type == CollectibleType.activeJarroFadas && gameRef.player.fadasNoJarro < 20) {
+      gameRef.player.fadasNoJarro++; // Guarda a vida no jarro
+
+      game.world.add(FloatingText(
+        text: "${gameRef.player.fadasNoJarro}/20",
+        position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
+        color: Pallete.azulCla,
+      ));
+
+    }
 
     removeFromParent();
   }

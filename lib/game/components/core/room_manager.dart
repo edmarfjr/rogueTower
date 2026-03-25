@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
+import 'package:TowerRogue/game/components/enemies/enemy_boss.dart';
 import 'package:TowerRogue/game/components/gameObj/blood_machine.dart';
 import 'package:TowerRogue/game/components/gameObj/slot_machine.dart';
 import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
@@ -24,7 +25,7 @@ import '../enemies/enemy.dart';
 import '../enemies/enemy_factory.dart'; 
 
 // Define a assinatura da função que cria inimigos
-typedef EnemyFactoryFunction = Enemy Function(Vector2 position);
+typedef EnemyFactoryFunction = Enemy Function(Vector2 position, int phase);
 
 class RoomManager extends Component with HasGameRef<TowerGame> {
   
@@ -44,48 +45,48 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   final double _minTimeBeforeClear = 0.1; // Tempo mínimo para evitar clear instantâneo
 
   final List<EnemyFactoryFunction> _enemyRoster1 = [
-    (pos) => EnemyFactory.createRat(pos), 
-    (pos) => EnemyFactory.createFungi(pos),  
-    (pos) => EnemyFactory.createBeeHive(pos),
-    (pos) => EnemyFactory.createBug(pos),    
-    (pos) => EnemyFactory.createSnail(pos),  
-    (pos) => EnemyFactory.createSlimeM(pos),  
+    (pos,phase) => EnemyFactory.createRat(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createFungi(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createBeeHive(pos,phase:phase),
+    (pos,phase) => EnemyFactory.createBug(pos,phase:phase),    
+    (pos,phase) => EnemyFactory.createSnail(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createSlimeM(pos,phase:phase),  
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster2 = [
-    (pos) => EnemyFactory.createBat(pos), 
-    (pos) => EnemyFactory.createGhost(pos),  
-    (pos) => EnemyFactory.createMere(pos),  
-    (pos) => EnemyFactory.createSpider(pos),  
-    (pos) => EnemyFactory.createCoffin(pos),  
-    (pos) => EnemyFactory.createHorseMan(pos),   
+    (pos,phase) => EnemyFactory.createBat(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createGhost(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createMere(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createSpider(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createCoffin(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createHorseMan(pos,phase:phase),   
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster3 = [
-    (pos) => EnemyFactory.createChessKnight(pos), 
-    (pos) => EnemyFactory.createChessPawn(pos), 
-    (pos) => EnemyFactory.createChessRook(pos), 
-    (pos) => EnemyFactory.createChessBishop(pos), 
-    (pos) => EnemyFactory.createChessKing(pos), 
-    (pos) => EnemyFactory.createChessQueen(pos), 
+    (pos,phase) => EnemyFactory.createChessKnight(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createChessPawn(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createChessRook(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createChessBishop(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createChessKing(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createChessQueen(pos,phase:phase), 
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster4 = [
-    (pos) => EnemyFactory.createRabbit(pos), 
-    (pos) => EnemyFactory.createUnicorn(pos), 
-    (pos) => EnemyFactory.createElephant(pos), 
-    (pos) => EnemyFactory.createBird(pos), 
-    (pos) => EnemyFactory.createSnake(pos), 
-    (pos) => EnemyFactory.createTortoise(pos), 
+    (pos,phase) => EnemyFactory.createRabbit(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createUnicorn(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createElephant(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createBird(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createSnake(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTortoise(pos,phase:phase), 
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster5 = [
-    (pos) => EnemyFactory.createFish(pos), 
-    (pos) => EnemyFactory.createJellyfish(pos), 
-    (pos) => EnemyFactory.createFishBowl(pos), 
-    (pos) => EnemyFactory.createShark(pos), 
-    (pos) => EnemyFactory.createTurtle(pos), 
-    (pos) => EnemyFactory.createDolphin(pos), 
+    (pos,phase) => EnemyFactory.createFish(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createJellyfish(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createFishBowl(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createShark(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTurtle(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createDolphin(pos,phase:phase), 
   ];
 
   ValueListenable<int>? get currentRoomNotifier => null;
@@ -125,16 +126,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(0, -150), champType: 8));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.zodiacLibra));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeBoxSpider));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiac));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeJarroFadas));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.familiarEye));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.familiarBlock));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeBoxOfFriends));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -283,11 +284,75 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
 
       // Criação usando a Factory
-      gameRef.world.add(selectedFactory(pos));
+      gameRef.world.add(selectedFactory(pos,gameRef.currentLevelNotifier.value));
       enemiesSpawned++; 
     }
     
     gameRef.atualizaDebugMode();
+  }
+
+  void rerollEnemies() {
+    // 1. Encontra todos os inimigos normais vivos na sala (Ignora Bosses e Dummies)
+    final currentEnemies = gameRef.world.children
+        .whereType<Enemy>()
+        .where((e) => !e.isDummy && e is! EnemyBoss)
+        .toList();
+
+    final int numEnemiesToSpawn = currentEnemies.length;
+
+    // Se a sala estiver limpa, não faz nada
+    if (numEnemiesToSpawn == 0) return;
+
+    // 2. Remove os inimigos atuais com um efeito visual de "puff"
+    for (var enemy in currentEnemies) {
+      createExplosionEffect(gameRef.world, enemy.absoluteCenter, Pallete.lilas, count: 6);
+      enemy.removeFromParent();
+    }
+
+    // 3. Seleciona a lista de inimigos (roster) correta para a fase atual
+    int currentPhase = gameRef.currentLevelNotifier.value;
+    final rng = Random();
+    List<EnemyFactoryFunction> currentRoster;
+    
+    switch (currentPhase) {
+      case 1: currentRoster = _enemyRoster1; break;
+      case 2: currentRoster = _enemyRoster2; break;
+      case 3: currentRoster = _enemyRoster3; break;
+      case 4: currentRoster = _enemyRoster4; break;
+      case 5: currentRoster = _enemyRoster5; break;
+      default: currentRoster = _enemyRoster1; break;
+    }
+
+    // 4. Instancia a mesma quantidade exata de novos inimigos
+    int spawned = 0;
+    int attempts = 0; 
+    
+    while (spawned < numEnemiesToSpawn && attempts < 100) {
+      attempts++;
+
+      const double margin = 40.0;
+      const double spawnWidth = TowerGame.gameWidth - (margin * 2);
+      const double spawnHeight = TowerGame.gameHeight - (margin * 4);
+
+      double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
+      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
+      final pos = Vector2(x, y);
+
+      // Garante que o inimigo novo NÃO nasce em cima do jogador!
+      if (pos.distanceTo(gameRef.player.position) < 140) {
+        continue; 
+      }
+
+      // Sorteia o novo inimigo e cria
+      final selectedFactory = currentRoster[rng.nextInt(currentRoster.length)];
+      final newEnemy = selectedFactory(pos, currentPhase);
+      
+      // Efeito visual de surgimento
+      createExplosionEffect(gameRef.world, pos, Pallete.cinzaCla, count: 5);
+      
+      gameRef.world.add(newEnemy);
+      spawned++; 
+    }
   }
 
   void _triggerBossSpawnSequence() {
@@ -812,9 +877,24 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
 
     final CollectibleType lootType = possibleRewards[0];
+    final CollectibleType itemExtra = possibleRewards[1];
 
     gameRef.itensRarosPoolCurrent.remove(lootType);
-    gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType));
+
+    final item = Collectible(position: Vector2(0,0), type: lootType);
+    gameRef.world.add(item);
+    double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+    double altura = Random().nextDouble() * 100 + 150 * -1;
+    item.pop(Vector2(direcaoX, 0), altura:altura);
+
+    if(gameRef.player.itemExtraBoss){
+      gameRef.itensRarosPoolCurrent.remove(itemExtra);
+      final itExtra = Collectible(position: Vector2(0,0), type: itemExtra);
+      gameRef.world.add(itExtra);
+      double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
+      double altura = Random().nextDouble() * 100 + 150 * -1;
+      itExtra.pop(Vector2(direcaoX, 0), altura:altura);
+      }
     //final direc = [Vector2(50, 0), Vector2(-50, 0), Vector2(0, 50), Vector2(0, -50)];
     //for (var dir in direc)
    // {

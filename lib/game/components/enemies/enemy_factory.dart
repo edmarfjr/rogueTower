@@ -15,12 +15,30 @@ import '../core/pallete.dart';
 
 class EnemyFactory {
 
-  static Enemy createDummy(Vector2 pos,{int champType = 0}) {
+  // --- DEFINIÇÕES GERAIS DE HP (Base) ---
+  static const double hpMinimo = 20.0;
+  static const double hpFraco = 30.0;
+  static const double hpMedio = 50.0;
+  static const double hpForte = 70.0;
+  static const double hpMuitoForte = 80.0;
+  static const double hpResistente = 100.0;
+  static const double hpTanque = 120.0;
+  static const double hpSuperTanque = 200.0;
+
+  // --- DEFINIÇÕES DE HP PARA BOSSES ---
+  static const double hpBossFraco = 1000.0;
+  static const double hpBossMedio = 1500.0;
+  static const double hpBossForte = 2000.0;
+  static const double hpBossMuitoForte = 2500.0;
+  static const double hpBossTanque = 3000.0;
+
+
+  static Enemy createDummy(Vector2 pos,{int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: true,
       championType: champType,
-      hp: 1000,
+      hp: 1000, // Dummy geralmente não escala, então mantive fixo
       speed: 100,
       isDummy: true,
       hbSize: Vector2(16,32),
@@ -34,10 +52,10 @@ class EnemyFactory {
     );
   }
 
-  static EnemyBoss createAgiota(Vector2 pos) {
+  static EnemyBoss createAgiota(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "agiota".tr(),
-      hp: 1500, // Vida da Fase 1
+      hp: hpBossMedio * phase,
       position: Vector2(0, -100),
       speed: 100,
       soul: 250, 
@@ -77,12 +95,12 @@ class EnemyFactory {
 
   // inimigos fase 1
   
-  static Enemy createRat(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createRat(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 30,
+      hp: hpFraco * phase,
       speed: 100,
       hbSize: Vector2(24,18),
       hbOffset: Vector2(0, 4),
@@ -93,27 +111,42 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createFungi(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createFungi(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 25,
-      speed: 0,
+      hp: hpFraco * phase,
+      speed: 100,
       weight: 5,
       iconData: MdiIcons.mushroom,
       originalColor: Pallete.rosa,
       movementBehavior: IdleBehavior(),
-      attackBehavior: SpinnerAttackBehavior(interval: 2),
+      attackBehavior: SpinnerAttackBehavior(interval: 4),
     );
   }
-  
-  static Enemy createBug(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+
+  static Enemy createFungi2(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 20,
+      hp: hpFraco * phase,
+      speed: 100,
+      weight: 5,
+      iconData: MdiIcons.mushroom,
+      originalColor: Pallete.vinho,
+      movementBehavior: UnderGroundWanderBehavior(cimaDur: 2),
+      attackBehavior: ProjectileAttackBehavior(interval: 4),
+    );
+  }
+  
+  static Enemy createBug(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMinimo * phase,
       speed: 80,
       hbSize: Vector2(24,24),
       rotates: true,
@@ -124,12 +157,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSnail(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createSnail(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 40,
+      hp: hpMedio * phase,
       speed: 60,
       weight: 1.2,
       hbSize: Vector2(26,26),
@@ -149,11 +182,11 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createBee(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createBee(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: true,
-      hp: 15,
+      hp: hpMinimo * phase,
       speed: 100,
       voa: true,
       rotates: true,
@@ -166,34 +199,34 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createBeeHive(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createBeeHive(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 50,
+      hp: hpMedio * phase,
       speed: 0,
       weight: 2.0,
       iconData: MdiIcons.beehiveOutline,
       originalColor: Pallete.laranja,
       movementBehavior: IdleBehavior(),
       attackBehavior: SummonAttackBehavior(
-        minionBuilder: (p) => EnemyFactory.createBee(p), 
+        minionBuilder: (p) => EnemyFactory.createBee(p, phase: phase), // Repassa a fase!
         interval: 3.5, 
         maxMinions: 4,
       ),
       deathBehavior: SpawnOnDeathBehavior(
         count: 3,
-        minionBuilder: (p) => EnemyFactory.createBee(p, noChamp: true),
+        minionBuilder: (p) => EnemyFactory.createBee(p, noChamp: true, phase: phase), // Repassa a fase!
       ),
     );
   }
 
-  static Enemy createSlimeP(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createSlimeP(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: true,
-      hp: 20,
+      hp: hpMinimo * phase,
       speed: 120,
       size: Vector2.all(24),
       hbSize: Vector2(20,18),
@@ -204,12 +237,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSlimeM(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createSlimeM(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 50,
+      hp: hpMedio * phase,
       speed: 80,
       hbSize: Vector2(28,24),
       iconData: MdiIcons.cloud,
@@ -218,15 +251,15 @@ class EnemyFactory {
       attackBehavior: NoAttackBehavior(),   
       deathBehavior: SpawnOnDeathBehavior(
         count: 3,
-        minionBuilder: (p) => EnemyFactory.createSlimeP(p, noChamp: true),
+        minionBuilder: (p) => EnemyFactory.createSlimeP(p, noChamp: true, phase: phase), // Repassa a fase!
       ),    
     );
   }
 
-  static EnemyBoss createRatKing(Vector2 pos) {
+  static EnemyBoss createRatKing(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "reiRato".tr(),
-      hp: 1000, // Vida da Fase 1
+      hp: hpBossFraco * phase, 
       position: Vector2(0, -100),
       speed: 80,
       soul: 100,
@@ -260,7 +293,7 @@ class EnemyFactory {
         SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 24),
         MortarAttackBehavior(interval:1, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
-          minionBuilder: (p) => EnemyFactory.createRat(p, noChamp: true), 
+          minionBuilder: (p) => EnemyFactory.createRat(p, noChamp: true, phase: phase), // Repassa a fase!
           interval: 1.0, 
           maxMinions: 4,
         ),
@@ -271,12 +304,12 @@ class EnemyFactory {
 
 // inimigos fase 2
 
-  static Enemy createBat(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createBat(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 45,
+      hp: hpMedio * phase,
       speed: 100,
       hbSize: Vector2(28,16),
       voa: true,
@@ -287,12 +320,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createSpider(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createSpider(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 45,
+      hp: hpMedio * phase,
       speed: 80,
       weight: 1.2,
       rotates: true,
@@ -308,12 +341,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createGhost(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createGhost(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 60,
+      hp: hpForte * phase,
       speed: 80,
       voa: true,
       hbSize: Vector2(26,28),
@@ -325,12 +358,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createCoffin(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createCoffin(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 70,
+      hp: hpForte * phase,
       speed: 0,
       weight: 100,
       hbSize: Vector2(16,28),
@@ -341,12 +374,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createMere(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createMere(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 60,
+      hp: hpForte * phase,
       speed: 80,
       hbSize: Vector2(28,28),
       hasGhostEffect: true,
@@ -357,12 +390,12 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createHorseMan(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createHorseMan(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: 70,
+      hp: hpForte * phase,
       speed: 100,
       hasGhostEffect: true,
       hbSize: Vector2(28,28),
@@ -377,10 +410,10 @@ class EnemyFactory {
     );
   }
 
-  static EnemyBoss createGhostKnight(Vector2 pos) {
+  static EnemyBoss createGhostKnight(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "ghostKnight".tr(),
-      hp: 1500, // Vida da Fase 1
+      hp: hpBossMedio * phase, 
       position: Vector2(0, -100),
       speed: 100,
       soul: 250, 
@@ -426,12 +459,12 @@ class EnemyFactory {
 
   // inimigos fase 3
 
-  static Enemy createChessKnight(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessKnight(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 70,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * phase,
       speed: 80, 
       weight: 2.0,
       hbSize: Vector2(16,28),
@@ -447,12 +480,12 @@ championType: champType,
     );
   }
 
-  static Enemy createChessPawn(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessPawn(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 60,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 80,
       hbSize: Vector2(16,28),
       iconData: MdiIcons.chessPawn,
@@ -462,12 +495,12 @@ championType: champType,
     );
   }
 
-  static Enemy createChessRook(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessRook(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 120,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpResistente * phase,
       speed: 0,
       hbSize: Vector2(16,28),
       weight: 100,
@@ -478,12 +511,12 @@ championType: champType,
     );
   }
 
-  static Enemy createChessBishop(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessBishop(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 80,
       hbSize: Vector2(16,28),
       iconData: MdiIcons.chessBishop,
@@ -493,12 +526,12 @@ championType: champType,
     );
   }
 
-  static Enemy createChessKing(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessKing(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 100,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       hbSize: Vector2(16,28),
       speed: 60,
       iconData: MdiIcons.chessKing,
@@ -508,12 +541,12 @@ championType: champType,
     );
   }
 
-  static Enemy createChessQueen(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createChessQueen(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * phase,
       speed: 80,
       hbSize: Vector2(16,28),
       iconData: MdiIcons.chessQueen,
@@ -523,10 +556,10 @@ championType: champType,
     );
   }
 
-  static EnemyBoss createTruQueen(Vector2 pos) {
+  static EnemyBoss createTruQueen(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "truQueen".tr(),
-      hp: 2000, // Vida da Fase 1
+      hp: hpBossForte * phase, 
       position: Vector2(0, -100),
       speed: 120,
       soul: 300, 
@@ -568,12 +601,12 @@ championType: champType,
 
    // inimigos fase 4
 
-   static Enemy createRabbit(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+   static Enemy createRabbit(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 0,
       hbSize: Vector2(26,26),
       iconData: MdiIcons.rabbit,
@@ -592,12 +625,12 @@ championType: champType,
     );
   }
 
-  static Enemy createUnicorn(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createUnicorn(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 100,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * phase,
       speed: 100,
       hasGhostEffect: true,
       hbSize: Vector2(24,24),
@@ -612,12 +645,12 @@ championType: champType,
     );
   }
 
-  static Enemy createBird(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createBird(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 80,
       voa: true,
       iconData: MdiIcons.bird,
@@ -628,12 +661,12 @@ championType: champType,
     );
   }
 
-  static Enemy createElephant(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createElephant(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 200,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpTanque * phase,
       speed: 100,
       hbSize: Vector2(24,20),
       weight: 3.0,
@@ -644,12 +677,12 @@ championType: champType,
     );
   }
 
-  static Enemy createSnake(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createSnake(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 100,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 90,
       hbSize: Vector2(26,30),
       iconData: MdiIcons.snake,
@@ -659,12 +692,12 @@ championType: champType,
     );
   }
 
-  static Enemy createTortoise(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createTortoise(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 100,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpResistente * phase,
       speed: 50,
       hbSize: Vector2(26,20),
       hasShield: true,
@@ -675,10 +708,10 @@ championType: champType,
     );
   }
 
-  static EnemyBoss createBeast(Vector2 pos) {
+  static EnemyBoss createBeast(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "beast".tr(),
-      hp: 2500, // Vida da Fase 1
+      hp: hpBossForte * phase, 
       position: Vector2(0, -100),
       speed: 0,
       iconData: MdiIcons.rabbit,
@@ -704,7 +737,7 @@ championType: champType,
             isExplosionOnLand: false,
             is4ShotOnLand: true,    
           ),
-          SpinnerAttackBehavior(interval: 1.0, isSpiral: true ,projectilesPerWave: 16), // Modo 2: Atira em cruz
+          SpinnerAttackBehavior(interval: 1.0, isSpiral: true ,projectilesPerWave: 16), 
           ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 10, burstDelay: 0.3, isStraight: false),
         ],
         
@@ -719,7 +752,7 @@ championType: champType,
         ],
         phase2Attacks: [
           ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
-          SpinnerAttackBehavior(interval: 0.8, isSpiral: true, projectilesPerWave: 24), // Modo 2: Atira em cruz
+          SpinnerAttackBehavior(interval: 0.8, isSpiral: true, projectilesPerWave: 24), 
             JumpAttackBehavior(
             jumpRange: 300,    
             minRange: 50,      
@@ -732,12 +765,12 @@ championType: champType,
 
   // inimigos fase 5
 
-   static Enemy createJellyfish(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+   static Enemy createJellyfish(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 60,
       hbSize: Vector2(26,26),
       iconData: MdiIcons.jellyfish,
@@ -751,12 +784,12 @@ championType: champType,
     );
   }
 
-  static Enemy createFishBowl(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createFishBowl(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 150,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpTanque * phase,
       speed: 0,
       weight: 3,
       hbSize: Vector2(26,26),
@@ -770,12 +803,12 @@ championType: champType,
     );
   }
 
-  static Enemy createFish(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createFish(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * phase,
       speed: 80,
       hbSize: Vector2(26,20),
       iconData: MdiIcons.fish,
@@ -789,12 +822,12 @@ championType: champType,
     );
   }
 
-  static Enemy createDolphin(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createDolphin(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * phase,
       speed: 80,
       hbSize: Vector2(26,26),
       iconData: MdiIcons.dolphin,
@@ -809,12 +842,12 @@ championType: champType,
     );
   }
 
-  static Enemy createShark(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createShark(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 80,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * phase,
       speed: 80,
       hbSize: Vector2(28,18),
       iconData: MdiIcons.shark,
@@ -828,12 +861,12 @@ championType: champType,
     );
   }
 
-  static Enemy createTurtle(Vector2 pos,{bool noChamp = false, int champType = 0}) {
+  static Enemy createTurtle(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
-noChamp: noChamp,
-championType: champType,
-      hp: 120,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpTanque * phase,
       speed: 80,
       hbSize: Vector2(26,26),
       hasShield: true,
@@ -850,10 +883,10 @@ championType: champType,
     );
   }
 
-  static EnemyBoss createMegalodon(Vector2 pos) {
+  static EnemyBoss createMegalodon(Vector2 pos, {int phase = 1}) {
     return EnemyBoss(
       bossName: "megalodon".tr(),
-      hp: 3000, // Vida da Fase 1
+      hp: hpBossForte * phase, 
       position: Vector2(0, -100),
       speed: 120,
       iconData: MdiIcons.shark,

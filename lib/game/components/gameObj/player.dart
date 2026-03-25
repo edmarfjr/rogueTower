@@ -2,6 +2,7 @@ import 'package:TowerRogue/game/components/core/audio_manager.dart';
 import 'package:TowerRogue/game/components/core/character_class.dart';
 import 'package:TowerRogue/game/components/core/game_progress.dart';
 import 'package:TowerRogue/game/components/core/i18n.dart';
+import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
 import 'package:TowerRogue/game/components/effects/floating_text.dart';
 import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
 import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
@@ -56,6 +57,7 @@ class Player extends PositionComponent
   double damageIni = 10.0;
   double dotIni = 1.0;
   double dot = 1.0;
+  double familiarDmg = 1.0;
   double critChance = 5;
   double critChanceIni = 5;
   double critDamage = 2.0;
@@ -197,6 +199,11 @@ class Player extends PositionComponent
   bool tempZodiacLibra = false;
   bool tempZodiacPisces = false;
   bool tempZodiacTaurus = false;
+  bool defensiveFairys = false;
+  bool itemExtraBoss = false;
+
+  int vidasNoJarro = 0;
+  int fadasNoJarro = 0;
 
   int numIcons = 0;
 
@@ -267,6 +274,13 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeCircularShots) return 2;
     if (type == CollectibleType.activeDiarreiaExplosiva) return 2;
     if (type == CollectibleType.activeBoxSpider) return 2;
+    if (type == CollectibleType.activeD10) return 2;
+    if (type == CollectibleType.activeScroll) return 2;
+    if (type == CollectibleType.activeGoldenBox) return 0;
+    if (type == CollectibleType.activeSlot) return 0;
+    if (type == CollectibleType.activeJarroDeVida) return 0;
+    if (type == CollectibleType.activeBoxOfFriends) return 3;
+    if (type == CollectibleType.activeJarroFadas) return 0;
     
     return 5; 
   }
@@ -655,6 +669,72 @@ class Player extends PositionComponent
     if (currentItems[0] != null && !currentItems[0]!.isReady) {
       currentItems[0]!.currentCharge+= val;
       activeItems.value = currentItems; // Dispara a atualização visual na HUD
+    }
+  }
+
+  void useRandomActiveItem() {
+    final rng = Random();
+    
+    final List<CollectibleType> activeItemsPool = [
+      //recarregaveis
+      CollectibleType.activePoisonBomb, 
+      CollectibleType.activeLicantropia, 
+      CollectibleType.activeHeal, 
+      CollectibleType.activeMagicKeyChain,
+      CollectibleType.activeGift,
+      CollectibleType.activeHeartConverter,
+      CollectibleType.activeRitualDagger,
+      CollectibleType.activeConvBruta,
+      CollectibleType.activeMagicMirror,
+      CollectibleType.activeMidas,
+      CollectibleType.activeStunBomb,
+      CollectibleType.activeFairy,
+      CollectibleType.activeUnicorn,
+      CollectibleType.activeBombardeio,
+      CollectibleType.activeTurret,
+      CollectibleType.activeCircularShots,
+      CollectibleType.activeRandPill,
+      CollectibleType.activeDiarreiaExplosiva,
+      CollectibleType.activeBloodBag,
+      CollectibleType.activeDullRazor,
+      CollectibleType.activeBoxSpider,
+      CollectibleType.activeD10,
+      CollectibleType.activeGoldenBox,
+      //uso unico
+      CollectibleType.sanduiche,
+      CollectibleType.cupon,  
+      CollectibleType.activeBattery,
+      CollectibleType.activeArtHp,
+      CollectibleType.activeMagicKey,
+      CollectibleType.activeHoming,
+      CollectibleType.activeD6,
+      CollectibleType.activeDivineShield,
+      CollectibleType.activeRerollItem,
+      CollectibleType.activeBandage,
+      CollectibleType.activeUnicornUnico,
+      CollectibleType.activeBombardeioUnico,
+      CollectibleType.activeTurretUnico,
+      CollectibleType.activeSuborno,
+      CollectibleType.keysToBombs,
+      CollectibleType.activeRandPillUnico,
+      CollectibleType.portalBoss,
+      CollectibleType.activeFear,
+      CollectibleType.activePacmen,
+    ];
+
+    final effectDrawn = activeItemsPool[rng.nextInt(activeItemsPool.length)];
+
+    final feedback = CollectibleLogic.applyEffect(type: effectDrawn, game: gameRef);
+      String feedbackText = feedback['text'] as String;
+      Color feedbackColor = feedback['color'] as Color;
+
+    if (feedbackText.isNotEmpty) {
+      gameRef.world.add(FloatingText(
+        text: feedbackText.tr(),
+        position: position.clone() - size/2, 
+        color: feedbackColor,
+        fontSize: 12,
+      ));
     }
   }
 
@@ -1126,6 +1206,16 @@ class Player extends PositionComponent
       }
     }
 
+    if(defensiveFairys){
+      final f = Familiar(position: position.clone(),
+                          type: FamiliarType.fly, 
+                          player: this,
+                          // angleOffset: i*(2*pi/5)
+                        );
+      familiars.add(f);
+      game.world.add(f);
+    }
+
     if (hasShield && !pulaEscudo && amount>0) {
       _breakShield(); 
       return; 
@@ -1246,7 +1336,7 @@ class Player extends PositionComponent
 
     for (final enemy in enemies) {
       final dist = position.distanceTo(enemy.position);
-      if (/* dist <= attackRange && */ dist < closestDist && !enemy.isCharmed) {
+      if (dist < closestDist && !enemy.isCharmed && (!enemy.isIntangivel && !enemy.isInvencivel)) {
         closestDist = dist;
         target = enemy;
       }
@@ -1570,6 +1660,8 @@ class Player extends PositionComponent
     zodiacPisces = false;
     zodiacTaurus = false;
     zodiac = false;
+    defensiveFairys = false;
+    itemExtraBoss = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
@@ -1930,6 +2022,75 @@ class Player extends PositionComponent
         );
       }
     }
+  }
+
+  void slotMachine(){
+    gameRef.world.add(FloatingText(
+      text: "-1\$",
+      position: position.clone() + Vector2(0, -30),
+      color: Pallete.vermelho,
+    ));
+
+    // 4. Efeito Visual de Sangue jorrando da máquina
+    createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 15);
+    AudioManager.playSfx('hit.mp3'); 
+
+    int rng = Random().nextInt(100);
+
+    var item;
+
+    if (rng > 40){
+      if(rng < 50){
+        item = CollectibleType.coinUm;
+      }else if(rng >= 50 && rng < 60){
+        item = CollectibleType.coin;
+      }else if(rng >= 60 && rng < 70){
+        item = CollectibleType.bomba;
+      }else if(rng >= 70 && rng < 80){
+        item = CollectibleType.key;
+      }else if(rng >= 80 && rng < 90){
+        item = CollectibleType.potion;
+      }else if(rng >= 90 && rng < 95){
+        var pool = retornaItensComuns(this);
+        item = pool.first;
+      }else if(rng >= 95 && rng < 98){
+        item = CollectibleType.boloDinheiro;
+      }else if(rng >= 98){
+        gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
+      }
+    }else{
+      return;
+    }
+
+    String ResultTxt = 'nada';
+    if (item != null){
+      final newItem = Collectible(
+        position: Vector2(0, 10), 
+        type: item,
+      );
+    
+      gameRef.world.add(newItem);
+
+      final attrs = Collectible.getAttributes(item);
+      
+      setAcquiredItemsList(
+        item,
+        attrs['name'] as String,
+        attrs['desc'] as String,
+        attrs['icon'] as IconData,
+        attrs['color'] as Color,
+      );
+
+      ResultTxt = "${attrs['name']}" ;
+          
+      newItem.pop(Vector2(0, 20));
+    }
+
+    gameRef.world.add(FloatingText(
+        text: ResultTxt.tr(),
+        position: position.clone() + Vector2(0, -30),
+        color: Pallete.laranja,
+      ));
   }
 
   List<AcquiredItemData> getAcquiredItemsList() {

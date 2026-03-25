@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
 import 'package:TowerRogue/game/components/enemies/enemy.dart';
 import 'package:TowerRogue/game/components/gameObj/player.dart';
 import 'package:TowerRogue/game/components/gameObj/wall.dart';
@@ -44,14 +45,16 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double _attackTimer = 0;
   double fireRate;
   final Player player;
-  double offsetX;
-  double offsetY;
+  double offsetX = 0;
+  double offsetY = 0;
+  double offX = 0;
+  double offY = 0;
   double detectRadius = 600;
   bool retorna;
 
   double _currentAngle = 0;
   double radius;
-  final double angleOffset; 
+  double angleOffset; 
 
   double dmg = 10;
   
@@ -71,7 +74,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   // Variáveis de Animação
   double _walkTimer = 0;
   final double _bounceSpeed = 15.0;     
-  final double _bounceAmplitude = 0.15; 
+  final double _bounceAmplitude = 0.15;
 
   //status dummy
   bool noDamage = false;
@@ -93,7 +96,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   //corrente do gemini
   List<ChainNode> _chainNodes = []; 
-  final int _numLinks = 16; 
+  final int _numLinks = 8; 
   final double _targetLinkLength = 16.0; 
   final double _gravity = 80.0; 
 
@@ -104,7 +107,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   //variaveis random wander
   Vector2 _target = Vector2.zero();
   final Vector2 _direction = Vector2.zero();
-  final Vector2 _tempCalc = Vector2.zero(); 
+  double moveTmr = 0;
+  double moveDur = 2; 
   final Random _rng = Random();
 
   Familiar({
@@ -113,8 +117,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     required this.player,
     this.followDistance = 50,
     this.speed = 100.0,
-    this.offsetX = 0,
-    this.offsetY = 0,
+    this.offX = 0,
+    this.offY = 0,
     this.angleOffset = 0, 
     this.retorna = true,
     this.fireRate = 2,
@@ -127,10 +131,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   @override
   Future<void> onLoad() async {
 
-    _currentAngle = angleOffset;
-
-    IconData icon;
-    Color cor;  
+    IconData icon = MdiIcons.fire;
+    Color cor = Pallete.branco;
     double ang = 0;
 
     switch(type){
@@ -144,6 +146,9 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = MdiIcons.fire;
         cor = Pallete.vermelho.withOpacity(0.7);
         dmg = player.damage / 2 ;
+        followDistance = 30;
+        offsetY = -32;
+        offsetX = -16; 
       case FamiliarType.fly:
         icon = MdiIcons.candy;
         cor = Pallete.amarelo.withOpacity(0.7);
@@ -178,12 +183,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.finger:
         icon = MdiIcons.handPointingRight;
         cor = Pallete.bege.withOpacity(0.7);
-        dmg = player.damage / 2 ;
+        dmg = player.damage;
       case FamiliarType.bouncer:
         speed = 150;
         icon = MdiIcons.weatherTornado;
         cor = Pallete.branco.withOpacity(0.7);
-        dmg = player.damage / 2 ;
+        dmg = player.damage * 2 ;
       case FamiliarType.eye:
         icon = MdiIcons.eyeCircle;
         radius = 48;
@@ -244,12 +249,18 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         dmg = player.damage * 2 ;
         size = Vector2.all(24);
         detectRadius = 200;
-        speed = 100;
+        speed = 150;
+        moveDur = 0.5;
         cor = Pallete.azulCla.withOpacity(0.7);
-      default:
-        icon = MdiIcons.fire;
-        cor = Pallete.branco.withOpacity(0.7);
+      //default:
+      //  icon = MdiIcons.fire;
+      //  cor = Pallete.branco.withOpacity(0.7);
     }
+    
+    _currentAngle = angleOffset;
+
+    offsetX += offX;
+    offsetY += offY;
 
     if(!noVisual){
       visual=GameIcon(
@@ -261,7 +272,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       );
 
       add(visual!);
-
       visual!.angle = ang;
     }
     
@@ -281,7 +291,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       ));
     }
     
-
   }
 
   @override
@@ -290,6 +299,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     
     final playerPos = gameRef.player.position  + Vector2(offsetX,offsetY) ;
     final dist = position.distanceTo(playerPos);
+    PositionComponent? target = getTarget();
 
     if(type == FamiliarType.block && speed !=  player.moveSpeed){
       speed = player.moveSpeed;
@@ -298,113 +308,50 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     if(type == FamiliarType.fly){
       _animateMovement(dt);
       
-      PositionComponent? target = getTarget();
-    
       if (target != null) {
         speed = 150;
-        final targetPos = target.position;
-        final direction = (targetPos - position).normalized();
-        position += direction * speed * dt;
+        segueAlvo(dt,target);
       }else{
-        _currentAngle += speed * dt;
-      
-        double centerX;
-        double centerY;
-
-        centerX = playerPos.x;
-        centerY = playerPos.y;
-
-        // Cálculo da nova posição
-        final newX = centerX + cos(_currentAngle) * radius;
-        final newY = centerY + sin(_currentAngle) * radius;
-        
-        position.setValues(newX, newY);
+        speed = 4;
+        orbitar(dt,playerPos);
       }
 
-    }if(type == FamiliarType.fly){
-      _animateMovement(dt);
-      
-      PositionComponent? target = getTarget();
-    
-      if (target != null) {
-        speed = 150;
-        final targetPos = target.position;
-        final direction = (targetPos - position).normalized();
-        position += direction * speed * dt;
-      }else{
-        _currentAngle += speed * dt;
-      
-        double centerX;
-        double centerY;
+    }else if(type == FamiliarType.gemini) {
+      final double maxTetherDistance = 250.0; 
+      _handleKnockBack(dt);
 
-        centerX = playerPos.x;
-        centerY = playerPos.y;
-
-        // Cálculo da nova posição
-        final newX = centerX + cos(_currentAngle) * radius;
-        final newY = centerY + sin(_currentAngle) * radius;
-        
-        position.setValues(newX, newY);
+      if(knockbackVelocity.isZero()){
+        if (target != null && dist < maxTetherDistance) {
+          _animateMovement(dt);
+          segueAlvo(dt, target);
+        } else {
+          if (dist > followDistance) {
+            _animateMovement(dt);
+            segueAlvo(dt, player);
+          }
+        }
       }
 
+      _handleChains(dt);
     }else if(type == FamiliarType.aranha) {
       _handleKnockBack(dt);
-      
       _animateMovement(dt);
-      
-      PositionComponent? target = getTarget();
-      
-
-      // Só persegue o inimigo se existir um alvo E se não estiver longe demais do player
+  
       if(knockbackVelocity.isZero()){
         if (target != null) {
-          final targetPos = target.position;
-          final direction = (targetPos - position).normalized();
-          position += direction * speed * dt;
-          _animateMovement(dt);
+          segueAlvo(dt,target);
         } else {
-          if (_target == Vector2.zero() || position.distanceTo(_target) < 10) {
-            _pickNewTarget();
-          }
-          _direction
-            ..setFrom(_target)       
-            ..sub(position)    
-            ..normalize();
-
-          if (visual != null) {
-            visual!.angle = atan2(_direction.y, _direction.x);
-          }  
-
-          position.addScaled(_direction, speed * dt);
+          moveAleatorio(dt);
         }
       }
     }else if(type == FamiliarType.eye || type == FamiliarType.prisma || type == FamiliarType.refletor){
-      _currentAngle += speed * dt;
-      
-        double centerX;
-        double centerY;
+      orbitar(dt,playerPos);
 
-        centerX = playerPos.x;
-        centerY = playerPos.y;
-
-        // Cálculo da nova posição
-        final newX = centerX + cos(_currentAngle) * radius;
-        final newY = centerY + sin(_currentAngle) * radius;
-        
-        position.setValues(newX, newY);
-
-        if(type == FamiliarType.eye)_handleAutoAttack(dt);
+      if(type == FamiliarType.eye)_handleAutoAttack(dt);
     
     }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff || type == FamiliarType.bouncer){
       _animateMovement(dt);
-      if (_velocity == Vector2.zero()) {
-        final rng = Random();
-        double angle = rng.nextDouble() * 2 * pi;
-        _velocity = Vector2(cos(angle), sin(angle)) * speed;
-      }
-      
-      position += _velocity * dt;
-      _checkBounds();
+      moveBounce(dt);
 
       if (visual != null && type == FamiliarType.glitch) {
         _colorTimer += dt;
@@ -443,8 +390,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }else{
       if (dist > followDistance) {
         _animateMovement(dt);
-        final direction = (playerPos - position).normalized();
-        position += direction * speed * dt;
+        segueAlvo(dt, player);
       }
 
       if(type == FamiliarType.atira || type == FamiliarType.turret|| type == FamiliarType.dummy){
@@ -465,7 +411,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           if(_dmgTmr >= 1.0){
             if (entity is Enemy){
               _dmgTmr = 0;
-              entity.takeDamage(dmg,critico: false);
+              entity.takeDamage(dmg*gameRef.player.familiarDmg,critico: false);
             }
           }
         }
@@ -493,6 +439,83 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
 
+  }
+
+  void segueAlvo(double dt, PositionComponent? alvo){
+    final targetPos = alvo!.position;
+    final direction = (targetPos - position).normalized();
+    position += direction * speed * dt;
+  }
+
+  void orbitar(double dt, Vector2 playerPos){
+    _currentAngle += speed * dt;
+
+    double centerX;
+    double centerY;
+
+    centerX = playerPos.x;
+    centerY = playerPos.y;
+
+    // Cálculo da nova posição
+    final newX = centerX + cos(_currentAngle) * radius;
+    final newY = centerY + sin(_currentAngle) * radius;
+
+    position.setValues(newX, newY);
+  }
+
+  void moveAleatorio(double dt){
+    if (_target == Vector2.zero() || position.distanceTo(_target) < 10 || moveTmr >= moveDur) {
+      moveTmr = 0;
+      _pickNewTarget();
+    }
+    _direction
+      ..setFrom(_target)       
+      ..sub(position)    
+      ..normalize();
+
+    moveTmr += dt;
+
+    if (visual != null) {
+      visual!.angle = atan2(_direction.y, _direction.x) + angleOffset;
+    }  
+
+    position.addScaled(_direction, speed * dt);
+  }
+
+  void _pickNewTarget({Vector2? pushAwayFrom}) {
+    double w = TowerGame.gameWidth / 2 - 40; 
+    double h = TowerGame.gameHeight / 2 - 40;
+
+    if (pushAwayFrom != null) {
+      double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
+      double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
+      double finalAngle = baseAngle + noise;
+
+      double dist = 100 + _rng.nextDouble() * 100;
+      _target.setValues(
+        position.x + cos(finalAngle) * dist,
+        position.y + sin(finalAngle) * dist,
+      );
+    } else {
+      _target.setValues(
+        (_rng.nextDouble() * 2 * w) - w, 
+        (_rng.nextDouble() * 2 * h) - h
+      );
+    }
+
+    _target.x = _target.x.clamp(-w, w);
+    _target.y = _target.y.clamp(-h, h);
+  }
+
+  void moveBounce(double dt){
+    if (_velocity == Vector2.zero()) {
+      final rng = Random();
+      double angle = rng.nextDouble() * 2 * pi;
+      _velocity = Vector2(cos(angle), sin(angle)) * speed;
+    }
+    
+    position += _velocity * dt;
+    _checkBounds();
   }
 
   void _checkBounds() {
@@ -572,24 +595,31 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }
     if (type == FamiliarType.gemini ) {
       if (_chainNodes.isEmpty) {
-        super.render(canvas); // Garante que o familiar desenha mesmo sem corrente
+        super.render(canvas);
         return;
       }
 
       // --- RENDERIZAÇÃO DA CORRENTE DINÂMICA (Segmentada) ---
       final paintChain = Paint()
         ..color = Pallete.branco.withOpacity(0.7) // Uma cor mais clara para o reflexo do metal
-        ..style = PaintingStyle.fill;
-
+        //..style = PaintingStyle.fill;
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
       for (int i = 0; i < _chainNodes.length - 1; i++) {
+        /* //desenhar circulos
         final node = _chainNodes[i];
-
-      // Conversão vital de Mundo para Local que resolvemos no passo anterior!
-      Vector2 localPos = absoluteToLocal(node.position);
-      final centerOffset = Offset(localPos.x, localPos.y);
-
-      // Desenhamos primeiro o preenchimento, depois a borda por cima
-      canvas.drawCircle(centerOffset, 4, paintChain);
+        Vector2 localPos = absoluteToLocal(node.position);
+        final centerOffset = Offset(localPos.x, localPos.y);
+        canvas.drawCircle(centerOffset, 4, paintChain);
+        */
+        // desenhar linhas
+        final A = _chainNodes[i];
+        final B = _chainNodes[i + 1];
+        Vector2 localA = absoluteToLocal(A.position);
+        Vector2 localB = absoluteToLocal(B.position);
+        final start = Offset(localA.x, localA.y);
+        final end = Offset(localB.x, localB.y);
+        canvas.drawLine(start, end, paintChain..strokeCap = StrokeCap.round);
       }
     }
 
@@ -627,13 +657,14 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if((type == FamiliarType.fly || type == FamiliarType.aranha) &&  other is Enemy && !other.isIntangivel){
-      other.takeDamage(dmg);
+      other.takeDamage(dmg*gameRef.player.familiarDmg);
       retorna = false;
+      createExplosionEffect(gameRef.world, absoluteCenter, visual!.color, count: 6);
       removeFromParent();
     }
     if(other is Enemy && !other.isIntangivel && (type == FamiliarType.eye || type == FamiliarType.bouncer || type == FamiliarType.finger
      || type == FamiliarType.gemini) ){
-      other.takeDamage(dmg);
+      other.takeDamage(dmg*gameRef.player.familiarDmg);
       setKnockBack(other);
     }
     if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
@@ -664,59 +695,17 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     
   }
 
-  void _pickNewTarget({Vector2? pushAwayFrom}) {
-    double w = TowerGame.gameWidth / 2 - 40; 
-    double h = TowerGame.gameHeight / 2 - 40;
-
-    if (pushAwayFrom != null) {
-      double baseAngle = atan2(pushAwayFrom.y, pushAwayFrom.x);
-      double noise = (_rng.nextDouble() - 0.5) * (pi / 1.5); 
-      double finalAngle = baseAngle + noise;
-
-      double dist = 100 + _rng.nextDouble() * 100;
-      _target.setValues(
-        position.x + cos(finalAngle) * dist,
-        position.y + sin(finalAngle) * dist,
-      );
-    } else {
-      _target.setValues(
-        (_rng.nextDouble() * 2 * w) - w, 
-        (_rng.nextDouble() * 2 * h) - h
-      );
-    }
-
-    _target.x = _target.x.clamp(-w, w);
-    _target.y = _target.y.clamp(-h, h);
-  }
-
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if(type == FamiliarType.glitch){
+    if(type == FamiliarType.glitch || type == FamiliarType.bouncer){
       if(other is Enemy){
-        setRndStatus(other);
+        if(type == FamiliarType.glitch)setRndStatus(other);
+        if(type == FamiliarType.bouncer)bounceOf(other);
       }
       if (other is Wall) {
-        final myRect = toAbsoluteRect();
-        final otherRect = other.toAbsoluteRect();
-        final intersection = myRect.intersect(otherRect);
-
-        if (intersection.width < intersection.height) {
-          if (_velocity.x > 0 && position.x < other.position.x) {
-              _velocity.x = -_velocity.x; 
-          }
-          else if (_velocity.x < 0 && position.x > other.position.x) {
-              _velocity.x = -_velocity.x; 
-          }
-        } else {
-          if (_velocity.y > 0 && position.y < other.position.y) {
-              _velocity.y = -_velocity.y; 
-          }
-          else if (_velocity.y < 0 && position.y > other.position.y) {
-              _velocity.y = -_velocity.y; 
-          }
-        }
+        bounceOf(other);
       }
     }
     if(type == FamiliarType.prisma){
@@ -766,7 +755,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           targetPos: target.position.clone(),
           owner: this,
           flightDuration: 1,
-          damage: dmg * 2,
+          damage: dmg * 2 *gameRef.player.familiarDmg,
           isFire: true,
           explosionRadius: 100,
           isPlayer: true,
@@ -791,7 +780,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       fireTime: fireRate,
       target: target,
       owner: this,
-      damage: gameRef.player.damage
+      damage: dmg*gameRef.player.familiarDmg
     ));
   }
 
@@ -805,7 +794,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
     _tempDirection.setValues(x, y);
 
-    double dmg = player.damage;
    //double aRange = 1.0;
 
     /*
@@ -824,7 +812,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       owner: this,
       position: position.clone(), 
       direction: _tempDirection.clone(), 
-      damage: noDamage? 0 : dmg, 
+      damage: noDamage? 0 : dmg*gameRef.player.familiarDmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
@@ -885,6 +873,95 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         break;
     }    
   }
+  
+  void bounceOf(PositionComponent other) {
+    final myRect = toAbsoluteRect();
+    final otherRect = other.toAbsoluteRect();
+    final intersection = myRect.intersect(otherRect);
+
+    if (intersection.width < intersection.height) {
+      if (_velocity.x > 0 && position.x < other.position.x) {
+          _velocity.x = -_velocity.x; 
+      }
+      else if (_velocity.x < 0 && position.x > other.position.x) {
+          _velocity.x = -_velocity.x; 
+      }
+    } else {
+      if (_velocity.y > 0 && position.y < other.position.y) {
+          _velocity.y = -_velocity.y; 
+      }
+      else if (_velocity.y < 0 && position.y > other.position.y) {
+          _velocity.y = -_velocity.y; 
+      }
+    }
+  }
+  
+  void _handleChains(double dt) {
+    if (_chainNodes.isEmpty) return;
+
+    // --- MÁGICA DA FÍSICA VERLET ---
+
+    // 1. Fixar as Pontas
+    // O primeiro nó está sempre preso ao centro absoluto do jogador
+    _chainNodes.first.position.setFrom(gameRef.player.absoluteCenter);
+    // O último nó está sempre preso ao centro absoluto do familiar
+    _chainNodes.last.position.setFrom(absoluteCenter);
+
+    // 2. Atualizar Nós Intermediários (Inércia + Gravidade)
+    for (int i = 1; i < _chainNodes.length - 1; i++) {
+      final node = _chainNodes[i];
+      Vector2 velocity = node.position - node.oldPosition;
+      
+      // TRAVA DE SEGURANÇA 1: Impede que a corrente exploda se houver teleporte
+      if (velocity.length > 50.0) {
+        velocity.scaleTo(50.0); 
+      }
+      
+      velocity.scale(0.97); // Fricção
+      node.oldPosition.setFrom(node.position);
+      node.position += velocity;
+      node.position += Vector2(0, _gravity * dt * dt); 
+    }
+
+    // 3. Resolver Restrições (Satisfazer o comprimento fixo de cada elo)
+    final int constraintIterations = 15;
+    for (int iter = 0; iter < constraintIterations; iter++) {
+      for (int i = 0; i < _chainNodes.length - 1; i++) {
+        final A = _chainNodes[i];
+        final B = _chainNodes[i + 1];
+
+        Vector2 delta = B.position - A.position;
+        double dist = delta.length;
+        
+        // TRAVA DE SEGURANÇA 2: Anti-divisão por zero
+        if (dist <= 0.0001) {
+          delta = Vector2(0.001, 0.0); 
+          dist = delta.length;
+        }
+
+        // --- A MATEMÁTICA CORRIGIDA AQUI! ---
+        // (Tamanho Ideal - Tamanho Atual) / Tamanho Atual
+        double diffRatio = (_targetLinkLength - dist) / dist;
+        
+        // Vetor de translação exato que eles precisam se mover
+        Vector2 translate = delta * diffRatio;
+
+        bool aFixed = (i == 0);
+        bool bFixed = (i + 1 == _chainNodes.length - 1);
+
+        if (aFixed && !bFixed) {
+          B.position += translate * 1.0; 
+        } else if (!aFixed && bFixed) {
+          A.position -= translate * 1.0; 
+        } else if (!aFixed && !bFixed) {
+          // Agora sim: empurra A para um lado e B para o outro CORRETAMENTE!
+          A.position -= translate * 0.5;
+          B.position += translate * 0.5;
+        }
+      }
+    }
+  }
+
 }
 
 class ChainNode {

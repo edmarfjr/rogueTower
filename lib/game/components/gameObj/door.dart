@@ -117,7 +117,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.coin: iconData = Icons.attach_money; break;
       case CollectibleType.key: iconData = Icons.vpn_key; break;
       case CollectibleType.bomba: iconData = MdiIcons.bomb; break;
-      case CollectibleType.chest: iconData = MdiIcons.packageVariantClosed; break;
+      case CollectibleType.chest: iconData = MdiIcons.package; break;
       case CollectibleType.rareChest: iconData = MdiIcons.treasureChest; break;
       case CollectibleType.shop: iconData = Icons.store_mall_directory; break;
       case CollectibleType.shield: iconData = MdiIcons.shield; break;

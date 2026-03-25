@@ -151,78 +151,23 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _sort() {
-    // 1. Previne spam de cliques
     if (_cooldown > 0) return;
-    _cooldown = 0.5; // Meio segundo de cooldown entre doações
+    _cooldown = 0.5; 
 
     final player = gameRef.player;
 
-    // 2. Verifica se o jogador tem vida maior que 0 (Permitimos suicídio tático!)
-    if (player.healthNotifier.value > 0 || player.artificialHealthNotifier.value > 0) {
+    if(gameRef.coinsNotifier.value >= 5)
+    {
+      player.collectCoin(-5); 
+      player.slotMachine();
       
-      // 3. Aplica o Dano (Usa a sua função padrão de dano)
-      if(gameRef.coinsNotifier.value > 0)
-      {
-        player.collectCoin(-1); 
-      
-      // Feedback visual do custo
-        gameRef.world.add(FloatingText(
-          text: "-1\$",
-          position: player.position.clone() + Vector2(0, -30),
-          color: Pallete.vermelho,
-        ));
-
-        // 4. Efeito Visual de Sangue jorrando da máquina
-        createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 15);
-        AudioManager.playSfx('hit.mp3'); 
-
-        int rng = Random().nextInt(100);
-
-        var item;
-
-        if (rng > 40){
-          if(rng < 50){
-            item = CollectibleType.coinUm;
-          }else if(rng >= 50 && rng < 60){
-            item = CollectibleType.coin;
-          }else if(rng >= 60 && rng < 70){
-            item = CollectibleType.bomba;
-          }else if(rng >= 70 && rng < 80){
-            item = CollectibleType.key;
-          }else if(rng >= 80 && rng < 90){
-            item = CollectibleType.potion;
-          }else if(rng >= 90 && rng < 95){
-            var pool = retornaItensComuns(player);
-            item = pool.first;
-          }else if(rng >= 95 && rng < 98){
-            item = CollectibleType.boloDinheiro;
-          }else if(rng >= 98){
-            gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
-          }
-        }else{
-          return;
-        }
-
-        // ignore: curly_braces_in_flow_control_structures
-        if (item != null){
-          final newItem = Collectible(
-            position: Vector2(0, 10), 
-            type: item,
-          );
-        
-          gameRef.world.add(newItem);
-          
-          // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
-          newItem.pop(Vector2(0, 20));
-        }
-      }else{
-        gameRef.world.add(FloatingText(
+    }else{
+      gameRef.world.add(FloatingText(
         text: "noCoin".tr(),
         position: player.position.clone() + Vector2(0, -30),
         color: Pallete.vermelho,
       ));
-      }
-      
     }
+      
   }
 }

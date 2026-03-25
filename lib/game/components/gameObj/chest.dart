@@ -35,7 +35,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(isLock){
       _updateIcon(MdiIcons.treasureChest, Pallete.laranja);
     }else{
-      _updateIcon(MdiIcons.packageVariantClosed, Pallete.marrom);
+      _updateIcon(MdiIcons.package, Pallete.marrom);
     } 
 
     // 2. Hitbox Sólida (Player não atravessa o baú)
