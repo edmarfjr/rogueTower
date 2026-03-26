@@ -1,7 +1,7 @@
-import 'package:TowerRogue/game/components/core/character_class.dart';
-import 'package:TowerRogue/game/components/core/game_progress.dart';
-import 'package:TowerRogue/game/components/core/i18n.dart';
-import 'package:TowerRogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/core/character_class.dart';
+import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
 // import '../components/core/pallete.dart'; // Se for necessário no futuro

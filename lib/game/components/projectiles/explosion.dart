@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/gameObj/door.dart';
-import 'package:TowerRogue/game/components/gameObj/slot_machine.dart';
-import 'package:TowerRogue/game/components/gameObj/wall.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/gameObj/door.dart';
+import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
+import 'package:towerrogue/game/components/gameObj/wall.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';

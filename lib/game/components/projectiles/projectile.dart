@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/gameObj/familiar.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -361,34 +361,42 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       double y = direction.x * sin(angleOffset) + direction.y * cos(angleOffset);
       direction.setValues(x, y);
 
-      gameRef.world.add(Projectile(
+      criaProjetil(position.clone() + direction.clone()*32,direction.clone(),damage,speed,size,dieTimer,apagaTiros,isHoming,position.clone(),
+      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor);
+
+      
+    }
+    removeFromParent();
+  }
+
+  void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor){
+    print('criou tiro');
+    gameRef.world.add(Projectile(
         owner: owner,
-        position: position.clone() + direction.clone()*32, 
-        direction: direction.clone(), 
-        damage:damage, 
-        speed: speed,
-        size: size,
-        dieTimer: dieTimer,
-        apagaTiros: apagaTiros,
-        isHoming: isHoming ,
-        iniPosition: position.clone(),
-        canBounce: canBounce,
-        isSpectral: isSpectral,
-        isPiercing: isPiercing,
-        isOrbital: isOrbital,
-        isBoomerang: isBoomerang,
-        splits: splits,
-        splitCount: Random().nextInt(3) + 1,
-        goldShot: goldShot,
-        isWave: isWave,         // <-- Transforma em onda!
+        position: pos, 
+        direction: dir, 
+        damage:dmg, 
+        speed: spd,
+        size: sz,
+        dieTimer: die,
+        apagaTiros: apaga,
+        isHoming: homing ,
+        iniPosition: iniPos,
+        canBounce: bounce,
+        isSpectral: spectral,
+        isPiercing: piercing,
+        isOrbital: orbital,
+        isBoomerang: boomer,
+        splits: split,
+        splitCount: splitC,
+        goldShot: gold,
+        isWave: wave,         // <-- Transforma em onda!
         maxRadius: 150,       // <-- Tamanho máximo
         growthRate: 100,      // <-- Velocidade de expansão
         sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
-        isSaw: isSaw,
+        isSaw: saw,
         cor: cor,
       ));
-    }
-    removeFromParent();
   }
 
   double get danoAtual {
@@ -435,11 +443,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     removeFromParent();
   }
 
-  void _doSplit() {
+  void _doSplit(rndDir,dmg,spd,sz,die,canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor) {
     for (int i = 0; i < splitCount; i++) {
-      double angle = Random().nextDouble() * 2*pi; 
+      double angle = rndDir? Random().nextDouble() * 2*pi : i*(2*pi/splitCount); 
       Vector2 newDir = Vector2(cos(angle), sin(angle));
-      
+
+      criaProjetil(position.clone() - direction * 10,newDir,dmg,spd,sz,die,false,false,position.clone(),
+      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor);
+      /*
       gameRef.world.add(Projectile(
         position: position.clone() - direction * 10, 
         direction: newDir,
@@ -453,7 +464,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         explodes: false, 
         splits: false, 
       ));
+      */
     }
+  }
+
+  void explode(){
+    _doSplit(false,damage,speed,size,dieTimer,canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,false,6,goldShot,isWave,isSaw,cor);
+    removeFromParent();
   }
 
   // --- COLISÃO ---
@@ -494,7 +511,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         other.takeDamage();
         if (other.vida <= 0) other.removeFromParent();
       }
-      if (splits) _doSplit();
+      if (splits) _doSplit(true,damage/2,speed * 0.6,size / 1.5,1,false,false,false,false,false,false,splitCount,false,false,false,cor);
       kill(); 
       return;
     }
@@ -533,7 +550,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
             item.pop(Vector2(direcaoX, 0), altura:altura);
           }
         }
-        if (splits) _doSplit();
+        if (splits) _doSplit(true,damage/2,speed * 0.6,size / 1.5,1,false,false,false,false,false,false,splitCount,false,false,false,cor);
         if(canBounce) _handleBounce(other, hitPos);
         if (!isPiercing && !isBoomerang && !isWave && !canBounce) kill();
       }

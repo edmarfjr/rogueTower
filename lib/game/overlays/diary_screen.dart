@@ -1,4 +1,4 @@
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import '../components/core/pallete.dart';
 import '../tower_game.dart';

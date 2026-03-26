@@ -1,12 +1,11 @@
-import 'package:TowerRogue/game/components/core/i18n.dart';
-import 'package:TowerRogue/game/components/effects/floating_text.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
+import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
-import 'player.dart';
 import 'collectible.dart';
 import '../core/game_icon.dart';
 import '../core/pallete.dart';
@@ -283,13 +282,22 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
               }
             }
             if(gameRef.player.hasShieldRegen)gameRef.player.increaseShield();
-            if(gameRef.player.tempDmgBonus){
-              gameRef.player.tempDmgBonus = false;
+            if(gameRef.player.tempDmgBonus > 0){
+              gameRef.player.tempDmgBonus = 0;
 
               if(gameRef.player.dmgBuffIcon !=null){
                 gameRef.player.numIcons --;
                 gameRef.player.dmgBuffIcon!.removeFromParent();
                 gameRef.player.dmgBuffIcon = null;
+              }
+            }
+            if(gameRef.player.tempDmgGoldBonus > 0){
+              gameRef.player.tempDmgGoldBonus = 0;
+
+              if(gameRef.player.dmgGoldBuffIcon !=null){
+                gameRef.player.numIcons --;
+                gameRef.player.dmgGoldBuffIcon!.removeFromParent();
+                gameRef.player.dmgGoldBuffIcon = null;
               }
             }
             if(gameRef.player.regenCount > 0){

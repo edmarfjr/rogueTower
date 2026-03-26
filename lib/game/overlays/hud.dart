@@ -1,11 +1,8 @@
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:flame/components.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import '../tower_game.dart';
 import '../components/core/pallete.dart'; 
-import '../components/core/i18n.dart';
 
 class Hud extends StatelessWidget {
   final TowerGame game;

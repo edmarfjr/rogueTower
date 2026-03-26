@@ -1,4 +1,4 @@
-import 'package:TowerRogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';

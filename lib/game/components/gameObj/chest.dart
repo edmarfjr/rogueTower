@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/core/interact_button.dart';
-import 'package:TowerRogue/game/components/effects/shadow_component.dart';
-import 'package:flame/events.dart';
+import 'package:towerrogue/game/components/core/interact_button.dart';
+import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../core/pallete.dart';
@@ -10,7 +9,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
-import 'player.dart';
 import '../core/game_icon.dart';
 import 'collectible.dart';
 

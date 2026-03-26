@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/game_icon.dart';
-import 'package:TowerRogue/game/components/enemies/enemy.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/core/game_icon.dart';
+import 'package:towerrogue/game/components/enemies/enemy.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';

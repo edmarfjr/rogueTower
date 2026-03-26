@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/core/game_progress.dart';
-import 'package:TowerRogue/game/components/core/i18n.dart';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
@@ -42,7 +42,7 @@ class EnemyBoss extends Enemy {
 
   EnemyBoss({
     required this.bossName,
-    required double hp,
+    required super.hp,
     required super.position,
     required this.behaviorChangeInterval,
     required this.phase1Movements,
@@ -67,7 +67,6 @@ class EnemyBoss extends Enemy {
   })  : maxHp = hp,
         // Passa o primeiro comportamento da Fase 1 para o super inicializar o Enemy corretamente
         super(
-          hp: hp, 
           isBoss: true,
           movementBehavior: phase1Movements.isNotEmpty ? phase1Movements.first : IdleBehavior() as MovementBehavior,
           attackBehavior: phase1Attacks.isNotEmpty ? phase1Attacks.first : IdleBehavior() as AttackBehavior,

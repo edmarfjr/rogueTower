@@ -133,8 +133,18 @@ class SaveManager {
       'zodiacTaurus':game.player.zodiacTaurus,
       'zodiacVirgo':game.player.zodiacVirgo,
       'zodiac':game.player.zodiac,
+      'tempZodiacAquarius':game.player.tempZodiacAquarius,
+      'tempZodiacAries':game.player.tempZodiacAries,
+      'tempZodiacCancer':game.player.tempZodiacCancer,
+      'tempZodiacLeo':game.player.tempZodiacLeo,
+      'tempZodiacLibra':game.player.tempZodiacLibra,
+      'tempZodiacPisces':game.player.tempZodiacPisces,
+      'tempZodiacTaurus':game.player.tempZodiacTaurus,
+      'tempZodiacVirgo':game.player.tempZodiacVirgo,
       'defensiveFairys':game.player.defensiveFairys,
       'itemExtraBoss':game.player.itemExtraBoss,
+      'tempDmgGoldBonus':game.player.tempDmgGoldBonus,
+      'tempDmgBonus':game.player.tempDmgBonus,
     };
 
     String jsonString = jsonEncode(runData);
@@ -288,9 +298,19 @@ class SaveManager {
     game.player.zodiacPisces = runData['zodiacPisces'] ?? false;
     game.player.zodiacTaurus = runData['zodiacTaurus'] ?? false;
     game.player.zodiacVirgo = runData['zodiacVirgo'] ?? false;
+    game.player.tempZodiacAquarius = runData['tempZodiacAquarius'] ?? false;
+    game.player.tempZodiacAries = runData['tempZodiacAries'] ?? false;
+    game.player.tempZodiacCancer = runData['tempZodiacCancer'] ?? false;
+    game.player.tempZodiacLeo = runData['tempZodiacLeo'] ?? false;
+    game.player.tempZodiacLibra = runData['tempZodiacLibra'] ?? false;
+    game.player.tempZodiacPisces = runData['tempZodiacPisces'] ?? false;
+    game.player.tempZodiacTaurus = runData['tempZodiacTaurus'] ?? false;
+    game.player.tempZodiacVirgo = runData['tempZodiacVirgo'] ?? false;
     game.player.zodiac = runData['zodiac'] ?? false;
     game.player.defensiveFairys = runData['defensiveFairys'] ?? false;
     game.player.itemExtraBoss = runData['itemExtraBoss'] ?? false;
+    game.player.tempDmgGoldBonus = (runData['tempDmgGoldBonus'] ?? 0).toInt();
+    game.player.tempDmgBonus = (runData['tempDmgBonus'] ?? 0).toInt();
    
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

@@ -90,10 +90,16 @@ class AudioManager {
   static void playBgm(String filename) {
     FlameAudio.bgm.stop();
     _currentBgm = filename;
-    if (_isMutedMusic) return;
-    if (_isBgmPlaying && _currentBgm == filename) return; 
+    print('tentando tocar $_currentBgm');
+    if (_isMutedMusic){
+      print('mas ta mudo'); 
+      return;
+    }
 
-    if (_isBgmPlaying) FlameAudio.bgm.stop();
+    if (_isBgmPlaying){
+      print('tava tocando outra coisa e parou');
+      FlameAudio.bgm.stop();
+    } 
   
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
@@ -109,6 +115,7 @@ class AudioManager {
     FlameAudio.bgm.stop();
     _isBgmPlaying = false;
     _currentBgm = '';
+    print('parou musica');
   }
 
   static void pauseBgm(){
@@ -122,8 +129,10 @@ class AudioManager {
   static void toggleMuteMusic(bool mute) {
     _isMutedMusic = mute;
     if (_isMutedMusic) {
-      FlameAudio.bgm.stop();
+      print('mudo');
+      stopBgm();
     } else {
+      
       if(_currentBgm.isNotEmpty)playBgm(_currentBgm);
       //playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
     }

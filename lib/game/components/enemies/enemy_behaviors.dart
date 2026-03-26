@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/effects/attack_warning.dart';
-import 'package:TowerRogue/game/components/gameObj/familiar.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/projectiles/bomb.dart';
-import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/effects/attack_warning.dart';
+import 'package:towerrogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/projectiles/bomb.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import '../gameObj/wall.dart';
@@ -140,7 +140,7 @@ class FollowPlayerBehavior extends MovementBehavior {
 
 class GoToCenterBehavior extends MovementBehavior {
   final Vector2 _direction = Vector2.zero();
-  Vector2 _target = Vector2.zero();
+  final Vector2 _target = Vector2.zero();
 
   @override
   void update(double dt) {
@@ -193,7 +193,7 @@ class KeepDistanceBehavior extends MovementBehavior {
 }
 
 class RandomWanderBehavior extends MovementBehavior {
-  Vector2 _target = Vector2.zero();
+  final Vector2 _target = Vector2.zero();
   final Vector2 _direction = Vector2.zero();
   final Vector2 _tempCalc = Vector2.zero(); 
   final Random _rng = Random(); 
@@ -580,8 +580,6 @@ class MortarAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null) return; 
-
     _timer += dt;
     final target = getEnemyTarget(enemy); 
     final dist = enemy.position.distanceTo(target.position);
@@ -722,7 +720,7 @@ class SpinnerAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null || enemy.isFreeze) return; 
+    if (enemy.isFreeze) return; 
 
     _timer += dt;
     if(_timer >= interval - 1 && _timer <= interval + dt - 1){
@@ -775,8 +773,8 @@ class SpinnerAttackBehavior extends AttackBehavior {
   }
 
   void _spawnProjectile(Vector2 dir) {
-    enemy!.gameRef.world.add(Projectile(
-      position: enemy!.position + dir * 20,
+    enemy.gameRef.world.add(Projectile(
+      position: enemy.position + dir * 20,
       direction: dir,
       damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
       speed: 200,
@@ -924,8 +922,11 @@ class ChargeAttackBehavior extends AttackBehavior {
       _chargeDir = (target.position - enemy.position).normalized();
       
       if (visual != null && !enemy.rotates) {
-         if (target.position.x < enemy.position.x) visual.scale.x = -1;
-         else visual.scale.x = 1;
+         if (target.position.x < enemy.position.x) {
+           visual.scale.x = -1;
+         } else {
+           visual.scale.x = 1;
+         }
       }
 
       if (_timer >= prepTime) {
@@ -1168,8 +1169,6 @@ class SummonAttackBehavior extends AttackBehavior {
 
   @override
   void update(double dt) {
-    if (enemy == null) return;
-
     _minions.removeWhere((e) => !e.isMounted || e.hp <= 0);
 
     if (_minions.length < maxMinions) {

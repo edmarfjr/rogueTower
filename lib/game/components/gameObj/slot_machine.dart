@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/i18n.dart';
-import 'package:TowerRogue/game/components/gameObj/chest.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
+import 'package:towerrogue/game/components/gameObj/chest.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +117,8 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     final player = gameRef.player;
     int rng = Random().nextInt(100);
 
-    var item;
+    CollectibleType item = CollectibleType.coin;
+    bool temItem = true;
 
     if(rng < 35){
       item = CollectibleType.coin;
@@ -129,13 +130,15 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
       item = CollectibleType.bomba;
     }else if(rng >= 90 && rng < 95){
       gameRef.world.add(Chest(position: position.clone()));
+      temItem = false;
     }else if(rng >= 95){
       gameRef.world.add(Chest(position: position.clone(),isLock: true));
+      temItem = false;
     }
     
 
     // ignore: curly_braces_in_flow_control_structures
-    if (item != null){
+    if (temItem){
       final newItem = Collectible(
         position: Vector2(0, 10), 
         type: item,

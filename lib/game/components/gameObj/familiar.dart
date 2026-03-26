@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
-import 'package:TowerRogue/game/components/enemies/enemy.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/gameObj/wall.dart';
-import 'package:TowerRogue/game/components/projectiles/laser_beam.dart';
-import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:towerrogue/game/components/effects/explosion_effect.dart';
+import 'package:towerrogue/game/components/enemies/enemy.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/gameObj/wall.dart';
+import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
+import 'package:towerrogue/game/components/projectiles/mortar_shell.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +34,7 @@ enum FamiliarType {
   dummy,
   gemini,
   aranha,
+  turretRotate,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -44,6 +45,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   final Vector2 _tempDirection = Vector2.zero(); 
   double _attackTimer = 0;
   double fireRate;
+  bool rotateShot = false;
+  double rotateAng = 0;
+  bool multiShot = false;
+  int multiShotNumber = 8;
   final Player player;
   double offsetX = 0;
   double offsetY = 0;
@@ -95,7 +100,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   bool isMorteiro = false;
 
   //corrente do gemini
-  List<ChainNode> _chainNodes = []; 
+  final List<ChainNode> _chainNodes = []; 
   final int _numLinks = 8; 
   final double _targetLinkLength = 16.0; 
   final double _gravity = 80.0; 
@@ -105,7 +110,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   final double _knockbackFriction = 1500.0;
 
   //variaveis random wander
-  Vector2 _target = Vector2.zero();
+  final Vector2 _target = Vector2.zero();
   final Vector2 _direction = Vector2.zero();
   double moveTmr = 0;
   double moveDur = 2; 
@@ -161,6 +166,18 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = MdiIcons.floorLampTorchiereVariant;
         cor = Pallete.vermelho.withOpacity(0.7);
         dmg = player.damage ;
+      case FamiliarType.turretRotate:
+        icon = MdiIcons.floorLampTorchiereVariant;
+        cor = Pallete.azulCla.withOpacity(0.7);
+        dmg = player.damage;
+        fireRate = player.fireRate;
+        hasAntimateria = player.hasAntimateria;
+        canBounce      = player.canBounce;
+        isSpectral     = player.isSpectral;
+        isPiercing     = player.isPiercing;
+        isShootSplits  = player.isShootSplits;
+        goldShot       = player.goldShot;
+        rotateShot = true;
       case FamiliarType.freeze:
         detectRadius = 100;
         icon = MdiIcons.snowflake;
@@ -317,7 +334,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
 
     }else if(type == FamiliarType.gemini) {
-      final double maxTetherDistance = 250.0; 
+      const double maxTetherDistance = 250.0; 
       _handleKnockBack(dt);
 
       if(knockbackVelocity.isZero()){
@@ -393,7 +410,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         segueAlvo(dt, player);
       }
 
-      if(type == FamiliarType.atira || type == FamiliarType.turret|| type == FamiliarType.dummy){
+      if(type == FamiliarType.atira || type == FamiliarType.turret || type == FamiliarType.turretRotate|| type == FamiliarType.dummy){
         _handleAutoAttack(dt);
       }
     }
@@ -747,28 +764,44 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
     PositionComponent? target = getTarget();
     
-    if (target != null) {
+    if(multiShot){
       _attackTimer = 0;
-      if(isMorteiro){
-        gameRef.world.add(MortarShell(
-          startPos: position.clone(),
-          targetPos: target.position.clone(),
-          owner: this,
-          flightDuration: 1,
-          damage: dmg * 2 *gameRef.player.familiarDmg,
-          isFire: true,
-          explosionRadius: 100,
-          isPlayer: true,
-        ));
-      }else if(isLaser){
-        final dir = (target.position - position.clone()).normalized();
-        final angle = atan2(dir.y, dir.x);
-        criaLaser(dir,angle,target);
-      }else{
-        _shootAt(target);
+      for (int i = 0; i < multiShotNumber; i++) {
+        double angle = i*(2*pi/multiShotNumber); 
+        Vector2 newDir = Vector2(cos(angle), sin(angle));
+        criaTiro(newDir);
       }
-      
+    
+    }else if(rotateShot){
+        _attackTimer = 0;
+        Vector2 newDir = Vector2(cos(rotateAng), sin(rotateAng));
+        criaTiro(newDir);
+        rotateAng += pi/4;
+    }else{
+       if (target != null) {
+        _attackTimer = 0;
+        if(isMorteiro){
+          gameRef.world.add(MortarShell(
+            startPos: position.clone(),
+            targetPos: target.position.clone(),
+            owner: this,
+            flightDuration: 1,
+            damage: dmg * 2 *gameRef.player.familiarDmg,
+            isFire: true,
+            explosionRadius: 100,
+            isPlayer: true,
+          ));
+        }else if(isLaser){
+          final dir = (target.position - position.clone()).normalized();
+          final angle = atan2(dir.y, dir.x);
+          criaLaser(dir,angle,target);
+        }else{
+          _shootAt(target);
+        }
+        
+      }
     }
+    
   }
 
   void criaLaser(Vector2 dir,ang,target)
@@ -794,6 +827,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
     _tempDirection.setValues(x, y);
 
+    criaTiro(_tempDirection);
+
    //double aRange = 1.0;
 
     /*
@@ -808,10 +843,14 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     ));
     */
     
+    
+  }
+
+  void criaTiro(dir){
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 
-      direction: _tempDirection.clone(), 
+      direction: dir, 
       damage: noDamage? 0 : dmg*gameRef.player.familiarDmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
       size: isHeavyShot ? Vector2.all(30) : Vector2.all(10),
@@ -924,7 +963,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }
 
     // 3. Resolver Restrições (Satisfazer o comprimento fixo de cada elo)
-    final int constraintIterations = 15;
+    const int constraintIterations = 15;
     for (int iter = 0; iter < constraintIterations; iter++) {
       for (int i = 0; i < _chainNodes.length - 1; i++) {
         final A = _chainNodes[i];

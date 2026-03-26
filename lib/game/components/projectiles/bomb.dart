@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/core/pallete.dart';
-import 'package:TowerRogue/game/components/enemies/enemy.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/enemies/enemy.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';

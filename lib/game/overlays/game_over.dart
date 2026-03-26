@@ -1,4 +1,4 @@
-import 'package:TowerRogue/game/components/core/ad_manager.dart';
+import 'package:towerrogue/game/components/core/ad_manager.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';

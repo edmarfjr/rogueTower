@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:TowerRogue/game/components/core/pallete.dart';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';

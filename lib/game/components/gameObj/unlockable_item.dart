@@ -1,5 +1,5 @@
-import 'package:TowerRogue/game/components/core/pallete.dart';
-import 'package:TowerRogue/game/components/core/interact_button.dart'; // Import do novo botão
+import 'package:towerrogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/core/interact_button.dart'; // Import do novo botão
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';

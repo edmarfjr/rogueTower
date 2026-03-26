@@ -1,4 +1,4 @@
-import 'package:TowerRogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../tower_game.dart';
@@ -173,7 +173,7 @@ class PauseMenu extends StatelessWidget {
 class AcquiredItemsCarousel extends StatefulWidget {
   final List<AcquiredItemData> items;
 
-  const AcquiredItemsCarousel({Key? key, required this.items}) : super(key: key);
+  const AcquiredItemsCarousel({super.key, required this.items});
 
   @override
   State<AcquiredItemsCarousel> createState() => _AcquiredItemsCarouselState();

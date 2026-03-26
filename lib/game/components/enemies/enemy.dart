@@ -1,14 +1,14 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
-import 'package:TowerRogue/game/components/effects/shadow_component.dart';
-import 'package:TowerRogue/game/components/gameObj/chest.dart';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/projectiles/bomb.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
-import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
-import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/effects/ghost_particle.dart';
+import 'package:towerrogue/game/components/effects/shadow_component.dart';
+import 'package:towerrogue/game/components/gameObj/chest.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/projectiles/bomb.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
@@ -24,9 +24,12 @@ import 'enemy_behaviors.dart';
 class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
   double _initTimer = 0.5;
+
+  bool _isDead = false;
   
   // Status
   double hp;
+  double hpMax = 0;
   bool isInvencivel = false;
   bool isIntangivel = false;
   double speed;
@@ -93,6 +96,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   //final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameIcon? visual;
+  GameIcon? targetIcon;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   GameIcon? burnIcon;
@@ -105,8 +109,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
-  Vector2 _lastPosition = Vector2.zero();
-  double _animAmplitude = 0.1;
+  final Vector2 _lastPosition = Vector2.zero();
+  final double _animAmplitude = 0.1;
   double _animTimer = 0;
   final double _animSpeed = 15.0;
   bool animado;
@@ -186,6 +190,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   @override
   Future<void> onLoad() async {
+
+    hpMax = hp;
 
     auxColor = originalColor;
 
@@ -348,7 +354,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     dmg = 2;
     hp *= hpBonus;
-    championAuraPaint = Paint()..color = originalColor.withOpacity(0.3)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
+    championAuraPaint = Paint()..color = originalColor.withOpacity(0.8)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
   }
 
   @override
@@ -582,16 +588,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void _handleEnemyCollision(Enemy other) {
-    if (this.weight > other.weight) return; 
+    if (weight > other.weight) return; 
 
-    if (this.weight == other.weight) {
+    if (weight == other.weight) {
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(other.position);
       _collisionBuffer.normalize();
       position.addScaled(_collisionBuffer, 1.0); 
     }
 
-    if (this.weight < other.weight) {
+    if (weight < other.weight) {
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(other.position);
       _collisionBuffer.normalize();
@@ -709,6 +715,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void die() {
+    if (_isDead) return;
+    _isDead = true;
+
     if (gameRef.player.primeiroInimigoPocaVeneno && !gameRef.primeiroInimigoPocaVeneno){
       gameRef.primeiroInimigoPocaVeneno = true;
       pocaVenenoQuandoMorre = true;
@@ -769,27 +778,33 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     gameRef.soulsTotal += soul;
 
     if (dropList.isNotEmpty || dropChest){
-      //difuldades maiores, os campeoes tem chance de 33% de drop
+      bool shouldDrop = true;
+      
       if(championType > 0 && gameRef.difficultyMultiplier >= 2.0){
         int rnd = Random().nextInt(100);
-        if(rnd > 33) removeFromParent();
+        if(rnd > 33) shouldDrop = false; 
       }
 
-      if(dropChest){
-        gameRef.world.add(Chest(position: position.clone(),isLock: true));
-      }else{
-        dropList.shuffle();
-        final item = Collectible(position: position.clone(), type: dropList[0]);
-        gameRef.world.add(item);
-        double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
-        double altura = Random().nextDouble() * 100 + 150 * -1;
-        item.pop(Vector2(direcaoX, altura/2), altura:altura);
+      if(shouldDrop){
+        if(dropChest){
+          gameRef.world.add(Chest(position: position.clone(),isLock: true));
+        } else if (dropList.isNotEmpty) {
+          dropList.shuffle();
+          final item = Collectible(position: position.clone(), type: dropList[0]);
+          gameRef.world.add(item);
+          double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
+          double altura = Random().nextDouble() * 100 + 150 * -1;
+          item.pop(Vector2(direcaoX, altura/2), altura:altura);
+        }
       }
     }
 
     if(gameRef.player.isPac) gameRef.player.curaHp(1);
 
-    if (gameRef.player.activeItems.value[0]!.type == CollectibleType.activeJarroFadas && gameRef.player.fadasNoJarro < 20) {
+    if (gameRef.player.activeItems.value.isNotEmpty && 
+        gameRef.player.activeItems.value[0] != null &&
+        gameRef.player.activeItems.value[0]!.type == CollectibleType.activeJarroFadas && 
+        gameRef.player.fadasNoJarro < 20){
       gameRef.player.fadasNoJarro++; // Guarda a vida no jarro
 
       game.world.add(FloatingText(
@@ -810,7 +825,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 		attackBehavior:attackBehavior,
 		deathBehavior: deathBehavior,
 		attack2Behavior:attack2Behavior,
-		hp : hp,
+		hp : hpMax,
 		speed : speed,
 		soul : soul,
 		weight : weight,
@@ -823,12 +838,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 		iconData : iconData,
 		originalColor : auxColor,
 		isDummy : isDummy,
-		size : size * 0.7,
-		hbSize : hbSize * 0.7,
-		hbOffset : hbOffset * 0.7,
+		size : size / 1.3,
+		hbSize : hbSize / 1.3,
+		hbOffset : hbOffset / 1.3,
 		hasShield : hasShield,
 		hasFlail : hasFlail,
-		isBoss : isBoss,
+		isBoss : false,
 		dropList : [],
 		noChamp : true,
     );
@@ -956,6 +971,26 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     
     add(confuseIcon!);
 
+  }
+
+  void criaTargetIcon(){
+    if (targetIcon == null){
+      targetIcon = GameIcon(
+      icon: MdiIcons.target,
+      color: Pallete.branco,
+      size: size/2,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, size.y), 
+    );
+      add(targetIcon!);
+    }
+  }
+
+  void removeTargetIcon(){
+    if (targetIcon != null) {
+      targetIcon!.removeFromParent();
+      targetIcon = null; 
+    }
   }
 
   void setBurn(){

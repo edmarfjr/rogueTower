@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/ad_manager.dart';
-import 'package:TowerRogue/game/components/core/save_manager.dart';
+import 'package:towerrogue/game/components/core/ad_manager.dart';
+import 'package:towerrogue/game/components/core/save_manager.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 

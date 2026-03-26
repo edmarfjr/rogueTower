@@ -1,17 +1,18 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/core/game_progress.dart';
-import 'package:TowerRogue/game/components/core/interact_button.dart';
-import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
-import 'package:TowerRogue/game/components/effects/shadow_component.dart';
-import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
-import 'package:TowerRogue/game/components/gameObj/familiar.dart';
-import 'package:TowerRogue/game/components/gameObj/player.dart';
-import 'package:TowerRogue/game/components/projectiles/bombardmentEffect.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
-import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
-import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
-import 'package:TowerRogue/game/components/projectiles/projectile.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/components/core/interact_button.dart';
+import 'package:towerrogue/game/components/effects/explosion_effect.dart';
+import 'package:towerrogue/game/components/effects/shadow_component.dart';
+import 'package:towerrogue/game/components/effects/unlock_notification.dart';
+import 'package:towerrogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/projectiles/black_hole.dart';
+import 'package:towerrogue/game/components/projectiles/bombardmentEffect.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 //import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 //import 'package:flame/events.dart'; 
@@ -50,6 +51,7 @@ enum CollectibleType {
   saw, boloDinheiro, restock, goldShot, primeiroInimigoPocaVeneno, familiarFinger, familiarBouncer, familiarPrisma,familiarRefletor,
   jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,familiarDummy, voo,
   cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider, activeD10, defensiveFairys, familiarDmgBns, itemExtraBoss, activeSlot,
+  activeFreezeBomb, activeBltDetonator, activeGoldenrazor, activeSacrifFamiliar, activeTurretRotate, activeGlassStaff, activeBuracoNegro,
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -60,7 +62,7 @@ enum CollectibleType {
   clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen,
   hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra, zodiacPisces,
   zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac, activeScroll, familiarMastery, activeGoldenBox,
-  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas
+  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser
 }
 
 
@@ -94,6 +96,13 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeJarroDeVida,
     CollectibleType.activeBoxOfFriends,
     CollectibleType.activeJarroFadas,
+    CollectibleType.activeFreezeBomb,
+    CollectibleType.activeSuperLaser,
+    CollectibleType.activeBltDetonator,
+    CollectibleType.activeGoldenrazor,
+    CollectibleType.activeTurretRotate,
+    CollectibleType.activeGlassStaff,
+    CollectibleType.activeBuracoNegro,
   ];
   return recarregaveis.contains(type);
 }
@@ -121,6 +130,7 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activePacmen,
     CollectibleType.activePa,
     CollectibleType.activeDupliItem,
+    CollectibleType.activeSacrifFamiliar,
   ];
   return usoUnico.contains(type);
 }
@@ -745,9 +755,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.laser:
         return {'name': 'laser'.tr(), 'desc': 'laserDesc'.tr(), 'icon': MdiIcons.laserPointer, 'color': Pallete.vermelho};
       case CollectibleType.activeTurret:
-        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.towerFire, 'color': Pallete.vermelho};
+        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.floorLampTorchiereVariant, 'color': Pallete.vermelho};
       case CollectibleType.activeTurretUnico:
-        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.towerFire, 'color': Pallete.laranja};
+        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': MdiIcons.floorLampTorchiereVariant, 'color': Pallete.laranja};
       case CollectibleType.wave:
         return {'name': 'wave'.tr(), 'desc': 'waveDesc'.tr(), 'icon': MdiIcons.waves, 'color': Pallete.azulCla};
       case CollectibleType.activeSuborno:
@@ -882,6 +892,22 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeDupliItem'.tr(), 'desc': 'activeDupliItemDesc'.tr(), 'icon': MdiIcons.romanNumeral2, 'color': Pallete.vinho};
       case CollectibleType.activeJarroFadas:
         return {'name': 'activeJarroFadas'.tr(), 'desc': 'activeJarroFadasDesc'.tr(), 'icon': MdiIcons.flaskRoundBottomEmptyOutline, 'color': Pallete.azulCla};
+      case CollectibleType.activeFreezeBomb:
+        return {'name': 'activeFreezeBomb'.tr(), 'desc': 'activeFreezeBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.azulCla};
+      case CollectibleType.activeSuperLaser:
+        return {'name': 'activeSuperLaser'.tr(), 'desc': 'activeSuperLaserDesc'.tr(), 'icon': MdiIcons.laserPointer, 'color': Pallete.vinho};
+      case CollectibleType.activeBltDetonator:
+        return {'name': 'activeBltDetonator'.tr(), 'desc': 'activeBltDetonatorDesc'.tr(), 'icon': MdiIcons.arrowExpandAll, 'color': Pallete.vinho};
+      case CollectibleType.activeGoldenrazor:
+        return {'name': 'activeGoldenrazor'.tr(), 'desc': 'activeGoldenrazorDesc'.tr(), 'icon': MdiIcons.knifeMilitary, 'color': Pallete.laranja};
+      case CollectibleType.activeSacrifFamiliar:
+        return {'name': 'activeSacrifFamiliar'.tr(), 'desc': 'activeSacrifFamiliarDesc'.tr(), 'icon': MdiIcons.knifeMilitary, 'color': Pallete.verdeEsc};
+      case CollectibleType.activeTurretRotate:
+        return {'name': 'activeTurretRotate'.tr(), 'desc': 'activeTurretRotateDesc'.tr(), 'icon': MdiIcons.floorLampTorchiereVariant, 'color': Pallete.azulCla};
+      case CollectibleType.activeGlassStaff:
+        return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.azulCla};
+      case CollectibleType.activeBuracoNegro:
+        return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': MdiIcons.circleSlice8, 'color': Pallete.azulEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -984,6 +1010,11 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.familiarDmgBns,
       CollectibleType.itemExtraBoss,
       CollectibleType.activeSlot,
+      CollectibleType.activeBltDetonator,
+      CollectibleType.activeGoldenrazor,
+      CollectibleType.activeSacrifFamiliar,
+      CollectibleType.activeGlassStaff,
+      CollectibleType.activeBuracoNegro,
     ];
     
     return _filtrarPool(itens, player);
@@ -1086,6 +1117,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeBoxOfFriends,
       CollectibleType.activeDupliItem,
       CollectibleType.activeJarroFadas,
+      CollectibleType.activeSuperLaser,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1780,7 +1812,7 @@ class CollectibleLogic {
             };
           }
           player.takeDamage(1);
-          player.tempDmgBonus = true;
+          player.tempDmgBonus ++ ;
 
           if(player.dmgBuffIcon == null){
             player.numIcons ++;
@@ -2822,11 +2854,167 @@ class CollectibleLogic {
             }
             player.fadasNoJarro = 0;
           }
-          text = "activeJarroDeVida".tr();
+          text = "activeJarroFadas".tr();
           //color = Pallete.vermelho;
           break;
 
+        case CollectibleType.activeFreezeBomb:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            damage: player.damage * 2,
+            isFreeze: true, 
+            radius:400,
+            cor:Pallete.lilas.withAlpha(50),
+            corBorda:Pallete.azulCla.withAlpha(50)
+          ));
+          text = "activeFreezeBomb";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeSuperLaser:
+          final dir = player.velocityDash;
+          final angle = atan2(player.velocityDash.y, player.velocityDash.x); 
+          player.criaLaserDirecional(dir,angle,player.damage*5,0.5,4,50);
+          text = "activeSuperLaser";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBltDetonator:
+          final allBlts = game.world.children.query<Projectile>();
+          final plrBlts = allBlts.where((blt) => !blt.isEnemyProjectile);
+
+          if (plrBlts.isEmpty){
+            return {
+              'text': "noBlts".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }else{
+            for(var b in plrBlts){
+              b.explode();
+            }
+          }
+          text = "activeSuperLaser";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeGoldenrazor:
+          if (game.coinsNotifier.value < 20) {
+            return {
+              'text': "noCoins".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
+          player.collectCoin(-20);
+          player.tempDmgGoldBonus ++ ;
+
+          if(player.dmgGoldBuffIcon == null){
+            player.numIcons ++;
+            player.dmgGoldBuffIcon = GameIcon(
+              icon: MdiIcons.knifeMilitary,
+              color: Pallete.laranja,
+              size: player.size/2,
+              anchor: Anchor.center,
+              position: Vector2(player.size.x / 2, - player.size.y / 4 - 14*player.numIcons), 
+            );
+            player.add(player.dmgGoldBuffIcon!);
+          }
         
+        case CollectibleType.activeSacrifFamiliar:
+          final familiars = player.familiars.toList();
+          final famFracos = familiars.where((fam) => fam.type == FamiliarType.fly || fam.type == FamiliarType.aranha);
+          final famFortes = familiars.where((fam) => fam.type != FamiliarType.fly && fam.type != FamiliarType.aranha);
+          int sacrificiosMaiores = 0;
+          final rng = Random();
+
+          final itensRaros = retornaItensRaros(player);
+          final itensComuns = retornaItensComuns(player);
+          final pocoes = retornaPocoes();
+
+          List<CollectibleType> poolDeItens = [];
+
+          poolDeItens.addAll(itensRaros);
+          poolDeItens.addAll(itensComuns);
+          poolDeItens.addAll(pocoes);
+
+          if(familiars.isEmpty){
+            return {
+              'text': "noFamiliar".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }else{
+            for(var fam in famFracos){
+              Vector2 posMorte = fam.absoluteCenter.clone();
+              if (fam.type == FamiliarType.fly || fam.type == FamiliarType.aranha) {
+        
+                final moeda = Collectible(position: posMorte, type: CollectibleType.coin);
+                game.world.add(moeda);
+                moeda.pop(Vector2((rng.nextDouble() - 0.5) * 50, -50));
+
+                createExplosionEffect(game.world, posMorte, Pallete.amarelo, count: 5);
+                
+                fam.removeFromParent(); 
+                player.familiars.remove(fam);
+
+              } 
+            }
+            for(var fam in famFortes){
+              Vector2 posMorte = fam.absoluteCenter.clone();
+              if (sacrificiosMaiores < 2) {
+                final tipoSorteado = poolDeItens[rng.nextInt(poolDeItens.length)];
+                final item = Collectible(position: posMorte, type: tipoSorteado);
+                
+                game.world.add(item);
+                item.pop(Vector2((rng.nextDouble() - 0.5) * 50, -50));
+
+                // Sangue/Fumaça vermelha para o sacrifício maior
+                createExplosionEffect(game.world, posMorte, Pallete.vermelho, count: 10);
+                
+                fam.removeFromParent(); 
+                player.familiars.remove(fam);  
+                
+                sacrificiosMaiores++;
+              }
+            }
+          }
+          text = "activeSacrifFamiliar".tr();
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeTurretRotate:
+          final f = Familiar(position: player.position.clone(),
+                                type: FamiliarType.turretRotate, 
+                                player: player,
+                                retorna: false,
+                                speed: 0,
+                                fireRate: 0.5
+                              );
+          player.familiars.add(f);
+          game.world.add(f);
+          text = "activeTurretRotate!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeGlassStaff:
+          player.superShot = true;
+          player.healthNotifier.value = 1;
+          text = "activeGlassStaff!";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBuracoNegro:
+        // Cria o buraco negro na posição atual do jogador
+        game.world.add(BuracoNegro(position: player.position.clone()));
+        
+        // Dica de Game Feel: Um recuo/knockback no jogador na hora do disparo fica muito bom
+         player.velocity.addScaled(player.velocityDash, -300); 
+        
+        // AudioManager.playSfx('black_hole_spawn.wav'); // Som grave e distorcido
+        break;
+
         default:
           text = "";
           break;

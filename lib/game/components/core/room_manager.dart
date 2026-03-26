@@ -1,10 +1,10 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/effects/floating_text.dart';
-import 'package:TowerRogue/game/components/enemies/enemy_boss.dart';
-import 'package:TowerRogue/game/components/gameObj/blood_machine.dart';
-import 'package:TowerRogue/game/components/gameObj/slot_machine.dart';
-import 'package:TowerRogue/game/components/gameObj/spike_trap.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/effects/floating_text.dart';
+import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
+import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
+import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
+import 'package:towerrogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/foundation/change_notifier.dart';
@@ -107,7 +107,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
       if (realEnemies.isEmpty && !isSpawnningBoss) {
         // limpa inimigos charmeds
-        charmedEnemies.forEach((e) => e.removeFromParent());
+        for (var e in charmedEnemies) {
+          e.removeFromParent();
+        }
 
         _unlockDoors();
         _levelCleared = true;
@@ -126,16 +128,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150), champType: 5));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeJarroFadas));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeBuracoNegro));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeBoxSpider));
       //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.familiarEye));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.familiarBlock));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeBoxOfFriends));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -835,6 +838,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
     } 
   }
+  
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
     final rng = Random();

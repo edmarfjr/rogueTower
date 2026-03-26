@@ -9,15 +9,11 @@ class GameIcon extends PositionComponent {
   GameIcon({
     required this.icon,
     required this.color,
-    required Vector2 size,
+    required Vector2 super.size,
     Vector2? scale, 
-    Anchor anchor = Anchor.center,
-    Vector2? position,
-  }) : super(
-          size: size,
-          anchor: anchor,
-          position: position,
-        ) {
+    Anchor super.anchor = Anchor.center,
+    super.position,
+  }) {
     if (scale != null) {
       this.scale.setFrom(scale);
     }

@@ -1,5 +1,5 @@
-import 'package:TowerRogue/game/components/core/game_icon.dart';
-import 'package:TowerRogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/core/game_icon.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';

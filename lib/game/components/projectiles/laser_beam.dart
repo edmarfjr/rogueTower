@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
@@ -17,11 +17,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   final double damage;
   final double maxLength;
   double currentLength;
+  double larguraLaser;
   double angleRad; 
   bool isEnemyProjectile;
   bool isMoving;
   double speed;
-
+  
+  double dmgTmr = 0;
+  double dmgTime;
   // Configuração de Tempo
   double _timer = 0;
   double chargeTime; // Tempo "mirando" (aviso)
@@ -38,17 +41,22 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   Color cor;
   bool refratado;
 
+  bool followsOwnerMov;
+
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
     this.target,
     this.damage = 1,
     double length = 400,
+    this.larguraLaser = 20,
     this.chargeTime = 1,
     this.fireTime = 1,
+    this.dmgTime = 0.3,
     this.owner,
     this.isEnemyProjectile = false,
     this.isMoving = false,
+    this.followsOwnerMov = false,
     this.speed = 0.01,
     this.cor = Pallete.vermelho,
     this.refratado = false,
@@ -72,9 +80,13 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   void update(double dt) {
     super.update(dt);
 
-     if (owner != null && !owner!.isMounted) {
+    if (owner != null && !owner!.isMounted) {
       removeFromParent(); // O tiro some junto
       return;
+    }
+
+     if(dmgTmr < dmgTime){
+      dmgTmr += dt;
     }
 
     _timer += dt;
@@ -86,10 +98,22 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
     if (owner is Player) {
       // 1. A origem do feixe fica colada no jogador
-      position = owner!.position.clone();
+      Player p = owner as Player; // Converte para acessar a velocidade do Player
+      
+      // 1. A origem do feixe fica colada no jogador
+      position = p.position.clone();
       
       // 2. A ponta aponta para o alvo (se ele ainda existir no mundo)
-      if (target != null && target!.isMounted) {
+      if (followsOwnerMov) {
+        
+        // Se o player estiver se movendo (ignoramos tremores menores que 1.0)
+        if (p.velocity.length > 1.0) {
+          // Calcula o ângulo baseado na direção em que ele está andando!
+          angle = atan2(p.velocity.y, p.velocity.x);
+        }
+        // Nota: Se ele ficar parado, o laser simplesmente mantém a última direção que estava apontando!
+        
+      } else if (target != null && target!.isMounted) {
         final directionVector = target!.position - position;
         angle = atan2(directionVector.y, directionVector.x);
       }
@@ -146,10 +170,10 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   void _fire() {
     _hasFired = true;
-    
+    print('largura $larguraLaser');
     _hitbox = RectangleHitbox(
-      position: Vector2(0, -10), 
-      size: Vector2(currentLength, 20), 
+      position: Vector2(0, -larguraLaser/2), 
+      size: Vector2(currentLength, larguraLaser), 
       isSolid: true,
       collisionType: CollisionType.passive, 
     );
@@ -182,14 +206,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       final paintGlow = Paint()
         ..color = cor.withOpacity(0.6)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 12
+        ..strokeWidth = larguraLaser * 0.8
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4); 
 
       // 2. Núcleo Branco
       final paintCore = Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 4;
+        ..strokeWidth = larguraLaser / 5;
 
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintGlow);
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintCore);
@@ -233,33 +257,36 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   }
 
   @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
     final hitPos = intersectionPoints.firstOrNull ?? position;
     
-    if (isEnemyProjectile) {
-      if (other is Player) {
+    if(dmgTmr >= dmgTime){
+      if (isEnemyProjectile) {
+        if (other is Player) {
+          createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
+          other.takeDamage(1); 
+        }
+      } 
+      else {
+        if (other is Enemy) {
+          createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
+          other.takeDamage(damage,critico:critico);
+        }
+      } 
+      
+      if (other is ScreenHitbox) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-        other.takeDamage(1); 
       }
-    } 
-    else {
-      if (other is Enemy) {
+      if (other is Wall) {
+        other.vida--;
+        if (other.vida <=0) other.removeFromParent();
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-        other.takeDamage(damage,critico:critico);
+        //removeFromParent(); 
       }
-    } 
-    /*
-    if (other is ScreenHitbox) {
-      createExplosion(gameRef.world, hitPos, Pallete.laranja, count: 5);
-      removeFromParent();
-    }*/
-    if (other is Wall) {
-      other.vida--;
-      if (other.vida <=0) other.removeFromParent();
-      createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-      //removeFromParent(); 
+      dmgTmr = 0;
     }
+    
     
   }
 }

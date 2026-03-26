@@ -1,8 +1,8 @@
-import 'package:TowerRogue/game/overlays/bank_menu.dart';
-import 'package:TowerRogue/game/overlays/diary_screen.dart';
+import 'package:towerrogue/game/overlays/bank_menu.dart';
+import 'package:towerrogue/game/overlays/diary_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:TowerRogue/game/overlays/character_selection_menu.dart';
+import 'package:towerrogue/game/overlays/character_selection_menu.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

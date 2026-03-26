@@ -1,23 +1,23 @@
-import 'package:TowerRogue/game/components/core/audio_manager.dart';
-import 'package:TowerRogue/game/components/core/character_class.dart';
-import 'package:TowerRogue/game/components/core/game_progress.dart';
-import 'package:TowerRogue/game/components/core/i18n.dart';
-import 'package:TowerRogue/game/components/effects/explosion_effect.dart';
-import 'package:TowerRogue/game/components/effects/floating_text.dart';
-import 'package:TowerRogue/game/components/effects/ghost_particle.dart';
-import 'package:TowerRogue/game/components/effects/magic_shield_effect.dart';
-import 'package:TowerRogue/game/components/effects/shadow_component.dart';
-import 'package:TowerRogue/game/components/effects/unlock_notification.dart';
-import 'package:TowerRogue/game/components/gameObj/collectible.dart';
-import 'package:TowerRogue/game/components/gameObj/familiar.dart';
-import 'package:TowerRogue/game/components/gameObj/door.dart';
-import 'package:TowerRogue/game/components/gameObj/unlockable_item.dart';
-import 'package:TowerRogue/game/components/projectiles/bomb.dart';
-import 'package:TowerRogue/game/components/projectiles/explosion.dart';
-import 'package:TowerRogue/game/components/projectiles/laser_beam.dart';
-import 'package:TowerRogue/game/components/projectiles/mortar_shell.dart';
-//import 'package:TowerRogue/game/components/projectiles/orbital_shield.dart';
-import 'package:TowerRogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/character_class.dart';
+import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
+import 'package:towerrogue/game/components/effects/explosion_effect.dart';
+import 'package:towerrogue/game/components/effects/floating_text.dart';
+import 'package:towerrogue/game/components/effects/ghost_particle.dart';
+import 'package:towerrogue/game/components/effects/magic_shield_effect.dart';
+import 'package:towerrogue/game/components/effects/shadow_component.dart';
+import 'package:towerrogue/game/components/effects/unlock_notification.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
+import 'package:towerrogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/gameObj/door.dart';
+import 'package:towerrogue/game/components/gameObj/unlockable_item.dart';
+import 'package:towerrogue/game/components/projectiles/bomb.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
+import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
+import 'package:towerrogue/game/components/projectiles/mortar_shell.dart';
+//import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/math.dart';
@@ -76,16 +76,16 @@ class Player extends PositionComponent
 
   double bltSize = 10;
 
-  double _rawDamage = 0;
-  double _rawSpeed = 0;
-  double _rawFireRate = 0;
-  double _rawRange = 0;
+  final double _rawDamage = 0;
+  final double _rawSpeed = 0;
+  final double _rawFireRate = 0;
+  final double _rawRange = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
   double bombButtonTimer = 0;
 
   // VETORES OTIMIZADOS (Previnem Garbage Collection)
-  final Vector2 velocity = Vector2.zero();
+  Vector2 velocity = Vector2.zero();
   final Vector2 velocityDash = Vector2(1, 0);
   final Vector2 _keyboardInput = Vector2.zero(); 
   final Vector2 _dashDirection = Vector2.zero();
@@ -149,7 +149,8 @@ class Player extends PositionComponent
   bool confuseOnCrit = false;
   bool isBombSplits = false;
   bool isBombDecoy = false;
-  bool tempDmgBonus = false;
+  int tempDmgBonus = 0;
+  int tempDmgGoldBonus = 0;
   int regenCount = 0;
   bool charmOnCrit = false;
   bool isFreezeDash = false;
@@ -213,6 +214,7 @@ class Player extends PositionComponent
   GameIcon? kineticIcon;
   TextComponent? kineticText;
   GameIcon? dmgBuffIcon;
+  GameIcon? dmgGoldBuffIcon;
   GameIcon? ariesIcon;
 
   // Variáveis de Animação
@@ -256,6 +258,10 @@ class Player extends PositionComponent
 
   final ValueNotifier<List<ActiveItemData?>> activeItems = ValueNotifier([null, null]);
 
+  Enemy? target;
+
+  bool superShot = false;
+
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
@@ -273,7 +279,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeDullRazor) return 2;
     if (type == CollectibleType.activeCircularShots) return 2;
     if (type == CollectibleType.activeDiarreiaExplosiva) return 2;
-    if (type == CollectibleType.activeBoxSpider) return 2;
+    if (type == CollectibleType.activeBoxSpider) return 0;
     if (type == CollectibleType.activeD10) return 2;
     if (type == CollectibleType.activeScroll) return 2;
     if (type == CollectibleType.activeGoldenBox) return 0;
@@ -281,6 +287,14 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeJarroDeVida) return 0;
     if (type == CollectibleType.activeBoxOfFriends) return 3;
     if (type == CollectibleType.activeJarroFadas) return 0;
+    if (type == CollectibleType.activeFreezeBomb) return 2;
+    if (type == CollectibleType.activeSuperLaser) return 5;
+    if (type == CollectibleType.activeBltDetonator) return 1;
+    if (type == CollectibleType.activeGoldenrazor) return 0;
+    if (type == CollectibleType.activeTurret) return 2;
+    if (type == CollectibleType.activeTurretRotate) return 3;
+    if (type == CollectibleType.activeGlassStaff) return 1;
+    if (type == CollectibleType.activeBuracoNegro) return 4;
     
     return 5; 
   }
@@ -919,15 +933,14 @@ class Player extends PositionComponent
   }
 
   void _handleMovement(double dt) {
-    // 1. Definição do Limite de Velocidade
-    double movVel = moveSpeed;
-    if (isLicantropia || isUnicorn) movVel = moveSpeed * 1.5;
+    double baseLimit = moveSpeed;
+    if (isLicantropia || isUnicorn) baseLimit = moveSpeed * 1.5;
 
-    if((zodiacTaurus || tempZodiacTaurus) && !isUnicorn){
-      movVel = moveSpeedIni * 2;
-    }
+    bool hasTaurus = (zodiacTaurus || tempZodiacTaurus) && !isUnicorn;
+    double taurusLimit = moveSpeedIni * 2.0;
+    
+    double absoluteMaxSpeed = hasTaurus ? taurusLimit : baseLimit;
 
-    // 2. Captura o Input
     Vector2 input = Vector2.zero();
     if (gameRef.joystickDelta != Vector2.zero()) {
        input.setFrom(gameRef.joystickDelta);
@@ -936,50 +949,30 @@ class Player extends PositionComponent
        input.normalize();
     }
 
-    // --- O SEGREDO ANTES DE MOVER ---
-    // Guardamos a velocidade e a direção do frame anterior
-    double speedAntes = velocity.length;
-    Vector2 direcaoAntes = speedAntes > 0 ? velocity.normalized() : Vector2.zero();
-
-    // 3. Aplica a Força (Aceleração ou Atrito)
-    Vector2 targetVelocity = input * movVel;
-    double rate = input.isZero() ? friction : acceleration;
-
-    Vector2 diferenca = targetVelocity - velocity;
-    if (diferenca.length < rate * dt) {
-      velocity.setFrom(targetVelocity);
+    if (input.isZero()) {
+      velocity.setZero(); 
     } else {
-      velocity.addScaled(diferenca.normalized(), rate * dt);
-    }
-
-    // 4. --- MÁGICA DA PRESERVAÇÃO DE MOMENTUM ---
-    if (!input.isZero() && speedAntes > 0) {
-      // O dot product retorna: 1 (Mesma direção), 0 (90 graus), -1 (Direção Oposta)
-      double dot = direcaoAntes.dot(input.normalized());
+      double currentSpeed = velocity.length;
       
-      // Se a curva for mais suave que um retorno brusco (> -0.5, permite curvas até 120º)
-      if (dot > -0.5) {
-        // Se o cálculo da curva roubou velocidade, nós a restauramos!
-        if (velocity.length < speedAntes) {
-          velocity.scaleTo(speedAntes);
-        }
+      double currentAcc = acceleration; 
+
+      if (hasTaurus && currentSpeed >= baseLimit) {
+        currentAcc = acceleration * 0.1; 
       }
-    }
-    
-    // Segurança extra: Garante que o momentum restaurado não quebre o limite máximo
-    if (velocity.length > movVel) {
-      velocity.scaleTo(movVel);
+
+      currentSpeed += currentAcc * dt;
+
+      if (currentSpeed > absoluteMaxSpeed) {
+        currentSpeed = absoluteMaxSpeed;
+      }
+
+      velocity = input.normalized() * currentSpeed;
     }
 
-    // 5. --- Lógica de Efeitos ---
     bool isMoving = velocity.length > 10.0;
 
     if (isMoving) {
-      if (!input.isZero()) {
-         velocityDash.setFrom(input.normalized() * movVel); 
-      } else {
-         velocityDash.setFrom(velocity.normalized() * movVel);
-      }
+      velocityDash.setFrom(velocity.normalized() * absoluteMaxSpeed);
       
       _handleDustEffect(dt);
       if(isLicantropia || isUnicorn) _createGhostEffect(dt);
@@ -987,12 +980,13 @@ class Player extends PositionComponent
       if(isConcentration) fireRate = fireRateIni * 1.15;
     } else {
       if(isConcentration) fireRate = fireRateIni * 0.5;
-    } 
+    }
+
+    double speedForTrigger = hasTaurus ? taurusLimit : baseLimit;
     
-    // 6. Atualiza Posição e Status Max Speed
     position.addScaled(velocity, dt);
 
-    if (velocity.length >= movVel - dt) {
+    if (velocity.length >= speedForTrigger - dt) {
       velMax = true;
       if(zodiacAries){
         if (ariesIcon == null) {
@@ -1331,14 +1325,16 @@ class Player extends PositionComponent
     if (_attackTimer < fRate) return;
 
     final enemies = gameRef.world.children.query<Enemy>();
-    Enemy? target;
+    
     double closestDist = double.infinity;//attackRange;
 
     for (final enemy in enemies) {
       final dist = position.distanceTo(enemy.position);
       if (dist < closestDist && !enemy.isCharmed && (!enemy.isIntangivel && !enemy.isInvencivel)) {
+        if(target != null) target!.removeTargetIcon();
         closestDist = dist;
         target = enemy;
+        enemy.criaTargetIcon();
       }
     }
 
@@ -1348,7 +1344,7 @@ class Player extends PositionComponent
       if(isMorteiro){
         gameRef.world.add(MortarShell(
           startPos: position.clone(),
-          targetPos: target.position.clone(),
+          targetPos: target!.position.clone(),
           owner: this,
           flightDuration: 1,
           damage: damage * 2,
@@ -1358,9 +1354,10 @@ class Player extends PositionComponent
           goldShot: goldShot,
         ));
       }else if(isLaser){
-        final dir = (target.position - position.clone()).normalized();
+        final dir = (target!.position - position.clone()).normalized();
         final angle = atan2(dir.y, dir.x);
-        criaLaser(dir,angle,target);
+        final dist = position.distanceTo(target!.position);
+        criaLaser(dir,angle,target,dist);
       }else{
         if(clusterShot > -1){
           clusterShot ++;
@@ -1383,30 +1380,34 @@ class Player extends PositionComponent
           }
         }
         if(isShotgun){
-          _shootAt(target,angleOffset: 0.075);
-          _shootAt(target,angleOffset: -0.075);
-          _shootAt(target,angleOffset: 0.2);
-          _shootAt(target,angleOffset: -0.2);
+          _shootAt(target!,angleOffset: 0.075);
+          _shootAt(target!,angleOffset: -0.075);
+          _shootAt(target!,angleOffset: 0.2);
+          _shootAt(target!,angleOffset: -0.2);
           if(cardinalShot){
             int rnd = Random().nextInt(100);
             if(rnd <= 25){
-              _shootAt(target,angleOffset: pi/2);
-              _shootAt(target,angleOffset: -pi/2);
-              _shootAt(target,angleOffset: pi);
+              _shootAt(target!,angleOffset: pi/2);
+              _shootAt(target!,angleOffset: -pi/2);
+              _shootAt(target!,angleOffset: pi);
             }
           }
         }else{
-          _shootAt(target);
+          _shootAt(target!);
+          if(superShot)
+          {
+            superShot = false;
+          }
           if(tripleShot){
-            _shootAt(target,angleOffset: 0.2);
-            _shootAt(target,angleOffset: -0.2);
+            _shootAt(target!,angleOffset: 0.2);
+            _shootAt(target!,angleOffset: -0.2);
           }
           if(cardinalShot){
             int rnd = Random().nextInt(100);
             if(rnd <= 25){
-              _shootAt(target,angleOffset: pi/2);
-              _shootAt(target,angleOffset: -pi/2);
-              _shootAt(target,angleOffset: pi);
+              _shootAt(target!,angleOffset: pi/2);
+              _shootAt(target!,angleOffset: -pi/2);
+              _shootAt(target!,angleOffset: pi);
             }
           }
         }
@@ -1414,16 +1415,32 @@ class Player extends PositionComponent
     }
   }
 
-  void criaLaser(Vector2 dir,ang,target)
+
+  void criaLaser(Vector2 dir,ang,target,tamanho)
   {
     gameRef.world.add(LaserBeam(
       position: position + (dir * 10),
       angleRad: ang,
+      length: tamanho,
       chargeTime: 0,
       fireTime: fireRate,
       target: target,
       owner: this,
       damage: damage
+    ));
+  }
+
+  void criaLaserDirecional(Vector2 dir,ang,dmg,chargeTime,durTime,largura)
+  {
+    gameRef.world.add(LaserBeam(
+      position: position + (dir * 10),
+      angleRad: ang,
+      larguraLaser: largura,
+      chargeTime: chargeTime,
+      fireTime: durTime,
+      followsOwnerMov: true,
+      owner: this,
+      damage: dmg
     ));
   }
 
@@ -1439,8 +1456,11 @@ class Player extends PositionComponent
     if(isHeavyShot){
        dmg = dmg * 1.3;
     }
-    if(tempDmgBonus){
-       dmg = dmg * 1.2;
+    if(tempDmgBonus > 0){
+       dmg = dmg * (1+(0.2*tempDmgBonus));
+    }
+    if(tempDmgGoldBonus > 0){
+       dmg = dmg * (1+(0.2*tempDmgGoldBonus));
     }
     if(goldDmg){
       dmg += dmg*0.01*gameRef.coinsNotifier.value;
@@ -1457,6 +1477,10 @@ class Player extends PositionComponent
     if(adrenalina){
       int hpVazio = ((maxHealth - healthNotifier.value)/2).floor();
       dmg = dmg * (1 + (hpVazio * 0.2));
+    }
+    if(superShot)
+    {
+      dmg *= 10;
     }
 
     return dmg;
@@ -1509,7 +1533,7 @@ class Player extends PositionComponent
       direction: _tempDirection.clone(), 
       damage: noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
-      size: Vector2.all(bltSize),
+      size: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: isHoming || isHomingTemp,
@@ -1624,7 +1648,8 @@ class Player extends PositionComponent
     confuseOnCrit = false;
     isBombSplits = false;
     isBombDecoy = false;
-    tempDmgBonus = false;
+    tempDmgBonus = 0;
+    tempDmgGoldBonus = 0;
     regenCount = 0;
     activeItems.value = [null, null];
     charmOnCrit = false;
@@ -2037,7 +2062,8 @@ class Player extends PositionComponent
 
     int rng = Random().nextInt(100);
 
-    var item;
+    CollectibleType item = CollectibleType.coinUm;
+    bool temItem = true;
 
     if (rng > 40){
       if(rng < 50){
@@ -2057,13 +2083,14 @@ class Player extends PositionComponent
         item = CollectibleType.boloDinheiro;
       }else if(rng >= 98){
         gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:1, radius:60));
+        temItem = false;
       }
     }else{
       return;
     }
 
     String ResultTxt = 'nada';
-    if (item != null){
+    if (temItem){
       final newItem = Collectible(
         position: Vector2(0, 10), 
         type: item,
