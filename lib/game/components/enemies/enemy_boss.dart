@@ -76,7 +76,7 @@ class EnemyBoss extends Enemy {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    dmg = 2;
+    dmg = 1;
 
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;

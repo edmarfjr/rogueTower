@@ -258,6 +258,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (!isMounted) return;
     super.onCollision(intersectionPoints, other);
     final hitPos = intersectionPoints.firstOrNull ?? position;
     

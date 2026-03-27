@@ -36,15 +36,29 @@ Future<void> main() async {
   ));
 }
 
-class GameEntry extends StatelessWidget {
+class GameEntry extends StatefulWidget {
   const GameEntry({super.key});
-  
+
+  @override
+  State<GameEntry> createState() => _GameEntryState();
+}
+
+class _GameEntryState extends State<GameEntry> {
+  // Criamos uma variável para guardar a instância única do nosso jogo
+  late TowerGame _game;
+
+  @override
+  void initState() {
+    super.initState();
+    // O jogo nasce APENAS UMA VEZ aqui, quando o aplicativo abre!
+    _game = TowerGame();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GameWidget<TowerGame>(
-          game: TowerGame(),
+          game: _game, // Usamos a variável salva em vez de criar um novo
           overlayBuilderMap: {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),

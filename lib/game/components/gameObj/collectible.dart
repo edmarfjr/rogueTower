@@ -5,6 +5,8 @@ import 'package:towerrogue/game/components/core/interact_button.dart';
 import 'package:towerrogue/game/components/effects/explosion_effect.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/effects/unlock_notification.dart';
+import 'package:towerrogue/game/components/enemies/enemy.dart';
+import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/projectiles/black_hole.dart';
@@ -52,6 +54,7 @@ enum CollectibleType {
   jumpersCable, activeCircularShots, keysToBombs, activeRandPillUnico, activeFear, activeDiarreiaExplosiva,familiarDummy, voo,
   cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider, activeD10, defensiveFairys, familiarDmgBns, itemExtraBoss, activeSlot,
   activeFreezeBomb, activeBltDetonator, activeGoldenrazor, activeSacrifFamiliar, activeTurretRotate, activeGlassStaff, activeBuracoNegro,
+  activeLoja, activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, adagaArremeco, bloquel, glifoEquilibrio, 
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -62,7 +65,7 @@ enum CollectibleType {
   clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen,
   hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra, zodiacPisces,
   zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac, activeScroll, familiarMastery, activeGoldenBox,
-  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser
+  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser, activeNuke
 }
 
 
@@ -103,6 +106,9 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeTurretRotate,
     CollectibleType.activeGlassStaff,
     CollectibleType.activeBuracoNegro,
+    CollectibleType.activeLoja,
+    CollectibleType.activeCleaver,
+    CollectibleType.activeKamikaze,
   ];
   return recarregaveis.contains(type);
 }
@@ -131,6 +137,8 @@ bool isItemUsoUnico(CollectibleType type) {
     CollectibleType.activePa,
     CollectibleType.activeDupliItem,
     CollectibleType.activeSacrifFamiliar,
+    CollectibleType.activeRestart,
+    CollectibleType.activeNuke,
   ];
   return usoUnico.contains(type);
 }
@@ -148,6 +156,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   bool custoVida;
   bool naoEsgota;
   int? activeCharge;
+  bool _isCollected = false;
 
   Vector2 _velocity = Vector2.zero();
   final double _gravity = 900.0; 
@@ -265,7 +274,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 13),
       ));
     }
-    priority = 1500;
+    priority = position.y.toInt();
     add(ShadowComponent(parentSize: size));
   }
 
@@ -316,21 +325,39 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     // Grupo para facilitar remover tudo de uma vez
     _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
+    
+    _infoGroup.priority = 1500;
 
-    // 1. Nome do Item
+    // 1. Descrição do Efeito
+    final textDesc = TextBoxComponent(
+      text: desc.toLowerCase(),
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Pallete.branco, 
+          fontSize: 12, 
+          backgroundColor: Colors.black54
+        )
+      ),
+      anchor: Anchor.bottomCenter,
+      align: Anchor.center,
+      position: Vector2(0, 10),
+      boxConfig: const TextBoxConfig(
+        maxWidth: 250.0,
+        // Se colocar 0.0, o texto aparece todo de uma vez instantaneamente.
+        // Se colocar, por exemplo, 0.05, ele faz um efeito de "digitando" muito legal!
+        timePerChar: 0.0, 
+      ),
+    );
+
+    double espacoEntreTextos = 2.0;
+    double posicaoYDoTitulo = textDesc.position.y - textDesc.size.y - espacoEntreTextos;
+
+    // 2. Nome do Item
     final textName = TextComponent(
       text: name.toUpperCase(),
       textRenderer: TextPaint(style: const TextStyle(color: Pallete.amarelo, fontSize: 12, fontWeight: FontWeight.bold, backgroundColor: Colors.black54)),
       anchor: Anchor.bottomCenter,
-      position: Vector2(0, -15),
-    );
-
-    // 2. Descrição do Efeito
-    final textDesc = TextComponent(
-      text: desc.toLowerCase(),
-      textRenderer: TextPaint(style: const TextStyle(color: Pallete.branco, fontSize: 10, backgroundColor: Colors.black54)),
-      anchor: Anchor.bottomCenter,
-      position: Vector2(0, 0),
+      position: Vector2(0, posicaoYDoTitulo),
     );
 
     // 3. Botão de Pegar
@@ -363,170 +390,112 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _collectItem() async {
-    // 1. Verificação de Custo
-    if (custo > 0 ) {
-      if (gameRef.coinsNotifier.value < custo) {
-        gameRef.world.add(FloatingText(
-          text: "noCoins".tr(),
-          position: position + Vector2(0, -20),
-          color: Pallete.vermelho,
-          fontSize: 10,
-        ));
+    // 1. SALVA A REFERÊNCIA (Se o item sumir no meio do código, o 'game' continua existindo na memória!)
+    final game = gameRef;
+    final player = game.player;
+
+    // Se já foi coletado e está no processo de sumir, ignora novas colisões!
+    if (_isCollected) return;
+
+    // 2. VERIFICAÇÃO DE CUSTO (Usa a variável 'game' em vez de 'gameRef')
+    if (custo > 0) {
+      if (game.coinsNotifier.value < custo) {
+        game.world.add(FloatingText(text: "noCoins".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
+        return; // Retorna sem travar o item, o jogador pode tentar comprar depois!
+      }
+    }
+    if (custoKeys > 0) {
+      if (game.keysNotifier.value < custoKeys) {
+        game.world.add(FloatingText(text: "noKeys".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
         return;
-      } else {
-        gameRef.coinsNotifier.value -= custo;
+      }
+    }
+    if (custoBombs > 0) {
+      if (player.bombNotifier.value < custoBombs) {
+        game.world.add(FloatingText(text: "noBombs".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
+        return;
+      }
+    }
+    if (custoVida) {
+      if (player.maxHealth < 6) {
+        game.world.add(FloatingText(text: "noHp".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
+        return;
       }
     }
 
-    if (custoKeys > 0 ) {
-      if (gameRef.keysNotifier.value < custoKeys) {
-        gameRef.world.add(FloatingText(
-          text: "noKeys".tr(),
-          position: position + Vector2(0, -20),
-          color: Pallete.vermelho,
-          fontSize: 10,
-        ));
-        return;
-      } else {
-        gameRef.keysNotifier.value -= custoKeys;
-      }
+    // --- PASSOU NOS TESTES DE CUSTO! ---
+    // Trancamos o item agora. Nenhuma outra colisão vai passar daqui.
+    _isCollected = true;
+
+    // 3. COBRANÇA (Agora é seguro deduzir os valores)
+    if (custo > 0) game.coinsNotifier.value -= custo;
+    if (custoKeys > 0) game.keysNotifier.value -= custoKeys;
+    if (custoBombs > 0) player.bombNotifier.value -= custoBombs;
+    if (custoVida) {
+      player.maxHealth -= 6;
+      player.healthNotifier.value = min(player.healthNotifier.value, player.maxHealth);
     }
 
-    if (custoBombs > 0 ) {
-      if (gameRef.player.bombNotifier.value < custoBombs) {
-        gameRef.world.add(FloatingText(
-          text: "noBombs".tr(),
-          position: position + Vector2(0, -20),
-          color: Pallete.vermelho,
-          fontSize: 10,
-        ));
-        return;
-      } else {
-        gameRef.player.bombNotifier.value -= custoBombs;
-      }
-    }
-
-    if (custoVida){
-      if (gameRef.player.maxHealth < 6) {
-        gameRef.world.add(FloatingText(
-          text: "noHp".tr(),
-          position: position + Vector2(0, -20),
-          color: Pallete.vermelho,
-          fontSize: 10,
-        ));
-        return;
-      } else {
-        gameRef.player.maxHealth -= 6;
-        gameRef.player.healthNotifier.value = min(gameRef.player.healthNotifier.value,gameRef.player.maxHealth);
-      }
-    }
-
-    if ((custo > 0 || custoKeys > 0 || custoBombs > 0 || custoVida) && gameRef.player.restock) {
+    // 4. RESTOCK DE ITENS
+    if ((custo > 0 || custoKeys > 0 || custoBombs > 0 || custoVida) && player.restock) {
       final rng = Random();
       final rngPool = rng.nextDouble();
       List<CollectibleType> pool = [];
 
-      if(custo>0){
-        if (rngPool <= 0.2){
-          pool = retornaItensRaros(gameRef.player);
-        }else if(rngPool > 0.2 && rngPool <= 0.6){
-          pool = retornaItensComuns(gameRef.player);
-        }else{
-          pool = retornaPocoes();
-        }
-      }else if(custoKeys> 0 || custoBombs>0){
+      if(custo > 0){
+        if (rngPool <= 0.2) pool = retornaItensRaros(player);
+        else if(rngPool <= 0.6) pool = retornaItensComuns(player);
+        else pool = retornaPocoes();
+      } else if(custoKeys > 0 || custoBombs > 0){
         pool = retornaPocoes();
-      }else if(custoVida){
-        pool = retornaItensRaros(gameRef.player);
+      } else if(custoVida){
+        pool = retornaItensRaros(player);
       }
-      
       
       if (pool.isNotEmpty) {
         pool.shuffle();
-        
         final novoItem = Collectible(
-          position: position.clone(),
-          type: pool.first,
-          custo: custo, 
-          custoKeys: custoKeys,
-          custoBombs: custoBombs,
-          custoVida: custoVida,
+          position: position.clone(), type: pool.first,
+          custo: custo, custoKeys: custoKeys, custoBombs: custoBombs, custoVida: custoVida,
         );
-        
-        gameRef.world.add(novoItem);
-        
-        createExplosionEffect(gameRef.world, position.clone(), Pallete.branco, count: 10);
+        game.world.add(novoItem);
+        createExplosionEffect(game.world, position.clone(), Pallete.branco, count: 10);
       }
     }
 
-    //desbloqueia classes
-
-    String clasId = '';
-    String clasNome = '';
-
-    switch (type){
-      case CollectibleType.activeLicantropia:
-        clasId = 'licantropo';
-        clasNome = 'licantropo'.tr();
-      case CollectibleType.molotov:
-        clasId = 'multidao';
-        clasNome = 'multidao'.tr();
-      default:
-
-    }
-
-    if(clasId != ''){
-      bool isNewUnlock = await GameProgress.unlockClass(clasId); 
-          
-      if (isNewUnlock) {
-        gameRef.world.add(
-          UnlockNotification(
-            message: "NOVA CLASSE: $clasNome!",
-            position: position.clone(),
-          )
-        );
-      }
-    }
-
-
-    //logica para itens ativos
+    // 5. APLICAÇÃO DE EFEITOS E ITENS ATIVOS
     if (isItemAtivo(type)) {
-      ActiveItemData? droppedData = gameRef.player.equipActiveItem(type, activeCharge);
+      ActiveItemData? droppedData = player.equipActiveItem(type, activeCharge);
 
       if (droppedData != null) {
         final droppedItem = Collectible(
-          position: gameRef.player.position.clone(),
-          type: droppedData.type,
-          activeCharge: droppedData.currentCharge,
+          position: player.position.clone(), type: droppedData.type, activeCharge: droppedData.currentCharge,
         );
-        gameRef.world.add(droppedItem);
+        game.world.add(droppedItem);
         droppedItem.pop(Vector2((Random().nextDouble() - 0.5) * 60, 10));
       }
 
-      gameRef.progress.discoverItem(type.toString());
-
+      game.progress.discoverItem(type.toString());
       if (!naoEsgota) removeFromParent(); 
       AudioManager.playSfx('collect.mp3'); 
+      
+      // Como tem return aqui, chamamos o unlock antes de sair
+      _tentaDesbloquearClasse(game);
       return; 
     }
     
-    // 2. Aplica Efeito
-    final feedback = Collectible.applyEffect(type: type, game: gameRef);
+    // Efeitos passivos
+    final feedback = Collectible.applyEffect(type: type, game: game);
     String feedbackText = feedback['text'] as String;
     Color feedbackColor = feedback['color'] as Color;
 
-    /* 3. Feedback Visual Final
+    /*
     if (feedbackText.isNotEmpty) {
-      gameRef.world.add(FloatingText(
-        text: feedbackText,
-        position: position.clone(), 
-        color: feedbackColor,
-        fontSize: 12,
-      ));
+      game.world.add(FloatingText(text: feedbackText, position: position.clone(), color: feedbackColor, fontSize: 12));
     }
     */
-    // ---LÓGICA DE INVENTÁRIO ---
-    // 3. Define quais itens são consumíveis ou mapa (NÃO vão pro inventário)
+
+    // 6. INVENTÁRIO
     final List<CollectibleType> consumiveis = [
       CollectibleType.coin, CollectibleType.coinUm ,CollectibleType.potion, CollectibleType.sanduiche,
       CollectibleType.potionUm,CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
@@ -536,23 +505,43 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       CollectibleType.healthContainer,CollectibleType.slotMachine
     ];
 
-    // Se o item NÃO FOR consumível, adiciona na lista de adquiridos do Player
     if (!consumiveis.contains(type)) {
       final attrs = Collectible.getAttributes(type);
-      
-      gameRef.player.setAcquiredItemsList(
-        type,
-        attrs['name'] as String,
-        attrs['desc'] as String,
-        attrs['icon'] as IconData,
-        attrs['color'] as Color,
+      player.setAcquiredItemsList(
+        type, attrs['name'] as String, attrs['desc'] as String, attrs['icon'] as IconData, attrs['color'] as Color,
       );
-
-      gameRef.progress.discoverItem(type.toString());
+      game.progress.discoverItem(type.toString());
     }
     
+    // 7. REMOVE DO JOGO IMEDIATAMENTE!
     if (!naoEsgota) removeFromParent();
     
+    // 8. O AWAIT FICA NO FINAL (Ele roda em segundo plano sem quebrar nada)
+    _tentaDesbloquearClasse(game);
+  }
+
+  // --- FUNÇÃO AUXILIAR PARA O AWAIT NÃO ATRAPALHAR O FLUXO ---
+  Future<void> _tentaDesbloquearClasse(TowerGame game) async {
+    String clasId = '';
+    String clasNome = '';
+
+    switch (type){
+      case CollectibleType.activeLicantropia:
+        clasId = 'licantropo'; clasNome = 'licantropo'.tr(); break;
+      case CollectibleType.molotov:
+        clasId = 'multidao'; clasNome = 'multidao'.tr(); break;
+      default: return; // Não é item de classe
+    }
+
+    bool isNewUnlock = await GameProgress.unlockClass(clasId); 
+        
+    if (isNewUnlock) {
+      // Como usamos a variável 'game' salva, adicionar o texto funciona mesmo com o item já removido!
+      game.world.add(UnlockNotification(
+        message: "NOVA CLASSE: $clasNome!",
+        position: position.clone(),
+      ));
+    }
   }
 
   // Helper para pegar dados visuais e textos (Nome, Descrição, Ícone, Cor)
@@ -713,7 +702,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.pregos:
         return {'name': 'pregos'.tr(), 'desc': 'pregosDesc'.tr(), 'icon': MdiIcons.nail, 'color': Pallete.cinzaCla};
       case CollectibleType.bombDecoy:
-        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.azulEsc};
+        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.cinzaEsc};
       case CollectibleType.activeHeartConverter:
         return {'name': 'activeHeartConverter'.tr(), 'desc': 'activeHeartConverterDesc'.tr(), 'icon': MdiIcons.heartOutline, 'color': Pallete.azulCla};
       case CollectibleType.activeDivineShield:
@@ -737,7 +726,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.goldDmg:
         return {'name': 'goldDmg'.tr(), 'desc': 'goldDmgDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.laranja};
       case CollectibleType.activeStunBomb:
-        return {'name': 'activeStunBomb'.tr(), 'desc': 'activeStunBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.marrom};
+        return {'name': 'activeStunBomb'.tr(), 'desc': 'activeStunBombDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.amarelo};
       case CollectibleType.activeFairy:
         return {'name': 'activeFairy'.tr(), 'desc': 'activeFairyDesc'.tr(), 'icon': MdiIcons.candy, 'color': Pallete.amarelo};
       case CollectibleType.activeUnicorn:
@@ -907,7 +896,23 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeGlassStaff:
         return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.azulCla};
       case CollectibleType.activeBuracoNegro:
-        return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': MdiIcons.circleSlice8, 'color': Pallete.azulEsc};
+        return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': MdiIcons.circleOutline, 'color': Pallete.branco};
+      case CollectibleType.activeLoja:
+        return {'name': 'activeLoja'.tr(), 'desc': 'activeLojaDesc'.tr(), 'icon': MdiIcons.store, 'color': Pallete.branco};
+      case CollectibleType.activeRestart:
+        return {'name': 'activeRestart'.tr(), 'desc': 'activeRestartDesc'.tr(), 'icon': MdiIcons.alphaRBox, 'color': Pallete.bege};
+      case CollectibleType.activeNuke:
+        return {'name': 'activeNuke'.tr(), 'desc': 'activeNukeDesc'.tr(), 'icon': MdiIcons.nuke, 'color': Pallete.cinzaCla};
+      case CollectibleType.activeKamikaze:
+        return {'name': 'activeKamikaze'.tr(), 'desc': 'activeKamikazeDesc'.tr(), 'icon': MdiIcons.nuke, 'color': Pallete.vermelho};
+      case CollectibleType.retribuicao:
+        return {'name': 'retribuicao'.tr(), 'desc': 'retribuicaoDesc'.tr(), 'icon': MdiIcons.decagram, 'color': Pallete.vermelho};
+      case CollectibleType.adagaArremeco:
+        return {'name': 'adagaArremeco'.tr(), 'desc': 'adagaArremecoDesc'.tr(), 'icon': MdiIcons.knifeMilitary, 'color': Pallete.cinzaCla};
+      case CollectibleType.bloquel:
+        return {'name': 'bloquel'.tr(), 'desc': 'bloquelDesc'.tr(), 'icon': MdiIcons.shieldHalfFull, 'color': Pallete.cinzaCla};
+      case CollectibleType.glifoEquilibrio:
+        return {'name': 'glifoEquilibrio'.tr(), 'desc': 'glifoEquilibrioDesc'.tr(), 'icon': MdiIcons.triangleDownOutline, 'color': Pallete.azulCla};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -951,6 +956,16 @@ List<CollectibleType> _filtrarPool(List<CollectibleType> poolOriginal, Player pl
 
   return poolOriginal;
 }
+
+List<CollectibleType> retornaItensSimples(){
+    return [
+      CollectibleType.potion,
+      CollectibleType.shield,
+      CollectibleType.key, 
+      CollectibleType.bomba, 
+    ];
+  }
+
 List<CollectibleType> retornaItensComuns(player){
     List<CollectibleType> itens = [
       CollectibleType.damage,
@@ -1015,6 +1030,13 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.activeSacrifFamiliar,
       CollectibleType.activeGlassStaff,
       CollectibleType.activeBuracoNegro,
+      CollectibleType.activeLoja,
+      CollectibleType.activeCleaver,
+      CollectibleType.activeKamikaze,
+      CollectibleType.retribuicao,
+      CollectibleType.adagaArremeco,
+      CollectibleType.bloquel,
+      CollectibleType.glifoEquilibrio,
     ];
     
     return _filtrarPool(itens, player);
@@ -1118,6 +1140,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeDupliItem,
       CollectibleType.activeJarroFadas,
       CollectibleType.activeSuperLaser,
+      CollectibleType.bombaBuracoNegro,
+      CollectibleType.activeNuke,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1151,7 +1175,7 @@ class CollectibleLogic {
         case CollectibleType.potion:
           if (player.healthNotifier.value < player.maxHealth) {
             player.curaHp(2);
-            text = "Curado!";
+            text = "${"Curado".tr()}!";
             //color = Pallete.vermelho; 
           } else {
             if (player.activeItems.value[0]!.type == CollectibleType.activeJarroDeVida && player.vidasNoJarro < 4) {
@@ -1164,7 +1188,7 @@ class CollectibleLogic {
               ));
         
             }
-            text = "Cheio!";
+            text = "${"Cheio".tr()}!";
             //color = Pallete.cinzaCla;
           }
           break;
@@ -1179,7 +1203,7 @@ class CollectibleLogic {
             };
           }
             player.curaHp(6); 
-            text = "Curado!";
+            text = "${"Curado".tr()}!";
             //color = Pallete.vermelho; 
           
           break;  
@@ -1187,92 +1211,92 @@ class CollectibleLogic {
         case CollectibleType.key:
           int k = Random().nextInt(2)+1;
           game.keysNotifier.value += k;
-          text = "$k Key(s)!";
+          text = "${"$k Key(s)"}!";
           //color = Pallete.branco; 
           break;
 
         case CollectibleType.keys:
           game.keysNotifier.value+=10;
-          text = "10 Keys!";
+          text = "${"10 Keys".tr()}!";
           //color = Pallete.branco; 
           break;
         
         case CollectibleType.bomba:
           int b = Random().nextInt(2)+1;
           player.bombNotifier.value += b;
-          text = "$b Bombs(s)!";
+          text = "${"$b Bombs(s)".tr()}!";
           //color = Pallete.branco; 
           break;
 
         case CollectibleType.bombas:
           player.bombNotifier.value+=10;
-          text = "10 Bombs!";
+          text = "${"10 Bombs".tr()}!";
           //color = Pallete.branco; 
           break;
 
         case CollectibleType.damage:
           player.increaseDamage(1.2);
-          text = "+ Damage!";
+          text = "${"+ Damage".tr()}!";
           //color = Pallete.branco; 
           break;
 
         case CollectibleType.dot:
           player.dot += 0.2;
-          text = "+ Dot!";
+          text = "${"+ Dot".tr()}!";
           //color = Pallete.branco;
           break;
           
         case CollectibleType.fireRate:
           player.increaseFireRate(0.85);
-          text = "+ Fire Rate!";
+          text = "${"+ Fire Rate".tr()}!";
           //color = Pallete.azulCla; 
           break;
           
         case CollectibleType.moveSpeed:
           player.increaseMovementSpeed(1.2);
-          text = "+ Speed!";
+          text = "${"+ Speed".tr()}!";
          // color = Pallete.azulCla;
           break;
         
         case CollectibleType.range:
           player.increaseRange(1.15);
-          text = "+ Range!";
+          text = "${"+ Range".tr()}!";
           //color = Pallete.azulCla;
           break;
         
         case CollectibleType.shield:
           player.increaseShield();
-          text = "+ Shield!";
+          text = "${"+ Shield".tr()}!";
           //color = Pallete.azulCla;
           break;
 
         case CollectibleType.healthContainer:
           player.increaseHp(2);
-          text = "+ Max HP!";
+          text = "${"+ Max HP".tr()}!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.dash:
           player.increaseDash();
-          text = "+ Dash!";
+          text = "${"+ Dash".tr()}!";
           //color = Pallete.vermelho;
           break; 
         
         case CollectibleType.berserk:
           player.isBerserk = true;
-          text = "+ 40% Damage when low HP!";
+          text = "+ 40% Damage when low HP";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.audacious:
           player.isAudaz = true;
-          text = "+ 33% Damage when no shield!";
+          text = "+ 33% Damage when no shield";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.alcool:
           player.isBebado = true;
-          text = "+ 33% Damage, shots don't go straight!";
+          text = "+ 33% Damage, shots don't go straight";
           //color = Pallete.vermelho;
           break;
 
@@ -1280,14 +1304,14 @@ class CollectibleLogic {
           player.damage *= 1.4;
           player.maxHealth -=2;
           player.healthNotifier.value = min(player.healthNotifier.value,player.maxHealth) ;
-          text = "+ 40% Damage, but 1 less Health!";
+          text = "+ 40% Damage, but 1 less Health";
           //color = Pallete.vermelho;
           break;
         
         case CollectibleType.cafe:
           player.damage *= 0.3;
           player.fireRate /= 3;
-          text = "+ 200% Fire rate, but 70% less damage!";
+          text = "+ 200% Fire rate, but 70% less damage";
           //color = Pallete.vermelho;
           break;
 
@@ -1318,7 +1342,7 @@ class CollectibleLogic {
         case CollectibleType.orbitalShield:
           game.world.add(OrbitalShield(angleOffset: 0, owner: player));
           game.world.add(OrbitalShield(angleOffset: pi, owner: player));
-          text = "Escudos Orbitais!";
+          text = "Escudos Orbitais";
          // color = Pallete.azulCla;
           break;
 
@@ -1326,13 +1350,13 @@ class CollectibleLogic {
           game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFoice: true, radius: player.size.y, speed:5));
           game.world.add(OrbitalShield(angleOffset: 2*pi/3, owner: player, isFoice: true, radius: player.size.y, speed:5));
           game.world.add(OrbitalShield(angleOffset: 4*pi/3, owner: player, isFoice: true, radius: player.size.y, speed:5));
-          text = "Foices Orbitais!";
+          text = "Foices Orbitais";
          // color = Pallete.azulCla;
           break;  
 
         case CollectibleType.flail:
           game.world.add(OrbitalShield(angleOffset: 0, owner: player, isFlail: true, radius: player.size.y*3, speed:10));
-          text = "Flail Orbitais!";
+          text = "Flail Orbitais";
          // color = Pallete.azulCla;
           break; 
 
@@ -1378,38 +1402,38 @@ class CollectibleLogic {
 
         case CollectibleType.piercing:
           player.isPiercing = true;
-          text = "Piercing Shot!";
+          text = "${"Piercing Shot".tr()}!";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.homing:
           player.isHoming = true;
-          text = "Homing Shot!";
+          text = "${"Homing Shot".tr()}!";
           //color = Pallete.vermelho;
           break;  
         
         case CollectibleType.fogo:
           player.isBurn = true;
-          text = "Fire Shot!";
+          text = "Fire Shot";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.veneno:
           player.isPoison = true;
-          text = "Poison Shot!";
+          text = "Poison Shot";
           //color = Pallete.vermelho;
           break; 
 
         case CollectibleType.sangramento:
           player.isBleed = true;
-          text = "Bleed Shot!";
+          text = "Bleed Shot";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.druidScroll:
           player.dot *= 2;
           player.damage *= 0.6;
-          text = "Druid's Scroll: Dot Doubled!";
+          text = "Druid's Scroll: Dot Doubled";
           //color = Pallete.vermelho;
           break; 
 
@@ -1422,69 +1446,69 @@ class CollectibleLogic {
 
         case CollectibleType.chaveNegra:
           player.hasChaveNegra = true;
-          text = "Chave Negra!";
+          text = "Chave Negra";
           //color = Pallete.vermelho;
           break; 
 
         case CollectibleType.concentration:
           player.isConcentration = true;
-          text = "Concentration!";
+          text = "Concentration";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.gravitacao:
           player.isOrbitalShot = true;
           player.fireRate *= 0.5;
-          text = "Gravitation!";
+          text = "Gravitation";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.soda:
           player.increaseMovementSpeed(2);
-          text = "Gravitation!";
+          text = "Gravitation";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.mine:
           player.isMineShot = true;
-          text = "Mine Shot!";
+          text = "Mine Shot";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.bloodstone:
           player.stackBonus += 5;
-          text = "Bloodstone Bonus!";
+          text = "Bloodstone Bonus";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.bounce:
           player.canBounce = true;
-          text = "Bounce Shot!";
+          text = "Bounce Shot";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.spectral:
           player.isSpectral = true;
-          text = "Spectral Shot!";
+          text = "Spectral Shot";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.defBurst:
           player.defensiveBurst = true;
-          text = "Defensive Burst!";
+          text = "Defensive Burst";
           //color = Pallete.vermelho;
           break;
   
         case CollectibleType.kinetic:
           player.isKinetic = true;
-          text = "Kinetico!";
+          text = "Kinetico";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.heavyShot:
           player.isHeavyShot = true;
           player.bltSize += 20;
-          text = "Heavy Shot!";
+          text = "Heavy Shot";
           //color = Pallete.vermelho;
           break;
 
@@ -1503,26 +1527,26 @@ class CollectibleLogic {
             player.add(player.cuponIcon!);
           }
 
-          text = "Cupom de Desconto!";
+          text = "Cupom de Desconto";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.conqCrown:
           player.invincibilityDuration += 0.5;
           player.dashCooldown *= 0.75;
-          text = "Coroa de Conquista!";
+          text = "Coroa de Conquista";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.bumerangue:
           player.isBoomerang = true;
-          text = "Bumerangue!";
+          text = "Bumerangue";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.pocaVeneno:
           player.criaPocaVeneno = true;
-          text = "poça veneno!";
+          text = "poça veneno";
           //color = Pallete.vermelho;
           break;
 
@@ -1612,7 +1636,7 @@ class CollectibleLogic {
             player.familiars.add(decoy);
             game.world.add(decoy);
          // }
-          text = "Decoy Ativado!";
+          text = "Decoy Ativado";
           break;
 
         case CollectibleType.magicMush:
@@ -1622,25 +1646,25 @@ class CollectibleLogic {
           player.increaseRange(1.2);
           player.increaseMovementSpeed(1.2);
           player.increaseFireRate(0.8);
-          text = "GROWS!";
+          text = "GROWS";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeMagicKey:
           game.roomManager.reloadDoors();
-          text = "magickey!";
+          text = "magickey";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeMagicKeyChain:
           game.roomManager.reloadDoors();
-          text = "magickeychain!";
+          text = "magickeychain";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeHoming:
           player.isHomingTemp = true;
-          text = "activeHoming!";
+          text = "activeHoming";
           //color = Pallete.vermelho;
           break;
 
@@ -1681,13 +1705,13 @@ class CollectibleLogic {
 
         case CollectibleType.activeD6:
           game.nextLevel(game.nextRoomReward,mesmaSala:true);
-          text = "activeHoming!";
+          text = "activeHoming";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.splitShot:
           player.isShootSplits = true;
-          text = "splitShot!";
+          text = "splitShot";
           //color = Pallete.vermelho;
           break;
 
@@ -1701,7 +1725,7 @@ class CollectibleLogic {
             player.familiars.add(block);
             game.world.add(block);
          // }
-          text = "Decoy Ativado!";
+          text = "Decoy Ativado";
           break;
 
         case CollectibleType.familiarAtira:
@@ -1714,25 +1738,25 @@ class CollectibleLogic {
             player.familiars.add(atira);
             game.world.add(atira);
          // }
-          text = "familiarAtira!";
+          text = "familiarAtira";
           break;
 
         case CollectibleType.confuseCrit:
           player.confuseOnCrit = true;
-          text = "confuseOnCrit!";
+          text = "confuseOnCrit";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.pregos:
           player.isBombSplits = true;
-          text = "pregos!";
+          text = "pregos";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.bombDecoy:
           player.isBombDecoy = true;
           player.bombNotifier.value += 5;
-          text = "bombDecoy!";
+          text = "bombDecoy";
           //color = Pallete.vermelho;
           break;
 
@@ -1746,13 +1770,13 @@ class CollectibleLogic {
           }
           player.increaseArtificialHp(6);
           player.increaseHp(-2);
-          text = "activeHeartConverter!";
+          text = "activeHeartConverter";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeDivineShield:
           player.setInvencibility(10);
-          text = "activeDivineShield!";
+          text = "activeDivineShield";
           //color = Pallete.vermelho;
           break;
 
@@ -1799,7 +1823,7 @@ class CollectibleLogic {
             }
           }
 
-          text = rolouAlgo ? "Destino Alterado!" : "Nada para mudar!";
+          text = rolouAlgo ? "Destino Alterado!" : "Nada para mudar";
           //color = Pallete.vermelho;
           break;
 
@@ -1826,13 +1850,13 @@ class CollectibleLogic {
             player.add(player.dmgBuffIcon!);
           }
         
-          text = "activeRitualDagger!";
+          text = "${"activeRitualDagger".tr()}!";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeBandage:
           player.regenCount = 4;
-          text = "activeBandage!";
+          text = "activeBandage";
           //color = Pallete.vermelho;
           break;
 
@@ -1856,7 +1880,7 @@ class CollectibleLogic {
                 createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
             }
           }
-          text = "activeConvBruta!";
+          text = "activeConvBruta";
           //color = Pallete.vermelho;
           break;
 
@@ -1876,7 +1900,7 @@ class CollectibleLogic {
 
         case CollectibleType.charmOnCrit:
           player.charmOnCrit = true;
-          text = "charmOnCrit!";
+          text = "charmOnCrit";
           //color = Pallete.vermelho;
           break;
 
@@ -1885,7 +1909,7 @@ class CollectibleLogic {
           {
             game.progress.spendSouls(1000);
             player.collectCoin(50);
-            text = "activeMidas!";
+            text = "activeMidas";
             return {'text': "activeMidas!", 'color': Pallete.branco, 'sucesso': true}; 
           }else{
             return {'text': "Almas Insuficiente!", 'color': Pallete.branco, 'sucesso': false};
@@ -1927,7 +1951,7 @@ class CollectibleLogic {
             player.familiars.add(f);
             game.world.add(f);
           }
-          text = "activeFairy!";
+          text = "activeFairy";
           break;
 
         case CollectibleType.activeUnicorn:
@@ -2005,7 +2029,7 @@ class CollectibleLogic {
             cor:Pallete.verdeCla.withAlpha(50),
             corBorda:Pallete.verdeEsc.withAlpha(50)
           ));
-          text = "Suborno!";
+          text = "Suborno";
           //color = Pallete.vermelho;
           break;  
 
@@ -2019,7 +2043,7 @@ class CollectibleLogic {
                               );
           player.familiars.add(f);
           game.world.add(f);
-          text = "Turret!";
+          text = "Turret";
           //color = Pallete.vermelho;
           break; 
 
@@ -2033,7 +2057,7 @@ class CollectibleLogic {
                               );
           player.familiars.add(f);
           game.world.add(f);
-          text = "Turret!";
+          text = "Turret";
           //color = Pallete.vermelho;
           break; 
 
@@ -2042,32 +2066,32 @@ class CollectibleLogic {
           player.increaseDamage(0.8);
           player.increaseRange(0.8);
           player.increaseMovementSpeed(1.2);
-          text = "SHRINK!";
+          text = "SHRINK";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.saw:
           player.isSaw = true;
           player.increaseDamage(1.2);
-          text = "saw!";
+          text = "saw";
           //color = Pallete.vermelho;
           break; 
 
         case CollectibleType.boloDinheiro:
           player.collectCoin(50);
-          text = "CASH!";
+          text = "CASH";
           //color = Pallete.vermelho;
           break;   
 
         case CollectibleType.retaliar:
           player.explodeHit = true ;
-          text = "retaliar!";
+          text = "retaliar";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.restock:
           player.restock = true ;
-          text = "restock!";
+          text = "restock";
           //color = Pallete.vermelho;
           break;
 
@@ -2088,7 +2112,7 @@ class CollectibleLogic {
 
         case CollectibleType.encolheOnCrit:
           player.encolheOnCrit = true ;
-          text = "encolheOnCrit!";
+          text = "encolheOnCrit";
           //color = Pallete.vermelho;
           break;
 
@@ -2132,31 +2156,31 @@ class CollectibleLogic {
         case CollectibleType.glitterBomb:
           player.isGlitterBomb = true ;
           player.bombNotifier.value += 5;
-          text = "glitterBomb!";
+          text = "glitterBomb";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.goldShot:
           player.goldShot = true ;
-          text = "goldShot!";
+          text = "goldShot";
           //color = Pallete.vermelho;
           break;  
 
         case CollectibleType.clusterShot:
           player.clusterShot = 0 ;
-          text = "clusterShot!";
+          text = "clusterShot";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.evasao:
           player.evasao = true ;
-          text = "evasao!";
+          text = "evasao";
           //color = Pallete.vermelho;
           break;
         
         case CollectibleType.primeiroInimigoPocaVeneno:
           player.primeiroInimigoPocaVeneno = true ;
-          text = "primeiroInimigoPocaVeneno!";
+          text = "primeiroInimigoPocaVeneno";
           //color = Pallete.vermelho;
           break;
 
@@ -2198,20 +2222,20 @@ class CollectibleLogic {
 
         case CollectibleType.adrenalina:
           player.adrenalina = true ;
-          text = "adrenalina!";
+          text = "adrenalina";
           //color = Pallete.vermelho;
           break;
         
         case CollectibleType.eutanasia:
           player.eutanasia = true ;
-          text = "eutanasia!";
+          text = "eutanasia";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.goldHeart:
           int v = (game.coinsNotifier.value / 25 ).floor()*2;
           player.increaseHp(v);
-          text = "goldHeart!";
+          text = "goldHeart";
           //color = Pallete.vermelho;
           break;
 
@@ -2241,7 +2265,7 @@ class CollectibleLogic {
 
         case CollectibleType.jumpersCable:
           player.killCharge = 0 ;
-          text = "jumpersCable!";
+          text = "jumpersCable";
           //color = Pallete.vermelho;
           break;
 
@@ -2377,20 +2401,26 @@ class CollectibleLogic {
           game.currentRoomNotifier.value = 10;
           
           final coisasParaApagar = game.world.children.where((component) {
-            return component.runtimeType.toString() == 'Enemy' ||
-                    component.runtimeType.toString() == 'Door' ||
-                    component.runtimeType.toString() == 'Collectible' ||
-                    component.runtimeType.toString() == 'Projectile' ||
-                    component.runtimeType.toString() == 'UnlockableItem' ||
-                    component.runtimeType.toString() == 'Wall' ||
-                    component.runtimeType.toString() == 'LaserBeam';
-                    
-          });
+              return component.runtimeType.toString() == 'Enemy' ||
+                      component.runtimeType.toString() == 'Door' ||
+                      component.runtimeType.toString() == 'Collectible' ||
+                      component.runtimeType.toString() == 'Projectile' ||
+                      component.runtimeType.toString() == 'UnlockableItem' ||
+                      component.runtimeType.toString() == 'Wall' ||
+                      component.runtimeType.toString() == 'PoisonPuddle' ||
+                      component.runtimeType.toString() == 'Chest' ||
+                      component.runtimeType.toString() == 'BloodMachine' ||
+                      component.runtimeType.toString() == 'SlotMachine' ||
+                      component.runtimeType.toString() == 'UnlockableItem' ||
+                      component.runtimeType.toString() == 'LaserBeam';
+                      
+            });
           
           game.world.removeAll(coisasParaApagar);
           game.overlays.add('HUD');
 
-          game.roomManager.startRoom(10);
+          game.nextRoomReward = CollectibleType.boss;
+            game.startLevel(salaAtual:false ,sala: 10); 
 
           player.position = Vector2(0, 250); 
         });
@@ -2408,7 +2438,7 @@ class CollectibleLogic {
             cor:Pallete.vermelho.withAlpha(50),
             corBorda:Pallete.vinho.withAlpha(50)
           ));
-          text = "FEAR!";
+          text = "FEAR";
           //color = Pallete.vermelho;
           break;
 
@@ -2441,13 +2471,13 @@ class CollectibleLogic {
         case CollectibleType.voo:
           player.voo = true ;
           player.criaVisual(reset : true);
-          text = "voo!";
+          text = "voo";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.cardinalShot:
           player.cardinalShot = true ;
-          text = "cardinalShot!";
+          text = "cardinalShot";
           //color = Pallete.vermelho;
           break;
 
@@ -2759,6 +2789,11 @@ class CollectibleLogic {
                       component.runtimeType.toString() == 'Projectile' ||
                       component.runtimeType.toString() == 'UnlockableItem' ||
                       component.runtimeType.toString() == 'Wall' ||
+                      component.runtimeType.toString() == 'PoisonPuddle' ||
+                      component.runtimeType.toString() == 'Chest' ||
+                      component.runtimeType.toString() == 'BloodMachine' ||
+                      component.runtimeType.toString() == 'SlotMachine' ||
+                      component.runtimeType.toString() == 'UnlockableItem' ||
                       component.runtimeType.toString() == 'LaserBeam';
                       
             });
@@ -2766,7 +2801,8 @@ class CollectibleLogic {
             game.world.removeAll(coisasParaApagar);
             game.overlays.add('HUD');
 
-            game.roomManager.startRoom(0);
+            game.nextRoomReward = CollectibleType.nextlevel;
+            game.startLevel(salaAtual:false ,sala: 0); 
 
             player.position = Vector2(0, 250); 
           });
@@ -2831,7 +2867,7 @@ class CollectibleLogic {
             }
           }
 
-          text = "Duplicado!";
+          text = "Duplicado";
           //color = Pallete.vermelho;
           break;
 
@@ -2994,14 +3030,14 @@ class CollectibleLogic {
                               );
           player.familiars.add(f);
           game.world.add(f);
-          text = "activeTurretRotate!";
+          text = "activeTurretRotate";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeGlassStaff:
           player.superShot = true;
           player.healthNotifier.value = 1;
-          text = "activeGlassStaff!";
+          text = "activeGlassStaff";
           //color = Pallete.vermelho;
           break;
 
@@ -3013,7 +3049,140 @@ class CollectibleLogic {
          player.velocity.addScaled(player.velocityDash, -300); 
         
         // AudioManager.playSfx('black_hole_spawn.wav'); // Som grave e distorcido
+        text = "activeBuracoNegro";
         break;
+
+        case CollectibleType.activeLoja:
+          final rng = Random();
+          List<CollectibleType> possibleRewards;
+          bool itemSimples = rng.nextBool();
+
+          if(itemSimples){
+            possibleRewards = retornaItensSimples();
+            final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
+            game.world.add(Collectible(position: player.position.clone() + Vector2(0,-40), type: lootType, custo: 15));
+          }else{
+            game.roomManager.geraItemAleatorio(player.position.clone() + Vector2(0,-40), 30);
+          }
+
+        case CollectibleType.activeRestart:
+          game.transitionEffect.startTransition(() async {   
+            game.currentLevelNotifier.value = 1;
+            game.currentRoomNotifier.value = 0;
+            
+            final coisasParaApagar = game.world.children.where((component) {
+              return component.runtimeType.toString() == 'Enemy' ||
+                      component.runtimeType.toString() == 'Door' ||
+                      component.runtimeType.toString() == 'Collectible' ||
+                      component.runtimeType.toString() == 'Projectile' ||
+                      component.runtimeType.toString() == 'UnlockableItem' ||
+                      component.runtimeType.toString() == 'Wall' ||
+                      component.runtimeType.toString() == 'PoisonPuddle' ||
+                      component.runtimeType.toString() == 'Chest' ||
+                      component.runtimeType.toString() == 'BloodMachine' ||
+                      component.runtimeType.toString() == 'SlotMachine' ||
+                      component.runtimeType.toString() == 'UnlockableItem' ||
+                      component.runtimeType.toString() == 'LaserBeam';
+                      
+            });
+            
+            game.world.removeAll(coisasParaApagar);
+            game.overlays.add('HUD');
+
+            
+            //game.roomManager.startRoom(0);
+            game.nextRoomReward = CollectibleType.nextlevel;
+            game.startLevel(salaAtual:false ,sala: 0); 
+            //player.position = Vector2(0, 250); 
+          });
+          
+          text = "activeRestart".tr();
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeCleaver:
+          final currentEnemies = game.world.children
+          .whereType<Enemy>()
+          .where((e) => !e.isMinion)
+          .toList();
+
+          final int numEnemiesToSpawn = currentEnemies.length;
+
+          if (numEnemiesToSpawn == 0) {
+            return {
+              'text': "noEnemys".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }
+
+          for (var enemy in currentEnemies) {
+            createExplosionEffect(game.world, enemy.absoluteCenter, Pallete.lilas, count: 6);
+            enemy.splitIntoTwoNormalEnemies(isMenor:true);
+            enemy.removeFromParent();
+          }
+          break;
+
+        case CollectibleType.bombaBuracoNegro:
+          player.bombaBuracoNegro = true;
+          player.bombNotifier.value+=5;
+          text = "bombaBuracoNegro";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.activeNuke:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            damage: 1000,
+            radius:700,
+            cor:Pallete.amarelo.withAlpha(50),
+            corBorda:Pallete.vermelho.withAlpha(50)
+          ));
+          text = "activeNuke";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeKamikaze:
+          game.world.add(Explosion(
+            position: player.position.clone(),
+            damagesPlayer:false, 
+            damage: 500,
+            radius:700,
+            cor:Pallete.amarelo.withAlpha(50),
+            corBorda:Pallete.vermelho.withAlpha(50)
+          ));
+          player.takeDamage(1);
+          text = "activeKamikaze";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.retribuicao:
+          player.retribuicao = true;
+          text = "retribuicao";
+          //color = Pallete.vermelho;
+          break; 
+        
+        case CollectibleType.bloquel:
+          player.refletirChance = true;
+          player.increaseArtificialHp(2);
+          text = "bloquel";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.adagaArremeco:
+          player.adagaChance = true;
+          player.increaseFireRate(0.8);
+          text = "adagaArremeco";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.glifoEquilibrio:
+          player.glifoEquilibrio = true;
+          player.increaseArtificialHp(4);
+          text = "bloquel";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

@@ -128,6 +128,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.desafio: iconData = MdiIcons.swordCross; break;
       case CollectibleType.darkShop: iconData = MdiIcons.emoticonDevil; break;
       case CollectibleType.doacaoSangue: iconData = MdiIcons.bloodBag; break;
+      case CollectibleType.slotMachine: iconData = MdiIcons.slotMachine; break;
       default: iconData = Icons.help_outline;
     }
     

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/projectiles/black_hole.dart';
 import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
@@ -24,6 +25,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final bool isDecoy;
   final double attractionRadius = 100;
   final bool isGlitterBomb; 
+  final bool isBuracoNegro;
 
   late final Vector2 direction;
   Bomb({required Vector2 position, 
@@ -36,6 +38,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         this.splitCount = 8,
         this.isDecoy = false,
         this.isGlitterBomb = false,
+        this.isBuracoNegro = false,
         Vector2? direction}) 
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center) {
     this.direction = direction ?? Vector2.zero();
@@ -102,6 +105,9 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       if(splits){
         _doSplit();
       }
+      if(isBuracoNegro){
+        game.world.add(BuracoNegro(position: position.clone()));
+      }
       
       removeFromParent();
     }
@@ -134,6 +140,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
 @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionStart(intersectionPoints, other);
     if (isMine){
       if (!isEnemy && other is Enemy && !other.isIntangivel) {

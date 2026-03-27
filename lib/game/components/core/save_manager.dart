@@ -145,6 +145,12 @@ class SaveManager {
       'itemExtraBoss':game.player.itemExtraBoss,
       'tempDmgGoldBonus':game.player.tempDmgGoldBonus,
       'tempDmgBonus':game.player.tempDmgBonus,
+      'bombaBuracoNegro':game.player.bombaBuracoNegro,
+      'retribuicao':game.player.retribuicao,
+      'refletirChance':game.player.refletirChance,
+      'adagaChance':game.player.adagaChance,
+      'glifoEquilibrio':game.player.glifoEquilibrio,
+      
     };
 
     String jsonString = jsonEncode(runData);
@@ -311,7 +317,12 @@ class SaveManager {
     game.player.itemExtraBoss = runData['itemExtraBoss'] ?? false;
     game.player.tempDmgGoldBonus = (runData['tempDmgGoldBonus'] ?? 0).toInt();
     game.player.tempDmgBonus = (runData['tempDmgBonus'] ?? 0).toInt();
-   
+    game.player.bombaBuracoNegro = runData['bombaBuracoNegro'] ?? false;
+    game.player.retribuicao = runData['retribuicao'] ?? false;
+    game.player.refletirChance = runData['refletirChance'] ?? false;
+    game.player.adagaChance = runData['adagaChance'] ?? false;
+    game.player.glifoEquilibrio = runData['glifoEquilibrio'] ?? false;
+    
     print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }

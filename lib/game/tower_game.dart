@@ -352,9 +352,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     print('returnToMenu');
   }
 
-  void startLevel({continuar = false}) {
+  void startLevel({salaAtual = true,sala = 0}) {
     player.position = Vector2(0, 250); 
-    roomManager.startRoom(currentRoom,continuar: continuar);
+    roomManager.startRoom(salaAtual?currentRoom:sala);
     player.applyZodiac();
   }
 
@@ -376,8 +376,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.add('HUD');
     resumeEngine();
 
-    // 5. Inicia a fase avisando que é um load
-    startLevel(continuar: true);
+    startLevel();
   }
 
   void nextLevel(CollectibleType chosenReward,{bool mesmaSala = false}) {

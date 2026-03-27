@@ -167,6 +167,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is Player && !isPlayer && !other.voo) {
@@ -180,6 +181,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
 
   @override
   void onCollisionEnd(PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionEnd(other);
     
     if (other == gameRef.player && !isPlayer)  {

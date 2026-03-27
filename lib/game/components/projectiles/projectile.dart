@@ -81,6 +81,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   Color cor;
 
+  bool isStun;
+  bool isAdaga;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -113,6 +116,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.acceleration = 600.0,
     this.maxSpeed = 1000.0,
     this.knockbackForce = 0,
+    this.isStun = false,
+    this.isAdaga = false,
     this.cor = Pallete.preto,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
@@ -162,6 +167,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         icon = MdiIcons.fire; 
         color = Pallete.laranja;
         tamanho = tamanho * 2;
+      }else if(isAdaga){
+        icon = MdiIcons.knifeMilitary;
+        tamanho = tamanho * 2;
+        color = Pallete.cinzaCla;
       }
 
       if(cor != Pallete.preto){
@@ -215,6 +224,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (_isDead) return;
 
     _timer += dt;
+
+    if(isAdaga) _updateRotation();
 
     if (owner != null && !owner!.isMounted) {
       if (!isBoomerang) {
@@ -331,7 +342,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   void refletir(){
     isEnemyProjectile = false;
     direction *= -1;
-    visual!.setColor(Pallete.branco);
+    visual!.setColor(isStun?Pallete.marrom:Pallete.branco);
     _timer = 0;
   }
 
@@ -476,6 +487,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   // --- COLISÃO ---
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionStart(intersectionPoints, other);
     if (_isDead || _hitTargets.contains(other)) return;
 
@@ -520,8 +532,15 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (isEnemyProjectile) {
       if (other is Player) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
-        _hitTargets.add(other); 
-        other.takeDamage(damage.toInt());
+        _hitTargets.add(other);
+        final rnd = Random();
+        if(rnd.nextInt(100)<50 && other.refletirChance){
+          isStun = true;
+          refletir();
+          return; 
+        }else{
+          other.takeDamage(damage.toInt());
+        } 
         
         // Bumerangue e Ondas normalmente perfuram alvos vivos!
         if (!isPiercing && !isBoomerang && !isWave) kill(); 
@@ -535,6 +554,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         _hitTargets.add(other); 
         other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
+        if(isStun)other.setConfuse();
         
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {
           _homingTarget = null;

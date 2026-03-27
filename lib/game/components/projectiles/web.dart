@@ -55,6 +55,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionStart(intersectionPoints, other);
     if (other == gameRef.player && !_affectingPlayer) {
       _applySlow();
@@ -63,6 +64,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
 
   @override
   void onCollisionEnd(PositionComponent other) {
+    if (!isMounted) return;
     super.onCollisionEnd(other);
     if (other == gameRef.player && _affectingPlayer) {
       _removeSlow();

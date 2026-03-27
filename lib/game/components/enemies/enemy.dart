@@ -39,6 +39,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double weight;
   bool voa;
   bool isBoss;
+  bool isMinion;
   // Controle
   bool canMove = true; 
   bool canAttack = true;
@@ -97,6 +98,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   GameIcon? visual;
   GameIcon? targetIcon;
+  bool isTarget = false;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   GameIcon? burnIcon;
@@ -169,6 +171,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.hasShield = false,
     this.hasFlail = false,
     this.isBoss = false,
+    this.isMinion = false,
     this.dropList = const [],
     this.championType = 0,
     this.noChamp = false,
@@ -463,6 +466,47 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   @override
   void render(Canvas canvas) {
     // 1. Desenha as auras PRIMEIRO para ficarem atrás do inimigo
+    if(isTarget){
+      final paint = Paint()
+        ..color = Pallete.branco
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+        
+      final paintFundo = Paint()
+        ..color = Pallete.preto
+        ..style = PaintingStyle.fill;
+
+      // 1. O centro perfeito do seu inimigo no Canvas local
+      final center = Offset(size.x / 2, size.y);
+
+      // 2. Linhas da mira calculadas a partir do centro
+      final start1 = Offset(center.dx - size.x * 0.5, center.dy - size.y * 0.5);
+      final end1 = Offset(center.dx + size.x * 0.5, center.dy + size.y * 0.5);
+
+      final start2 = Offset(center.dx - size.x * 0.5, center.dy + size.y * 0.5);
+      final end2 = Offset(center.dx + size.x * 0.5, center.dy - size.y * 0.5);
+
+      // 3. A MÁGICA: Criar os retângulos a partir do centro para eles expandirem por igual!
+      final rectFundo = Rect.fromCenter(
+        center: center, 
+        width: size.x, 
+        height: size.y * .8
+      );
+      
+      final rectMaior = Rect.fromCenter(
+        center: center, 
+        width: size.x * 1.2, 
+        height: size.y * 1.0
+      );
+      
+      // 4. Desenha tudo
+      
+      canvas.drawLine(start1, end1, paint);
+      canvas.drawLine(start2, end2, paint);
+      canvas.drawOval(rectFundo, paintFundo); 
+      canvas.drawOval(rectMaior, paint); 
+    }
+
     if (championType > 0) {
       // Cria uma pulsação matemática suave que vai de 0.9 a 1.1x do tamanho
       double pulse = sin(_auraTimer) * 0.1 + 1.0; 
@@ -769,7 +813,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         ));
       }
     }else if(championType == 5){
-      _splitIntoTwoNormalEnemies();
+      splitIntoTwoNormalEnemies();
     } 
 
     AudioManager.playSfx('enemy_die.mp3');
@@ -785,12 +829,42 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         if(rnd > 33) shouldDrop = false; 
       }
 
+      CollectibleType itemEquilibrio = CollectibleType.potion;
+      bool itemEq = false;
+
+      if(gameRef.player.glifoEquilibrio){
+        itemEq = true;
+        // quero fazer essa logica de sair do if aqui
+        if(gameRef.player.healthNotifier.value == 1){
+          itemEquilibrio = CollectibleType.potion;
+        }
+        else if(gameRef.keysNotifier.value == 0){
+          itemEquilibrio = CollectibleType.key;
+        }
+        else if(gameRef.player.bombNotifier.value == 0){
+          itemEquilibrio = CollectibleType.bomba;
+        }else if(gameRef.player.healthNotifier.value % 2 != 0){
+          itemEquilibrio = CollectibleType.potion;
+        }else if(gameRef.coinsNotifier.value < 50){
+          itemEquilibrio = CollectibleType.coin;
+        }else if(gameRef.keysNotifier.value < 5){
+          itemEquilibrio = CollectibleType.key;
+        }else if(gameRef.player.bombNotifier.value < 5){
+          itemEquilibrio = CollectibleType.bomba;
+        }else if(gameRef.player.healthNotifier.value + gameRef.player.artificialHealthNotifier.value < 12){
+          itemEquilibrio = CollectibleType.potion;//fazer a vida artificial
+        }else{
+          itemEq = false;
+        }
+
+      }
+
       if(shouldDrop){
         if(dropChest){
           gameRef.world.add(Chest(position: position.clone(),isLock: true));
         } else if (dropList.isNotEmpty) {
           dropList.shuffle();
-          final item = Collectible(position: position.clone(), type: dropList[0]);
+          final item = Collectible(position: position.clone(), type:itemEq?itemEquilibrio: dropList[0]);
           gameRef.world.add(item);
           double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
           double altura = Random().nextDouble() * 100 + 150 * -1;
@@ -818,40 +892,49 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     removeFromParent();
   }
 
-  Enemy criaCopiaNormal(Vector2 novaPos){
+  Enemy criaCopiaNormal(Vector2 novaPos,{isMenor = false}){
+    double hpAux = 1;
+    double sizeAux = 1.3;
+
+    if(isMenor){
+      hpAux = 0.4;
+      //sizeAux = 2;
+    }
+
     return Enemy(
-		position : novaPos ,
-		movementBehavior: movementBehavior,
-		attackBehavior:attackBehavior,
-		deathBehavior: deathBehavior,
-		attack2Behavior:attack2Behavior,
-		hp : hpMax,
-		speed : speed,
-		soul : soul,
-		weight : weight,
-		rotates : rotates,
-		rotateOff : rotateOff,
-		voa : voa,
-		animado : animado,
-		flipOposto : flipOposto,
-		hasGhostEffect : hasGhostEffect,
-		iconData : iconData,
-		originalColor : auxColor,
-		isDummy : isDummy,
-		size : size / 1.3,
-		hbSize : hbSize / 1.3,
-		hbOffset : hbOffset / 1.3,
-		hasShield : hasShield,
-		hasFlail : hasFlail,
-		isBoss : false,
-		dropList : [],
-		noChamp : true,
+      position : novaPos ,
+      movementBehavior: movementBehavior,
+      attackBehavior:attackBehavior,
+      deathBehavior: deathBehavior,
+      attack2Behavior:attack2Behavior,
+      hp : hpMax * hpAux,
+      speed : speed,
+      soul : soul,
+      weight : weight,
+      rotates : rotates,
+      rotateOff : rotateOff,
+      voa : voa,
+      animado : animado,
+      flipOposto : flipOposto,
+      hasGhostEffect : hasGhostEffect,
+      iconData : iconData,
+      originalColor : auxColor,
+      isDummy : isDummy,
+      size : size / sizeAux,
+      hbSize : hbSize / sizeAux,
+      hbOffset : hbOffset / sizeAux,
+      hasShield : hasShield,
+      hasFlail : hasFlail,
+      isBoss : false,
+      dropList : [],
+      noChamp : true,
     );
   }
+  
 
-  void _splitIntoTwoNormalEnemies() {
-    final clone1 = criaCopiaNormal(position.clone() + Vector2(-20, 0));
-    final clone2 = criaCopiaNormal(position.clone() + Vector2(20, 0));
+  void splitIntoTwoNormalEnemies({isMenor = false}) {
+    final clone1 = criaCopiaNormal(position.clone() + Vector2(-20, 0),isMenor: isMenor);
+    final clone2 = criaCopiaNormal(position.clone() + Vector2(20, 0),isMenor: isMenor);
 
     gameRef.world.add(clone1);
     gameRef.world.add(clone2);
@@ -974,23 +1057,30 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void criaTargetIcon(){
+    /*
     if (targetIcon == null){
       targetIcon = GameIcon(
       icon: MdiIcons.target,
       color: Pallete.branco,
-      size: size/2,
+      size: size*1.5,
       anchor: Anchor.center,
       position: Vector2(size.x / 2, size.y), 
     );
+      targetIcon!.priority = priority - 50;
       add(targetIcon!);
     }
+    */
+    isTarget = true;
   }
 
   void removeTargetIcon(){
+    /*
     if (targetIcon != null) {
       targetIcon!.removeFromParent();
       targetIcon = null; 
     }
+    */
+    isTarget = false;
   }
 
   void setBurn(){

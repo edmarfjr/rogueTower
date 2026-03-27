@@ -119,8 +119,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
   }
 
-  void startRoom(int roomNumber,{continuar = false}) {
-    
+  void startRoom(int roomNumber) {   
     _levelCleared = false;
     _checkTimer = 0.0; 
 
@@ -128,15 +127,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150), champType: 5));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150), champType: 1));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeBuracoNegro));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeBoxSpider));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.familiarEye));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.bloquel));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.retribuicao));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.familiarBlock));
 
@@ -839,6 +838,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } 
   }
   
+  void geraItemAleatorio(Vector2 pos, [int preco = 0]){
+     _generateItemAleatorio(pos, preco);
+  }
 
   void _generateItemAleatorio(Vector2 pos, [int preco = 0]) {
     final rng = Random();
@@ -857,6 +859,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     gameRef.world.add(Collectible(position: pos, type: lootType, custo: preco));
   }
+  
 
   void _generatePocoesAleatorias(Vector2 pos, int preco, bool isBomba ) {
      final rng = Random();

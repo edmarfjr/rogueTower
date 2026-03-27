@@ -149,6 +149,7 @@ class Player extends PositionComponent
   bool confuseOnCrit = false;
   bool isBombSplits = false;
   bool isBombDecoy = false;
+  bool bombaBuracoNegro = false;
   int tempDmgBonus = 0;
   int tempDmgGoldBonus = 0;
   int regenCount = 0;
@@ -202,6 +203,10 @@ class Player extends PositionComponent
   bool tempZodiacTaurus = false;
   bool defensiveFairys = false;
   bool itemExtraBoss = false;
+  bool retribuicao = false;
+  bool refletirChance = false;
+  bool adagaChance = false;
+  bool glifoEquilibrio = false;
 
   int vidasNoJarro = 0;
   int fadasNoJarro = 0;
@@ -279,7 +284,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeDullRazor) return 2;
     if (type == CollectibleType.activeCircularShots) return 2;
     if (type == CollectibleType.activeDiarreiaExplosiva) return 2;
-    if (type == CollectibleType.activeBoxSpider) return 0;
+    if (type == CollectibleType.activeBoxSpider) return 2;
     if (type == CollectibleType.activeD10) return 2;
     if (type == CollectibleType.activeScroll) return 2;
     if (type == CollectibleType.activeGoldenBox) return 0;
@@ -295,6 +300,9 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeTurretRotate) return 3;
     if (type == CollectibleType.activeGlassStaff) return 1;
     if (type == CollectibleType.activeBuracoNegro) return 4;
+    if (type == CollectibleType.activeLoja) return 2;
+    if (type == CollectibleType.activeCleaver) return 3;
+    if (type == CollectibleType.activeKamikaze) return 0;
     
     return 5; 
   }
@@ -655,8 +663,8 @@ class Player extends PositionComponent
     /* 3. Feedback Visual Final*/
     if (feedbackText.isNotEmpty) {
       gameRef.world.add(FloatingText(
-        text: feedbackText,
-        position: position.clone(), 
+        text: '${feedbackText.tr()}!',
+        position: position.clone() + Vector2(0,-size.y/2), 
         color: feedbackColor,
         fontSize: 12,
       ));
@@ -1215,6 +1223,14 @@ class Player extends PositionComponent
       return; 
     }
 
+    if(retribuicao){
+      for (int i = 0; i < 10; i++) {
+        double angle = i*(2*pi/10); 
+        Vector2 newDir = Vector2(cos(angle), sin(angle));
+        criaTiro(damage*1.5,newDir,attackRange); 
+      }
+    }
+
     if(takeOneDmg) amount = 1;
 
     if (gameRef.challengeHitsNotifier.value >= 0) {
@@ -1338,8 +1354,11 @@ class Player extends PositionComponent
       }
     }
 
+    if (target != null && !target!.isMounted) {
+      target = null;
+    }
+
     if (target != null) {
-      
       _attackTimer = 0;
       if(isMorteiro){
         gameRef.world.add(MortarShell(
@@ -1527,10 +1546,22 @@ class Player extends PositionComponent
         direction: _tempDirection.clone()));
       return;
     }
+    criaTiro(dmg,_tempDirection.clone(),aRange);
+  }
+
+  void criaTiro(dmg,dir,aRange){
+    int rnd = Random().nextInt(100);
+    bool isAdaga = false;
+
+    if(rnd <= 7 && adagaChance){
+      isAdaga = true;
+      dmg *= 4;
+    }
+
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 
-      direction: _tempDirection.clone(), 
+      direction: dir, 
       damage: noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
       size: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
@@ -1551,7 +1582,8 @@ class Player extends PositionComponent
       growthRate: 100,      // <-- Velocidade de expansão
       sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
       isSaw: isSaw,
-      knockbackForce: knockbackForce
+      knockbackForce: knockbackForce,
+      isAdaga: isAdaga
     ));
   }
 
@@ -1567,7 +1599,8 @@ class Player extends PositionComponent
         owner: this, 
         splits: isBombSplits,
         isDecoy: isBombDecoy,
-        isGlitterBomb: isGlitterBomb
+        isGlitterBomb: isGlitterBomb,
+        isBuracoNegro: bombaBuracoNegro,
       ));
     } else {
       gameRef.world.add(FloatingText(
@@ -1665,6 +1698,7 @@ class Player extends PositionComponent
     restock = false;
     encolheOnCrit = false;
     isGlitterBomb = false;
+    bombaBuracoNegro = false;
     goldShot = false;
     clusterShot = -1;
     evasao = false;
@@ -1687,6 +1721,10 @@ class Player extends PositionComponent
     zodiac = false;
     defensiveFairys = false;
     itemExtraBoss = false;
+    retribuicao = false;
+    refletirChance = false;
+    adagaChance = false;
+    glifoEquilibrio = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
@@ -1706,7 +1744,9 @@ class Player extends PositionComponent
         double dmg = (isUnicorn || isPac)? damage*2 : damage;
         other.takeDamage(dmg);
       }else{
-        takeDamage(other.dmg.toInt());
+        int danoIni = 1;
+        if(other.isBoss || other.championType>0) danoIni = 2;
+        takeDamage(danoIni);
       }
     }
   }
