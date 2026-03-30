@@ -296,9 +296,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void criaChampion(){
     int rng = Random().nextInt(100);
-    if(rng <= 10 && rng > 5){
+    if(rng <= 10 + gameRef.chanceChampBonus && rng > 5 + gameRef.chanceChampBonus){
       championType = Random().nextInt(5) + 1;
-    }else if(rng <5){
+    }else if(rng <= 5 + gameRef.chanceChampBonus){
       championType = Random().nextInt(4) + 6;
     }
   }
@@ -651,6 +651,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void takeDamage(double damage, {bool isDot = false, critico = true}) 
   { 
+    final rnd = Random();
     if (hp <= 0) return;
     if(championType == 8){
       final allEnemies = gameRef.world.children.query<Enemy>();
@@ -664,7 +665,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
     bool isCrit = false;
     double dmg = damage;
-    double critChance = Random().nextDouble() * 100;
+    double critChance = rnd.nextDouble() * 100;
 
     if (critChance <= gameRef.player.returnCritChance() && critico) {
       dmg *= gameRef.player.critDamage;
@@ -672,7 +673,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     if(gameRef.player.eutanasia){
-      if(Random().nextInt(100) <= 3){
+      double chance = min (1/(gameRef.player.sorte*2)*100,25);
+      if(rnd.nextInt(100) <= chance){
         if(isBoss){
           dmg *= 3;
         }else{
@@ -682,12 +684,19 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
     }
 
+    
+    if(gameRef.player.charmOnCrit){
+      double chance = 1/(gameRef.player.sorte/3)*100;
+      if(rnd.nextInt(100) <= chance){
+        setCharm();
+      }
+    }
+
     hp -= dmg;
     
     if (!isDot) {
       if(gameRef.player.isFreeze){
-        final rng = Random();
-        if (rng.nextDouble() <= 0.2){
+        if (rnd.nextDouble() <= 0.2){
           setFreeze();
         }
       }
@@ -722,16 +731,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if(gameRef.player.confuseOnCrit){
         setConfuse();
       }
-      if(gameRef.player.charmOnCrit){
-        setCharm();
-      }
       if(gameRef.player.encolheOnCrit){
         setEncolhido();
       }
       
       if(gameRef.player.isCritHeal){
-        double rng = Random().nextDouble();
-        if(rng < 0.5){
+        if(rnd.nextDouble() < 0.5){
           gameRef.world.add(FloatingText(
             text: 'Cura!',
             position: gameRef.player.position.clone() + Vector2(0, -10), 

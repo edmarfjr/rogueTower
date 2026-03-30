@@ -35,6 +35,7 @@ enum FamiliarType {
   gemini,
   aranha,
   turretRotate,
+  lanca,
 }
 
 class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
@@ -45,6 +46,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   final Vector2 _tempDirection = Vector2.zero(); 
   double _attackTimer = 0;
   double fireRate;
+  double _meleeTimer = 0;
+  double meleeRate;
   bool rotateShot = false;
   double rotateAng = 0;
   bool multiShot = false;
@@ -67,7 +70,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   final Set<PositionComponent> _entitiesList = {};
 
-  Vector2 _velocity = Vector2.zero();
+  Vector2 velocity = Vector2.zero();
 
   double _colorTimer = 0;
   final double _colorChangeInterval = 0.2;
@@ -129,6 +132,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     this.fireRate = 2,
     this.radius = 32,
     this.noVisual = false,
+    this.meleeRate = 0.3,
     }) : super(position: position , size: Vector2.all(32), anchor: Anchor.center) {
     priority = 10; 
   }
@@ -200,7 +204,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.finger:
         icon = MdiIcons.handPointingRight;
         cor = Pallete.bege.withOpacity(0.7);
-        dmg = player.damage;
+        dmg = player.damage/10;
+        fireRate = 0.6;
       case FamiliarType.bouncer:
         speed = 150;
         icon = MdiIcons.weatherTornado;
@@ -269,6 +274,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         speed = 150;
         moveDur = 0.5;
         cor = Pallete.azulCla.withOpacity(0.7);
+      case FamiliarType.lanca:
+        icon = MdiIcons.spear;
+        cor = Pallete.cinzaCla.withOpacity(0.7);
+        dmg = player.damage * 2;
+        fireRate = 0.6;
+        ang = pi/4;
       //default:
       //  icon = MdiIcons.fire;
       //  cor = Pallete.branco.withOpacity(0.7);
@@ -402,8 +413,15 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     }else if(type == FamiliarType.circProt){
       position = player.position.clone();
     }else if(type == FamiliarType.finger){
+      velocity = player.velocity;
       position = player.position.clone() + player.velocityDash.normalized() * 50;
       angle = atan2(player.velocityDash.y, player.velocityDash.x);
+      criaLaserDirecional(dt, Vector2(cos(angle),sin(angle)),dmg,0,fireRate,50);
+
+    }else if(type == FamiliarType.lanca){
+      velocity = player.velocity;
+      position = player.position.clone() + player.lastAttackDirection.normalized() * 50;
+      angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x);
     }else{
       if (dist > followDistance) {
         _animateMovement(dt);
@@ -414,6 +432,13 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         _handleAutoAttack(dt);
       }
     }
+
+    //familiares melee
+    if(type == FamiliarType.eye || type == FamiliarType.bouncer || type == FamiliarType.lanca
+     || type == FamiliarType.gemini){
+        _meleeTimer += dt;
+     }
+    
 
     if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
       final List<PositionComponent> toRemove = [];
@@ -525,13 +550,13 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   }
 
   void moveBounce(double dt){
-    if (_velocity == Vector2.zero()) {
+    if (velocity == Vector2.zero()) {
       final rng = Random();
       double angle = rng.nextDouble() * 2 * pi;
-      _velocity = Vector2(cos(angle), sin(angle)) * speed;
+      velocity = Vector2(cos(angle), sin(angle)) * speed;
     }
     
-    position += _velocity * dt;
+    position += velocity * dt;
     _checkBounds();
   }
 
@@ -547,34 +572,34 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     double bottomLimit = limitY - arenaBorder;
 
     if (position.x >= rightLimit) {
-      _velocity.x = -_velocity.x.abs(); 
+      velocity.x = -velocity.x.abs(); 
       position.x = rightLimit;      
     } 
     else if (position.x <= leftLimit) {
-      _velocity.x = _velocity.x.abs();  
+      velocity.x = velocity.x.abs();  
       position.x = leftLimit;       
     }
 
     if (position.y >= bottomLimit) {
-      _velocity.y = -_velocity.y.abs(); 
+      velocity.y = -velocity.y.abs(); 
       position.y = bottomLimit;     
     } 
     else if (position.y <= topLimit) {
-      _velocity.y = _velocity.y.abs();  
+      velocity.y = velocity.y.abs();  
       position.y = topLimit;        
     }
   }
 
   void _animateMovement(double dt) {
     double facingDirection = visual!.scale.x.sign; 
-    if (_velocity.x < -0.1) facingDirection = -1.0;
-    if (_velocity.x > 0.1) facingDirection = 1.0;
+    if (velocity.x < -0.1) facingDirection = -1.0;
+    if (velocity.x > 0.1) facingDirection = 1.0;
 
     double currentScaleX = 1.0;
     double currentScaleY = 1.0;
     double currentAngle = 0.0;
 
-    if (!_velocity.isZero()) {
+    if (!velocity.isZero()) {
       _walkTimer += dt * _bounceSpeed;
 
       double wave = sin(_walkTimer);
@@ -679,8 +704,9 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       createExplosionEffect(gameRef.world, absoluteCenter, visual!.color, count: 6);
       removeFromParent();
     }
-    if(other is Enemy && !other.isIntangivel && (type == FamiliarType.eye || type == FamiliarType.bouncer || type == FamiliarType.finger
-     || type == FamiliarType.gemini) ){
+    if(other is Enemy && !other.isIntangivel && (type == FamiliarType.eye || type == FamiliarType.bouncer || type == FamiliarType.lanca
+     || type == FamiliarType.gemini) && _meleeTimer >= meleeRate){
+      _meleeTimer = 0;
       other.takeDamage(dmg*gameRef.player.familiarDmg);
       setKnockBack(other);
     }
@@ -771,7 +797,6 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         Vector2 newDir = Vector2(cos(angle), sin(angle));
         criaTiro(newDir);
       }
-    
     }else if(rotateShot){
         _attackTimer = 0;
         Vector2 newDir = Vector2(cos(rotateAng), sin(rotateAng));
@@ -806,16 +831,41 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   void criaLaser(Vector2 dir,ang,target)
   {
+    
     gameRef.world.add(LaserBeam(
       position: position + (dir * 10),
       angleRad: ang,
       chargeTime: 0,
       fireTime: fireRate,
-      target: target,
       owner: this,
       damage: dmg*gameRef.player.familiarDmg
     ));
   }
+
+  void criaLaserDirecional(double dt, Vector2 dir,dmg,chargeTime,durTime,largura)
+  {
+    _attackTimer += dt;
+    double fRate = fireRate;
+    if (_attackTimer < fRate) return;
+    _attackTimer = 0;
+    final angle = atan2(dir.y, dir.x); 
+
+    gameRef.world.add(LaserBeam(
+      position: position + (dir * 10),
+      angleRad: angle,
+      larguraLaser: largura,
+      length: 800,
+      chargeTime: chargeTime,
+      fireTime: durTime,
+      followsOwnerMov: true,
+      dmgTime: 0.2,
+      owner: this,
+      damage: dmg,
+      invisivel: true,
+      atravessa: true,
+    ));
+  }
+  
 
   void _shootAt(PositionComponent target, {double angleOffset = 0}) {
     // Calculo da direção livre de lixo de memória
@@ -919,18 +969,18 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     final intersection = myRect.intersect(otherRect);
 
     if (intersection.width < intersection.height) {
-      if (_velocity.x > 0 && position.x < other.position.x) {
-          _velocity.x = -_velocity.x; 
+      if (velocity.x > 0 && position.x < other.position.x) {
+          velocity.x = -velocity.x; 
       }
-      else if (_velocity.x < 0 && position.x > other.position.x) {
-          _velocity.x = -_velocity.x; 
+      else if (velocity.x < 0 && position.x > other.position.x) {
+          velocity.x = -velocity.x; 
       }
     } else {
-      if (_velocity.y > 0 && position.y < other.position.y) {
-          _velocity.y = -_velocity.y; 
+      if (velocity.y > 0 && position.y < other.position.y) {
+          velocity.y = -velocity.y; 
       }
-      else if (_velocity.y < 0 && position.y > other.position.y) {
-          _velocity.y = -_velocity.y; 
+      else if (velocity.y < 0 && position.y > other.position.y) {
+          velocity.y = -velocity.y; 
       }
     }
   }

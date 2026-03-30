@@ -21,6 +21,7 @@ class PauseMenu extends StatelessWidget {
     final int critChance = (game.player.returnCritChance()).round();
     final int critDmg = (game.player.critDamage / game.player.critDamageIni * 100).round();
     final int speed = (game.player.moveSpeed / game.player.moveSpeedIni * 100).round();
+    final int sorte = game.player.sorte.toInt();
     final int level = game.currentLevel;
     final int room = game.currentRoom;
 
@@ -75,6 +76,8 @@ class PauseMenu extends StatelessWidget {
                       _buildStatRow(Icons.whatshot, 'range'.tr(), '$range%', Pallete.branco),
                       const SizedBox(height: 8),
                       _buildStatRow(Icons.whatshot, 'critChance'.tr(), '$critChance%', Pallete.branco),
+                      const SizedBox(height: 8),
+                      _buildStatRow(Icons.whatshot, 'sorte'.tr(), '$sorte', Pallete.branco),
                       const SizedBox(height: 8),
                       _buildStatRow(Icons.whatshot, 'critDmg'.tr(), '$critDmg%', Pallete.branco),
                       const SizedBox(height: 8),

@@ -55,6 +55,13 @@ class _GameEntryState extends State<GameEntry> {
   }
 
   @override
+  void dispose() {
+    // Se o Flutter fechar esta tela, garantimos que a engine pare de renderizar
+    _game.pauseEngine(); 
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GameWidget<TowerGame>(

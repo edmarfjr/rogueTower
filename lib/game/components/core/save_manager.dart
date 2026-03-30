@@ -30,6 +30,9 @@ class SaveManager {
       'souls': game.progress.soulsNotifier.value,
 
       'usouBomba': game.usouBomba,
+
+      'difficultyMultiplier': game.difficultyMultiplier,
+      'chanceChampBonus': game.chanceChampBonus,
       
       // Vida e Recursos do Jogador
       'hp': game.player.healthNotifier.value,
@@ -57,6 +60,7 @@ class SaveManager {
       'stackBonus': game.player.stackBonus,
       'bltSize': game.player.bltSize,
       'knockbackForce': game.player.knockbackForce,
+      'sorte': game.player.sorte,
       
       // --- FLAGS E POWER-UPS (BOOLEANOS) ---
       'isBerserk': game.player.isBerserk,
@@ -150,6 +154,8 @@ class SaveManager {
       'refletirChance':game.player.refletirChance,
       'adagaChance':game.player.adagaChance,
       'glifoEquilibrio':game.player.glifoEquilibrio,
+      'bltFireHazard':game.player.bltFireHazard,
+      'bltBuracoNegro':game.player.bltBuracoNegro,
       
     };
 
@@ -172,6 +178,8 @@ class SaveManager {
     game.currentLevelNotifier.value = runData['level'] ?? 1;
     game.currentRoomNotifier.value = runData['room'] ?? 1;
     game.usouBomba = runData['usouBomba'] ?? false;
+    game.difficultyMultiplier = runData['difficultyMultiplier'] ?? 1.0;
+    game.chanceChampBonus = runData['chanceChampBonus'] ?? 0.0;
 
     // Carrega Economia
     game.coinsNotifier.value = runData['coins'] ?? 0;
@@ -225,6 +233,7 @@ class SaveManager {
     game.player.bltSize = (runData['bltSize'] ?? 0.5).toDouble();
     game.player.knockbackForce = (runData['knockbackForce'] ?? 0.5).toDouble();
     game.player.stackBonus = (runData['stackBonus'] ?? 0).toInt();
+    game.player.sorte = (runData['sorte'] ?? 0).toInt();
     game.player.maxArtificialHealth = (runData['maxArtificialHealth'] ?? 0).toInt();
     game.player.artificialHealthNotifier.value = (runData['artificialHealthNotifier'] ?? 0).toInt();
     game.player.velocity.setZero();
@@ -322,8 +331,10 @@ class SaveManager {
     game.player.refletirChance = runData['refletirChance'] ?? false;
     game.player.adagaChance = runData['adagaChance'] ?? false;
     game.player.glifoEquilibrio = runData['glifoEquilibrio'] ?? false;
+    game.player.bltFireHazard = runData['bltFireHazard'] ?? false;
+    game.player.bltBuracoNegro = runData['bltBuracoNegro'] ?? false;
     
-    print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
+   // print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }
 

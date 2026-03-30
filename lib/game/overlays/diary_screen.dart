@@ -20,7 +20,8 @@ class DiaryScreen extends StatelessWidget {
       CollectibleType.bomba, CollectibleType.bombas, CollectibleType.healthContainer,
       CollectibleType.chest, CollectibleType.rareChest, CollectibleType.bank,
       CollectibleType.nextlevel, CollectibleType.shop, CollectibleType.boss, CollectibleType.slotMachine,
-      CollectibleType.alquimista, CollectibleType.desafio, CollectibleType.darkShop, CollectibleType.doacaoSangue
+      CollectibleType.alquimista, CollectibleType.desafio, CollectibleType.darkShop, CollectibleType.doacaoSangue,
+      CollectibleType.slotMachine
     ];
 
     // 1. Pega em todos os itens válidos
@@ -126,17 +127,17 @@ class DiaryScreen extends StatelessWidget {
           decoration: BoxDecoration(color: Colors.black87, border: Border.all(color: Pallete.amarelo)),
           child: Container(
             decoration: BoxDecoration(
-              color: Pallete.cinzaEsc,
+              color: Pallete.preto,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isDiscovered ? (attrs['color'] as Color) : Colors.transparent,
+                color: isDiscovered ? Pallete.branco: Pallete.cinzaEsc,
                 width: 2,
               ),
             ),
             child: Center(
               child: Icon(
                 isDiscovered ? attrs['icon'] : Icons.question_mark,
-                color: isDiscovered ? attrs['color'] : Colors.white24,
+                color:isDiscovered ? attrs['color'] : Colors.white24,
                 size: 32,
               ),
             ),

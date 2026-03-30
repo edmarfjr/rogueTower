@@ -43,6 +43,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   bool followsOwnerMov;
 
+  bool invisivel = false;
+  bool _canDamageThisFrame = false;
+
+  bool atravessa;
+  bool chains;
+  int chainCount;
+  int maxChains;
+
   LaserBeam({
     required Vector2 position,
     required this.angleRad,
@@ -60,6 +68,11 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     this.speed = 0.01,
     this.cor = Pallete.vermelho,
     this.refratado = false,
+    this.invisivel = false,
+    this.atravessa = false,
+    this.chains = false,
+    this.chainCount = 0,
+    this.maxChains = 4,
   }): maxLength = length, 
       currentLength = length, 
       
@@ -67,10 +80,8 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   @override
   Future<void> onLoad() async {
-    // Aplica a rotação
     angle = angleRad;
     
-    // Prioridade alta para desenhar por cima do chão/inimigos
     priority = 500; 
 
     if (owner is Enemy) critico = false;
@@ -79,17 +90,37 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   @override
   void update(double dt) {
     super.update(dt);
+   // if(invisivel) return;
 
     if (owner != null && !owner!.isMounted) {
-      removeFromParent(); // O tiro some junto
+      removeFromParent(); 
       return;
     }
 
-     if(dmgTmr < dmgTime){
-      dmgTmr += dt;
+    _timer += dt;
+    
+    // FASE 1: DISPARAR (Acabou o tempo de carga)
+    if (_timer >= chargeTime && !_hasFired) {
+      _fire();
+      AudioManager.playSfx('laser.mp3');
+      
+      // --- A MÁGICA ESTÁ AQUI ---
+      // Forçamos o timer a já começar cheio. 
+      // Assim, no exato frame em que o laser aparece, ele causa dano!
+      dmgTmr = dmgTime; 
     }
 
-    _timer += dt;
+    // --- SEGUNDA PARTE DA MÁGICA ---
+    // Só calculamos o tempo de recarga do dano SE o laser já estiver atirando
+    if (_hasFired) {
+      if(dmgTmr > 0){
+        dmgTmr -= dt;
+        //_canDamageThisFrame = false; // Carregando o próximo ciclo de dano...
+      } else {
+        _canDamageThisFrame = true; // SINAL VERDE! Queima tudo!
+        dmgTmr = dmgTime; // Reseta a contagem para esperar mais 0.3s
+      }
+    }
     // FASE 1: DISPARAR (Acabou o tempo de carga)
     if (_timer >= chargeTime && !_hasFired) {
       _fire();
@@ -117,17 +148,56 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         final directionVector = target!.position - position;
         angle = atan2(directionVector.y, directionVector.x);
       }
+    }else if (owner is Familiar) {
+      // 1. A origem do feixe fica colada no jogador
+      Familiar p = owner as Familiar; // Converte para acessar a velocidade do Familiar
+      
+      // 1. A origem do feixe fica colada no jogador
+      position = p.position.clone();
+      
+      // 2. A ponta aponta para o alvo (se ele ainda existir no mundo)
+      if (followsOwnerMov) {
+        
+        // Se o player estiver se movendo (ignoramos tremores menores que 1.0)
+        if (p.velocity.length > 1.0) {
+          // Calcula o ângulo baseado na direção em que ele está andando!
+          angle = atan2(p.velocity.y, p.velocity.x);
+        }
+        // Nota: Se ele ficar parado, o laser simplesmente mantém a última direção que estava apontando!
+        
+      } else if (target != null && target!.isMounted) {
+        final directionVector = target!.position - position;
+        angle = atan2(directionVector.y, directionVector.x);
+      }
     } else if (isMoving && _hasFired) {
       // Mantém a sua lógica original para os lasers inimigos que giram
       angle += speed;
     }
 
-    _updateLaserLength(); 
+    if(!atravessa)_updateLaserLength(); 
 
     // FASE 2: DESTRUIR (Acabou o tempo de fogo)
     if (_timer >= chargeTime + fireTime) {
       removeFromParent();
     }
+  }
+
+  Enemy? _findNextTarget(Enemy currentEnemy) {
+    double jumpRange = 150.0; // Distância máxima do pulo elétrico
+    Enemy? closest;
+    double minDistance = jumpRange;
+
+    for (final enemy in gameRef.world.children.whereType<Enemy>()) {
+      // Ignora o inimigo que acabou de levar o choque e inimigos mortos
+      if (enemy == currentEnemy || !enemy.isMounted) continue;
+
+      double dist = currentEnemy.absoluteCenter.distanceTo(enemy.absoluteCenter);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closest = enemy;
+      }
+    }
+    return closest;
   }
 
   void _updateLaserLength() {
@@ -170,12 +240,11 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
   void _fire() {
     _hasFired = true;
-    print('largura $larguraLaser');
     _hitbox = RectangleHitbox(
       position: Vector2(0, -larguraLaser/2), 
       size: Vector2(currentLength, larguraLaser), 
       isSolid: true,
-      collisionType: CollisionType.passive, 
+      collisionType: CollisionType.active, 
     );
     add(_hitbox!);
     
@@ -185,7 +254,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-
+    if(invisivel) return;
     if (!_hasFired) {
       // --- VISUAL DE CARGA (Aviso) ---
       // Linha fina que pisca
@@ -262,7 +331,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     super.onCollision(intersectionPoints, other);
     final hitPos = intersectionPoints.firstOrNull ?? position;
     
-    if(dmgTmr >= dmgTime){
+    if(_canDamageThisFrame){
       if (isEnemyProjectile) {
         if (other is Player) {
           createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
@@ -273,6 +342,33 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         if (other is Enemy) {
           createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
           other.takeDamage(damage,critico:critico);
+          if (chainCount < maxChains) {
+            final nextEnemy = _findNextTarget(other);
+            print('raio');
+            if (nextEnemy != null) {
+              // Calcula o ângulo para o próximo inimigo
+              final direction = nextEnemy.absoluteCenter - other.absoluteCenter;
+              final angleToNext = atan2(direction.y, direction.x);
+              print('vai pula raio');
+              // Cria o próximo elo da corrente
+              gameRef.world.add(LaserBeam(
+                position: other.absoluteCenter.clone(),
+                angleRad: angleToNext,
+                damage: damage * 0.8, // O dano pode diminuir a cada pulo (opcional)
+                chains: true,
+                chainCount: chainCount + 1, // Incrementa o contador
+                maxChains: maxChains,
+                fireTime: 0.15, // Faíscas de corrente são bem rápidas
+                chargeTime: 0,
+                cor: Pallete.azulCla,
+                larguraLaser: larguraLaser * 0.9, // Vai ficando mais fino
+                owner: null, // Importante ser null para não teletransportar pro player
+              ));
+            }
+          }
+        
+        // Desativa o dano neste frame para este laser específico não "chainar" infinitamente no mesmo inimigo
+        _canDamageThisFrame = false;
         }
       } 
       

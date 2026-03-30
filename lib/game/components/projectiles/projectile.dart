@@ -1,11 +1,14 @@
 import 'dart:math';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
+import 'package:towerrogue/game/components/projectiles/black_hole.dart';
 import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
 import '../core/pallete.dart';
@@ -83,6 +86,11 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool isStun;
   bool isAdaga;
+  bool buracoNegro;
+
+  double criaHazardTmr = 0;
+  bool fireHazzard;
+  bool isSpark;
 
   Projectile({
     required Vector2 position, 
@@ -119,6 +127,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isStun = false,
     this.isAdaga = false,
     this.cor = Pallete.preto,
+    this.fireHazzard = false,
+    this.buracoNegro = false,
+    this.isSpark = false,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
       super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
@@ -128,7 +139,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   @override
   Future<void> onLoad() async {
     Color color = isEnemyProjectile ? Pallete.vermelho : goldShot? Pallete.amarelo : Pallete.branco;
-    
+
     if (isWave) {
       color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
       _wavePaint = Paint()
@@ -226,6 +237,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     _timer += dt;
 
     if(isAdaga) _updateRotation();
+
+    if(fireHazzard) _createHazard(dt, isFire: true, tmp: 0.025);
 
     if (owner != null && !owner!.isMounted) {
       if (!isBoomerang) {
@@ -380,6 +393,25 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     removeFromParent();
   }
 
+  void _createHazard(double dt,{bool isFire = false, bool isVeneno = true,bool isGelo = false,bool isBlood = false,double tmp = 0.1}) {
+    criaHazardTmr += dt;
+  
+    if (criaHazardTmr >= tmp) {
+      gameRef.world.add(
+        PoisonPuddle(
+            position: position.clone() + Vector2(0, size.y/2), 
+            isPlayer: true,
+            isFire: isFire,
+            isPoison: isVeneno,
+            isFreeze: isGelo,
+            isBleed: isBlood
+          ),
+        );
+      
+      criaHazardTmr = 0;
+    }
+  }
+
   void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor){
     print('criou tiro');
     gameRef.world.add(Projectile(
@@ -443,12 +475,43 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
+  void _gerarFaiscasEletricas(Vector2 pontoDeImpacto, double danoOriginal) {
+    // A Jacob's Ladder geralmente gera 1 ou 2 faíscas por impacto
+    int quantidadeFaiscas = Random().nextInt(2) + 1; 
+
+    for (int i = 0; i < quantidadeFaiscas; i++) {
+      // 1. A Matemática do Caos: Gera um ângulo aleatório (0 a 360 graus em radianos)
+      double anguloAleatorio = Random().nextDouble() * 2 * pi;
+
+      // 2. Cria a Faísca (Usando o seu LaserBeam adaptado para ser um choque rápido!)
+      gameRef.world.add(LaserBeam(
+        position: pontoDeImpacto.clone(),
+        angleRad: anguloAleatorio,
+        larguraLaser: 10.0, // Um laser mais fino
+        length: 400.0, // Um laser bem curto (alcance da faísca)
+        chargeTime: 0.0, // Aparece instantaneamente
+        fireTime: 0.3, // Desaparece quase na mesma hora (pisca rápido)
+        damage: danoOriginal / 2, // A faísca dá metade do dano do tiro original
+        cor: Pallete.azulCla, // Azul elétrico
+        owner: null, // O jogador continua sendo o dono
+        chains: true,
+        atravessa: true,
+      ));
+    }
+    
+    // Opcional: Tocar um som de choque elétrico curtinho!
+    // AudioManager.playSfx('spark.mp3');
+  }
+
   void kill({bool triggerEffects = true}) {
     if (_isDead) return;
     _isDead = true;
 
     if (triggerEffects) {
       if (explodes) gameRef.world.add(Explosion(position: position, damagesPlayer:isEnemyProjectile, damage:damage));
+      if(buracoNegro){
+        game.world.add(BuracoNegro(position: position.clone(),size: Vector2.all(24), damage: damage/2, duration: 2));
+      }
     }
     
     removeFromParent();
@@ -524,6 +587,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         if (other.vida <= 0) other.removeFromParent();
       }
       if (splits) _doSplit(true,damage/2,speed * 0.6,size / 1.5,1,false,false,false,false,false,false,splitCount,false,false,false,cor);
+      if(isSpark)_gerarFaiscasEletricas(hitPos, damage/2);
       kill(); 
       return;
     }
@@ -555,6 +619,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
         if(isStun)other.setConfuse();
+        if(isSpark)_gerarFaiscasEletricas(hitPos, damage/2);
         
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {
           _homingTarget = null;

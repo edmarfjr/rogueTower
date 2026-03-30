@@ -43,10 +43,10 @@ class ActiveItemData {
 
 enum CollectibleType {
   //tipos de porta 
-  coin, coinUm, souls, potion, potionUm, key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
+  coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
   doacaoSangue, slotMachine,
   //itens comuns
-  damage, fireRate, moveSpeed, range, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
+  damage, fireRate, moveSpeed, range, sorte, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
@@ -55,6 +55,7 @@ enum CollectibleType {
   cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider, activeD10, defensiveFairys, familiarDmgBns, itemExtraBoss, activeSlot,
   activeFreezeBomb, activeBltDetonator, activeGoldenrazor, activeSacrifFamiliar, activeTurretRotate, activeGlassStaff, activeBuracoNegro,
   activeLoja, activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, adagaArremeco, bloquel, glifoEquilibrio, 
+  bltFireHazard, trofelCampeao, familiarLanca, 
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -65,7 +66,8 @@ enum CollectibleType {
   clusterShot, evasao, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill, portalBoss, noveVidas, activePacmen,
   hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra, zodiacPisces,
   zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac, activeScroll, familiarMastery, activeGoldenBox,
-  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser, activeNuke
+  activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser, activeNuke, bltBuracoNegro,
+  bltSparks,
 }
 
 
@@ -557,6 +559,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'heart'.tr(), 'desc': 'heartDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
       case CollectibleType.potionUm:
         return {'name': 'heartUm'.tr(), 'desc': 'heartUmDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.vermelho};
+      case CollectibleType.artificialHp:
+        return {'name': 'artificialHp'.tr(), 'desc': 'artificialHpDesc'.tr(), 'icon': Icons.favorite, 'color': Pallete.azulCla};
       case CollectibleType.sanduiche:
         return {'name': 'sanduiche'.tr(), 'desc': 'sanduiche'.tr(), 'icon': MdiIcons.hamburger, 'color': Pallete.marrom};
       case CollectibleType.key:
@@ -585,6 +589,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'boots'.tr(), 'desc': 'bootsDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.verdeCla};
       case CollectibleType.range:
         return {'name': 'aim'.tr(), 'desc': 'aimDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.rosa};
+      case CollectibleType.sorte:
+        return {'name': 'sortePot'.tr(), 'desc': 'sortePotDesc'.tr(), 'icon': MdiIcons.flaskRoundBottom, 'color': Pallete.amarelo};
       case CollectibleType.shield:
         return {'name': 'shield'.tr(), 'desc': 'shieldDesc'.tr(), 'icon': MdiIcons.shield, 'color': Pallete.cinzaCla};
       case CollectibleType.dash:
@@ -874,7 +880,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeJarroDeVida:
         return {'name': 'activeJarroDeVida'.tr(), 'desc': 'activeJarroDeVidaDesc'.tr(), 'icon': MdiIcons.flaskRoundBottomEmptyOutline, 'color': Pallete.vermelho};
       case CollectibleType.activePa:
-        return {'name': 'activePa'.tr(), 'desc': 'activePaDesc'.tr(), 'icon': MdiIcons.stairsUp, 'color': Pallete.azulCla};
+        return {'name': 'activePa'.tr(), 'desc': 'activePaDesc'.tr(), 'icon': MdiIcons.ladder, 'color': Pallete.azulCla};
       case CollectibleType.activeBoxOfFriends:
         return {'name': 'activeBoxOfFriends'.tr(), 'desc': 'activeBoxOfFriendsDesc'.tr(), 'icon': MdiIcons.packageUp, 'color': Pallete.azulCla};
       case CollectibleType.activeDupliItem:
@@ -913,6 +919,22 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'bloquel'.tr(), 'desc': 'bloquelDesc'.tr(), 'icon': MdiIcons.shieldHalfFull, 'color': Pallete.cinzaCla};
       case CollectibleType.glifoEquilibrio:
         return {'name': 'glifoEquilibrio'.tr(), 'desc': 'glifoEquilibrioDesc'.tr(), 'icon': MdiIcons.triangleDownOutline, 'color': Pallete.azulCla};
+      case CollectibleType.activeCleaver:
+        return {'name': 'activeCleaver'.tr(), 'desc': 'activeCleaverDesc'.tr(), 'icon': MdiIcons.axeBattle, 'color': Pallete.vermelho};
+      case CollectibleType.bombaBuracoNegro:
+        return {'name': 'bombaBuracoNegro'.tr(), 'desc': 'bombaBuracoNegroDesc'.tr(), 'icon': MdiIcons.bomb, 'color': Pallete.azulEsc};
+      case CollectibleType.activeBloodBag:
+        return {'name': 'activeBloodBag'.tr(), 'desc': 'activeBloodBagDesc'.tr(), 'icon': MdiIcons.bloodBag, 'color': Pallete.vermelho};
+      case CollectibleType.bltFireHazard:
+        return {'name': 'bltFireHazard'.tr(), 'desc': 'bltFireHazardDesc'.tr(), 'icon': MdiIcons.fireCircle, 'color': Pallete.vermelho};
+      case CollectibleType.trofelCampeao:
+        return {'name': 'trofelCampeao'.tr(), 'desc': 'trofelCampeaoDesc'.tr(), 'icon': MdiIcons.trophy, 'color': Pallete.laranja};
+      case CollectibleType.bltBuracoNegro:
+        return {'name': 'bltBuracoNegro'.tr(), 'desc': 'bltBuracoNegroDesc'.tr(), 'icon': MdiIcons.circleOutline, 'color': Pallete.branco};
+      case CollectibleType.bltSparks:
+        return {'name': 'bltSparks'.tr(), 'desc': 'bltSparksDesc'.tr(), 'icon': MdiIcons.lightningBolt, 'color': Pallete.azulCla};
+      case CollectibleType.familiarLanca:
+        return {'name': 'familiarLanca'.tr(), 'desc': 'familiarLancaDesc'.tr(), 'icon': MdiIcons.spear, 'color': Pallete.verdeEsc};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -1037,6 +1059,9 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.adagaArremeco,
       CollectibleType.bloquel,
       CollectibleType.glifoEquilibrio,
+      CollectibleType.bltFireHazard,
+      CollectibleType.trofelCampeao,
+      CollectibleType.familiarLanca,
     ];
     
     return _filtrarPool(itens, player);
@@ -1051,6 +1076,7 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.critChance,
       CollectibleType.critDamage,
       CollectibleType.dot,
+      CollectibleType.sorte,
     ];
   }
 
@@ -1142,6 +1168,8 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeSuperLaser,
       CollectibleType.bombaBuracoNegro,
       CollectibleType.activeNuke,
+      CollectibleType.bltBuracoNegro,
+      CollectibleType.bltSparks,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -1237,6 +1265,12 @@ class CollectibleLogic {
         case CollectibleType.damage:
           player.increaseDamage(1.2);
           text = "${"+ Damage".tr()}!";
+          //color = Pallete.branco; 
+          break;
+
+        case CollectibleType.sorte:
+          player.sorte ++;
+          text = "${"sorte".tr()}!";
           //color = Pallete.branco; 
           break;
 
@@ -3183,6 +3217,48 @@ class CollectibleLogic {
           text = "bloquel";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.bltFireHazard:
+          player.bltFireHazard = true;
+          text = "bltFireHazard";
+          //color = Pallete.vermelho;
+          break; 
+  
+        case CollectibleType.trofelCampeao:
+          player.increaseDamage(1.3) ;
+          game.chanceChampBonus += 15;
+          text = "trofelCampeao";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.familiarLanca:
+          final lanca = Familiar(position: player.position.clone(),
+                                  type: FamiliarType.lanca, 
+                                  player: player,
+                                  );
+            player.familiars.add(lanca);
+            game.world.add(lanca);
+          text = "familiarLanca";
+          break;
+
+        case CollectibleType.bltBuracoNegro:
+          player.bltBuracoNegro = true;
+          text = "bltBuracoNegro";
+          //color = Pallete.vermelho;
+          break;  
+
+        case CollectibleType.bltSparks:
+          player.bltSparks = true;
+          text = "bltSpark";
+          //color = Pallete.vermelho;
+          break;   
+
+        case CollectibleType.artificialHp:
+          player.increaseArtificialHp(2);
+          text = "artificialHp";
+          //color = Pallete.vermelho;
+          break; 
+          
 
         default:
           text = "";

@@ -9,17 +9,23 @@ import '../projectiles/projectile.dart';
 import '../effects/explosion_effect.dart';
 
 class BuracoNegro extends PositionComponent with HasGameRef<TowerGame> {
-  final double duration = 6.0;
+  double duration;
   double _timer = 0;
   double _damageTimer = 0;
   final double _damageTime = 0.2;
-  double damage = 5;
+  double damage;
 
-  final double pullRadius = 400.0; // O alcance da gravidade
+  final double pullRadius; // O alcance da gravidade
   final double basePullForce = 60.0; // A força do puxão
 
-  BuracoNegro({required Vector2 position})
-      : super(position: position, size: Vector2.all(48), anchor: Anchor.center);
+  BuracoNegro({
+        required Vector2 position,
+        Vector2? size,
+        this.damage = 5,
+        this.duration = 6,
+        this.pullRadius = 400.0,
+      })
+      : super(position: position, size: size ?? Vector2.all(48), anchor: Anchor.center);
 
   @override
   void update(double dt) {

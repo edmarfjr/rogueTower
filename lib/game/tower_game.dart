@@ -78,6 +78,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool usouBomba = false;
 
+  double chanceChampBonus = 0;
+
   bool primeiroInimigoPocaVeneno = false;
 
   // --- SISTEMA DE EMPRÉSTIMO ---

@@ -73,6 +73,8 @@ class Player extends PositionComponent
   TextComponent? velMaxText;
   int stackBonus = 0;
   double knockbackForce = 0;
+  double sorte = 0;
+  double sorteIni = 0;
 
   double bltSize = 10;
 
@@ -91,6 +93,7 @@ class Player extends PositionComponent
   final Vector2 _dashDirection = Vector2.zero();
   final Vector2 _collisionBuffer = Vector2.zero();
   final Vector2 _tempDirection = Vector2.zero(); 
+  final Vector2 lastAttackDirection = Vector2.zero(); 
 
   bool isDashing = false;
   double _dashTimer = 0;
@@ -207,6 +210,9 @@ class Player extends PositionComponent
   bool refletirChance = false;
   bool adagaChance = false;
   bool glifoEquilibrio = false;
+  bool bltFireHazard = false;
+  bool bltBuracoNegro = false;
+  bool bltSparks = false;
 
   int vidasNoJarro = 0;
   int fadasNoJarro = 0;
@@ -1188,10 +1194,11 @@ class Player extends PositionComponent
   }
 */
   void takeDamage(int amount,{bool roubaMoeda = false,bool pulaEscudo = false}) {
+    final rng = Random();
     if(_isInvincible || isDashing) return;
 
     if(evasao){
-      if(Random().nextDouble() <= 0.2) return;
+      if(rng.nextDouble() <= 0.2) return;
     }
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     gameRef.triggerHitStop(0.05);
@@ -1199,11 +1206,11 @@ class Player extends PositionComponent
       gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:false, damage:30, radius:60));
     }
 
-    if(roubaMoeda && gameRef.coinsNotifier.value > 0) collectCoin(Random().nextInt(10) + 5);
+    if(roubaMoeda && gameRef.coinsNotifier.value > 0) collectCoin(rng.nextInt(10) + 5);
 
     if(hurtPac){
-      int rnd = Random().nextInt(100);
-      if(rnd <= 5){ 
+      double chance = 5.0 + (2.5 * sorte);
+      if(rng.nextInt(100) <= chance && !isPac){ 
         ativaPacmen();
       }
     }
@@ -1255,7 +1262,6 @@ class Player extends PositionComponent
       
       if (artificialHealthNotifier.value % 2 == 0 ){
         maxArtificialHealth -= 2;
-        print(maxArtificialHealth);
       }
     }else{
       healthNotifier.value -= amount;
@@ -1267,8 +1273,8 @@ class Player extends PositionComponent
 
     double invTmr = invincibilityDuration;
     if(zodiacVirgo){
-      int rnd = Random().nextInt(100);
-      if(rnd <= 20) {
+      double chance = (1/(10-sorte))*100;
+      if(rng.nextInt(100) <= chance) {
         invTmr = 10;
         gameRef.world.add(FloatingText(
           text: "INVINCIBLE",
@@ -1422,8 +1428,9 @@ class Player extends PositionComponent
             _shootAt(target!,angleOffset: -0.2);
           }
           if(cardinalShot){
-            int rnd = Random().nextInt(100);
-            if(rnd <= 25){
+            final rnd = Random();
+            double chance = (1/(8-sorte))*100;
+            if(rnd.nextInt(100) <= chance){
               _shootAt(target!,angleOffset: pi/2);
               _shootAt(target!,angleOffset: -pi/2);
               _shootAt(target!,angleOffset: pi);
@@ -1431,6 +1438,7 @@ class Player extends PositionComponent
           }
         }
       }
+      lastAttackDirection.setFrom(_tempDirection);
     }
   }
 
@@ -1459,7 +1467,8 @@ class Player extends PositionComponent
       fireTime: durTime,
       followsOwnerMov: true,
       owner: this,
-      damage: dmg
+      damage: dmg,
+      length: 600,
     ));
   }
 
@@ -1506,7 +1515,7 @@ class Player extends PositionComponent
   }
 
   double returnCritChance(){
-    double crit = critChance;
+    double crit = critChance + sorte;
 
     if(shieldCrit){
       crit += shieldNotifier.value * 5;
@@ -1550,12 +1559,27 @@ class Player extends PositionComponent
   }
 
   void criaTiro(dmg,dir,aRange){
-    int rnd = Random().nextInt(100);
+    final rnd = Random();
     bool isAdaga = false;
+    bool isFireHazard = false;
+    bool isBuracoNegro = false;
 
-    if(rnd <= 7 && adagaChance){
+    double adagaCha = (1/(15-sorte))*100;
+    double fireHazChance = min((1/(12-sorte))*100,50);
+    double buracoNegroChance = min((1/(20-sorte))*100,20);
+
+    if(rnd.nextInt(100) <= adagaCha && adagaChance){
       isAdaga = true;
       dmg *= 4;
+    }
+
+    if(rnd.nextInt(100) <= fireHazChance && bltFireHazard){
+      isFireHazard = true;
+    }
+
+
+    if(rnd.nextInt(100) <= buracoNegroChance && bltBuracoNegro){
+      isBuracoNegro = true;
     }
 
     gameRef.world.add(Projectile(
@@ -1583,7 +1607,10 @@ class Player extends PositionComponent
       sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
       isSaw: isSaw,
       knockbackForce: knockbackForce,
-      isAdaga: isAdaga
+      isAdaga: isAdaga,
+      fireHazzard: isFireHazard,
+      buracoNegro: isBuracoNegro,
+      isSpark: bltSparks,
     ));
   }
 
@@ -1630,6 +1657,7 @@ class Player extends PositionComponent
     _attackTimer = 0;
     damage = 10.0;
     knockbackForce = 0;
+    sorte = 0;
     critChance = 5;
     critDamage = 2.0;
     fireRate = 0.4; 
@@ -1725,6 +1753,9 @@ class Player extends PositionComponent
     refletirChance = false;
     adagaChance = false;
     glifoEquilibrio = false;
+    bltFireHazard = false;
+    bltBuracoNegro = false;
+    bltSparks = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);
