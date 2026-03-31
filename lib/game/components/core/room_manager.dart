@@ -3,6 +3,7 @@ import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
+import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:towerrogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
@@ -39,6 +40,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   bool teveAlquimista = false;
 
   bool isSpawnningBoss = false;
+
+  bool pauseManager = false;
 
   int get bossRoom => gameRef.bossRoom;
 
@@ -94,6 +97,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (pauseManager) return;
     
     _checkTimer += dt;
     if (_checkTimer < _minTimeBeforeClear) return;
@@ -113,6 +118,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
         _unlockDoors();
         _levelCleared = true;
+        gameRef.salasLimpas.add(gameRef.currentRoom);
         if(gameRef.currentRoom == 0 && gameRef.currentLevel==1)return;
         gameRef.saveGame();
       }
@@ -133,7 +139,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.bltSparks));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.rainbowShot));
       //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.trofelCampeao));
       //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
@@ -179,10 +185,19 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
     
     // --- LÓGICA DE SPAWN ---
-    if (roomNumber == bossRoom) {
-      _triggerBossSpawnSequence(); 
+    if (gameRef.salasLimpas.contains(roomNumber)) {
+      // Se a sala já foi limpa antes, NÃO spawna inimigos!
+      _levelCleared = true; 
+      
+      // Como não tem inimigos para matar, as portas já devem nascer destrancadas
+      // (Opcional, pois o update tentaria destrancar depois, mas assim é mais seguro)
     } else {
-      _spawnEnemies(roomNumber);
+      // Se a sala é inédita (ou se o jogador fugiu no meio da luta), spawna os monstros!
+      if (roomNumber == bossRoom) {
+        _triggerBossSpawnSequence(); 
+      } else {
+        _spawnEnemies(roomNumber);
+      }
     }
     
     _spawnDoors(roomNumber);
@@ -555,6 +570,22 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       bloqueada: bloq2,
       bites: bites2,
     ));
+
+    if (roomNumber > 0 && roomNumber < bossRoom && rng.nextInt(100) < 20 + (gameRef.player.sorte*5) ) {
+      bool usaBomba = rng.nextBool(); 
+      const double margin = 48.0;
+      const double spawnWidth = TowerGame.gameWidth - (margin * 2);
+      const double spawnHeight = TowerGame.gameHeight - (margin * 4);
+
+      double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2;
+      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
+      final pos = Vector2(x, y);
+      
+      gameRef.world.add(SecretDoor(
+        position: pos,//Vector2(0, -320),
+        requiresBomb: usaBomba,
+      ));
+    }
   }
 
   void _spawnBankRoom() {
@@ -759,6 +790,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     for (final door in doors) {
       door.open();
+    }
+    //abrir portas das salas secretas
+
+    final sDoors = gameRef.world.children.query<SecretDoor>();
+    
+    for (final door in sDoors) {
+      door.temInimigos = false;
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop

@@ -86,6 +86,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double fearTimer = 0.0;
   double fearTime = 5.0;
   double fearTimeBase = 5.0;
+  bool isParalised = false;
+  double paraliseTimer = 0.0;
+  double paraliseTime = 3.0;
   
   // --- VARIÁVEIS DA AURA VISUAL ---
   double _auraTimer = 0;
@@ -108,6 +111,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameIcon? confuseIcon;
   GameIcon? charmIcon;
   GameIcon? fearIcon;
+  GameIcon? paraliseIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
@@ -338,7 +342,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         dropList = [CollectibleType.coin];
         break;
       case 7:
-        originalColor = Pallete.branco.withOpacity(0.1);
+        originalColor = Pallete.branco.withOpacity(0.2);
         isSpectral = true;
         dropChest = true;
         voa = true;
@@ -358,6 +362,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     dmg = 2;
     hp *= hpBonus;
     championAuraPaint = Paint()..color = originalColor.withOpacity(0.8)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
+    if(championType == 7) championAuraPaint = Paint()..color = originalColor.withOpacity(0.1)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
   }
 
   @override
@@ -388,6 +393,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
     else if(isConfuse){
       confuseBehavior.update(dt);
+    }else if(isParalised){
+      // nao faz nada
     }else{
       if (lureTarget != null) {
         if (!lureTarget!.isMounted) {
@@ -693,7 +700,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     hp -= dmg;
-    
+    /*
     if (!isDot) {
       if(gameRef.player.isFreeze){
         if (rnd.nextDouble() <= 0.2){
@@ -713,7 +720,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         setBleed();
       }
     }
-
+    */
     if (!_isHit) { 
         _isHit = true; 
         _hitTimer = 0.1; 
@@ -764,6 +771,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void die() {
+    final rng = Random();
     if (_isDead) return;
     _isDead = true;
 
@@ -794,8 +802,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     if(championType == 2){
       gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:2, radius:80));
-      int rng = Random().nextInt(100);
-      if(rng <= 90){
+
+      if(rng.nextInt(100)<= 90){
         gameRef.world.add(Bomb(
           position: position.clone(), 
           damage:1, 
@@ -830,8 +838,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       bool shouldDrop = true;
       
       if(championType > 0 && gameRef.difficultyMultiplier >= 2.0){
-        int rnd = Random().nextInt(100);
-        if(rnd > 33) shouldDrop = false; 
+        if(rng.nextInt(100) > 33) shouldDrop = false; 
       }
 
       CollectibleType itemEquilibrio = CollectibleType.potion;
@@ -857,7 +864,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         }else if(gameRef.player.bombNotifier.value < 5){
           itemEquilibrio = CollectibleType.bomba;
         }else if(gameRef.player.healthNotifier.value + gameRef.player.artificialHealthNotifier.value < 12){
-          itemEquilibrio = CollectibleType.potion;//fazer a vida artificial
+          itemEquilibrio = CollectibleType.artificialHp;
         }else{
           itemEq = false;
         }
@@ -865,9 +872,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
 
       if(shouldDrop){
-        if(dropChest){
+        if(dropChest && !itemEq && rng.nextBool()){
           gameRef.world.add(Chest(position: position.clone(),isLock: true));
-        } else if (dropList.isNotEmpty) {
+        } else if (dropList.isNotEmpty || itemEq) {
           dropList.shuffle();
           final item = Collectible(position: position.clone(), type:itemEq?itemEquilibrio: dropList[0]);
           gameRef.world.add(item);
@@ -1019,6 +1026,22 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       );
       
       add(fearIcon!);
+    }
+  }
+
+  void setParalise() {
+    if (!isParalised && !isBoss) {
+      isParalised = true;
+      numCondicoes ++;
+      paraliseIcon = GameIcon(
+        icon: MdiIcons.linkVariant,
+        color: Pallete.cinzaCla,
+        size: size/2,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+      );
+      
+      add(paraliseIcon!);
     }
   }
 
@@ -1345,6 +1368,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         encolhido = false;
         changeSize(2);
         hp *= 2;
+      }
+    }
+
+     //paralise
+    if (isParalised){
+      paraliseTimer += dt;
+      if (paraliseTimer >= paraliseTime){
+        isParalised = false;
+        if (paraliseIcon != null) {
+          paraliseIcon!.removeFromParent();
+          paraliseIcon = null; 
+        }
       }
     }
     

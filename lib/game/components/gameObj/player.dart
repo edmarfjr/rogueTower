@@ -213,6 +213,9 @@ class Player extends PositionComponent
   bool bltFireHazard = false;
   bool bltBuracoNegro = false;
   bool bltSparks = false;
+  bool isParalised = false;
+  bool isFear = false;
+  bool rainbowShot = false;
 
   int vidasNoJarro = 0;
   int fadasNoJarro = 0;
@@ -262,6 +265,8 @@ class Player extends PositionComponent
   //lista de itens
   List<AcquiredItemData> items = [];
   List<CollectibleType> itemsExcluidos = [];
+  GameIcon? itemUsadoIcon;
+  double itemUsadoTmr = 0;
 
   bool noDamage = false;
 
@@ -309,6 +314,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeLoja) return 2;
     if (type == CollectibleType.activeCleaver) return 3;
     if (type == CollectibleType.activeKamikaze) return 0;
+    if (type == CollectibleType.activeWoodenCoin) return 1;
     
     return 5; 
   }
@@ -446,6 +452,15 @@ class Player extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
+
+    if(itemUsadoTmr>0){
+      itemUsadoTmr -= dt;
+    }else{
+      if(itemUsadoIcon!=null){
+        itemUsadoIcon!.removeFromParent();
+        itemUsadoIcon = null;
+      }
+    }
     
     for (var familiar in familiars) {
       
@@ -660,13 +675,27 @@ class Player extends PositionComponent
 
     // Só usa se existir e estiver com a carga completa!
     if (itemData != null && itemData.isReady) {
+      final atributos = Collectible.getAttributes(itemData.type); 
       
+      final IconData icone = atributos['icon'] as IconData;
+      final Color cor = atributos['color'] as Color;
+      if(itemUsadoIcon == null){
+        itemUsadoIcon = GameIcon(
+          icon: icone,
+          color: cor,
+          size: size,
+          anchor: Anchor.center,
+          position: Vector2(size.x / 2, - size.y / 4 - 8), 
+        );
+        add(itemUsadoIcon!);
+        itemUsadoTmr = 1;
+      }
       final feedback = CollectibleLogic.applyEffect(type: itemData.type, game: gameRef);
-      String feedbackText = feedback['text'] as String;
-      Color feedbackColor = feedback['color'] as Color;
       bool foiSucesso = feedback['sucesso'] ?? true;
+    /*  String feedbackText = feedback['text'] as String;
+      Color feedbackColor = feedback['color'] as Color;
 
-    /* 3. Feedback Visual Final*/
+    // 3. Feedback Visual Final
     if (feedbackText.isNotEmpty) {
       gameRef.world.add(FloatingText(
         text: '${feedbackText.tr()}!',
@@ -675,7 +704,7 @@ class Player extends PositionComponent
         fontSize: 12,
       ));
     }
-    
+    */
 
       if (slotIndex == 0) {
         // Zera a carga do recarregável
@@ -773,6 +802,7 @@ class Player extends PositionComponent
       healthNotifier.value = maxHealth;
       shieldNotifier.value = charClass.startingShield;
       bombNotifier.value = charClass.startingBombs;
+      game.keysNotifier.value = charClass.startingKeys;
       
       moveSpeed = charClass.speed;
       moveSpeedIni = charClass.speed;
@@ -1582,6 +1612,52 @@ class Player extends PositionComponent
       isBuracoNegro = true;
     }
 
+    bool tempBurn = false;
+    bool tempPoison = false;
+    bool tempCharm = false;
+    bool tempHoming = false;
+    bool tempFreeze = false;
+    bool tempParalise = false;
+    bool tempFear = false;
+
+    Color cor = Pallete.preto;
+    if(rainbowShot){
+      int effectRoll = rnd.nextInt(8);
+      switch(effectRoll){
+        case 0:
+          tempBurn = true;
+          cor = Pallete.laranja;
+          break;
+        case 1:
+          tempPoison = true;
+          cor = Pallete.verdeCla;
+          break;
+        case 2:
+          tempCharm = true;
+          cor = Pallete.rosa;
+          break;
+        case 3:
+          tempHoming = true;
+          cor = Pallete.lilas;
+          break;
+        case 4:
+          tempFreeze = true;
+          cor = Pallete.azulCla;
+          break;
+        case 5:
+          tempParalise = true;
+          cor = Pallete.marrom;
+          break;
+        case 6:
+          tempFear = true;
+          cor = Pallete.cinzaEsc;
+          break;
+        case 7:
+          break;
+      }
+
+    }
+
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 
@@ -1591,7 +1667,7 @@ class Player extends PositionComponent
       size: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
-      isHoming: isHoming || isHomingTemp,
+      isHoming: tempHoming ||isHoming || isHomingTemp,
       iniPosition: position.clone(),
       canBounce: canBounce,
       isSpectral: isSpectral,
@@ -1611,6 +1687,14 @@ class Player extends PositionComponent
       fireHazzard: isFireHazard,
       buracoNegro: isBuracoNegro,
       isSpark: bltSparks,
+      isParalised:tempParalise || isParalised? Random().nextInt(100) <= min((1/(5-(sorte * 0.15)))*100, 50)? true:false : false,
+      isFreeze:tempFreeze || isFreeze? Random().nextInt(100) <= (1/(4 - (sorte / 5)))*100? true:false : false,
+      isFear: tempFear || isFear? Random().nextInt(100) <= (15/(100 - sorte ))*100? true:false : false,
+      isBleed: isBleed,
+      isPoison:tempPoison || isPoison,
+      isBurn: tempBurn || isBurn,
+      isCharm: tempCharm,
+      cor:cor,
     ));
   }
 
@@ -1756,6 +1840,9 @@ class Player extends PositionComponent
     bltFireHazard = false;
     bltBuracoNegro = false;
     bltSparks = false;
+    isParalised = false;
+    isFear = false;
+    rainbowShot = false;
 
     criaVisual(reset:true);
     _visual.setColor(Pallete.branco);

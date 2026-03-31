@@ -394,6 +394,7 @@ class Hud extends StatelessWidget {
   // ==========================================================
   // HELPER PARA CORES E ÍCONES (Já que o método do Collectible é privado)
   // ==========================================================
+  /*
   IconData _getIconForType(CollectibleType type) {
     switch (type) {
       case CollectibleType.pocaVeneno: return MdiIcons.cloudOffOutline;
@@ -411,4 +412,5 @@ class Hud extends StatelessWidget {
       default: return Pallete.amarelo;
     }
   }
+  */
 }

@@ -9,9 +9,11 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/camera.dart'; 
+import 'package:flame/camera.dart';
+import 'package:towerrogue/game/components/gameObj/chest.dart'; 
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/core/room_manager.dart';
+import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
 import 'components/gameObj/arena_border.dart';
@@ -53,6 +55,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final ValueNotifier<int> keysNotifier = ValueNotifier<int>(0);
   final ValueNotifier<int> challengeHitsNotifier = ValueNotifier<int>(-1);
   int soulsTotal = 0;
+
+  Set<int> salasLimpas = {};
+
+  List<Component> backupSalaNormal = [];
+  List<Component> backupSalaSecreta = [];
+  bool salaSecretaGeradaNestaSala = false;
   
   CollectibleType nextRoomReward = CollectibleType.nextlevel;
 
@@ -81,6 +89,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   double chanceChampBonus = 0;
 
   bool primeiroInimigoPocaVeneno = false;
+
+  // Guarda o ID (ou índice) da sala normal atual antes de entrar na secreta
+  int salaAnteriorId = 0; 
+
+  // Posição que o jogador estava para não nascer colado na porta quando voltar
+  Vector2 posicaoRetorno = Vector2.zero();
 
   // --- SISTEMA DE EMPRÉSTIMO ---
   final ValueNotifier<int> dividaNotifier = ValueNotifier<int>(0);
@@ -389,11 +403,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     if(player.takeOneDmg) player.takeOneDmg = false;
     if(player.zodiacTaurusTransf) player.zodiacTaurusTransf = false;
 
-    if(!mesmaSala)currentRoomNotifier.value++;
-    if (currentRoom > bossRoom){
-      currentRoomNotifier.value = 0;
-      currentLevelNotifier.value++;
-      if (currentLevel > numLevels) winGame(); 
+    if (!mesmaSala) {
+      currentRoomNotifier.value++;
+      
+      // Ao trocar de sala real, esquecemos a sala secreta anterior para gerar uma nova!
+      salaSecretaGeradaNestaSala = false;
+      backupSalaNormal.clear();
+      backupSalaSecreta.clear();
     }
     nextRoomReward = chosenReward;
 
@@ -440,6 +456,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     currentRoomNotifier.value = 0;
     currentLevelNotifier.value = 1;
+    salasLimpas.clear();
+    backupSalaNormal.clear();
+    backupSalaSecreta.clear();
+    salaSecretaGeradaNestaSala = false;
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
     challengeHitsNotifier.value = -1;
@@ -459,6 +479,59 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     
     AudioManager.playBgm('8_bit_adventure.mp3');
     startLevel();
+  }
+
+  void entrarNaSalaSecreta() {
+    final rng = Random();
+    roomManager.pauseManager = true;
+    posicaoRetorno = player.position.clone();
+
+    // 1. SALVA A SALA NORMAL: Pega tudo do mapa (menos player, borda e o manager)
+    backupSalaNormal = world.children.where((c) => 
+      c != player && c != arenaBorder && c != roomManager
+    ).toList();
+
+    // 2. Remove do mundo (Eles ficam "congelados" no tempo dentro da lista)
+    world.removeAll(backupSalaNormal);
+
+    // 3. CARREGA A SALA SECRETA
+    if (!salaSecretaGeradaNestaSala) {
+      // Primeira vez entrando: Gera a sala do zero
+      salaSecretaGeradaNestaSala = true;
+      
+      player.position = Vector2(0, 200);
+      if(rng.nextBool()){
+        roomManager.geraItemAleatorio(Vector2(0, 80), 0);
+      }else{
+        world.add(Chest(position: Vector2(0, 80), isLock: rng.nextBool()));
+      }
+      world.add(SecretDoor(position: Vector2(0, 280), isExit: true));
+      
+    } else {
+      // Já tínhamos entrado antes: Descongela a sala secreta salva!
+      player.position = Vector2(0, 200); 
+      world.addAll(backupSalaSecreta);
+      backupSalaSecreta.clear(); // Limpa a caixa, pois os itens voltaram pro mundo
+    }
+  }
+
+  void sairDaSalaSecreta() {
+    // 1. SALVA A SALA SECRETA (Baús abertos, itens deixados pra trás, etc)
+    backupSalaSecreta = world.children.where((c) => 
+      c != player && c != arenaBorder && c != roomManager
+    ).toList();
+
+    // 2. Remove a sala secreta da tela
+    world.removeAll(backupSalaSecreta);
+
+    // 3. RESTAURA A SALA NORMAL (Tudo volta exatamente como estava, portas inclusas!)
+    world.addAll(backupSalaNormal);
+    backupSalaNormal.clear(); 
+
+    roomManager.pauseManager = false;
+    
+    // 4. Devolve o jogador
+    player.position = posicaoRetorno + Vector2(0, 30); 
   }
 
   @override

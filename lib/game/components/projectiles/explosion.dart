@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/door.dart';
+import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:towerrogue/game/components/gameObj/wall.dart';
 import 'package:towerrogue/game/components/projectiles/projectile.dart';
@@ -123,6 +124,13 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
       for(final d in doors){
          if (d.position.distanceTo(position) <= radius && d.bloqueada ) {
             d.desbloqueia(); 
+         }
+      }
+      // Desbloqueia portas secretas
+      final secretDoors = gameRef.world.children.query<SecretDoor>();
+      for(final sd in secretDoors){
+         if (sd.position.distanceTo(position) <= radius && sd.requiresBomb && sd.isLocked ) {
+            sd.abrirPorta(); 
          }
       }
       // Apaga projéteis inimigos

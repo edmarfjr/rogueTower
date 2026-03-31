@@ -55,7 +55,7 @@ enum CollectibleType {
   cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider, activeD10, defensiveFairys, familiarDmgBns, itemExtraBoss, activeSlot,
   activeFreezeBomb, activeBltDetonator, activeGoldenrazor, activeSacrifFamiliar, activeTurretRotate, activeGlassStaff, activeBuracoNegro,
   activeLoja, activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, adagaArremeco, bloquel, glifoEquilibrio, 
-  bltFireHazard, trofelCampeao, familiarLanca, 
+  bltFireHazard, trofelCampeao, familiarLanca, activeWoodenCoin, 
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -67,7 +67,7 @@ enum CollectibleType {
   hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra, zodiacPisces,
   zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac, activeScroll, familiarMastery, activeGoldenBox,
   activeJarroDeVida, activePa, activeBoxOfFriends, activeDupliItem, activeJarroFadas, activeSuperLaser, activeNuke, bltBuracoNegro,
-  bltSparks,
+  bltSparks, paralisia, devilInside, rainbowShot,
 }
 
 
@@ -111,6 +111,7 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeLoja,
     CollectibleType.activeCleaver,
     CollectibleType.activeKamikaze,
+    CollectibleType.activeWoodenCoin,
   ];
   return recarregaveis.contains(type);
 }
@@ -935,6 +936,14 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'bltSparks'.tr(), 'desc': 'bltSparksDesc'.tr(), 'icon': MdiIcons.lightningBolt, 'color': Pallete.azulCla};
       case CollectibleType.familiarLanca:
         return {'name': 'familiarLanca'.tr(), 'desc': 'familiarLancaDesc'.tr(), 'icon': MdiIcons.spear, 'color': Pallete.verdeEsc};
+      case CollectibleType.activeWoodenCoin:
+        return {'name': 'activeWoodenCoin'.tr(), 'desc': 'activeWoodenCoinDesc'.tr(), 'icon': Icons.monetization_on, 'color': Pallete.marrom};
+      case CollectibleType.paralisia:
+        return {'name': 'paralisia'.tr(), 'desc': 'paralisiaDesc'.tr(), 'icon': MdiIcons.linkVariant, 'color': Pallete.lilas};
+      case CollectibleType.devilInside:
+        return {'name': 'devilInside'.tr(), 'desc': 'devilInsideDesc'.tr(), 'icon': MdiIcons.emoticonDevil, 'color': Pallete.vermelho};
+      case CollectibleType.rainbowShot:
+        return {'name': 'rainbowShot'.tr(), 'desc': 'rainbowShotDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.rosa};
       case CollectibleType.nextlevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
@@ -1062,6 +1071,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.bltFireHazard,
       CollectibleType.trofelCampeao,
       CollectibleType.familiarLanca,
+      CollectibleType.activeWoodenCoin,
     ];
     
     return _filtrarPool(itens, player);
@@ -1170,6 +1180,9 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.activeNuke,
       CollectibleType.bltBuracoNegro,
       CollectibleType.bltSparks,
+      CollectibleType.paralisia,
+      CollectibleType.devilInside,
+      CollectibleType.rainbowShot,
     ];
     return _filtrarPool(itRaros, player);
   }
@@ -3258,7 +3271,51 @@ class CollectibleLogic {
           text = "artificialHp";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.activeWoodenCoin:
+          final int rng = Random().nextInt(100);
+          final pos = player.position.clone() + Vector2(0, -50);
+          var item;
+          if (rng < 44) {
+            game.world.add(FloatingText(text: "nada".tr(), position: pos, color: Pallete.vermelho, fontSize: 10));
+            createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+          } else if (rng < 90) {
+            item = Collectible(position: pos, type: CollectibleType.coinUm);
+          } else if (rng < 95) {
+            item = Collectible(position: pos, type: CollectibleType.coin);
+          } else {
+            item = Collectible(position: pos, type: CollectibleType.boloDinheiro);
+          }
+          if(item != null){
+            createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+            game.world.add(item);
+            item.pop(Vector2(0, 0));
+          }
+          text = "activeWoodenCoin";
+          //color = Pallete.vermelho;
+          break; 
           
+        case CollectibleType.paralisia:
+          player.isParalised = true;
+          text = "paralisia";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.rainbowShot:
+          player.rainbowShot = true;
+          text = "rainbowShot";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.devilInside:
+          player.isFear = true;
+          player.increaseDamage(1.5);
+          player.increaseMovementSpeed(1.2);
+          player.increaseArtificialHp(player.maxHealth);
+          player.increaseHp(-player.maxHealth );
+          text = "devilInside";
+          //color = Pallete.vermelho;
+          break; 
 
         default:
           text = "";

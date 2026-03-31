@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/interact_button.dart';
+import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -118,25 +120,34 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void _openChest() {
     if (gameRef.keysNotifier.value <= 0 && isLock && !gameRef.player.hasChaveNegra) {
+      gameRef.world.add(FloatingText(
+        text: "noKeys".tr(),
+        position: position.clone(), 
+        color: Pallete.branco,
+        fontSize: 12,
+      ));
       return;
     }
+    if(isLock){
+      _updateIcon(MdiIcons.treasureChest, Pallete.cinzaEsc);
+    }else{
+      _updateIcon(MdiIcons.package, Pallete.cinzaEsc);
+    } 
     _isOpen = true;
+
+    gameRef.itensComunsPoolCurrent.shuffle();
+    List<CollectibleType> possibleRewards = gameRef.itensComunsPoolCurrent;
     
     // Consome a chave
     if(isLock){
+      gameRef.itensRarosPoolCurrent.shuffle();
+      possibleRewards = gameRef.itensRarosPoolCurrent;
       if(gameRef.keysNotifier.value <=0 && gameRef.player.hasChaveNegra){
         gameRef.player.takeDamage(1);
       }
       gameRef.keysNotifier.value--;
     }
-    gameRef.itensComunsPoolCurrent.shuffle();
-    List<CollectibleType> possibleRewards = gameRef.itensComunsPoolCurrent;
-
-    if(isLock){
-      gameRef.itensComunsPoolCurrent.shuffle();
-      possibleRewards = gameRef.itensRarosPoolCurrent;
-    } 
-
+    
     final CollectibleType lootType = possibleRewards[0];
 
     if(isLock) {

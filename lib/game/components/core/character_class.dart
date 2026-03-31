@@ -110,6 +110,8 @@ class CharacterRoster {
       dashCooldown: 2.5,
       attackRange: 0.7,
       startingShield: 1,
+      startingBombs: 1,
+      startingKeys: 1,
     ),
     CharacterClass(
       id: 'piromante',

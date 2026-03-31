@@ -88,24 +88,24 @@ class AudioManager {
   }
 
   static void playBgm(String filename) {
-    FlameAudio.bgm.stop();
-    _currentBgm = filename;
-    print('tentando tocar $_currentBgm');
-    if (_isMutedMusic){
-      print('mas ta mudo'); 
-      return;
+    // 1. A TRAVA DE SEGURANÇA: Se já está tocando a mesma música, ignora!
+    if (_currentBgm == filename && _isBgmPlaying && !_isMutedMusic) {
+      return; 
     }
 
-    if (_isBgmPlaying){
-      print('tava tocando outra coisa e parou');
-      FlameAudio.bgm.stop();
-    } 
+    // 2. Salva a intenção (importante para o unmute saber o que tocar)
+    _currentBgm = filename; 
+
+    // Se estiver mudo, registamos qual seria a música, mas saímos antes de tocar
+    if (_isMutedMusic) return;
+
+    // 3. Para qualquer música antiga antes de começar a nova
+    FlameAudio.bgm.stop(); 
   
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
       _isBgmPlaying = true;
       print('tocando $filename');
-      //_currentBgm = filename;
     } catch (e) {
       print("Erro ao tocar BGM: $e");
     }
@@ -114,7 +114,7 @@ class AudioManager {
   static void stopBgm() {
     FlameAudio.bgm.stop();
     _isBgmPlaying = false;
-    _currentBgm = '';
+    //_currentBgm = '';
     print('parou musica');
   }
 
@@ -128,13 +128,17 @@ class AudioManager {
   
   static void toggleMuteMusic(bool mute) {
     _isMutedMusic = mute;
+    
     if (_isMutedMusic) {
-      print('mudo');
-      stopBgm();
+      // Ao invés de parar do zero, pausamos. Assim o unmute é mais suave.
+      FlameAudio.bgm.pause(); 
+      _isBgmPlaying = false;
     } else {
-      
-      if(_currentBgm.isNotEmpty)playBgm(_currentBgm);
-      //playBgm(_currentBgm.isNotEmpty ? _currentBgm : '8bit_menu.mp3'); 
+      // Desmutou! Se temos uma música salva na memória, ela volta a tocar
+      if (_currentBgm.isNotEmpty) {
+        // Usamos o playBgm em vez do resume para garantir que o volume aplique corretamente
+        playBgm(_currentBgm); 
+      }
     }
   }
 

@@ -87,10 +87,18 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   bool isStun;
   bool isAdaga;
   bool buracoNegro;
+  bool isParalised;
+  bool isFreeze;
+  bool isBurn;
+  bool isPoison;
+  bool isBleed;
+  bool isFear;
+  bool isCharm;
 
   double criaHazardTmr = 0;
   bool fireHazzard;
   bool isSpark;
+
 
   Projectile({
     required Vector2 position, 
@@ -130,6 +138,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.fireHazzard = false,
     this.buracoNegro = false,
     this.isSpark = false,
+    this.isParalised = false,
+    this.isFreeze = false,
+    this.isBurn = false,
+    this.isPoison = false,
+    this.isBleed = false,
+    this.isFear = false,
+    this.isCharm = false,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
       super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
@@ -138,7 +153,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   @override
   Future<void> onLoad() async {
-    Color color = isEnemyProjectile ? Pallete.vermelho : goldShot? Pallete.amarelo : Pallete.branco;
+    Color color = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.amarelo : Pallete.branco) : cor;
 
     if (isWave) {
       color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
@@ -619,6 +634,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
         if(isStun)other.setConfuse();
+        if(isParalised)other.setParalise();
+        if(isBurn)other.setBurn();
+        if(isFreeze)other.setFreeze();
+        if(isPoison)other.setPoison(alastra: gameRef.player.isPoisonAlastra || gameRef.player.tempPoisonAlastra);
+        if(isBleed)other.setBleed();
+        if(isFear)other.setFear();
+        if(isCharm)other.setCharm();
         if(isSpark)_gerarFaiscasEletricas(hitPos, damage/2);
         
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {

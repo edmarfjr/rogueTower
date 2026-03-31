@@ -24,6 +24,7 @@ class SaveManager {
       // --- PROGRESSO DO MUNDO ---
       'level': game.currentLevelNotifier.value,
       'room': game.currentRoomNotifier.value,
+      'salasLimpas': game.salasLimpas.toList(),
 
       'coins': game.coinsNotifier.value,
       'keys': game.keysNotifier.value,
@@ -156,7 +157,10 @@ class SaveManager {
       'glifoEquilibrio':game.player.glifoEquilibrio,
       'bltFireHazard':game.player.bltFireHazard,
       'bltBuracoNegro':game.player.bltBuracoNegro,
-      
+      'bltSparks':game.player.bltBuracoNegro,
+      'isParalised':game.player.isParalised,
+      'isFear':game.player.isFear,
+      'rainbowShot':game.player.rainbowShot,
     };
 
     String jsonString = jsonEncode(runData);
@@ -177,6 +181,13 @@ class SaveManager {
     // --- CARREGA PROGRESSO DO MUNDO ---
     game.currentLevelNotifier.value = runData['level'] ?? 1;
     game.currentRoomNotifier.value = runData['room'] ?? 1;
+
+    if (runData['salasLimpas'] != null) {
+      game.salasLimpas = (runData['salasLimpas'] as List).map((e) => e as int).toSet();
+    } else {
+      game.salasLimpas = {}; // Segurança caso seja um save muito antigo
+    }
+
     game.usouBomba = runData['usouBomba'] ?? false;
     game.difficultyMultiplier = runData['difficultyMultiplier'] ?? 1.0;
     game.chanceChampBonus = runData['chanceChampBonus'] ?? 0.0;
@@ -333,6 +344,10 @@ class SaveManager {
     game.player.glifoEquilibrio = runData['glifoEquilibrio'] ?? false;
     game.player.bltFireHazard = runData['bltFireHazard'] ?? false;
     game.player.bltBuracoNegro = runData['bltBuracoNegro'] ?? false;
+    game.player.bltSparks = runData['bltSparks'] ?? false;
+    game.player.isParalised = runData['isParalised'] ?? false;
+    game.player.isFear = runData['isFear'] ?? false;
+    game.player.rainbowShot = runData['rainbowShot'] ?? false;
     
    // print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];

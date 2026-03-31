@@ -50,7 +50,6 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       default: return Pallete.azulEsc;
     }
   }  
-  
 
   @override
   void update(double dt) {
