@@ -363,6 +363,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
                 cor: Pallete.azulCla,
                 larguraLaser: larguraLaser * 0.9, // Vai ficando mais fino
                 owner: null, // Importante ser null para não teletransportar pro player
+                refratado:true,
               ));
             }
           }

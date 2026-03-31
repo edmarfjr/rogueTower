@@ -405,7 +405,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     if (!mesmaSala) {
       currentRoomNotifier.value++;
-      
+      if (currentRoomNotifier.value > bossRoom) {
+        currentRoomNotifier.value = 0;
+        currentLevelNotifier.value++;
+      }
+
       // Ao trocar de sala real, esquecemos a sala secreta anterior para gerar uma nova!
       salaSecretaGeradaNestaSala = false;
       backupSalaNormal.clear();

@@ -354,6 +354,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       case 9:
         originalColor = Pallete.rosa;
         var itens = retornaItensComuns(gameRef.player);
+        var pocoes = retornaPocoes();
+        itens.addAll(pocoes);
+        itens.shuffle();
         dropList = [itens[0]];
         break;
         
@@ -362,7 +365,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     dmg = 2;
     hp *= hpBonus;
     championAuraPaint = Paint()..color = originalColor.withOpacity(0.8)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
-    if(championType == 7) championAuraPaint = Paint()..color = originalColor.withOpacity(0.1)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
+    if(championType == 7) championAuraPaint = Paint()..color = originalColor.withOpacity(0.5)..maskFilter = MaskFilter.blur(BlurStyle.normal, size.x/3);
   }
 
   @override

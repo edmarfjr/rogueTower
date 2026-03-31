@@ -1661,6 +1661,16 @@ class CollectibleLogic {
 
         case CollectibleType.battery:
           player.hasBattery = true;
+          final currentItems = List<ActiveItemData?>.from(player.activeItems.value);
+          if (currentItems[0] != null){
+            print('tem item');
+            if(currentItems[0]!.maxCharge == 1){
+              print('tem item custo 1');
+              currentItems[0]!.currentCharge = 0;
+              currentItems[0]!.maxCharge = 0;
+              player.rechargeActiveItem(full: true);
+            }
+          }
           text = "battery";
           //color = Pallete.vermelho;
           break; 

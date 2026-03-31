@@ -99,6 +99,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   bool fireHazzard;
   bool isSpark;
 
+  bool refratado;
 
   Projectile({
     required Vector2 position, 
@@ -145,6 +146,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isBleed = false,
     this.isFear = false,
     this.isCharm = false,
+    this.refratado = false,
     Vector2? iniPosition,
   }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
       super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
@@ -376,6 +378,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   
   void refrata() {
+    if(refratado) return;
+    refratado = true;
     List<double> angs =[-0.2,-0.1,0.2,0.1];
     for(int i = 0; i < angs.length; i++)
     {
@@ -401,7 +405,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       direction.setValues(x, y);
 
       criaProjetil(position.clone() + direction.clone()*32,direction.clone(),damage,speed,size,dieTimer,apagaTiros,isHoming,position.clone(),
-      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor);
+      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor,false);
 
       
     }
@@ -427,7 +431,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
-  void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor){
+  void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor,refratado){
     print('criou tiro');
     gameRef.world.add(Projectile(
         owner: owner,
@@ -454,6 +458,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
         isSaw: saw,
         cor: cor,
+        refratado: refratado
       ));
   }
 
@@ -511,6 +516,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         owner: null, // O jogador continua sendo o dono
         chains: true,
         atravessa: true,
+        refratado:true,
       ));
     }
     
@@ -538,7 +544,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       Vector2 newDir = Vector2(cos(angle), sin(angle));
 
       criaProjetil(position.clone() - direction * 10,newDir,dmg,spd,sz,die,false,false,position.clone(),
-      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor);
+      canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor,false);
       /*
       gameRef.world.add(Projectile(
         position: position.clone() - direction * 10, 

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
@@ -15,6 +16,7 @@ import '../core/game_icon.dart';
 
 class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   double _timer = 0;
+  GameIcon? visual;
   final double duration;
   final double damage;
   final bool isMine;
@@ -23,9 +25,13 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final bool splits;
   final int splitCount;
   final bool isDecoy;
-  final double attractionRadius = 100;
+  final double attractionRadius = 200;
   final bool isGlitterBomb; 
   final bool isBuracoNegro;
+
+  double _contadorPiscar = 0.0;
+  bool _mostrarBranco = false;
+  Color cor = Pallete.preto;
 
   late final Vector2 direction;
   Bomb({required Vector2 position, 
@@ -46,14 +52,18 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   @override
   Future<void> onLoad() async {
+
+    cor = isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas;
     
-    add(GameIcon(
+    visual = GameIcon(
       icon: isMine ? MdiIcons.mine : MdiIcons.bomb, 
-      color: isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas,
+      color: cor,
       size: size,
       anchor: Anchor.center,
       position: size / 2,
-    ));
+    );
+
+    add(visual!);
 
     // Hitbox Sólida
     add(RectangleHitbox(
@@ -70,14 +80,38 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 2,
       ));
     }*/
-
+    _timer = duration;
     priority = position.y.toInt() - 500;
   }
 
    @override
   void update(double dt) {
     super.update(dt);
-    _timer += dt;
+    _timer -= dt;
+
+    //logica de piscar
+    double progresso = 1.0 - (_timer / duration).clamp(0.0, 1.0);
+
+    const double velocidadeInicial = 0.4;
+    const double velocidadeFinal = 0.05;
+    double intervaloAtual = lerpDouble(
+      velocidadeInicial, 
+      velocidadeFinal, 
+      Curves.easeIn.transform(progresso)
+    )!;
+
+    _contadorPiscar += dt;
+    if (_contadorPiscar >= intervaloAtual) {
+      _contadorPiscar = 0;
+      _mostrarBranco = !_mostrarBranco; // Alterna o estado
+    }
+    if(!isMine){
+      if (_mostrarBranco) {
+        visual!.setColor(Pallete.branco);
+      } else {
+        visual!.setColor(cor);
+      }
+    }
 
     if (isDecoy){
       final enemies = gameRef.world.children.whereType<Enemy>();
@@ -95,7 +129,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       }
     }
 
-    if (_timer >= duration && !isMine) {
+    if (_timer <= 0 && !isMine) {
       if (isEnemy) {
         gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:100, owner: owner));
       } else {
@@ -135,6 +169,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
       canvas.drawCircle(center, attractionRadius, fillPaint);
       canvas.drawCircle(center, attractionRadius, borderPaint);
+      canvas.drawCircle(center, attractionRadius/2, borderPaint);
     }
   }
 

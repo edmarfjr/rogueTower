@@ -656,6 +656,12 @@ class Player extends PositionComponent
       int max = cargaItem(newItem);
       // Se veio do chão com carga, usa ela. Se é novo gerado pelo baú, vem cheio (max)!
       int chargeToSet = incomingCharge ?? max; 
+
+      // se tem bateria, item de carga 1 vira carga 0
+      if(hasBattery && max == 1){
+        chargeToSet = 0;
+        max = 0;
+      }
       
       currentItems[0] = ActiveItemData(type: newItem, currentCharge: chargeToSet, maxCharge: max);
       

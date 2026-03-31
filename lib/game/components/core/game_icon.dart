@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'package:flame/src/game/notifying_vector2.dart';
 import 'package:flutter/material.dart';
 
 class GameIcon extends PositionComponent {

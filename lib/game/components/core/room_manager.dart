@@ -5,7 +5,6 @@ import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
-import 'package:towerrogue/game/components/gameObj/spike_trap.dart';
 import 'package:flame/components.dart';
 // ignore: implementation_imports
 import 'package:flutter/src/foundation/change_notifier.dart';
@@ -139,9 +138,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.rainbowShot));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.trofelCampeao));
-      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.bloquel));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.familiarDummy));
+      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.activeBltDetonator));
+      //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeWoodenCoin));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.familiarBlock));
 
@@ -934,7 +933,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if(gameRef.player.itemExtraBoss){
       gameRef.itensRarosPoolCurrent.remove(itemExtra);
-      final itExtra = Collectible(position: Vector2(0,0), type: itemExtra);
+      final itExtra = Collectible(position: Vector2(0,-60), type: itemExtra, custo: 30);
       gameRef.world.add(itExtra);
       double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
       double altura = Random().nextDouble() * 100 + 150 * -1;

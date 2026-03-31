@@ -114,7 +114,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   //variaveis random wander
   final Vector2 _target = Vector2.zero();
-  final Vector2 _direction = Vector2.zero();
+  //final Vector2 _direction = Vector2.zero();
   double moveTmr = 0;
   double moveDur = 2; 
   final Random _rng = Random();
@@ -485,8 +485,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
   void segueAlvo(double dt, PositionComponent? alvo){
     final targetPos = alvo!.position;
-    final direction = (targetPos - position).normalized();
-    position += direction * speed * dt;
+    velocity = (targetPos - position).normalized();
+    position += velocity * speed * dt;
   }
 
   void orbitar(double dt, Vector2 playerPos){
@@ -510,7 +510,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       moveTmr = 0;
       _pickNewTarget();
     }
-    _direction
+    velocity
       ..setFrom(_target)       
       ..sub(position)    
       ..normalize();
@@ -518,10 +518,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     moveTmr += dt;
 
     if (visual != null) {
-      visual!.angle = atan2(_direction.y, _direction.x) + angleOffset;
+      visual!.angle = atan2(velocity.y, velocity.x) + angleOffset;
     }  
 
-    position.addScaled(_direction, speed * dt);
+    position.addScaled(velocity, speed * dt);
   }
 
   void _pickNewTarget({Vector2? pushAwayFrom}) {
@@ -599,7 +599,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     double currentScaleY = 1.0;
     double currentAngle = 0.0;
 
-    if (!velocity.isZero()) {
+    if (!velocity.isZero() || !knockbackVelocity.isZero()) {
       _walkTimer += dt * _bounceSpeed;
 
       double wave = sin(_walkTimer);
