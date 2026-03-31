@@ -47,6 +47,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late Color auxColor;
   double _meleeCooldown = 0.0;
 
+  double facingDirection = 1;
+
   // --- VARIÁVEIS DE KNOCKBACK ---
   final Vector2 knockbackVelocity = Vector2.zero();
   final double _knockbackFriction = 1500.0;
@@ -559,7 +561,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (visual == null) return;
     _ghostTimer += dt;
     if (_ghostTimer >= 0.1) {
-      gameRef.world.add(
+   /*   gameRef.world.add(
         GhostParticle(
           icon: visual!.icon,
           color: originalColor.withOpacity(0.3),
@@ -569,6 +571,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           scale: visual!.scale
         ),
       );
+      */
       _ghostTimer = 0;
     }
   }
@@ -576,7 +579,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void _animateEnemy(double dt) {
     if (visual == null) return;
 
-    double facingDirection = 1.0;
+    //double facingDirection = 1.0;
+    
     if(flipOposto) facingDirection = -1.0;
     
     if (!rotates) {
@@ -608,6 +612,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     } else {
       _animTimer = 0;
       visual?.scale.y = 1.0;
+      if (facingDirection > 0 && facingDirection < 1) facingDirection = 1.0;
+      if (facingDirection < 0 && facingDirection > -1) facingDirection = -1.0;
       visual?.scale.x = facingDirection; 
       if (!rotates) visual?.angle = 0;
     }
@@ -621,7 +627,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     super.onCollision(intersectionPoints, other);
     movementBehavior.onCollision(intersectionPoints, other);
 
-    if (other is Wall && !voa) {
+    if (other is Wall && !voa && !isSpectral) {
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(other.position);
       _collisionBuffer.normalize();

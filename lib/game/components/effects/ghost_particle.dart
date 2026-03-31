@@ -1,16 +1,19 @@
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import '../core/game_icon.dart';
 
 // 1. Adicionado "with HasPaint" para permitir efeitos de opacidade (OpacityProvider)
 class GhostParticle extends PositionComponent with HasPaint {
-  final IconData icon;
+  //final IconData icon;
+  final String imagePath;
   final Color color;
   final Vector2 particleScale; // 2. Renomeado para não conflitar com a propriedade interna
 
   GhostParticle({
-    required this.icon,
+    //required this.icon,
+    required this.imagePath,
     required this.color,
     required Vector2 position,
     required Vector2 size,
@@ -29,6 +32,15 @@ class GhostParticle extends PositionComponent with HasPaint {
     scale.setFrom(particleScale);
 
     // Adiciona o ícone visual
+    add(GameSprite(
+      imagePath: imagePath,
+      size: size,
+      color: color, 
+      scale: Vector2.all(1), 
+      anchor: Anchor.center,
+      position: size / 2,
+    ));
+/*
     add(GameIcon(
       icon: icon,
       color: color,
@@ -38,7 +50,7 @@ class GhostParticle extends PositionComponent with HasPaint {
       anchor: Anchor.center,
       position: size / 2,
     ));
-
+*/
     // Efeito de desaparecer (Fade Out)
     // Funciona agora devido ao mixin HasPaint
     add(OpacityEffect.fadeOut(

@@ -128,7 +128,9 @@ class FollowPlayerBehavior extends MovementBehavior {
     _direction
       ..setFrom(target.position) 
       ..sub(enemy.position)      
-      ..normalize();             
+      ..normalize();     
+
+    if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;      
     
     if (enemy.rotates) {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
@@ -149,7 +151,9 @@ class GoToCenterBehavior extends MovementBehavior {
     _direction
       ..setFrom(_target)
       ..sub(enemy.position)      
-      ..normalize();             
+      ..normalize();      
+
+    if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;              
     
     if (enemy.rotates) {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
@@ -178,7 +182,9 @@ class KeepDistanceBehavior extends MovementBehavior {
     _direction
       ..setFrom(target.position) 
       ..sub(enemy.position)      
-      ..normalize();             
+      ..normalize();        
+
+    if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;     
 
     if (enemy.rotates) {
       if (enemy.visual != null) enemy.visual!.angle = atan2(_direction.y, _direction.x) + enemy.rotateOff;
@@ -209,7 +215,9 @@ class RandomWanderBehavior extends MovementBehavior {
     _direction
       ..setFrom(_target)       
       ..sub(enemy.position)    
-      ..normalize();           
+      ..normalize();     
+
+    if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;            
 
     if (enemy.rotates) {
       final visual = enemy.children.whereType<GameIcon>().firstOrNull;
@@ -294,6 +302,8 @@ class UnderGroundWanderBehavior extends MovementBehavior {
         ..setFrom(_target)       
         ..sub(enemy.position)    
         ..normalize();
+
+        if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;     
         enemy.position.addScaled(_direction, enemy.speed * dt);
       }else{
         _stage = 3;
@@ -349,7 +359,7 @@ class UnderGroundWanderBehavior extends MovementBehavior {
 }
 
 class BouncerBehavior extends MovementBehavior {
-  Vector2 _velocity = Vector2.zero();
+  Vector2 _direction = Vector2.zero();
 
   final double speedMod;
 
@@ -357,13 +367,15 @@ class BouncerBehavior extends MovementBehavior {
 
   @override
   void update(double dt) {
-    if (_velocity == Vector2.zero()) {
+    if (_direction == Vector2.zero()) {
        final rng = Random();
        double angle = rng.nextDouble() * 2 * pi;
-       _velocity = Vector2(cos(angle), sin(angle)) * enemy.speed;
+       _direction = Vector2(cos(angle), sin(angle)) * enemy.speed;
+
+       enemy.facingDirection = _direction.x;  
     }
     
-    enemy.position += _velocity * dt;
+    if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;     
     _checkBounds();
   }
 
@@ -379,20 +391,20 @@ class BouncerBehavior extends MovementBehavior {
     double bottomLimit = limitY - arenaBorder;
 
     if (enemy.position.x >= rightLimit) {
-      _velocity.x = -_velocity.x.abs(); 
+      _direction.x = -_direction.x.abs(); 
       enemy.position.x = rightLimit;      
     } 
     else if (enemy.position.x <= leftLimit) {
-      _velocity.x = _velocity.x.abs();  
+      _direction.x = _direction.x.abs();  
       enemy.position.x = leftLimit;       
     }
 
     if (enemy.position.y >= bottomLimit) {
-      _velocity.y = -_velocity.y.abs(); 
+      _direction.y = -_direction.y.abs(); 
       enemy.position.y = bottomLimit;     
     } 
     else if (enemy.position.y <= topLimit) {
-      _velocity.y = _velocity.y.abs();  
+      _direction.y = _direction.y.abs();  
       enemy.position.y = topLimit;        
     }
   }
@@ -405,18 +417,18 @@ class BouncerBehavior extends MovementBehavior {
       final intersection = myRect.intersect(otherRect);
 
       if (intersection.width < intersection.height) {
-         if (_velocity.x > 0 && enemy.position.x < other.position.x) {
-            _velocity.x = -_velocity.x; 
+         if (_direction.x > 0 && enemy.position.x < other.position.x) {
+            _direction.x = -_direction.x; 
          }
-         else if (_velocity.x < 0 && enemy.position.x > other.position.x) {
-            _velocity.x = -_velocity.x; 
+         else if (_direction.x < 0 && enemy.position.x > other.position.x) {
+            _direction.x = -_direction.x; 
          }
       } else {
-         if (_velocity.y > 0 && enemy.position.y < other.position.y) {
-            _velocity.y = -_velocity.y; 
+         if (_direction.y > 0 && enemy.position.y < other.position.y) {
+            _direction.y = -_direction.y; 
          }
-         else if (_velocity.y < 0 && enemy.position.y > other.position.y) {
-            _velocity.y = -_velocity.y; 
+         else if (_direction.y < 0 && enemy.position.y > other.position.y) {
+            _direction.y = -_direction.y; 
          }
       }
     }

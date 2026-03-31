@@ -1,6 +1,7 @@
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/character_class.dart';
 import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/explosion_effect.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
@@ -244,7 +245,8 @@ class Player extends PositionComponent
   List<Familiar> familiars = [];
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
-  late GameIcon _visual;
+  //late GameIcon _visual;
+  late GameSprite _visual;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
@@ -359,13 +361,21 @@ class Player extends PositionComponent
       vooOffset = Vector2(0, -15);
       animContrario = true;
     }    
-    _visual = GameIcon(
+    //GameSprite(imagePath: 'items/potion.png', size: Vector2(32, 32))
+    /*_visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
       size: size,
       anchor: Anchor.center, 
       position: size / 2 + vooOffset,    
     );
+    */
+    _visual = GameSprite(
+                imagePath: 'sprites/char1.png',
+                size: size,
+                color: Pallete.branco, 
+                position: size / 2 + vooOffset
+              );
     add(_visual);
 
     /* Debug visual do alcance
@@ -561,6 +571,7 @@ class Player extends PositionComponent
     _visual.removeFromParent();
     _currentAccessory!.removeFromParent();
 
+/*
     _visual = GameIcon(
       icon: MdiIcons.dogSide,
       color: Pallete.marrom,
@@ -568,6 +579,7 @@ class Player extends PositionComponent
       anchor: Anchor.center,
       position: size / 2,
     );
+    */
     currentColor = Pallete.marrom;
     add(_visual);
   }
@@ -588,7 +600,7 @@ class Player extends PositionComponent
     _isInvincible = true;
     _visual.removeFromParent();
     _currentAccessory!.removeFromParent();
-
+/*
     _visual = GameIcon(
       icon: MdiIcons.pacMan,
       color: Pallete.amarelo,
@@ -596,6 +608,7 @@ class Player extends PositionComponent
       anchor: Anchor.center,
       position: size / 2,
     );
+    */
     currentColor = Pallete.amarelo;
     add(_visual);
 
@@ -624,7 +637,7 @@ class Player extends PositionComponent
     _isInvincible = true;
     _visual.removeFromParent();
     _currentAccessory!.removeFromParent();
-
+/*
     _visual = GameIcon(
       icon: MdiIcons.unicorn,
       color: Pallete.laranja,
@@ -634,6 +647,7 @@ class Player extends PositionComponent
     );
     currentColor = Pallete.laranja;
     add(_visual);
+    */
   }
   void _handleUnicorn(double dt){
     if (isUnicorn){
@@ -898,7 +912,7 @@ class Player extends PositionComponent
       }
       if(charClass.mudaIcone){
          _visual.removeFromParent();
-
+/*
         _visual = GameIcon(
           icon: charClass.icon,
           color: Pallete.branco,
@@ -908,7 +922,7 @@ class Player extends PositionComponent
         );
         currentColor = Pallete.branco;
         add(_visual);
-
+*/
         icone = charClass.icon;
       }
 
@@ -1154,7 +1168,7 @@ class Player extends PositionComponent
     if (_ghostTimer >= 0.025) {
       gameRef.world.add(
         GhostParticle(
-          icon: _visual.icon,
+          imagePath: _visual.imagePath,
           color: currentColor.withOpacity(0.3),
           position: position.clone(), 
           size: size,
@@ -1164,6 +1178,7 @@ class Player extends PositionComponent
       );
       _ghostTimer = 0;
     }
+    
   }
 
   void _createHazard(double dt,{bool isFire = false, bool isVeneno = true,bool isGelo = false,bool isBlood = false,double tmp = 0.1}) {
@@ -2074,6 +2089,8 @@ class Player extends PositionComponent
   void changeSize(double sizeMod){
     _visual.removeFromParent();
     size = size*sizeMod;
+
+    /*
     _visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
@@ -2082,7 +2099,7 @@ class Player extends PositionComponent
       position: size / 2,    
     );
     add(_visual);
-
+*/
     _hitbox.removeFromParent();
 
     _hitbox=RectangleHitbox(

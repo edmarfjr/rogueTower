@@ -759,7 +759,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeSuborno:
         return {'name': 'activeSuborno'.tr(), 'desc': 'activeSubornoDesc'.tr(), 'icon': MdiIcons.accountCash, 'color': Pallete.verdeEsc};
       case CollectibleType.pilNanicolina:
-        return {'name': 'pilNanicolina'.tr(), 'desc': 'pilNanicolinaDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.azulCla};
+        return {'name': 'pilNanicolina'.tr(), 'desc': 'pilNanicolinaDesc'.tr(), 'icon': MdiIcons.pill, 'color': Pallete.vermelho};
       case CollectibleType.saw:
         return {'name': 'saw'.tr(), 'desc': 'sawDesc'.tr(), 'icon': MdiIcons.sawBlade, 'color': Pallete.cinzaCla};
       case CollectibleType.boloDinheiro:

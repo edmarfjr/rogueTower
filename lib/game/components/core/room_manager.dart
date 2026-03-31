@@ -108,7 +108,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed);
       final charmedEnemies = allEnemies.where((enemy) => !enemy.isDummy && enemy.isCharmed);
-      
+
       if (realEnemies.isEmpty && !isSpawnningBoss) {
         // limpa inimigos charmeds
         for (var e in charmedEnemies) {
@@ -186,8 +186,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // --- LÓGICA DE SPAWN ---
     if (gameRef.salasLimpas.contains(roomNumber)) {
       // Se a sala já foi limpa antes, NÃO spawna inimigos!
-      _levelCleared = true; 
-      
+      //_levelCleared = true; 
+      //print('level clear');
       // Como não tem inimigos para matar, as portas já devem nascer destrancadas
       // (Opcional, pois o update tentaria destrancar depois, mas assim é mais seguro)
     } else {
