@@ -1,3 +1,4 @@
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:flame/collisions.dart';
@@ -23,10 +24,10 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   // --- NOVA VARIÁVEL DE CONTROLE DE ZOOM ---
   bool _isEntering = false;
 
-  GameIcon? _doorIcon;
-  GameIcon? _lockIcon;
-  GameIcon? _blockIcon;
-  GameIcon? _bitesIcon;
+  GameSprite? _doorIcon;
+  GameSprite? _lockIcon;
+  GameSprite? _blockIcon;
+  GameSprite? _bitesIcon;
   GameIcon? rewardIcon;
 
   InteractButton? _currentButton;
@@ -37,11 +38,11 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     this.trancada = false,
     this.bloqueada = false,
     this.bites = false,
-  }): super(position: position, size: Vector2(60, 40), anchor: Anchor.center);
+  }): super(position: position, size: Vector2(32, 32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
-    _updateDoorIcon(MdiIcons.tunnel, Pallete.cinzaEsc);
+    _updateDoorIcon('sprites/tileset/portaFechada.png', Pallete.cinzaEsc);
 
     add(RectangleHitbox(
       size: size,
@@ -53,7 +54,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     priority = position.y.toInt();
   }
 
-  void _updateDoorIcon(IconData icon, Color color) {
+  void _updateDoorIcon(String image, Color color) {
     if (_doorIcon != null) {
       _doorIcon!.removeFromParent();
     }
@@ -64,45 +65,45 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       _blockIcon!.removeFromParent();
     }
 
-    _doorIcon = GameIcon(
-      icon: icon,
-      color: color,
-      size: size, 
-      anchor: Anchor.center,
-      position: size / 2,
-    );
+    _doorIcon = GameSprite(
+          imagePath: image,
+          size: size,
+          color: color, 
+          anchor: Anchor.center,
+          position: size / 2
+        );
     
     add(_doorIcon!);
 
     if(trancada){
-      _lockIcon = GameIcon(
-        icon: Icons.lock,
-        color: Pallete.cinzaCla,
-        size: size/2, 
-        anchor: Anchor.center,
-        position: size / 2,
-      );
+      _lockIcon = GameSprite(
+          imagePath: 'sprites/tileset/portaTrancada.png',
+          size: size,
+          color: color, 
+          anchor: Anchor.center,
+          position: size / 2
+        );
       add(_lockIcon!);
     }
 
     if(bloqueada){
-      _blockIcon = GameIcon(
-        icon: Icons.terrain,
+      _blockIcon = GameSprite(
+        imagePath: 'sprites/tileset/bloqueio.png',
         color: Pallete.marrom,
         size: size, 
         anchor: Anchor.center,
-        position: size / 2 + Vector2(0,15),
+        position: size / 2,
       );
       add(_blockIcon!);
     }
 
-      if(bites){
-      _bitesIcon = GameIcon(
-        icon: MdiIcons.octagramOutline,
-        color: Pallete.vermelho,
-        size: size/2, 
+      if(bites && isOpen){
+      _bitesIcon = GameSprite(
+        imagePath: 'sprites/tileset/portaBites.png',
+        color: Pallete.lilas,
+        size: size, 
         anchor: Anchor.center,
-        position: size / 2 + Vector2(0,7)
+        position: size / 2,
       );
       add(_bitesIcon!);
     }
@@ -122,7 +123,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       case CollectibleType.shield: iconData = MdiIcons.shield; break;
       case CollectibleType.boss: iconData = MdiIcons.skull; break;
       case CollectibleType.healthContainer: iconData = Icons.favorite_outline; break;
-      case CollectibleType.nextlevel: iconData = MdiIcons.stairsUp; break;
+      case CollectibleType.nextLevel: iconData = MdiIcons.stairsUp; break;
       case CollectibleType.bank: iconData = MdiIcons.bank; break;
       case CollectibleType.alquimista: iconData = MdiIcons.flaskEmptyOutline; break;
       case CollectibleType.desafio: iconData = MdiIcons.swordCross; break;
@@ -144,25 +145,25 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   void destranca(){
     trancada = false;
-    _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
+    _updateDoorIcon('sprites/tileset/portaAberta.png', Pallete.lilas);
   }
 
   void desbloqueia(){
     bloqueada = false;
-    _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
+    _updateDoorIcon('sprites/tileset/portaBloqueada.png', Pallete.lilas);
   }
 
   void open() {
     if (isOpen) return;
     isOpen = true;
-    _updateDoorIcon(MdiIcons.tunnelOutline, Pallete.lilas);
+    _updateDoorIcon('sprites/tileset/portaAberta.png', Pallete.lilas);
     _addRewardIcon();
   }  
 
   void close() {
     if (!isOpen) return;
     isOpen = false;
-    _updateDoorIcon(MdiIcons.tunnel, Pallete.cinzaEsc);
+    _updateDoorIcon('sprites/tileset/portaTrancada.png', Pallete.cinzaEsc);
     rewardIcon!.removeFromParent();
   }  
 

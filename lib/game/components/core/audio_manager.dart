@@ -123,7 +123,9 @@ class AudioManager {
   }
 
   static void resumeBgm(){
-    FlameAudio.bgm.resume();
+    if (!_isMutedMusic) {
+      FlameAudio.bgm.resume();
+    }
   }
   
   static void toggleMuteMusic(bool mute) {

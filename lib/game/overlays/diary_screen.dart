@@ -19,9 +19,9 @@ class DiaryScreen extends StatelessWidget {
       CollectibleType.coin, CollectibleType.key, CollectibleType.keys, CollectibleType.souls,
       CollectibleType.bomba, CollectibleType.bombas, CollectibleType.healthContainer,
       CollectibleType.chest, CollectibleType.rareChest, CollectibleType.bank,
-      CollectibleType.nextlevel, CollectibleType.shop, CollectibleType.boss, CollectibleType.slotMachine,
+      CollectibleType.nextLevel, CollectibleType.shop, CollectibleType.boss, CollectibleType.slotMachine,
       CollectibleType.alquimista, CollectibleType.desafio, CollectibleType.darkShop, CollectibleType.doacaoSangue,
-      CollectibleType.slotMachine
+      CollectibleType.slotMachine, CollectibleType.artificialHp
     ];
 
     // 1. Pega em todos os itens válidos

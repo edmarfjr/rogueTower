@@ -27,6 +27,9 @@ flutter:
   assets:
     - assets/images/
     - assets/images/sprites/
+    - assets/images/sprites/inimigos/
+    - assets/images/sprites/tileset/
+    - assets/images/sprites/projeteis/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/

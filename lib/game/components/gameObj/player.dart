@@ -334,18 +334,26 @@ class Player extends PositionComponent
     
   }
 
-  void criaVisual({reset = false}){
-
+  void criaVisual({reset = false,image = 'sprites/char1.png',color = Pallete.branco}){
     bool acessorio = false;
     IconData? acessIcon;
     Color? acessCor;
     double? acessAng;
 
     if (reset){
-      _visual.removeFromParent();
-      _hitbox.removeFromParent();
-      _dodgeAura!.removeFromParent();
-      _shadow.removeFromParent();
+      if(_visual != null){
+        _visual.removeFromParent();
+      }
+      if(_hitbox != null){
+        _hitbox.removeFromParent();
+      }
+      if(_dodgeAura != null){
+        _dodgeAura!.removeFromParent();
+      }
+      if(_shadow != null){
+        _shadow.removeFromParent();
+      }
+     
       if(_currentAccessory != null){
         _currentAccessory!.removeFromParent(); 
         acessIcon= _currentAccessory!.icon ;
@@ -371,9 +379,10 @@ class Player extends PositionComponent
     );
     */
     _visual = GameSprite(
-                imagePath: 'sprites/char1.png',
+                imagePath: image,
                 size: size,
-                color: Pallete.branco, 
+                color: color, 
+                anchor: Anchor.center,
                 position: size / 2 + vooOffset
               );
     add(_visual);
@@ -878,6 +887,8 @@ class Player extends PositionComponent
         }
       }
 
+      criaVisual(reset : true,image : 'sprites/${charClass.id}.png',color : charClass.color);
+/*
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();
       _currentAccessory = null;
@@ -925,7 +936,7 @@ class Player extends PositionComponent
 */
         icone = charClass.icon;
       }
-
+*/
     }
 
   void activateShield() {

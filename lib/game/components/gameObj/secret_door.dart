@@ -5,6 +5,7 @@ import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_icon.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/interact_button.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
@@ -18,7 +19,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   bool temInimigos = true;
   bool _isEntering = false;
 
-  GameIcon? _doorIcon;
+  GameSprite? _doorIcon;
 
   // Variáveis para o sistema do botão
   InteractButton? _currentButton;
@@ -30,33 +31,34 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
     this.isLocked = true,
     this.isExit = false,
     this.requiresBomb = false,
-  }) : super(position: position, size: Vector2.all(48), anchor: Anchor.center);
+  }) : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     if (isExit) isLocked = false;
     if(requiresBomb) {
-      _updateDoorIcon(MdiIcons.alphaX, Pallete.cinzaEsc);
+      _updateDoorIcon('sprites/tileset/salaSecretaBomba.png');
     } else if(isExit) {
-      _updateDoorIcon(MdiIcons.stairsUp, Pallete.cinzaEsc);
+      _updateDoorIcon('sprites/tileset/salaSecretaSaida.png');
     }else {
-      _updateDoorIcon(MdiIcons.door, Pallete.cinzaEsc);
+      _updateDoorIcon('sprites/tileset/salaSecretaChave.png');
     }
     if(isExit) temInimigos = false;
     priority = -1000;
   }
 
-  void _updateDoorIcon(IconData icon, Color color) {
+  void _updateDoorIcon(String image) {
     if (_doorIcon != null) {
       _doorIcon!.removeFromParent();
     }
 
-    _doorIcon = GameIcon(
-      icon: icon,
-      color: color,
-      size: size, 
-      anchor: Anchor.center,
-      position: size / 2,
+    Color color = _getLevelColor(gameRef.currentLevelNotifier.value);
+
+    _doorIcon = GameSprite(
+      imagePath: image,
+      size: size,
+      color: color, 
+      position: size / 2
     );
     
     add(_doorIcon!);
@@ -194,7 +196,12 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   void abrirPorta() {
     isLocked = false;
     //AudioManager.playSfx('secret_found.mp3'); 
-    _updateDoorIcon(MdiIcons.stairsDown, Pallete.cinzaEsc);
+    if (requiresBomb){
+      _updateDoorIcon('sprites/tileset/salaSecretaEntrada.png');
+    }else{
+      _updateDoorIcon('sprites/tileset/salaSecretaEntradaChave.png');
+    }
+    
     gameRef.world.add(FloatingText(
       text: "Aberta!", 
       position: position.clone(), 
@@ -202,6 +209,17 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
       fontSize: 12,
     ));
   }
+
+  Color _getLevelColor(int level) {
+    switch (level) {
+      case 1: return Pallete.marrom;      
+      case 2: return Pallete.cinzaEsc; 
+      case 3: return Pallete.azulEsc; 
+      case 4: return Pallete.verdeEsc; 
+      case 5: return Pallete.azulCla; 
+      default: return Pallete.azulEsc;
+    }
+  } 
 
   @override
   void render(Canvas canvas) {

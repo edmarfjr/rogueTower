@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
@@ -101,7 +102,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   //final Paint _bleedAuraPaint = Paint()..color = Pallete.vermelho.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
   //final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
-  GameIcon? visual;
+  GameSprite? visual;
   GameIcon? targetIcon;
   bool isTarget = false;
   late ShadowComponent _shadow;
@@ -131,7 +132,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late AttackBehavior attackBehavior;
   AttackBehavior? attack2Behavior;
   late DeathBehavior deathBehavior;
-  final IconData iconData;
+  final String image;
 
   final bool hasShield;
   final bool hasFlail;
@@ -168,7 +169,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.animado = true,
     this.flipOposto = false,
     this.hasGhostEffect = false,
-    this.iconData = Icons.pest_control_rodent,
+    this.image = "sprites/inimigos/rat.png",
     this.originalColor = Pallete.vermelho,
     this.isDummy = false,
     Vector2? size,
@@ -211,13 +212,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     hp = (hp * gameRef.difficultyMultiplier).ceil().toDouble();
     
-    visual = GameIcon(
-      icon: iconData,
-      color: originalColor,
-      size: size,
-      anchor: Anchor.center,
-      position: size / 2, 
-    );
+    visual = GameSprite(
+          imagePath: image,
+          size: size,
+          color: originalColor, 
+          anchor: Anchor.center,
+          position: size / 2
+        );
     add(visual!);
 
     _hitbox=RectangleHitbox(
@@ -579,47 +580,58 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void _animateEnemy(double dt) {
     if (visual == null) return;
 
-    //double facingDirection = 1.0;
-    
-    if(flipOposto) facingDirection = -1.0;
-    
-    if (!rotates) {
-      final player = gameRef.player;
-      if (player.position.x < position.x) {
-        facingDirection = -1.0;
-        if(flipOposto)facingDirection = 1.0; 
-      }
-    } else {
-      facingDirection = visual!.scale.x.sign; 
-      if (facingDirection == 0) facingDirection = 1.0;
-    }
-
-    double displacement = position.distanceTo(_lastPosition);
+    // Descobre o vetor de direção calculando a diferença da posição
+    Vector2 delta = position - _lastPosition;
+    double displacement = delta.length;
     bool isMoving = displacement > 0.5;
 
+    // ==========================================
+    // 1. LÓGICA DE DIREÇÃO E ROTAÇÃO
+    // ==========================================
+    if (rotates) {
+      // Inimigos que rotacionam (ex: morcegos apontam o bico pra onde voam)
+      if (isMoving) {
+        // atan2 descobre o ângulo do movimento. Somamos rotateOff caso o sprite original esteja "deitado"
+        visual!.angle = atan2(delta.y, delta.x) + rotateOff;
+      }
+      facingDirection = 1.0; // Mantém a escala sempre positiva para não amassar a rotação
+      
+    } else {
+      // Inimigos normais "flipam" (espelham horizontalmente) para olhar pro player
+      final player = gameRef.player;
+      facingDirection = (player.position.x < position.x) ? -1.0 : 1.0;
+      if (flipOposto) facingDirection *= -1.0;
+    }
+
+    // ==========================================
+    // 2. LÓGICA DE SQUASH & STRETCH (Pular/Andar)
+    // ==========================================
     if (isMoving) {
       _animTimer += dt * _animSpeed;
       double wave = sin(_animTimer);
       double stretchY = 1.0 + (wave * _animAmplitude);
       double squashX = 1.0 - (wave * _animAmplitude); 
 
-      visual?.scale.y = stretchY;
-      visual?.scale.x = facingDirection * squashX; 
+      visual!.scale.y = stretchY;
+      visual!.scale.x = facingDirection * squashX; 
       
+      // APENAS inimigos que NÃO rotacionam recebem o "gingado" de andar
       if (!rotates) {
-         visual?.angle = wave * 0.1; 
+         visual!.angle = wave * 0.1; 
       }
     } else {
+      // Parado
       _animTimer = 0;
-      visual?.scale.y = 1.0;
-      if (facingDirection > 0 && facingDirection < 1) facingDirection = 1.0;
-      if (facingDirection < 0 && facingDirection > -1) facingDirection = -1.0;
-      visual?.scale.x = facingDirection; 
-      if (!rotates) visual?.angle = 0;
+      visual!.scale.y = 1.0;
+      visual!.scale.x = facingDirection; 
+      
+      if (!rotates) {
+        visual!.angle = 0;
+      }
     }
 
     _lastPosition.setFrom(position);
-    if(hasGhostEffect) _createGhostEffect(dt);
+    if (hasGhostEffect) _createGhostEffect(dt);
   }
 
   @override
@@ -938,7 +950,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       animado : animado,
       flipOposto : flipOposto,
       hasGhostEffect : hasGhostEffect,
-      iconData : iconData,
+      image : image,
       originalColor : auxColor,
       isDummy : isDummy,
       size : size / sizeAux,
@@ -974,8 +986,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void changeSize(sizeMod){
     visual!.removeFromParent();
     size = size*sizeMod;
-    visual = GameIcon(
-      icon: iconData, 
+    visual = GameSprite(
+      imagePath: image, 
       color: originalColor, 
       size: size,
       anchor: Anchor.center, 

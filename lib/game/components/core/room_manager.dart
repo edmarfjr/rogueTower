@@ -58,7 +58,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   final List<EnemyFactoryFunction> _enemyRoster2 = [
     (pos,phase) => EnemyFactory.createBat(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createGhost(pos,phase:phase),  
-    (pos,phase) => EnemyFactory.createMere(pos,phase:phase),  
+    (pos,phase) => EnemyFactory.createMare(pos,phase:phase),  
     (pos,phase) => EnemyFactory.createSpider(pos,phase:phase),  
     (pos,phase) => EnemyFactory.createCoffin(pos,phase:phase),  
     (pos,phase) => EnemyFactory.createHorseMan(pos,phase:phase),   
@@ -103,13 +103,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (_checkTimer < _minTimeBeforeClear) return;
 
     if (!_levelCleared) {
-      
       final allEnemies = gameRef.world.children.query<Enemy>();
       
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed);
       final charmedEnemies = allEnemies.where((enemy) => !enemy.isDummy && enemy.isCharmed);
 
       if (realEnemies.isEmpty && !isSpawnningBoss) {
+        print('level clear');
         // limpa inimigos charmeds
         for (var e in charmedEnemies) {
           e.removeFromParent();
@@ -132,7 +132,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(0, -150), champType: 1));
+      //gameRef.world.add(EnemyFactory.createBug(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
@@ -433,7 +433,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } else if (roomNumber == bossRoom) {
       gameRef.world.add(Door(
         position: Vector2(0, -400), 
-        rewardType: CollectibleType.nextlevel,
+        rewardType: CollectibleType.nextLevel,
       ));
       return;
     }
@@ -813,7 +813,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));
-    } else if (gameRef.nextRoomReward == CollectibleType.nextlevel){
+    } else if (gameRef.nextRoomReward == CollectibleType.nextLevel){
       _generateZeroRoom();
     } else if (gameRef.nextRoomReward == CollectibleType.desafio){
       _spawnChallengeReward();

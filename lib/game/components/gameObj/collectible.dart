@@ -43,7 +43,7 @@ class ActiveItemData {
 
 enum CollectibleType {
   //tipos de porta 
-  coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextlevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
+  coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextLevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
   doacaoSangue, slotMachine,
   //itens comuns
   damage, fireRate, moveSpeed, range, sorte, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
@@ -503,7 +503,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       CollectibleType.coin, CollectibleType.coinUm ,CollectibleType.potion, CollectibleType.sanduiche,
       CollectibleType.potionUm,CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
       CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
-      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
       CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
       CollectibleType.healthContainer,CollectibleType.slotMachine
     ];
@@ -944,7 +944,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'devilInside'.tr(), 'desc': 'devilInsideDesc'.tr(), 'icon': MdiIcons.emoticonDevil, 'color': Pallete.vermelho};
       case CollectibleType.rainbowShot:
         return {'name': 'rainbowShot'.tr(), 'desc': 'rainbowShotDesc'.tr(), 'icon': MdiIcons.magicStaff, 'color': Pallete.rosa};
-      case CollectibleType.nextlevel:
+      case CollectibleType.nextLevel:
         return {'name': 'Saída', 'desc': 'Próximo Nível', 'icon': Icons.stairs, 'color': Pallete.lilas};
       case CollectibleType.shop:
         return {'name': 'Loja', 'desc': 'Comprar itens', 'icon': Icons.store, 'color': Pallete.amarelo};
@@ -1846,7 +1846,7 @@ class CollectibleLogic {
             CollectibleType.coin, CollectibleType.potion,
             CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
             CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
-            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
             CollectibleType.shop, CollectibleType.boss, CollectibleType.healthContainer,
             CollectibleType.darkShop, CollectibleType.desafio
           ];
@@ -1924,7 +1924,7 @@ class CollectibleLogic {
             CollectibleType.coin, CollectibleType.potion,
             CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
             CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
-            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
             CollectibleType.shop, CollectibleType.boss, CollectibleType.healthContainer,
             CollectibleType.darkShop, CollectibleType.desafio
           ];
@@ -2858,7 +2858,7 @@ class CollectibleLogic {
             game.world.removeAll(coisasParaApagar);
             game.overlays.add('HUD');
 
-            game.nextRoomReward = CollectibleType.nextlevel;
+            game.nextRoomReward = CollectibleType.nextLevel;
             game.startLevel(salaAtual:false ,sala: 0); 
 
             player.position = Vector2(0, 250); 
@@ -2900,7 +2900,7 @@ class CollectibleLogic {
 
           final naoRolar = [
             CollectibleType.chest, CollectibleType.rareChest, 
-            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextlevel, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
             CollectibleType.shop, CollectibleType.boss,
             CollectibleType.darkShop, CollectibleType.desafio
           ];
@@ -3148,7 +3148,7 @@ class CollectibleLogic {
 
             
             //game.roomManager.startRoom(0);
-            game.nextRoomReward = CollectibleType.nextlevel;
+            game.nextRoomReward = CollectibleType.nextLevel;
             game.startLevel(salaAtual:false ,sala: 0); 
             //player.position = Vector2(0, 250); 
           });

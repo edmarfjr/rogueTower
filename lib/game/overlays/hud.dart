@@ -1,6 +1,5 @@
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import '../tower_game.dart';
 import '../components/core/pallete.dart'; 
 
@@ -26,13 +25,12 @@ class Hud extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   
-                  // --- INVENTÁRIO DE ITENS ATIVOS (NOVO!) ---
+                  // --- INVENTÁRIO DE ITENS ATIVOS ---
                   ValueListenableBuilder<List<ActiveItemData?>>(
-                    // Escuta a lista de itens ativos que criamos no Player
                     valueListenable: game.player.activeItems, 
                     builder: (context, activeItems, child) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0), // Espaço antes da vida
+                        padding: const EdgeInsets.only(bottom: 12.0),
                         child: Row(
                           children: [
                             _buildItemSlot(0, activeItems[0]),
@@ -44,7 +42,7 @@ class Hud extends StatelessWidget {
                     },
                   ),
 
-                  // --- VIDA---
+                  // --- VIDA ---
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.healthNotifier,
                     builder: (context, currentHealth, child) {
@@ -52,15 +50,16 @@ class Hud extends StatelessWidget {
                       return Row(
                         children: List.generate(totalHearts, (index) {
                           int heartValueTimesTwo = (index + 1) * 2;
-                          IconData icon;
+                          String spriteName;
+                          
                           if (currentHealth >= heartValueTimesTwo) {
-                             icon = MdiIcons.heart; 
+                             spriteName = 'sprites/hpCheio.png'; 
                           } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             icon = MdiIcons.heartHalfFull; 
+                             spriteName = 'sprites/hpMeio.png'; 
                           } else {
-                             icon = MdiIcons.heartOutline; 
+                             spriteName = 'sprites/hpVazio.png'; 
                           }
-                          return Icon(icon, color: Pallete.vermelho, size: 30);
+                          return PixelSprite(imagePath: spriteName, color: Pallete.vermelho, size: 32);
                         }),
                       );
                     },
@@ -76,15 +75,15 @@ class Hud extends StatelessWidget {
                       return Row(
                         children: List.generate(totalHearts, (index) {
                           int heartValueTimesTwo = (index + 1) * 2;
-                          IconData icon;
+                          String spriteName;
                           if (currentHealth >= heartValueTimesTwo) {
-                             icon = MdiIcons.heart; 
+                             spriteName = 'sprites/hpCheio.png'; 
                           } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             icon = MdiIcons.heartHalfFull; 
+                             spriteName = 'sprites/hpMeio.png'; 
                           } else {
-                             icon = MdiIcons.heartOutline; 
+                             spriteName = 'sprites/hpVazio.png'; 
                           }
-                          return Icon(icon, color: Pallete.azulCla, size: 30);
+                          return PixelSprite(imagePath: spriteName, color: Pallete.azulCla, size: 32);
                         }),
                       );
                     },
@@ -99,7 +98,7 @@ class Hud extends StatelessWidget {
                       if (currentShield == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentShield, (index) {
-                          return  Icon(MdiIcons.shield, color: Pallete.cinzaCla, size: 30);
+                          return const PixelSprite(imagePath: 'sprites/escudo.png', color: Pallete.cinzaCla, size: 32);
                         }),
                       );
                     },
@@ -114,7 +113,7 @@ class Hud extends StatelessWidget {
                       if (currentDash == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentDash, (index) {
-                          return const Icon(Icons.double_arrow, color: Pallete.verdeCla, size: 30);
+                          return const PixelSprite(imagePath: 'sprites/dash.png', color: Pallete.verdeCla, size: 32);
                         }),
                       );
                     },
@@ -126,13 +125,19 @@ class Hud extends StatelessWidget {
                   ValueListenableBuilder<int>(
                     valueListenable: game.coinsNotifier,
                     builder: (context, coins, child) {
-                      return Text(
-                        "\$ : $coins",
-                        style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.amarelo,
-                          shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
-                          decoration: TextDecoration.none,
-                        ),
+                      return Row(
+                        children: [
+                          const PixelSprite(imagePath: 'sprites/coin.png', color: Pallete.amarelo, size: 32),
+                          const SizedBox(width: 4),
+                          Text(
+                            ": $coins",
+                            style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.amarelo,
+                              shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -143,7 +148,7 @@ class Hud extends StatelessWidget {
                     builder: (context, keys, child) {
                       return Row(
                         children: [
-                          const Icon(Icons.key, color: Pallete.laranja, size: 28),
+                          const PixelSprite(imagePath: 'sprites/key.png', color: Pallete.laranja, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $keys", 
@@ -166,7 +171,7 @@ class Hud extends StatelessWidget {
                     builder: (context, bombs, child) {
                       return Row(
                         children: [
-                           Icon(MdiIcons.bomb, color: Pallete.lilas, size: 28),
+                          const PixelSprite(imagePath: 'sprites/bomb.png', color: Pallete.lilas, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $bombs", 
@@ -189,7 +194,7 @@ class Hud extends StatelessWidget {
                     builder: (context, souls, child) {
                       return Row(
                         children: [
-                          const Icon(Icons.whatshot, color: Pallete.lilas, size: 28),
+                          const PixelSprite(imagePath: 'sprites/soul.png', color: Pallete.lilas, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $souls", 
@@ -214,7 +219,7 @@ class Hud extends StatelessWidget {
               top: 10,
               right: 10,
               child: IconButton(
-                icon: const Icon(Icons.pause_circle_filled, color: Colors.white, size: 40),
+                icon: const PixelSprite(imagePath: 'sprites/pause.png', color: Pallete.branco, size: 40),
                 onPressed: () {
                   game.pauseGame();
                 },
@@ -242,7 +247,7 @@ class Hud extends StatelessWidget {
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
-                      child: Icon(Icons.double_arrow, color: Pallete.verdeCla, size: 40),
+                      child: PixelSprite(imagePath: 'sprites/dash.png', color: Pallete.verdeCla, size: 40),
                     ),
                   ),
                 ),
@@ -269,8 +274,8 @@ class Hud extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
-                    child: Center(
-                      child: Icon(MdiIcons.bomb, color: Pallete.cinzaEsc, size: 40),
+                    child: const Center(
+                      child: PixelSprite(imagePath: 'sprites/bomb.png', color: Pallete.cinzaEsc, size: 40),
                     ),
                   ),
                 ),
@@ -303,11 +308,10 @@ class Hud extends StatelessWidget {
                         bool lost = index < hitsTaken;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                          child: Icon(
-                            lost ? MdiIcons.heartBroken : MdiIcons.heartOutline,
-                            color: lost ? Colors.red : Colors.white54,
-                            size: 30,
-                            shadows: const [Shadow(blurRadius: 4, color: Colors.black)],
+                          child: PixelSprite(
+                            imagePath: lost ? 'sprites/hpMeio.png' : 'sprites/hpVazio.png',
+                            color: lost ? Pallete.vermelho : Colors.white54,
+                            size: 32,
                           ),
                         );
                       }),
@@ -391,26 +395,107 @@ class Hud extends StatelessWidget {
     );
   }
 
+  
+
   // ==========================================================
-  // HELPER PARA CORES E ÍCONES (Já que o método do Collectible é privado)
+  //_buildItemSlot com sprites
   // ==========================================================
   /*
-  IconData _getIconForType(CollectibleType type) {
-    switch (type) {
-      case CollectibleType.pocaVeneno: return MdiIcons.cloudOffOutline;
-      case CollectibleType.tornado: return MdiIcons.weatherTornado;
-      // Adicione seus novos itens ativos aqui:
-      // case CollectibleType.suaPocaoDeCura: return MdiIcons.bottleTonicPlus;
-      default: return Icons.star;
-    }
-  }
+  Widget _buildItemSlot(int index, ActiveItemData? itemData) {
+    bool isEmpty = itemData == null;
+    bool isReady = isEmpty || itemData.isReady;
 
-  Color _getColorForType(CollectibleType type) {
-    switch (type) {
-      case CollectibleType.pocaVeneno: return Pallete.verdeEsc;
-      case CollectibleType.tornado: return Pallete.branco;
-      default: return Pallete.amarelo;
+    String? slotSpritePath;
+    Color? slotColor;
+    if (!isEmpty) {
+      final attrs = Collectible.getAttributes(itemData.type);
+      
+      // IMPORTANTE: Assumindo que você mudou o seu getAttributes
+      // para retornar um 'sprite' (String) no lugar de um 'icon' (IconData)
+      slotSpritePath = attrs['sprite']; 
+      slotColor = attrs['color'];
     }
+
+    return GestureDetector(
+      onTap: () {
+        if (!isEmpty && isReady) {
+          game.player.useActiveSlot(index);
+        }
+      },
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Pallete.cinzaEsc.withOpacity(0.8),
+          border: Border.all(
+            color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
+            width: 2
+          ),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
+        ),
+        child: isEmpty 
+          ? const SizedBox.shrink() 
+          : Stack(
+              alignment: Alignment.center,
+              children: [
+                // 1. O Ícone Pixel Art Oficial puxado do jogo!
+                if (slotSpritePath != null)
+                  PixelSprite(
+                    imagePath: slotSpritePath,
+                    color: slotColor ?? Pallete.branco,
+                    size: 32,
+                  ),
+                
+                // 2. A PELÍCULA DE COOLDOWN E A CARGA
+                if (!isReady) ...[
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.65), 
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  Text(
+                    "${itemData.currentCharge}/${itemData.maxCharge}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+      ),
+    );
   }
   */
+  
+}
+class PixelSprite extends StatelessWidget {
+  final String imagePath;
+  final Color color;
+  final double size;
+
+  const PixelSprite({
+    super.key,
+    required this.imagePath,
+    required this.color,
+    this.size = 30,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/images/$imagePath', // Caminho padrão do Flame para o Flutter
+      width: size,
+      height: size,
+      color: color,
+      colorBlendMode: BlendMode.modulate, 
+      filterQuality: FilterQuality.none, 
+      fit: BoxFit.contain,
+      isAntiAlias: false,
+    );
+  }
 }

@@ -62,7 +62,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   List<Component> backupSalaSecreta = [];
   bool salaSecretaGeradaNestaSala = false;
   
-  CollectibleType nextRoomReward = CollectibleType.nextlevel;
+  CollectibleType nextRoomReward = CollectibleType.nextLevel;
 
   final GameProgress progress = GameProgress();
   
@@ -408,9 +408,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
       if (currentRoomNotifier.value > bossRoom) {
         currentRoomNotifier.value = 0;
         currentLevelNotifier.value++;
+        salasLimpas.clear();
       }
 
-      // Ao trocar de sala real, esquecemos a sala secreta anterior para gerar uma nova!
       salaSecretaGeradaNestaSala = false;
       backupSalaNormal.clear();
       backupSalaSecreta.clear();
@@ -467,7 +467,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     coinsNotifier.value = 0;
     keysNotifier.value = 0;
     challengeHitsNotifier.value = -1;
-    nextRoomReward = CollectibleType.nextlevel;
+    nextRoomReward = CollectibleType.nextLevel;
 
     // Limpa tudo
     world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
