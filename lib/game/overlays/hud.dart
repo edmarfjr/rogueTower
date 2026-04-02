@@ -53,11 +53,11 @@ class Hud extends StatelessWidget {
                           String spriteName;
                           
                           if (currentHealth >= heartValueTimesTwo) {
-                             spriteName = 'sprites/hpCheio.png'; 
+                             spriteName = 'sprites/hud/hpCheio.png'; 
                           } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             spriteName = 'sprites/hpMeio.png'; 
+                             spriteName = 'sprites/hud/hpMeio.png'; 
                           } else {
-                             spriteName = 'sprites/hpVazio.png'; 
+                             spriteName = 'sprites/hud/hpVazio.png'; 
                           }
                           return PixelSprite(imagePath: spriteName, color: Pallete.vermelho, size: 32);
                         }),
@@ -77,11 +77,11 @@ class Hud extends StatelessWidget {
                           int heartValueTimesTwo = (index + 1) * 2;
                           String spriteName;
                           if (currentHealth >= heartValueTimesTwo) {
-                             spriteName = 'sprites/hpCheio.png'; 
+                             spriteName = 'sprites/hud/hpCheio.png'; 
                           } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             spriteName = 'sprites/hpMeio.png'; 
+                             spriteName = 'sprites/hud/hpMeio.png'; 
                           } else {
-                             spriteName = 'sprites/hpVazio.png'; 
+                             spriteName = 'sprites/hud/hpVazio.png'; 
                           }
                           return PixelSprite(imagePath: spriteName, color: Pallete.azulCla, size: 32);
                         }),
@@ -98,7 +98,7 @@ class Hud extends StatelessWidget {
                       if (currentShield == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentShield, (index) {
-                          return const PixelSprite(imagePath: 'sprites/escudo.png', color: Pallete.cinzaCla, size: 32);
+                          return const PixelSprite(imagePath: 'sprites/hud/escudo.png', color: Pallete.cinzaCla, size: 32);
                         }),
                       );
                     },
@@ -113,7 +113,7 @@ class Hud extends StatelessWidget {
                       if (currentDash == 0) return const SizedBox.shrink();
                       return Row(
                         children: List.generate(currentDash, (index) {
-                          return const PixelSprite(imagePath: 'sprites/dash.png', color: Pallete.verdeCla, size: 32);
+                          return const PixelSprite(imagePath: 'sprites/hud/dash.png', color: Pallete.verdeCla, size: 32);
                         }),
                       );
                     },
@@ -127,7 +127,7 @@ class Hud extends StatelessWidget {
                     builder: (context, coins, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/coin.png', color: Pallete.amarelo, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/coin.png', color: Pallete.amarelo, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $coins",
@@ -148,7 +148,7 @@ class Hud extends StatelessWidget {
                     builder: (context, keys, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/key.png', color: Pallete.laranja, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/key.png', color: Pallete.laranja, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $keys", 
@@ -171,7 +171,7 @@ class Hud extends StatelessWidget {
                     builder: (context, bombs, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/bomb.png', color: Pallete.lilas, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/bomb.png', color: Pallete.lilas, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $bombs", 
@@ -194,7 +194,7 @@ class Hud extends StatelessWidget {
                     builder: (context, souls, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/soul.png', color: Pallete.lilas, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/soul.png', color: Pallete.lilas, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $souls", 
@@ -219,7 +219,7 @@ class Hud extends StatelessWidget {
               top: 10,
               right: 10,
               child: IconButton(
-                icon: const PixelSprite(imagePath: 'sprites/pause.png', color: Pallete.branco, size: 40),
+                icon: const PixelSprite(imagePath: 'sprites/hud/pause.png', color: Pallete.branco, size: 40),
                 onPressed: () {
                   game.pauseGame();
                 },
@@ -247,7 +247,7 @@ class Hud extends StatelessWidget {
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
-                      child: PixelSprite(imagePath: 'sprites/dash.png', color: Pallete.verdeCla, size: 40),
+                      child: PixelSprite(imagePath: 'sprites/hud/dash.png', color: Pallete.verdeCla, size: 40),
                     ),
                   ),
                 ),
@@ -275,7 +275,7 @@ class Hud extends StatelessWidget {
                       border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
                     ),
                     child: const Center(
-                      child: PixelSprite(imagePath: 'sprites/bomb.png', color: Pallete.cinzaEsc, size: 40),
+                      child: PixelSprite(imagePath: 'sprites/hud/bomb.png', color: Pallete.cinzaEsc, size: 40),
                     ),
                   ),
                 ),
@@ -309,7 +309,7 @@ class Hud extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
                           child: PixelSprite(
-                            imagePath: lost ? 'sprites/hpMeio.png' : 'sprites/hpVazio.png',
+                            imagePath: lost ? 'sprites/hud/hpMeio.png' : 'sprites/hud/hpVazio.png',
                             color: lost ? Pallete.vermelho : Colors.white54,
                             size: 32,
                           ),

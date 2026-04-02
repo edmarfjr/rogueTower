@@ -132,7 +132,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createBug(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createBeeHive(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
@@ -181,7 +181,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (gameRef.player.magicShield) gameRef.player.activateShield();
     
     // Geração do Mapa (Obstáculos)
-    if (gameRef.nextRoomReward != CollectibleType.shop && roomNumber > 0) _generateMap(roomNumber);
+     _generateMap(roomNumber);
     
     // --- LÓGICA DE SPAWN ---
     if (gameRef.salasLimpas.contains(roomNumber)) {
@@ -209,32 +209,96 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     gameRef.world.children.query<Wall>().forEach((w) => w.removeFromParent());
 
     final rng = Random();
-    final List<Vector2> occupiedPositions = [Vector2.zero()];
     
-    if (rng.nextDouble() > 0.8) return; 
-
+    // Lista para guardar tudo que ocupa espaço, garantindo que detalhes 
+    // e obstáculos não nasçam um em cima do outro.
+    final List<Vector2> occupiedPositions = [Vector2.zero()];
     int obstacleCount = 3 + rng.nextInt(3); 
     int attempts = 0; 
+    
+   //if (rng.nextDouble() > 0.8) return; 
+    if (gameRef.nextRoomReward != CollectibleType.shop && seed > 0){
+// ==========================================
+    // 1. CRIAR OBSTÁCULOS PRINCIPAIS (Centro)
+    // ==========================================
+      while (occupiedPositions.length < obstacleCount + 1 && attempts < 100) {
+        attempts++;
 
-    while (occupiedPositions.length < obstacleCount + 1 && attempts < 100) {
+        const double margin = 16.0;
+
+        //const double spawnWidth = TowerGame.gameWidth - (margin * 2);
+        //const double spawnHeight = TowerGame.gameHeight - (margin * 2);
+
+        double x = (rng.nextInt(12)+2) - 7;
+        double y = (rng.nextInt(24)+2) - 12;
+
+        final candidatePos = Vector2(x*32 - margin, y*32 - margin);
+
+        // Validação de Posição das Portas: 
+        // Só proíbe se estiver muito no topo (y < -200) E muito no centro (x entre -100 e 100)
+        if (y < -200 && x.abs() < 100) continue; 
+
+        bool tooClose = false;
+        for (final pos in occupiedPositions) {
+          if (candidatePos.distanceTo(pos) < 50) { 
+            tooClose = true;
+            break;
+          }
+        }
+
+        if (tooClose) continue; 
+
+        gameRef.world.add(Wall(position: candidatePos, vida: 3 + Random().nextInt(8)));
+        occupiedPositions.add(candidatePos);
+      }
+    }
+    
+    // ==========================================
+    // 2. CRIAR DETALHES (Apenas nas Bordas)
+    // ==========================================
+    int detalheCount = 3 + rng.nextInt(4); 
+    attempts = 0; 
+
+    while (detalheCount > 0 && attempts < 100) {
       attempts++;
 
-      const double margin = 40.0;
+      // Margem da arena e o quão "grudado" o detalhe vai ficar da parede
+      const double margin = 16;
+      //double offsetDaParede = rng.nextDouble() * 20.0; // Varia de 0 a 20 pixels da parede
+      
+      double x = 0;
+      double y = 0;
 
-      const double spawnWidth = TowerGame.gameWidth - (margin * 2);
-      const double spawnHeight = TowerGame.gameHeight - (margin * 2);
-
-      double x = (rng.nextDouble() * spawnWidth) - (spawnWidth / 2);
-      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
+      // Sorteia qual parede vai receber o detalhe: 0=Cima, 1=Baixo, 2=Esquerda, 3=Direita
+      int parede = rng.nextInt(4);
+      switch (parede) {
+        case 0: // Parede de Cima
+          x = (((rng.nextInt(14)+2) - 8) * 32) - margin;
+          y = -(13*32.0) + margin;
+          break;
+        case 1: // Parede de Baixo
+          x = (((rng.nextInt(14)+2) - 8) * 32) - margin;
+          y = (14*32.0) - margin;
+          break;
+        case 2: // Parede da Esquerda
+          x = -(7*32.0) + margin;
+          y = (((rng.nextInt(26)+2) - 14) * 32) - margin;
+          break;
+        case 3: // Parede da Direita
+          x = (7*32.0) + margin;
+          y = (((rng.nextInt(26)+2) - 14) * 32) - margin;
+          break;
+      }
 
       final candidatePos = Vector2(x, y);
 
-      // Validação de Posição
-      if (y < -200) continue; // Longe das portas
+      // Validação das Portas para não bloquear a passagem!
+      if (y < -200 && x.abs() < 120) continue; 
 
       bool tooClose = false;
+      // Compara com a MESMA lista de posições ocupadas para não nascer dentro de um obstáculo normal!
       for (final pos in occupiedPositions) {
-        if (candidatePos.distanceTo(pos) < 50) { 
+        if (candidatePos.distanceTo(pos) < 40) { 
           tooClose = true;
           break;
         }
@@ -242,8 +306,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       if (tooClose) continue; 
 
-      gameRef.world.add(Wall(position: candidatePos, vida: 3 + Random().nextInt(8)));
+      gameRef.world.add(Wall(position: candidatePos, vida: 3 + Random().nextInt(8), isDetalhe: true));
       occupiedPositions.add(candidatePos);
+      detalheCount--; // Criou com sucesso, subtrai do contador
     }
   }
 
@@ -423,16 +488,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _spawnDoors(int roomNumber) {
+    final double posY = -432; // Posição Y fixa para as portas
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(
-        position: Vector2(0, -400), 
+        position: Vector2(0, posY), 
         rewardType: CollectibleType.boss,
       ));
       return;
     } else if (roomNumber == bossRoom) {
       gameRef.world.add(Door(
-        position: Vector2(0, -400), 
+        position: Vector2(0, posY), 
         rewardType: CollectibleType.nextLevel,
       ));
       return;
@@ -554,8 +620,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       }
     }
 
+    double margin = 16;
+
     gameRef.world.add(Door(
-      position: Vector2(-100, -400), 
+      position: Vector2(-2*32 - margin, posY), 
       rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
@@ -563,22 +631,23 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ));
 
     gameRef.world.add(Door(
-      position: Vector2(100, -400),
+      position: Vector2(3*32 + margin, posY),
       rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
       bites: bites2,
     ));
 
+//cria sala secreta
     if (roomNumber > 0 && roomNumber < bossRoom && rng.nextInt(100) < 20 + (gameRef.player.sorte*5) ) {
       bool usaBomba = rng.nextBool(); 
-      const double margin = 48.0;
+      const double margin = 16.0;
       const double spawnWidth = TowerGame.gameWidth - (margin * 2);
-      const double spawnHeight = TowerGame.gameHeight - (margin * 4);
+      //const double spawnHeight = TowerGame.gameHeight - (margin * 4);
 
-      double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2;
-      double y = (rng.nextDouble() * spawnHeight) - (spawnHeight / 2);
-      final pos = Vector2(x, y);
+      double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2 + 32 ;
+      double y = (rng.nextInt(26)+2) - 14;
+      final pos = Vector2(x, (y*32)-16);
       
       gameRef.world.add(SecretDoor(
         position: pos,//Vector2(0, -320),

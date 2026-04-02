@@ -334,7 +334,7 @@ class Player extends PositionComponent
     
   }
 
-  void criaVisual({reset = false,image = 'sprites/char1.png',color = Pallete.branco}){
+  void criaVisual({reset = false,image = 'sprites/chars/char1.png',color = Pallete.branco}){
     bool acessorio = false;
     IconData? acessIcon;
     Color? acessCor;
@@ -887,7 +887,7 @@ class Player extends PositionComponent
         }
       }
 
-      criaVisual(reset : true,image : 'sprites/${charClass.id}.png',color : charClass.color);
+      criaVisual(reset : true,image : 'sprites/chars/${charClass.id}.png',color : charClass.color);
 /*
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();

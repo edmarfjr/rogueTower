@@ -44,7 +44,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
       _updateDoorIcon('sprites/tileset/salaSecretaChave.png');
     }
     if(isExit) temInimigos = false;
-    priority = -1000;
+    priority = 1000;
   }
 
   void _updateDoorIcon(String image) {

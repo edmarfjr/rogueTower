@@ -30,6 +30,9 @@ flutter:
     - assets/images/sprites/inimigos/
     - assets/images/sprites/tileset/
     - assets/images/sprites/projeteis/
+    - assets/images/sprites/hud/
+    - assets/images/sprites/chars/
+    - assets/images/sprites/itens/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/

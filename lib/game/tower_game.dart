@@ -21,8 +21,8 @@ import 'components/core/game_progress.dart';
 import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-  static const double gameWidth = 500.0;  // Largura total (Esquerda <-> Direita)
-  static const double gameHeight = 900.0; // Altura total (Cima <-> Baixo)
+  static const double gameWidth = 16*32;  // Largura total (Esquerda <-> Direita)
+  static const double gameHeight = 32*28.0; // Altura total (Cima <-> Baixo)
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
