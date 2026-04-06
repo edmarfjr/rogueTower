@@ -34,6 +34,9 @@ class CharacterClass {
   final double dot;
   final int stackBonus;
   final bool noDamage;
+  final String bltImage;
+  final double bltSize;
+  final double bltSpeed;
 
   // Bônus Passivos (Flags)
   final bool isShotgun;
@@ -82,6 +85,9 @@ class CharacterClass {
     this.mudaIcone = false,
     this.isBomber = false,
     this.noDamage = false,
+    this.bltImage = 'sprites/projeteis/blt.png',
+    this.bltSize = 6.0,
+    this.bltSpeed = 100,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -102,14 +108,17 @@ class CharacterRoster {
       color: Pallete.cinzaCla, 
       maxHp: 4,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 10.0,
       fireRate: 0.4,
       critChance: 5,
       critDamage: 1.5,
       dashCooldown: 2.5,
-      attackRange: 0.7,
+      attackRange: 0.2,
+      bltSpeed: 650,
       startingShield: 1,
+      bltImage: 'sprites/projeteis/corte.png',
+      bltSize: 12.0,
     ),
     CharacterClass(
       id: 'piromante',
@@ -122,7 +131,7 @@ class CharacterRoster {
       color: Pallete.laranja,
       maxHp: 4, 
       maxDash: 2,
-      speed: 130.0, 
+      speed: 75.0, 
       damage: 10.0, 
       noDamage: true,
       fireRate: 0.05, 
@@ -145,6 +154,7 @@ class CharacterRoster {
       stackBonus: 5,
       dot: 2,
       attackRange: 0.6,
+      bltImage: 'sprites/projeteis/fogo.png',
     ),
     CharacterClass(
       id: 'ladino',
@@ -158,7 +168,7 @@ class CharacterRoster {
       color:  Pallete.verdeCla,
       maxHp: 2, 
       maxDash: 3,
-      speed: 220.0, 
+      speed: 110.0, 
       damage: 8.0,
       fireRate: 0.25, 
       critChance: 25, 
@@ -182,7 +192,7 @@ class CharacterRoster {
       color:  Pallete.verdeEsc,
       maxHp: 4, 
       maxDash: 2,
-      speed: 180.0, 
+      speed: 90.0, 
       damage: 10.0,
       fireRate: 0.5, 
       critChance: 5, 
@@ -191,6 +201,8 @@ class CharacterRoster {
       attackRange: 1.0,
       isUnlockedByDefault: false,
       unlockConditionText: "arqueiroCond".tr(),
+      bltImage: 'sprites/projeteis/flecha.png',
+      bltSize: 4.0,
     ),
     CharacterClass(
       id: 'exterminador',
@@ -203,7 +215,7 @@ class CharacterRoster {
       color:  Pallete.lilas,
       maxHp: 4, 
       maxDash: 2,
-      speed: 150.0, 
+      speed: 75.0, 
       damage: 10.0,
       fireRate: 0.5, 
       critChance: 5, 
@@ -228,7 +240,7 @@ class CharacterRoster {
       color: Pallete.lilas, 
       maxHp: 4,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 10.0,
       fireRate: 0.4,
       critChance: 5,
@@ -254,7 +266,7 @@ class CharacterRoster {
       color: Pallete.marrom, 
       maxHp: 4,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 10.0,
       fireRate: 0.4,
       critChance: 5,
@@ -281,7 +293,7 @@ class CharacterRoster {
       color: Pallete.branco, 
       maxHp: 6,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 10.0,
       fireRate: 0.8,
       critChance: 5,
@@ -312,7 +324,7 @@ class CharacterRoster {
       color: Pallete.lilas, 
       maxHp: 6,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 10.0,
       fireRate: 0.8,
       critChance: 5,
@@ -345,7 +357,7 @@ class CharacterRoster {
       color: Pallete.marrom, 
       maxHp: 4,
       maxDash: 2,
-      speed: 150.0,
+      speed: 75.0,
       damage: 100.0,
       fireRate: 0.4,
       critChance: 5,

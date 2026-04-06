@@ -31,7 +31,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
     this.isLocked = true,
     this.isExit = false,
     this.requiresBomb = false,
-  }) : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+  }) : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

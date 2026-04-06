@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/projectiles/black_hole.dart';
@@ -71,7 +72,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final double acceleration;
   final double maxSpeed;
 
-  GameIcon? visual;
+  GameSprite? visual;
+  String image;
   double visualAngle = 0;
 
   bool _isDead = false;
@@ -101,6 +103,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool refratado;
 
+  Vector2 hbSize;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -110,7 +114,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isEnemyProjectile = false,
     this.apagaTiros = false,
     this.dieTimer = 3.0,
-    Vector2? size,
+    this.image = 'sprites/projeteis/blt.png',
+    Vector2? hbSize,
     this.canBounce = false,
     this.maxBounces = 2,
     this.explodes = false,
@@ -148,8 +153,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isCharm = false,
     this.refratado = false,
     Vector2? iniPosition,
-  }): _currentRadius = (size?.x ?? 10) / 2, // Raio inicial baseado no tamanho
-      super(position: position, size: size ?? Vector2.all(10), anchor: Anchor.center) {
+  }): hbSize = hbSize ?? Vector2.all(6.0),
+      _currentRadius = (hbSize?.x ?? 6) / 2, // Raio inicial baseado no tamanho
+      super(position: position, size: Vector2.all(16), anchor: Anchor.center) {
     this.iniPosition = iniPosition?.clone() ?? position.clone();
   }
 
@@ -173,30 +179,30 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     } 
     else {
       // Lógica de visual padrão para tiros normais
-      IconData icon = Icons.circle;
+      //IconData icon = Icons.circle;
       Vector2 tamanho = size;
       
       if (explodes) {
-        icon = Icons.brightness_high;
+        //icon = Icons.brightness_high;
       } else if (isBoomerang) {
-        icon = MdiIcons.boomerang; 
+        //icon = MdiIcons.boomerang; 
         color = Pallete.marrom;
         tamanho = tamanho * 2;
       } else if (isHoming) {
-        icon = Icons.rocket_launch;
+        //icon = Icons.rocket_launch;
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
       } else if (isSaw) {
-        icon = MdiIcons.sawBlade;
+        //icon = MdiIcons.sawBlade;
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
         color = Pallete.cinzaCla;
       } else if (gameRef.selectedClass.name == 'PIROMANTE'){
-        icon = MdiIcons.fire; 
+        //icon = MdiIcons.fire; 
         color = Pallete.laranja;
         tamanho = tamanho * 2;
       }else if(isAdaga){
-        icon = MdiIcons.knifeMilitary;
+        //icon = MdiIcons.knifeMilitary;
         tamanho = tamanho * 2;
         color = Pallete.cinzaCla;
       }
@@ -205,21 +211,21 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         color = cor;
       }
 
-      visual = GameIcon(
-        icon: icon, 
-        color: color,
-        size: tamanho,
-        anchor: Anchor.center,
-        position: size / 2,
-      );
+      visual = GameSprite(
+      imagePath: image,
+      size: size,
+      color: color, 
+      anchor: Anchor.center,
+      position: size / 2
+    );
       add(visual!);
       
-      add(CircleHitbox(
-        radius: size.x / 2.5,
-        anchor: Anchor.center,
-        position: size / 2,
-        isSolid: true, 
-      ));
+      add(RectangleHitbox(
+      size: hbSize,
+      anchor: Anchor.center, 
+      position: size / 2,    
+      isSolid: true,
+    ));
     }
 
     _updateRotation();
@@ -439,7 +445,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         direction: dir, 
         damage:dmg, 
         speed: spd,
-        size: sz,
+        hbSize: sz,
         dieTimer: die,
         apagaTiros: apaga,
         isHoming: homing ,

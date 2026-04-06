@@ -21,8 +21,8 @@ import 'components/core/game_progress.dart';
 import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-  static const double gameWidth = 16*32;  // Largura total (Esquerda <-> Direita)
-  static const double gameHeight = 32*28.0; // Altura total (Cima <-> Baixo)
+  static const double gameWidth = 16*16;  // Largura total (Esquerda <-> Direita)
+  static const double gameHeight = 16*28.0; // Altura total (Cima <-> Baixo)
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
@@ -120,8 +120,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     
     await progress.load();
     debugMode = false;
-    //camera.viewport = FixedResolutionViewport(resolution: Vector2(360, 640));
-    camera.viewport = MaxViewport();
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(gameWidth, gameHeight));
+    //camera.viewport = MaxViewport();
 
     joystickBase = CircleComponent(
       radius: _maxRadius,
@@ -151,7 +151,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await world.add(arenaBorder);
 
     camera.setBounds(
-      Rectangle.fromLTWH(-60, -60, 120, 130),
+      Rectangle.fromLTWH(-40, -40, 100, 80),
       considerViewport: false, 
     );
 

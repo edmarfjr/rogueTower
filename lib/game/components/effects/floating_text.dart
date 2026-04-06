@@ -17,16 +17,7 @@ class FloatingText extends TextComponent {
           position: position,
           anchor: Anchor.center,
           priority: 1500, 
-          textRenderer: TextPaint(
-            style: TextStyle(
-              color: color,
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              shadows: const [
-                Shadow(blurRadius: 2, color: Pallete.preto, offset: Offset(1, 1)),
-              ],
-            ),
-          ),
+          textRenderer: Pallete.textoPadrao
         );
 
   @override

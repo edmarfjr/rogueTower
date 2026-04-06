@@ -56,7 +56,7 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
     final paintX = Paint()
       ..color = Pallete.vermelho.withOpacity(0.5)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeWidth = 1;
     
     double xSize = radius * 0.4;
     

@@ -2,6 +2,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 
 import '../../tower_game.dart';
 import '../core/pallete.dart';
@@ -22,7 +23,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   double _cooldown = 0;
 
   BloodMachine({required Vector2 position}) 
-    : super(position: position, size: Vector2.all(40), anchor: Anchor.center);
+    : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -35,8 +36,8 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
     ));
 
     // Visual da Máquina de Sangue (Uma bolsa de sangue ou cruz vermelha)
-    add(GameIcon(
-      icon: MdiIcons.bloodBag, 
+    add(GameSprite(
+      imagePath: 'sprites/gameObjs/blood.png', 
       color: Pallete.vermelho,
       size: size,
       anchor: Anchor.center,

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/interact_button.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
@@ -19,7 +20,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool isLock;
   InteractButton? _currentButton;
   // Guardamos a referência do ícone para trocar (fechado -> aberto)
-  GameIcon? _iconComponent;
+  GameSprite? _iconComponent;
 
   // Controle de Interface
   bool _isInfoVisible = false;
@@ -27,15 +28,15 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late Component _infoGroup; // Grupo que contém texto e botão
 
   Chest({required Vector2 position, this.isLock = false}) 
-      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+      : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     // 1. Visual (Baú Fechado)
     if(isLock){
-      _updateIcon(MdiIcons.treasureChest, Pallete.laranja);
+      _updateIcon('sprites/gameObjs/bauTrancado.png', Pallete.laranja);
     }else{
-      _updateIcon(MdiIcons.package, Pallete.marrom);
+      _updateIcon('sprites/gameObjs/bau.png', Pallete.marrom);
     } 
 
     // 2. Hitbox Sólida (Player não atravessa o baú)
@@ -49,11 +50,11 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     priority = position.y.toInt();
   }
 
-  void _updateIcon(IconData icon, Color color) {
+  void _updateIcon(String icon, Color color) {
     if (_iconComponent != null) _iconComponent!.removeFromParent();
     
-    _iconComponent = GameIcon(
-      icon: icon,
+    _iconComponent = GameSprite(
+      imagePath: icon,
       color: color,
       size: size,
       anchor: Anchor.center,
@@ -128,11 +129,8 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       ));
       return;
     }
-    if(isLock){
-      _updateIcon(MdiIcons.treasureChest, Pallete.cinzaEsc);
-    }else{
-      _updateIcon(MdiIcons.package, Pallete.cinzaEsc);
-    } 
+    
+    _updateIcon('sprites/gameObjs/bauAberto.png', Pallete.cinzaEsc);
     _isOpen = true;
 
     gameRef.itensComunsPoolCurrent.shuffle();

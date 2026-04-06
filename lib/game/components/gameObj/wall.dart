@@ -16,7 +16,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
   Wall({required Vector2 position,
         this.vida = 3,
         this.isDetalhe = false
-  }) : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+  }) : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -36,43 +36,38 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       priority = -1000;
 
     }else{
-      List<IconData> possibleIcons = [
-        Icons.grid_view, 
-        Icons.terrain,
-        MdiIcons.mushroomOutline,
+      List<String> possibleIcons = [
+        'sprites/tileset/bloqueio.png', 
+        'sprites/tileset/mushroom.png', 
       ];
 
       if (gameRef.currentLevel == 2){
         possibleIcons = [
-          MdiIcons.graveStone,
-          MdiIcons.skullCrossbones,
-          MdiIcons.halloween,
+          'sprites/tileset/tumulo.png',
+          'sprites/tileset/ossos.png',  
         ];
       } else if (gameRef.currentLevel == 3){
         possibleIcons = [
-          MdiIcons.checkerboard,
-          MdiIcons.crownCircle,
-          MdiIcons.crownCircleOutline,
+          'sprites/tileset/tabuleiro.png',
+          'sprites/tileset/dama.png',  
         ];
       } else if (gameRef.currentLevel == 4){
         possibleIcons = [
-          MdiIcons.flower,
-          MdiIcons.pineTree,
-          MdiIcons.tree,
+          'sprites/tileset/flor.png', 
+          'sprites/tileset/pinheiro.png', 
         ];
       } else if (gameRef.currentLevel == 4){
         possibleIcons = [
-          Icons.terrain,
-          MdiIcons.sailBoatSink,
-          MdiIcons.tree,
+          'sprites/tileset/bloqueio.png', 
+          'sprites/tileset/anemona.png', 
         ];
       }
 
-      final IconData icon = possibleIcons[rng.nextInt(possibleIcons.length)];
+      final String icon = possibleIcons[rng.nextInt(possibleIcons.length)];
       
       // Visual: Um bloco sólido (ícone de grade ou quadrado)
-      add(GameIcon(
-        icon: icon, // Parecido com tijolos ou pedras
+      add(GameSprite(
+        imagePath: icon, // Parecido com tijolos ou pedras
         color: Pallete.cinzaEsc,     // Cor de pedra
         size: size,
         anchor: Anchor.center,

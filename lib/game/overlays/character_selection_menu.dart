@@ -56,7 +56,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
             children: [
               const Text(
                 "ESCOLHA SUA CLASSE",
-                style: TextStyle(color: Pallete.branco, fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Pallete.branco, fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Stack(
@@ -89,7 +89,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _isCurrentClassUnlocked ? Pallete.cinzaCla : Pallete.vermelho, 
-                    fontSize: 16,
+                    fontSize: 24,
                     fontWeight: _isCurrentClassUnlocked ? FontWeight.normal : FontWeight.bold,
                   ),
                 ),
@@ -207,7 +207,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
           style: TextStyle(
             color: isSelected ? Pallete.branco : Pallete.cinzaCla,
             fontWeight: FontWeight.bold,
-            fontSize: 12
+            fontSize: 16
           )
         ),
       ),

@@ -65,9 +65,9 @@ class Player extends PositionComponent
   double critDamageIni = 2.0;
   double fireRate = 0.4; 
   double fireRateIni = 0.4; 
-  double moveSpeed = 150.0;
-  double moveSpeedIni = 150.0;
-  double moveSpeedTaurus = 150.0;
+  double moveSpeed = 75.0;
+  double moveSpeedIni = 75.0;
+  double moveSpeedTaurus = 75.0;
   final double acceleration = 250.0; 
   final double friction = 750.0;
   bool velMax = false;
@@ -77,7 +77,9 @@ class Player extends PositionComponent
   double sorte = 0;
   double sorteIni = 0;
 
-  double bltSize = 10;
+  double bltSize = 16;
+  String bltImage = 'sprites/projeteis/blt.png';
+  double bltSpeed = 500;
 
   final double _rawDamage = 0;
   final double _rawSpeed = 0;
@@ -99,7 +101,7 @@ class Player extends PositionComponent
   bool isDashing = false;
   double _dashTimer = 0;
   double dashDuration = 0.4; 
-  double dashSpeed = 450;    
+  double dashSpeed = 275;    
   
   double _dashCooldownTimer = 0;
   double dashCooldown = 2.5; 
@@ -245,8 +247,8 @@ class Player extends PositionComponent
   List<Familiar> familiars = [];
 
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
-  //late GameIcon _visual;
-  late GameSprite _visual;
+  //late GameIcon visual;
+  late GameSprite visual;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
@@ -321,7 +323,7 @@ class Player extends PositionComponent
     return 5; 
   }
 
-  Player({required Vector2 position}) : super(size: Vector2.all(32), anchor: Anchor.center) {
+  Player({required Vector2 position}) : super(size: Vector2.all(16), anchor: Anchor.center) {
     healthNotifier = ValueNotifier<int>(maxHealth);
     artificialHealthNotifier = ValueNotifier<int>(maxArtificialHealth);
     dashNotifier = ValueNotifier<int>(maxDash);
@@ -341,8 +343,8 @@ class Player extends PositionComponent
     double? acessAng;
 
     if (reset){
-      if(_visual != null){
-        _visual.removeFromParent();
+      if(visual != null){
+        visual.removeFromParent();
       }
       if(_hitbox != null){
         _hitbox.removeFromParent();
@@ -370,7 +372,7 @@ class Player extends PositionComponent
       animContrario = true;
     }    
     //GameSprite(imagePath: 'items/potion.png', size: Vector2(32, 32))
-    /*_visual = GameIcon(
+    /*visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
       size: size,
@@ -378,14 +380,14 @@ class Player extends PositionComponent
       position: size / 2 + vooOffset,    
     );
     */
-    _visual = GameSprite(
-                imagePath: image,
-                size: size,
-                color: color, 
-                anchor: Anchor.center,
-                position: size / 2 + vooOffset
-              );
-    add(_visual);
+    visual = GameSprite(
+      imagePath: image,
+      size: size,
+      color: color, 
+      anchor: Anchor.center,
+      position: size / 2 + vooOffset
+    );
+    add(visual);
 
     /* Debug visual do alcance
     _rangeIndicator=CircleComponent(
@@ -400,7 +402,7 @@ class Player extends PositionComponent
     // Hitbox
     
     _hitbox=RectangleHitbox(
-      size: Vector2(12,24),
+      size: Vector2(12,24)/2,
       anchor: Anchor.center, 
       position: size / 2 + Vector2(0,4) + vooOffset,    
       isSolid: true,
@@ -577,11 +579,11 @@ class Player extends PositionComponent
     if(isLicantropia) return;
     isLicantropia = true;
     animContrario = false;
-    _visual.removeFromParent();
+    visual.removeFromParent();
     _currentAccessory!.removeFromParent();
 
 /*
-    _visual = GameIcon(
+    visual = GameIcon(
       icon: MdiIcons.dogSide,
       color: Pallete.marrom,
       size: size, 
@@ -590,7 +592,7 @@ class Player extends PositionComponent
     );
     */
     currentColor = Pallete.marrom;
-    add(_visual);
+    add(visual);
   }
   void _handleLicantropia(double dt){
     if (isLicantropia){
@@ -607,10 +609,10 @@ class Player extends PositionComponent
     isPac = true;
     animContrario = false;
     _isInvincible = true;
-    _visual.removeFromParent();
+    visual.removeFromParent();
     _currentAccessory!.removeFromParent();
 /*
-    _visual = GameIcon(
+    visual = GameIcon(
       icon: MdiIcons.pacMan,
       color: Pallete.amarelo,
       size: size, 
@@ -619,7 +621,7 @@ class Player extends PositionComponent
     );
     */
     currentColor = Pallete.amarelo;
-    add(_visual);
+    add(visual);
 
     gameRef.world.add(FloatingText(
       text: "PAC PAC PAC!!",
@@ -644,10 +646,10 @@ class Player extends PositionComponent
     isUnicorn = true;
     animContrario = false;
     _isInvincible = true;
-    _visual.removeFromParent();
+    visual.removeFromParent();
     _currentAccessory!.removeFromParent();
 /*
-    _visual = GameIcon(
+    visual = GameIcon(
       icon: MdiIcons.unicorn,
       color: Pallete.laranja,
       size: size, 
@@ -655,7 +657,7 @@ class Player extends PositionComponent
       position: size / 2,
     );
     currentColor = Pallete.laranja;
-    add(_visual);
+    add(visual);
     */
   }
   void _handleUnicorn(double dt){
@@ -785,7 +787,23 @@ class Player extends PositionComponent
       CollectibleType.activeDullRazor,
       CollectibleType.activeBoxSpider,
       CollectibleType.activeD10,
+      CollectibleType.activeScroll,
       CollectibleType.activeGoldenBox,
+      CollectibleType.activeSlot,
+      CollectibleType.activeJarroDeVida,
+      CollectibleType.activeBoxOfFriends,
+      CollectibleType.activeJarroFadas,
+      CollectibleType.activeFreezeBomb,
+      CollectibleType.activeSuperLaser,
+      CollectibleType.activeBltDetonator,
+      CollectibleType.activeGoldenrazor,
+      CollectibleType.activeTurretRotate,
+      CollectibleType.activeGlassStaff,
+      CollectibleType.activeBuracoNegro,
+      CollectibleType.activeLoja,
+      CollectibleType.activeCleaver,
+      CollectibleType.activeKamikaze,
+      CollectibleType.activeWoodenCoin,
       //uso unico
       CollectibleType.sanduiche,
       CollectibleType.cupon,  
@@ -806,6 +824,11 @@ class Player extends PositionComponent
       CollectibleType.portalBoss,
       CollectibleType.activeFear,
       CollectibleType.activePacmen,
+      CollectibleType.activePa,
+      CollectibleType.activeDupliItem,
+      CollectibleType.activeSacrifFamiliar,
+      CollectibleType.activeRestart,
+      CollectibleType.activeNuke,
     ];
 
     final effectDrawn = activeItemsPool[rng.nextInt(activeItemsPool.length)];
@@ -857,6 +880,10 @@ class Player extends PositionComponent
       noDamage = charClass.noDamage;
 
       itemsExcluidos = charClass.itemsExcluidos;
+      bltImage = charClass.bltImage;
+      bltSize = charClass.bltSize;
+      bltSpeed = charClass.bltSpeed;
+
 
       for (var itemType in charClass.startingItems) {
 
@@ -896,8 +923,8 @@ class Player extends PositionComponent
 
      /* 
       currentColor = charClass.color;
-      if (_visual != null) {
-        _visual.setColor(charClass.color);
+      if (visual != null) {
+        visual.setColor(charClass.color);
         // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
         // visualIcon.icon = charClass.icon; 
       }
@@ -922,9 +949,9 @@ class Player extends PositionComponent
         add(_currentAccessory!);
       }
       if(charClass.mudaIcone){
-         _visual.removeFromParent();
+         visual.removeFromParent();
 /*
-        _visual = GameIcon(
+        visual = GameIcon(
           icon: charClass.icon,
           color: Pallete.branco,
           size: size * 1.2, 
@@ -932,7 +959,7 @@ class Player extends PositionComponent
           position: size / 2,
         );
         currentColor = Pallete.branco;
-        add(_visual);
+        add(visual);
 */
         icone = charClass.icon;
       }
@@ -954,7 +981,7 @@ class Player extends PositionComponent
   }
 
   void _animateMovement(double dt) {
-    double facingDirection = _visual.scale.x.sign; 
+    double facingDirection = visual.scale.x.sign; 
     if (velocity.x < -0.1) facingDirection = -1.0;
     if (velocity.x > 0.1) facingDirection = 1.0;
 
@@ -984,9 +1011,9 @@ class Player extends PositionComponent
       _walkTimer = 0;
     }
 
-    // 1. Aplica a animação no Corpo Principal (_visual)
-    _visual.scale.setValues(facingDirection * currentScaleX, currentScaleY);
-    _visual.angle = currentAngle; 
+    // 1. Aplica a animação no Corpo Principal (visual)
+    visual.scale.setValues(facingDirection * currentScaleX, currentScaleY);
+    visual.angle = currentAngle; 
 
     // 2. Aplica a animação no Acessório (Sincronizado!)
     if (_currentAccessory != null) {
@@ -1179,12 +1206,12 @@ class Player extends PositionComponent
     if (_ghostTimer >= 0.025) {
       gameRef.world.add(
         GhostParticle(
-          imagePath: _visual.imagePath,
+          imagePath: visual.imagePath,
           color: currentColor.withOpacity(0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
-          scale: _visual.scale.clone(), // Clonado para não linkar referências
+          scale: visual.scale.clone(), // Clonado para não linkar referências
         ),
       );
       _ghostTimer = 0;
@@ -1241,7 +1268,7 @@ class Player extends PositionComponent
   void _keepInBounds() {
     double limitX = TowerGame.gameWidth/2 - size.x;
     double limitY = TowerGame.gameHeight/2 - size.y;
-    double arenaBorder = 10;
+    double arenaBorder = 0;
 
     position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
     position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
@@ -1355,14 +1382,14 @@ class Player extends PositionComponent
       _invincibilityTimer -= dt;
       
       if (_invincibilityTimer % 0.2 < 0.1) {
-         _visual.setColor(Pallete.vermelho.withOpacity(0.5));
+         visual.setColor(Pallete.vermelho.withOpacity(0.5));
       } else {
-         _visual.setColor(currentColor);
+         visual.setColor(currentColor);
       }
 
       if (_invincibilityTimer <= 0) {
         _isInvincible = false;
-        _visual.setColor(currentColor);
+        visual.setColor(currentColor);
       }
     }
   }
@@ -1460,7 +1487,7 @@ class Player extends PositionComponent
             direction: _tempDirection.clone(), 
             damage: damage, 
             speed: 300,
-            size: Vector2.all(15),
+            hbSize: Vector2.all(15),
             dieTimer: attackRange,
             cor : Pallete.vinho,
           ));
@@ -1689,14 +1716,14 @@ class Player extends PositionComponent
       }
 
     }
-
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone(), 
       direction: dir, 
       damage: noDamage? 0 : dmg, 
-      speed: isOrbitalShot ? 4.0 : isHeavyShot ? 250 : isWave ? 350 : isSaw ? 50 : 500,
-      size: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? bltSpeed/2 : isWave ? bltSpeed * 0.75 : isSaw ? bltSpeed/10 : bltSpeed,
+      hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
+      image:bltImage,
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,
@@ -1756,7 +1783,7 @@ class Player extends PositionComponent
   }
 
   void reset() {
-    size = Vector2.all(32);
+    size = Vector2.all(16);
     maxHealth = 4;
     healthNotifier.value = 4;
     maxArtificialHealth = 0;
@@ -1778,9 +1805,9 @@ class Player extends PositionComponent
     critDamage = 2.0;
     fireRate = 0.4; 
     fireRateIni = 0.4;
-    moveSpeed = 150.0;
+    moveSpeed = 75.0;
     dashDuration = 0.3; 
-    dashSpeed = 450;    
+    dashSpeed = 275;    
     dashCooldown = 2.5; 
     invincibilityDuration = 0.5;
     isBerserk = false;
@@ -1877,7 +1904,7 @@ class Player extends PositionComponent
     rainbowShot = false;
 
     criaVisual(reset:true);
-    _visual.setColor(Pallete.branco);
+    visual.setColor(Pallete.branco);
   }
 
   @override
@@ -2098,18 +2125,18 @@ class Player extends PositionComponent
 */
   // UPGRADES
   void changeSize(double sizeMod){
-    _visual.removeFromParent();
+    visual.removeFromParent();
     size = size*sizeMod;
 
     /*
-    _visual = GameIcon(
+    visual = GameIcon(
       icon: Icons.directions_walk, 
       color: Pallete.branco, 
       size: size,
       anchor: Anchor.center, 
       position: size / 2,    
     );
-    add(_visual);
+    add(visual);
 */
     _hitbox.removeFromParent();
 

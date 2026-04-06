@@ -173,12 +173,14 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
 
     final paint = Paint()
       ..color = cor
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = false;
       
     final paintBorder = Paint()
       ..color = corBorda
       ..style = PaintingStyle.stroke
-      ..strokeWidth = radius / 4;
+      ..strokeWidth = radius / 4
+      ..isAntiAlias = false;
 
     canvas.drawCircle(Offset.zero, currentRadius, paint);
     canvas.drawCircle(Offset.zero, currentRadius, paintBorder);

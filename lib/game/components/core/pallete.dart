@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flame/components.dart';
+
 class Pallete {
   static const Color colorDarkest = Color.fromRGBO(15, 56, 15, 1);
   static const Color colorDark = Color.fromRGBO(48, 98, 48, 1);
@@ -22,5 +24,21 @@ class Pallete {
   static const Color lilas = Color(0xFF83769C);
   static const Color rosa = Color(0xFFFF77A8);
   static const Color bege = Color(0xFFFFCCAA);
+
+  static final TextPaint textoPadrao = TextPaint(
+    style: const TextStyle(
+      fontFamily: 'pixelFont', // Chama a fonte!
+      color: Color(0xFFFFF1E8),
+      fontSize: 8,
+    ),
+  );
+
+  static final TextPaint textoDanoCritico = TextPaint(
+    style: const TextStyle(
+      fontFamily: 'pixelFont',
+      color: Color(0xFFFFEC27),
+      fontSize: 10,
+    ),
+  );
   
 }

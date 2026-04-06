@@ -28,9 +28,9 @@ void createExplosionEffect(World world, Vector2 position, Color color, {int coun
               // OTIMIZAÇÃO: Apenas altera a opacidade do Paint existente
               // Em vez de criar um novo Paint().
               paint.color = color.withOpacity(1 - particle.progress);
-              
+              //paint.color = color;
               canvas.drawRect(
-                const Rect.fromLTWH(-2, -2, 4, 4), // Usa const para evitar alocação
+                const Rect.fromLTWH(-1, -1, 2, 2), // Usa const para evitar alocação
                 paint,
               );
             },

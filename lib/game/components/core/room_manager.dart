@@ -224,7 +224,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       while (occupiedPositions.length < obstacleCount + 1 && attempts < 100) {
         attempts++;
 
-        const double margin = 16.0;
+        const double margin = 8.0;
 
         //const double spawnWidth = TowerGame.gameWidth - (margin * 2);
         //const double spawnHeight = TowerGame.gameHeight - (margin * 2);
@@ -232,7 +232,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         double x = (rng.nextInt(12)+2) - 7;
         double y = (rng.nextInt(24)+2) - 12;
 
-        final candidatePos = Vector2(x*32 - margin, y*32 - margin);
+        final candidatePos = Vector2(x*16 - margin, y*16 - margin);
 
         // Validação de Posição das Portas: 
         // Só proíbe se estiver muito no topo (y < -200) E muito no centro (x entre -100 e 100)
@@ -263,7 +263,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       attempts++;
 
       // Margem da arena e o quão "grudado" o detalhe vai ficar da parede
-      const double margin = 16;
+      const double margin = 8;
       //double offsetDaParede = rng.nextDouble() * 20.0; // Varia de 0 a 20 pixels da parede
       
       double x = 0;
@@ -273,20 +273,20 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       int parede = rng.nextInt(4);
       switch (parede) {
         case 0: // Parede de Cima
-          x = (((rng.nextInt(14)+2) - 8) * 32) - margin;
-          y = -(13*32.0) + margin;
+          x = (((rng.nextInt(14)+2) - 8) * 16) - margin;
+          y = -(13*16.0) + margin;
           break;
         case 1: // Parede de Baixo
-          x = (((rng.nextInt(14)+2) - 8) * 32) - margin;
-          y = (14*32.0) - margin;
+          x = (((rng.nextInt(14)+2) - 8) * 16) - margin;
+          y = (14*16.0) - margin;
           break;
         case 2: // Parede da Esquerda
-          x = -(7*32.0) + margin;
-          y = (((rng.nextInt(26)+2) - 14) * 32) - margin;
+          x = -(7*16.0) + margin;
+          y = (((rng.nextInt(26)+2) - 14) * 16) - margin;
           break;
         case 3: // Parede da Direita
-          x = (7*32.0) + margin;
-          y = (((rng.nextInt(26)+2) - 14) * 32) - margin;
+          x = (7*16.0) + margin;
+          y = (((rng.nextInt(26)+2) - 14) * 16) - margin;
           break;
       }
 
@@ -488,7 +488,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _spawnDoors(int roomNumber) {
-    final double posY = -432; // Posição Y fixa para as portas
+    const double margin = 8.0;
+    const double posY = -16*13; // Posição Y fixa para as portas
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(
@@ -620,10 +621,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       }
     }
 
-    double margin = 16;
-
     gameRef.world.add(Door(
-      position: Vector2(-2*32 - margin, posY), 
+      position: Vector2(-2*16 - margin, posY - margin), 
       rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
@@ -631,7 +630,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ));
 
     gameRef.world.add(Door(
-      position: Vector2(3*32 + margin, posY),
+      position: Vector2(3*16 + margin, posY - margin),
       rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
@@ -641,16 +640,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 //cria sala secreta
     if (roomNumber > 0 && roomNumber < bossRoom && rng.nextInt(100) < 20 + (gameRef.player.sorte*5) ) {
       bool usaBomba = rng.nextBool(); 
-      const double margin = 16.0;
+      const double margin = 8.0;
       const double spawnWidth = TowerGame.gameWidth - (margin * 2);
       //const double spawnHeight = TowerGame.gameHeight - (margin * 4);
 
-      double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2 + 32 ;
+      double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2 + 16 ;
       double y = (rng.nextInt(26)+2) - 14;
-      final pos = Vector2(x, (y*32)-16);
+      final pos = Vector2(x, (y*16)-16);
       
       gameRef.world.add(SecretDoor(
-        position: pos,//Vector2(0, -320),
+        position: pos,//Vector2(0, -160),
         requiresBomb: usaBomba,
       ));
     }
@@ -730,10 +729,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateZeroRoom(){
-    double x1 =-120;
-    double y1 =-100;
-    double y2 =-0;
-    double y3 = 100;
+    double x1 =-16*6 + 16;
+    double y1 =-16*4;
+    double y2 =0;
+    double y3 = 16*4;
     switch (gameRef.currentLevel){
       
       case 1:

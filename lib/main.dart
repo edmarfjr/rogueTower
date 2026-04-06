@@ -30,9 +30,13 @@ Future<void> main() async {
   
  // await AudioManager.init();
 
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: GameEntry(),
+    theme: ThemeData(
+        fontFamily: 'pixelFont', // O MESMO NOME do "family" no pubspec!
+        // (Você pode definir outras cores base do tema aqui se quiser)
+      ),
+    home: const GameEntry(),
   ));
 }
 

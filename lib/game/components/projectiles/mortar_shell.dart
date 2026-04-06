@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/components.dart';
@@ -24,7 +25,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   double _timeElapsed = 0;
   final double _maxHeight = 150.0;
   // Referência para o visual para podermos girá-lo
-  late GameIcon _visualChild; 
+  late GameSprite _visualChild; 
 
   MortarShell({
     required this.startPos,
@@ -33,7 +34,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     this.flightDuration = 1.2,
     this.isPoison = false,
     this.isFire = false,
-    this.explosionRadius = 60.0,
+    this.explosionRadius = 32.0,
     this.isPlayer = false,
     this.damage = 1,
     this.goldShot = false,
@@ -42,19 +43,19 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   @override
   Future<void> onLoad() async {
 
-    IconData icon = MdiIcons.bomb;
+    String image = 'sprites/projeteis/bomba.png';
     Color cor = Pallete.lilas;
 
     if(isFire){
-      icon = MdiIcons.bottleWine;
+      image = 'sprites/projeteis/molotov.png';
       cor = Pallete.laranja;
     }
     if(isPoison){
       cor = Pallete.verdeCla;
     }
     // Criamos o visual
-    _visualChild = GameIcon(
-      icon: icon, 
+    _visualChild = GameSprite(
+      imagePath: image, 
       color: cor,
       size: Vector2.all(24),
       anchor: Anchor.center,
@@ -143,7 +144,8 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
         width: 12 - (currentHeight * 0.02), // Sombra diminui um pouco com a altura
         height: 8 - (currentHeight * 0.02)
       ), 
-      Paint()..color = Pallete.cinzaEsc,
+      Paint()..color = Pallete.cinzaEsc
+             ..isAntiAlias = false,
     );
     
     super.render(canvas); // Desenha o filho (ícone girando) por cima da sombra

@@ -1,3 +1,4 @@
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/core/interact_button.dart'; // Import do novo botão
 import 'package:flame/collisions.dart';
@@ -20,7 +21,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   
   // Controle de Interface (Igual ao Collectible)
   bool _isInfoVisible = false;
-  final double _interactRange = 60.0;
+  final double _interactRange = 48.0;
   InteractButton? _currentButton;
 
   TextComponent? _nameText;
@@ -31,7 +32,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     required this.id,
     required this.type,
     required this.soulCost,
-  }) : super(position: position, size: Vector2.all(40), anchor: Anchor.center);
+  }) : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -40,7 +41,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     add(RectangleHitbox(
       size: size * 0.8,
       anchor: Anchor.center,
-      position: Vector2(20,55),
+      position: size/2,
       isSolid: true,
     ));
   }
@@ -74,28 +75,17 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
     _nameText = TextComponent(
       text: itemName.toUpperCase(),
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 12, 
-          color: Pallete.amarelo, 
-          fontWeight: FontWeight.bold,
-        )
-      ),
+      textRenderer: Pallete.textoDanoCritico,
       anchor: Anchor.bottomCenter,
-      position: Vector2(size.x / 2, -25), 
+      position: Vector2(size.x / 2, -12), 
     );
     add(_nameText!);
 
     _descText = TextComponent(
       text: itemDesc,
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 10, 
-          color: Colors.white,
-        )
-      ),
+      textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
-      position: Vector2(size.x / 2, -10), 
+      position: Vector2(size.x / 2, -5), 
     );
     add(_descText!);
   }
@@ -113,7 +103,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
+    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
     _isInfoVisible = true;
     _currentButton = InteractButton(
       position: hudPosition,
@@ -139,21 +129,22 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
   void _updateVisuals() {
     removeAll(children.whereType<GameIcon>());
+    removeAll(children.whereType<GameSprite>());
     removeAll(children.whereType<TextComponent>());
-    add(GameIcon(
-        icon: MdiIcons.archive,
+    add(GameSprite(
+        imagePath: 'sprites/gameObjs/pedestal.png',
         color: Pallete.cinzaEsc,
         size: size,
         scale: Vector2.all(1.0), // Adicionado para evitar erro de required
         anchor: Anchor.center,
-        position: Vector2(20,55),
+        position: Vector2(8,24),
       ));
 
     if (!_isPicked){
       add(GameIcon(
         icon: _getIconForType(type),
         color: _getColorForType(type),
-        size: Vector2.all(32),
+        size: Vector2.all(16),
        // scale: Vector2.all(1.0), // Adicionado para evitar erro de required
         anchor: Anchor.center,
         position: size / 2,
@@ -161,13 +152,13 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     }
       
     if (!_isUnlocked) {
-      add(GameIcon(
-        icon: Icons.lock,
+      add(GameSprite(
+        imagePath: 'sprites/gameObjs/lock.png',
         color: Colors.grey,
-        size: size/2,
+        size: size,
         scale: Vector2.all(1.0),
         anchor: Anchor.center,
-        position: Vector2(20,55),
+        position: Vector2(8,16),
       ));
       _addText("$soulCost Souls", Colors.blueAccent);
     }
@@ -176,9 +167,9 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   void _addText(String text, Color color) {
     add(TextComponent(
       text: text,
-      textRenderer: TextPaint(style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
+      textRenderer: Pallete.textoPadrao,
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, size.y + 30),
+      position: Vector2(size.x / 2, size.y + 16),
     ));
   }
 

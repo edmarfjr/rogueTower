@@ -201,7 +201,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         isEnemyProjectile: isEnemy,
         owner: owner,
         dieTimer: 1.0, 
-        size: Vector2.all(10), 
+        hbSize: Vector2.all(6), 
         canBounce: false,
         explodes: false, 
         splits: false, 

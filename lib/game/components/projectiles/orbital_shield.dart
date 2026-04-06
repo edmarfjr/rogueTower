@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:towerrogue/game/components/core/game_icon.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:flame/collisions.dart';
@@ -34,7 +35,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     this.radius = 45,
     this.speed = 3,
     Vector2? size,
-    }) : super(size: size ?? Vector2.all(24), anchor: Anchor.center);
+    }) : super(size: size ?? Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -45,24 +46,24 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     
     // Visual do escudo
     if(isFoice){
-      add(GameIcon(
-        icon: MdiIcons.sickle,
+      add(GameSprite(
+        imagePath: 'sprites/projeteis/foice',
         color: cor,
         size: size, 
         anchor: Anchor.center,
         position: size / 2,
       ));
     }else if(isFlail){
-      add(GameIcon(
-        icon: MdiIcons.mine,
+      add(GameSprite(
+        imagePath: 'sprites/projeteis/flail',
         color: Pallete.lilas,
         size: size, 
         anchor: Anchor.center,
         position: size / 2,
       ));
     } else {
-      add(GameIcon(
-        icon: MdiIcons.shield,
+      add(GameSprite(
+        imagePath: 'sprites/projeteis/escudo',
         color: Pallete.lilas,
         size: size, 
         anchor: Anchor.center,

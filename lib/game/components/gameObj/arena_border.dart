@@ -87,62 +87,62 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tileQ1.render(
         canvas,
         position: Vector2(0, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),  
+        size: Vector2(16, 16),  
         overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
       );
     tileQ2.render(
         canvas,
-        position: Vector2(16*32, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),  
+        position: Vector2(16*16, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
+        size: Vector2(16, 16),  
         overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
       );
     tileQ3.render(
       canvas,
-      position: Vector2(0, 28*32), // Posição local (0,0 é o canto superior esquerdo deste componente)
-      size: Vector2(32, 32),  
+      position: Vector2(0, 28*16), // Posição local (0,0 é o canto superior esquerdo deste componente)
+      size: Vector2(16, 16),  
       overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
     );
-  tileQ4.render(
-      canvas,
-      position: Vector2(16*32, 28*32), // Posição local (0,0 é o canto superior esquerdo deste componente)
-      size: Vector2(32, 32),  
-      overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-    ); 
-    for(int i=32; i<16*32; i+=32){
-     canvas.drawLine(
+    tileQ4.render(
+        canvas,
+        position: Vector2(16*16, 28*16), // Posição local (0,0 é o canto superior esquerdo deste componente)
+        size: Vector2(16, 16),  
+        overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
+      ); 
+    for(int i=16; i<16*16; i+=16){
+     /*canvas.drawLine(
         Offset(i.toDouble(), 0),
-       Offset(i.toDouble(), 900),
+       Offset(i.toDouble(), 28*16),
         _borderPaint,
-      );
+      );*/
       tile.render(
         canvas,
         position: Vector2(i.toDouble(), 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),  
+        size: Vector2(16, 16),  
         overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
       );
       tile.render(
         canvas,
-        position: Vector2(i.toDouble(), 32*28), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),      
+        position: Vector2(i.toDouble(), 16*28), // Posição local (0,0 é o canto superior esquerdo deste componente)
+        size: Vector2(16, 16),      
         overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
       );
     }
-    for(int i=32; i<32*28; i+=32){
-      canvas.drawLine(
+    for(int i=16; i<16*28; i+=16){
+    /*  canvas.drawLine(
         Offset(0,i.toDouble()),
-       Offset(16*32,i.toDouble()),
+       Offset(16*16,i.toDouble()),
         _borderPaint,
-      );
+      ); */
       tile.render(
         canvas,
         position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),  
+        size: Vector2(16, 16),  
         overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
       );
       tile.render(
         canvas,
-        position: Vector2(16*32,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(32, 32),      
+        position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+        size: Vector2(16, 16),      
         overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
       );
     }

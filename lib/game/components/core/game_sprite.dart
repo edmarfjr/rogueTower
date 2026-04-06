@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class GameSprite extends SpriteComponent{
   final String imagePath;
-  Color _color;
+  Color color;
 
   GameSprite({
     required this.imagePath,
@@ -12,7 +12,8 @@ class GameSprite extends SpriteComponent{
     super.position,
     super.scale,
     super.anchor = Anchor.center,
-  }) : _color = color;
+  }) : color = color;
+
 
   @override
   Future<void> onLoad() async {
@@ -25,7 +26,7 @@ class GameSprite extends SpriteComponent{
 
   // Permite mudar a cor dinamicamente (ex: poção mudando de tipo)
   void changeColor(Color newColor) {
-    _color = newColor;
+    color = newColor;
     if (isLoaded) {
       _updateColorFilter();
     }
@@ -36,8 +37,8 @@ class GameSprite extends SpriteComponent{
     // Usamos BlendMode.srcIn. 
     // Isso pega a forma da sprite (tudo que não é transparente) 
     // e preenche com a cor escolhida.
-    //paint.colorFilter = ColorFilter.mode(_color, BlendMode.srcIn);
-    paint.colorFilter = ColorFilter.mode(_color, BlendMode.modulate);
+    //paint.colorFilter = ColorFilter.mode(color, BlendMode.srcIn);
+    paint.colorFilter = ColorFilter.mode(color, BlendMode.modulate);
     
     // Nota: O Flame/Flutter lida com o alfa (transparência) automaticamente.
     // Se a sprite branca tiver 50% de opacidade num pixel, a cor aplicada 

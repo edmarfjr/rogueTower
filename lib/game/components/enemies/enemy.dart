@@ -182,7 +182,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.dropList = const [],
     this.championType = 0,
     this.noChamp = false,
-  }) : super(position: position, size: size ?? Vector2.all(32), anchor: Anchor.center) {
+  }) : super(position: position, size: size ?? Vector2.all(16), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
     _baseSpeed = speed;
     movementBehavior.enemy = this;
@@ -222,7 +222,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     add(visual!);
 
     _hitbox=RectangleHitbox(
-      size: hbSize , 
+      size: hbSize/2 , 
       anchor: Anchor.center,
       position: size / 2 + hbOffset, 
       isSolid: true,
@@ -841,7 +841,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           direction: direction,
           damage: 1,
           speed: 200,
-          size: Vector2.all(15),
+          hbSize: Vector2.all(15),
           dieTimer: 3.0,
           isEnemyProjectile: true,
         ));

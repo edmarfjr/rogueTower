@@ -1,3 +1,4 @@
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -11,13 +12,13 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
   InteractButton? _currentButton;
 
   BankAtm({required Vector2 position})
-      : super(position: position, size: Vector2.all(48), anchor: Anchor.center);
+      : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     // Visual: Um cofre ou caixa eletrônico
-    add(GameIcon(
-      icon: Icons.account_balance, // Ou Icons.savings
+    add(GameSprite(
+      imagePath: 'sprites/gameObjs/bank.png', // Ou Icons.savings
       color: Pallete.laranja,
       size: size,
       anchor: Anchor.center,

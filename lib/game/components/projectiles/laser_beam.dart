@@ -263,7 +263,8 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       final paintWarning = Paint()
         ..color = Pallete.vermelho.withOpacity(opacity)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+        ..strokeWidth = 2
+        ..isAntiAlias = false;
 
       // Desenha linha da origem (0,0) até o alcance (length, 0)
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintWarning);
@@ -276,13 +277,15 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         ..color = cor.withOpacity(0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = larguraLaser * 0.8
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4); 
+        //..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+        ..isAntiAlias = false; 
 
       // 2. Núcleo Branco
       final paintCore = Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.stroke
-        ..strokeWidth = larguraLaser / 5;
+        ..strokeWidth = larguraLaser / 5
+        ..isAntiAlias = false;
 
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintGlow);
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintCore);

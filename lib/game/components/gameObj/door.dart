@@ -28,7 +28,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   GameSprite? _lockIcon;
   GameSprite? _blockIcon;
   GameSprite? _bitesIcon;
-  GameIcon? rewardIcon;
+  GameSprite? rewardIcon;
 
   InteractButton? _currentButton;
 
@@ -38,7 +38,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     this.trancada = false,
     this.bloqueada = false,
     this.bites = false,
-  }): super(position: position, size: Vector2(32, 32), anchor: Anchor.center);
+  }): super(position: position, size: Vector2(16, 16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -110,34 +110,34 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   }
 
   void _addRewardIcon() {
-    IconData iconData;
+    String iconData;
     
     switch (rewardType) {
-      case CollectibleType.potion: iconData = Icons.favorite; break;
-      case CollectibleType.coin: iconData = Icons.attach_money; break;
-      case CollectibleType.key: iconData = Icons.vpn_key; break;
-      case CollectibleType.bomba: iconData = MdiIcons.bomb; break;
-      case CollectibleType.chest: iconData = MdiIcons.package; break;
-      case CollectibleType.rareChest: iconData = MdiIcons.treasureChest; break;
-      case CollectibleType.shop: iconData = Icons.store_mall_directory; break;
-      case CollectibleType.shield: iconData = MdiIcons.shield; break;
-      case CollectibleType.boss: iconData = MdiIcons.skull; break;
-      case CollectibleType.healthContainer: iconData = Icons.favorite_outline; break;
-      case CollectibleType.nextLevel: iconData = MdiIcons.stairsUp; break;
-      case CollectibleType.bank: iconData = MdiIcons.bank; break;
-      case CollectibleType.alquimista: iconData = MdiIcons.flaskEmptyOutline; break;
-      case CollectibleType.desafio: iconData = MdiIcons.swordCross; break;
-      case CollectibleType.darkShop: iconData = MdiIcons.emoticonDevil; break;
-      case CollectibleType.doacaoSangue: iconData = MdiIcons.bloodBag; break;
-      case CollectibleType.slotMachine: iconData = MdiIcons.slotMachine; break;
-      default: iconData = Icons.help_outline;
+      case CollectibleType.potion: iconData = 'sprites/doorIcons/hpCheio.png'; break;
+      case CollectibleType.coin: iconData = 'sprites/doorIcons/coin.png'; break;
+      case CollectibleType.key: iconData = 'sprites/doorIcons/key.png'; break;
+      case CollectibleType.bomba: iconData = 'sprites/doorIcons/bomb.png'; break;
+      case CollectibleType.chest: iconData = 'sprites/doorIcons/bau.png'; break;
+      case CollectibleType.rareChest: iconData = 'sprites/doorIcons/bauTrancado.png'; break;
+      case CollectibleType.shop: iconData = 'sprites/doorIcons/loja.png'; break;
+      case CollectibleType.shield: iconData = 'sprites/doorIcons/escudo.png'; break;
+      case CollectibleType.boss: iconData = 'sprites/doorIcons/boss.png'; break;
+      case CollectibleType.healthContainer: iconData = 'sprites/doorIcons/hpVazio.png'; break;
+      case CollectibleType.nextLevel: iconData = 'sprites/doorIcons/nextLevel.png'; break;
+      case CollectibleType.bank: iconData = 'sprites/doorIcons/bank.png'; break;
+      case CollectibleType.alquimista: iconData = 'sprites/doorIcons/alquimista.png'; break;
+      case CollectibleType.desafio: iconData = 'sprites/doorIcons/desafio.png'; break;
+      case CollectibleType.darkShop: iconData = 'sprites/doorIcons/lojaEvil.png'; break;
+      case CollectibleType.doacaoSangue: iconData = 'sprites/doorIcons/blood.png'; break;
+      case CollectibleType.slotMachine: iconData = 'sprites/doorIcons/slot.png'; break;
+      default: iconData = 'sprites/doorIcons/hpCheio';
     }
     
-    rewardIcon = GameIcon(
-      icon: iconData,
+    rewardIcon = GameSprite(
+      imagePath: iconData,
       color: Pallete.branco,
-      size: Vector2(20, 20),
-      position: Vector2(size.x / 2, -20), 
+      size: Vector2(16, 16),
+      position: Vector2(size.x / 2, -12), 
       anchor: Anchor.center,
     );
     add(rewardIcon!);
@@ -192,10 +192,8 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   void _showButton() {
     if (_currentButton != null) return;
 
-    // Pega o tamanho real da tela neste exato frame
     final screenSize = gameRef.camera.viewport.size;
-    // Define a posição no canto inferior direito
-    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
+    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
     _currentButton = InteractButton(
       position: hudPosition,

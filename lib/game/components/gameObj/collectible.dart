@@ -183,7 +183,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     this.custoVida = false,
     this.naoEsgota=false,
     this.activeCharge,
-    }): super(position: position, size: Vector2.all(32), anchor: Anchor.center);
+    }): super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -334,13 +334,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // 1. Descrição do Efeito
     final textDesc = TextBoxComponent(
       text: desc.toLowerCase(),
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          color: Pallete.branco, 
-          fontSize: 12, 
-          backgroundColor: Colors.black54
-        )
-      ),
+      textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
       align: Anchor.center,
       position: Vector2(0, 10),
@@ -358,7 +352,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // 2. Nome do Item
     final textName = TextComponent(
       text: name.toUpperCase(),
-      textRenderer: TextPaint(style: const TextStyle(color: Pallete.amarelo, fontSize: 12, fontWeight: FontWeight.bold, backgroundColor: Colors.black54)),
+      textRenderer: Pallete.textoDanoCritico,
       anchor: Anchor.bottomCenter,
       position: Vector2(0, posicaoYDoTitulo),
     );
@@ -366,7 +360,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // 3. Botão de Pegar
     if (_currentButton != null) return;
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
+    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
     _currentButton= InteractButton(
       position: hudPosition,
@@ -2337,7 +2331,7 @@ class CollectibleLogic {
               direction: direction.clone(), 
               damage: player.noDamage? 0 : player.returnDamage(), 
               speed: player.isOrbitalShot ? 4.0 : player.isHeavyShot ? 250 : player.isWave ? 350 : player.isSaw ? 50 : 500,
-              size: player.isHeavyShot ? Vector2.all(30) : Vector2.all(10),
+              hbSize: player.isHeavyShot ? Vector2.all(16) : Vector2.all(4),
               dieTimer: player.isBoomerang ? 1.0 : player.isOrbitalShot ? 2 : player.isSaw ? player.attackRange*1.5 : player.attackRange,
               apagaTiros: player.hasAntimateria,
               isHoming: player.isHoming || player.isHomingTemp,

@@ -132,7 +132,7 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $coins",
                             style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.amarelo,
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.amarelo,
                               shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
@@ -153,7 +153,7 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $keys", 
                             style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.laranja,
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.laranja,
                               shadows: [Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
@@ -176,7 +176,7 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $bombs", 
                             style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.lilas,
                               shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
@@ -199,7 +199,7 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $souls", 
                             style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.lilas,
                               shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),

@@ -43,7 +43,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     this.isAquarius = false,
     this.alastra = false,
     Vector2? size,
-  }) : super(position: position, size: size ?? Vector2.all(20), anchor: Anchor.center);
+  }) : super(position: position, size: size ?? Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

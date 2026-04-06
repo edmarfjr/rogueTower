@@ -2,6 +2,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
 import '../core/game_icon.dart';
@@ -17,12 +18,12 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   @override
   Future<void> onLoad() async {
     // Visual da Teia
-    add(GameIcon(
-      icon: MdiIcons.spiderWeb, // Se não tiver MDI, use Icons.grid_4x4
-      color: Colors.white.withValues(alpha: 0.7),
+    add(GameSprite(
+      imagePath: 'sprites/projeteis/web.png',
       size: size,
+      color: Pallete.branco, 
       anchor: Anchor.center,
-      position: size / 2,
+      position: size / 2
     ));
 
     // Hitbox (um pouco menor que o desenho para não ser injusto)

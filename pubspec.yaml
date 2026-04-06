@@ -33,10 +33,19 @@ flutter:
     - assets/images/sprites/hud/
     - assets/images/sprites/chars/
     - assets/images/sprites/itens/
+    - assets/images/sprites/familiares/
+    - assets/images/sprites/doorIcons/
+    - assets/images/sprites/gameObjs/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/
     - assets/audio/sfx/mp3/
+
+  fonts:
+    - family: pixelFont
+      fonts:
+        - asset: assets/fonts/pixel.ttf
+
   shaders:
     - shaders/crt.frag
 

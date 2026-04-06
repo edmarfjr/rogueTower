@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/projectiles/explosion.dart';
@@ -26,7 +27,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
   double _cooldown = 0;
 
   SlotMachine({required Vector2 position}) 
-    : super(position: position, size: Vector2.all(40), anchor: Anchor.center);
+    : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -39,8 +40,8 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     ));
 
     // Visual da Máquina de Sangue (Uma bolsa de sangue ou cruz vermelha)
-    add(GameIcon(
-      icon: MdiIcons.slotMachine, 
+    add(GameSprite(
+      imagePath: 'sprites/gameObjs/slot.png', 
       color: Pallete.laranja,
       size: size,
       anchor: Anchor.center,
