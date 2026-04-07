@@ -335,20 +335,24 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // 1. Descrição do Efeito
     final textDesc = TextBoxComponent(
       text: desc.toLowerCase(),
-      textRenderer: Pallete.textoPadrao,
+      textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
       anchor: Anchor.bottomCenter,
       align: Anchor.center,
       position: Vector2(0, 10),
+      
+      // ==========================================
+      // A MÁGICA CONTRA O BORRÃO DAS LINHAS:
+      // ==========================================
+      scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
+      
       boxConfig: const TextBoxConfig(
-        maxWidth: 250.0,
-        // Se colocar 0.0, o texto aparece todo de uma vez instantaneamente.
-        // Se colocar, por exemplo, 0.05, ele faz um efeito de "digitando" muito legal!
+        maxWidth: 800.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
         timePerChar: 0.0, 
       ),
     );
 
     double espacoEntreTextos = 2.0;
-    double posicaoYDoTitulo = textDesc.position.y - textDesc.size.y - espacoEntreTextos;
+    double posicaoYDoTitulo = (textDesc.position.y - textDesc.size.y - espacoEntreTextos)/4;
 
     // 2. Nome do Item
     final textName = TextComponent(
@@ -698,7 +702,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.familiarAtira:
         return {'name': 'familiarAtira'.tr(), 'desc': 'familiarAtiraDesc'.tr(), 'icon': 'soul', 'color': Pallete.vermelho};
       case CollectibleType.confuseCrit:
-        return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': 'confuseShot', 'color': Pallete.amarelo};
+        return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': 'portal', 'color': Pallete.amarelo};
       case CollectibleType.pregos:
         return {'name': 'pregos'.tr(), 'desc': 'pregosDesc'.tr(), 'icon': 'prego', 'color': Pallete.cinzaCla};
       case CollectibleType.bombDecoy:
@@ -922,7 +926,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.bltFireHazard:
         return {'name': 'bltFireHazard'.tr(), 'desc': 'bltFireHazardDesc'.tr(), 'icon': 'bltRastroFogo', 'color': Pallete.vermelho};
       case CollectibleType.trofelCampeao:
-        return {'name': 'trofelCampeao'.tr(), 'desc': 'trofelCampeaoDesc'.tr(), 'icon': 'cinturao', 'color': Pallete.laranja};
+        return {'name': 'trofelCampeao'.tr(), 'desc': 'trofelCampeaoDesc'.tr(), 'icon': 'cinturao', 'color': Pallete.vermelho};
       case CollectibleType.bltBuracoNegro:
         return {'name': 'bltBuracoNegro'.tr(), 'desc': 'bltBuracoNegroDesc'.tr(), 'icon': 'bltBuracoNegro', 'color': Pallete.branco};
       case CollectibleType.bltSparks:
@@ -1398,8 +1402,8 @@ class CollectibleLogic {
           player.revive += 1;
           if(player.reviveIcon == null){
             player.numIcons ++;
-            player.reviveIcon = GameIcon(
-              icon: MdiIcons.cross,
+            player.reviveIcon = GameSprite(
+              imagePath: 'sprites/condicoes/cruz.png',
               color: Pallete.amarelo,
               size: player.size/2,
               anchor: Anchor.center,
@@ -1551,8 +1555,8 @@ class CollectibleLogic {
 
           if(player.cuponIcon == null){
             player.numIcons ++;
-            player.cuponIcon = GameIcon(
-              icon: MdiIcons.ticketPercent,
+            player.cuponIcon = GameSprite(
+              imagePath: 'sprites/condicoes/cupon.png',
               color: Pallete.bege,
               size: player.size/2,
               anchor: Anchor.center,
@@ -1884,8 +1888,8 @@ class CollectibleLogic {
 
           if(player.dmgBuffIcon == null){
             player.numIcons ++;
-            player.dmgBuffIcon = GameIcon(
-              icon: MdiIcons.knifeMilitary,
+            player.dmgBuffIcon = GameSprite(
+              imagePath: 'sprites/condicoes/espada.png',
               color: Pallete.vermelho,
               size: player.size/2,
               anchor: Anchor.center,
@@ -2532,8 +2536,8 @@ class CollectibleLogic {
 
           if(player.reviveIcon == null){
             player.numIcons ++;
-            player.reviveIcon = GameIcon(
-              icon: MdiIcons.cross,
+            player.reviveIcon = GameSprite(
+              imagePath: 'sprites/condicoes/cruz.png',
               color: Pallete.amarelo,
               size: player.size/2,
               anchor: Anchor.center,
@@ -2992,8 +2996,8 @@ class CollectibleLogic {
 
           if(player.dmgGoldBuffIcon == null){
             player.numIcons ++;
-            player.dmgGoldBuffIcon = GameIcon(
-              icon: MdiIcons.knifeMilitary,
+            player.dmgGoldBuffIcon = GameSprite(
+              imagePath: 'sprites/condicoes/espada.png',
               color: Pallete.laranja,
               size: player.size/2,
               anchor: Anchor.center,

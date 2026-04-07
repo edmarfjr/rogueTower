@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
@@ -29,7 +30,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   final Set<Enemy> _enemiesInside = {};
   final bool alastra;
 
-  GameIcon? visual;
+  GameSprite? visual;
 
   PoisonPuddle({
     required Vector2 position, 
@@ -48,9 +49,9 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
   @override
   Future<void> onLoad() async {
     if(isPlayer) cor = Pallete.verdeEsc;
-    IconData icon = Icons.circle;
+    String icon = 'sprites/projeteis/poca.png';
     if(isFire) {
-      icon = MdiIcons.fire;
+      icon = 'sprites/projeteis/fogo.png';
       cor = Pallete.laranja;
     }
     if(isFreeze) {
@@ -60,8 +61,8 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       cor = Pallete.lilas;
     }
 
-    visual = GameIcon(
-      icon: icon, 
+    visual = GameSprite(
+      imagePath: icon, 
       color: cor,
       size: size,
       anchor: Anchor.center,
@@ -98,7 +99,8 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
               child: ComputedParticle(
                 renderer: (canvas, particle) {
                   final paint = Paint()
-                    ..color = particleColor.withOpacity(1.0 - particle.progress);
+                    ..color = particleColor.withOpacity(1.0 - particle.progress)
+                    ..isAntiAlias = false;
                   canvas.drawCircle(Offset.zero, size.y/10, paint); 
                 }
               ),

@@ -57,7 +57,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
     _visualChild = GameSprite(
       imagePath: image, 
       color: cor,
-      size: Vector2.all(24),
+      size: Vector2.all(16),
       anchor: Anchor.center,
       // Importante: posição relativa ao centro do pai
       position: size / 2, 

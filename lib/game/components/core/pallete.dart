@@ -26,18 +26,68 @@ class Pallete {
   static const Color bege = Color(0xFFFFCCAA);
 
   static final TextPaint textoPadrao = TextPaint(
-    style: const TextStyle(
-      fontFamily: 'pixelFont', // Chama a fonte!
-      color: Color(0xFFFFF1E8),
+    style: TextStyle(
+      fontFamily: 'pixelFont',
       fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFFFFF1E8)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
+    ),
+  );
+
+  static final TextPaint textoLaranja = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFFFFA300)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
+    ),
+  );
+
+  static final TextPaint textoVerde = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFF00E436)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
+    ),
+  );
+
+  static final TextPaint textoVermelho = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFFFF004D)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
     ),
   );
 
   static final TextPaint textoDanoCritico = TextPaint(
-    style: const TextStyle(
+    style: TextStyle(
       fontFamily: 'pixelFont',
-      color: Color(0xFFFFEC27),
+      foreground: Paint()
+        ..color = const Color(0xFFFFEC27)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
       fontSize: 10,
+    ),
+  );
+
+  static final TextPaint textoDescricaoGigante = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 32,
+      foreground: Paint()
+        ..color = const Color(0xFFFFF1E8)
+        ..filterQuality = FilterQuality.none
+        ..isAntiAlias = false,
     ),
   );
   

@@ -26,7 +26,7 @@ class MainMenu extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(top: 20.0, bottom: 30.0),
                 child: Text(
-                  'TOWER OF ICONS',
+                  'ROGUE TOWER',
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,

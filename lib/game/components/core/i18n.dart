@@ -399,7 +399,7 @@ class I18n {
       'bltFireHazardDesc':'tem chance de disparar projeteis com rastro de fogo',
       'sortePot':'Pocao da sorte',
       'sortePotDesc':'aumenta a sorte geral',
-      'trofelCampeao':'troféu de campeão',
+      'trofelCampeao':'cinturão de campeão',
       'trofelCampeaoDesc':'aumenta o dano em 30%, mas aumenta a chance de inimigos campeões em 15%',
       'familiarLanca':'lança vorpal',
       'familiarLancaDesc':'invoca uma lança que causa danos aos inimigos',

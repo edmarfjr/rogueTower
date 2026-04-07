@@ -103,18 +103,18 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   //final Paint _freezeAuraPaint = Paint()..color = Pallete.azulCla.withOpacity(0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
   GameSprite? visual;
-  GameIcon? targetIcon;
+  //GameIcon? targetIcon;
   bool isTarget = false;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
-  GameIcon? burnIcon;
-  GameIcon? freezeIcon;
-  GameIcon? poisonIcon;
-  GameIcon? bleedIcon;
-  GameIcon? confuseIcon;
-  GameIcon? charmIcon;
-  GameIcon? fearIcon;
-  GameIcon? paraliseIcon;
+  GameSprite? burnIcon;
+  GameSprite? freezeIcon;
+  GameSprite? poisonIcon;
+  GameSprite? bleedIcon;
+  GameSprite? confuseIcon;
+  GameSprite? charmIcon;
+  GameSprite? fearIcon;
+  GameSprite? paraliseIcon;
   TextComponent? burnText;
   TextComponent? poisonText;
   TextComponent? bleedText;
@@ -483,10 +483,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       final paint = Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+        ..isAntiAlias = false
+        ..strokeWidth = 1;
         
       final paintFundo = Paint()
         ..color = Pallete.preto
+        ..isAntiAlias = false
         ..style = PaintingStyle.fill;
 
       // 1. O centro perfeito do seu inimigo no Canvas local
@@ -545,6 +547,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         final borderPaint = Paint()
           ..color = Pallete.rosa.withOpacity(0.5)
           ..style = PaintingStyle.stroke
+          ..isAntiAlias = false
           ..strokeWidth = 1;
 
         //canvas.drawCircle(center, 150.0, pullPaint);
@@ -768,8 +771,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           gameRef.world.add(FloatingText(
             text: 'Cura!',
             position: gameRef.player.position.clone() + Vector2(0, -10), 
+            paint: isCrit ? Pallete.textoDanoCritico : Pallete.textoPadrao,
             //color: Pallete.branco, 
-            fontSize: 14,
+           // fontSize: 14,
           ));
           gameRef.player.curaHp(1);
         } 
@@ -1022,12 +1026,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!isCharmed && !isBoss) {
       isCharmed = true;
       numCondicoes ++;
-      charmIcon = GameIcon(
-        icon: MdiIcons.heart,
+      charmIcon = GameSprite(
+        imagePath: 'sprites/condicoes/charm.png',
         color: Pallete.rosa,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
       );
       
       add(charmIcon!);
@@ -1038,12 +1042,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!isFear && !isBoss) {
       isFear = true;
       numCondicoes ++;
-      fearIcon = GameIcon(
-        icon: MdiIcons.skull,
+      fearIcon = GameSprite(
+        imagePath: 'sprites/condicoes/caveira.png',
         color: Pallete.branco,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
       );
       
       add(fearIcon!);
@@ -1054,12 +1058,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!isParalised && !isBoss) {
       isParalised = true;
       numCondicoes ++;
-      paraliseIcon = GameIcon(
-        icon: MdiIcons.linkVariant,
+      paraliseIcon = GameSprite(
+        imagePath: 'sprites/condicoes/corrente.png',
         color: Pallete.cinzaCla,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
       );
       
       add(paraliseIcon!);
@@ -1076,12 +1080,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       speed = speed/4;
     }
 
-    freezeIcon = GameIcon(
-      icon: Icons.ac_unit,
+    freezeIcon = GameSprite(
+      imagePath: 'sprites/condicoes/gelo.png',
       color: Pallete.azulCla,
       size: size/2,
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
     );
     
     add(freezeIcon!);
@@ -1093,12 +1097,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     numCondicoes ++;
     isConfuse = true;
 
-    confuseIcon = GameIcon(
-      icon: MdiIcons.help,
+    confuseIcon = GameSprite(
+      imagePath: 'sprites/condicoes/confuso.png',
       color: Pallete.amarelo,
       size: size/2,
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 10*numCondicoes), 
+      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
     );
     
     add(confuseIcon!);
@@ -1139,12 +1143,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     burnStacks.value += 1;
 
     if (burnIcon == null){
-      burnIcon = GameIcon(
-      icon: MdiIcons.fire,
+      burnIcon = GameSprite(
+      imagePath: 'sprites/condicoes/fogo.png',
       color: Pallete.laranja,
       size: size/2,
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
+      position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
     );
       add(burnIcon!);
     }
@@ -1152,15 +1156,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (burnText == null){
       burnText = TextComponent(
         text: burnStacks.value.toString(),
-        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
         anchor: Anchor.center,
-        textRenderer: TextPaint(
-          style: const TextStyle(
-            color: Pallete.laranja,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        textRenderer: Pallete.textoLaranja,
+        //textRenderer: TextPaint(
+        //  style: const TextStyle(
+        //    color: Pallete.laranja,
+        //    fontSize: 12,
+        //    fontWeight: FontWeight.bold,
+        //  ),
+        //),
       );
       add(burnText!);
     }
@@ -1175,12 +1180,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     // Garante recriação se já tivesse sido apagado (Correção similar ao burnIcon)
     if (bleedIcon == null) {
-      bleedIcon = GameIcon(
-        icon: MdiIcons.water,
+      bleedIcon = GameSprite(
+        imagePath: 'sprites/condicoes/gota.png',
         color: Pallete.vermelho,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
+        position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
       );
       add(bleedIcon!);
     }
@@ -1188,15 +1193,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (bleedText == null){
       bleedText = TextComponent(
         text: bleedStacks.value.toString(),
-        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
         anchor: Anchor.center,
-        textRenderer: TextPaint(
-          style: const TextStyle(
-            color: Pallete.vermelho,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        textRenderer: Pallete.textoVermelho,
+        //textRenderer: TextPaint(
+        //  style: const TextStyle(
+        //    color: Pallete.laranja,
+        //    fontSize: 12,
+        //    fontWeight: FontWeight.bold,
+        //  ),
+        //),
       );
       add(bleedText!);
     }
@@ -1211,12 +1217,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     poisonStacks.value += 1;
 
     if (poisonIcon == null) {
-      poisonIcon = GameIcon(
-        icon: MdiIcons.water,
+      poisonIcon = GameSprite(
+        imagePath: 'sprites/condicoes/gota.png',
         color: Pallete.verdeCla,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, - size.y / 4 - 10*numCondicoes), 
+        position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
       );
       add(poisonIcon!);
     }
@@ -1224,15 +1230,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (poisonText == null){
       poisonText = TextComponent(
         text: poisonStacks.value.toString(),
-        position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
         anchor: Anchor.center,
-        textRenderer: TextPaint(
-          style: const TextStyle(
-            color: Pallete.verdeCla,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        textRenderer: Pallete.textoVerde,
       );
       add(poisonText!);
     }

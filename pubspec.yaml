@@ -36,6 +36,7 @@ flutter:
     - assets/images/sprites/familiares/
     - assets/images/sprites/doorIcons/
     - assets/images/sprites/gameObjs/
+    - assets/images/sprites/condicoes/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/

@@ -225,14 +225,14 @@ class Player extends PositionComponent
 
   int numIcons = 0;
 
-  GameIcon? reviveIcon;
+  GameSprite? reviveIcon;
   TextComponent? reviveText;
-  GameIcon? cuponIcon;
-  GameIcon? kineticIcon;
+  GameSprite? cuponIcon;
+  GameSprite? kineticIcon;
   TextComponent? kineticText;
-  GameIcon? dmgBuffIcon;
-  GameIcon? dmgGoldBuffIcon;
-  GameIcon? ariesIcon;
+  GameSprite? dmgBuffIcon;
+  GameSprite? dmgGoldBuffIcon;
+  GameSprite? ariesIcon;
 
   // Variáveis de Animação
   double _walkTimer = 0;
@@ -252,12 +252,8 @@ class Player extends PositionComponent
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
-  GameIcon? _currentAccessory;
-  double _baseAccessoryOffsetX = 0.0;
-  double _baseAccessoryOffsetY = 0.0;
-  double _baseAccessoryScaleX = 1.0;
-  double _acessorySize = 0;
-  IconData icone = Icons.directions_walk;
+  Color classColor = Pallete.branco;
+  
 
   CircleComponent? _dodgeAura;
   double _auraPulseTimer = 0.0;
@@ -286,6 +282,8 @@ class Player extends PositionComponent
   GameSprite? armaVisual;
   double armaAngOffset = 0;
   bool armaBalanca = false;
+
+  String classImage = '';
 
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
@@ -349,12 +347,7 @@ class Player extends PositionComponent
     
   }
 
-  void criaVisual({reset = false,image = 'sprites/chars/char1.png',color = Pallete.branco}){
-    bool acessorio = false;
-    IconData? acessIcon;
-    Color? acessCor;
-    double? acessAng;
-
+  void criaVisual({reset = false,image = 'sprites/chars/char.png',color = Pallete.branco}){
     if (reset){
       if(visual != null){
         visual.removeFromParent();
@@ -369,14 +362,7 @@ class Player extends PositionComponent
         _shadow.removeFromParent();
       }
      
-      if(_currentAccessory != null){
-        _currentAccessory!.removeFromParent(); 
-        acessIcon= _currentAccessory!.icon ;
-        acessCor = _currentAccessory!.color ;
-        acessAng = _currentAccessory!.angle;
-        acessorio = true;
-      }
-      currentColor = Pallete.branco;
+      currentColor = color;
     }
 
     Vector2 vooOffset = Vector2(0, 0);
@@ -384,15 +370,7 @@ class Player extends PositionComponent
       vooOffset = Vector2(0, -15);
       animContrario = true;
     }    
-    //GameSprite(imagePath: 'items/potion.png', size: Vector2(32, 32))
-    /*visual = GameIcon(
-      icon: Icons.directions_walk, 
-      color: Pallete.branco, 
-      size: size,
-      anchor: Anchor.center, 
-      position: size / 2 + vooOffset,    
-    );
-    */
+    
     visual = GameSprite(
       imagePath: image,
       size: size,
@@ -430,7 +408,7 @@ class Player extends PositionComponent
       paint: Paint()
         ..color = Colors.transparent // Começa invisível
         ..style = PaintingStyle.stroke // Apenas a borda
-        ..strokeWidth = 4.0
+        ..strokeWidth = 2.0
         // O SEGREDO DO NEON: Um blur filter na pintura!
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0),
     );
@@ -439,20 +417,6 @@ class Player extends PositionComponent
     _dodgeAura!.scale.y = 0.6; 
     
     add(_dodgeAura!);
-
-    if(acessorio){
-      _currentAccessory = GameIcon(
-          icon: acessIcon!,     
-          color: acessCor!,   
-          size: Vector2(_acessorySize,_acessorySize),
-        );
-
-        _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, _baseAccessoryOffsetY) + vooOffset;
-        _currentAccessory!.scale.x = _baseAccessoryScaleX;
-        _currentAccessory!.angle = acessAng!;
-        _currentAccessory!.priority = 1;
-        add(_currentAccessory!);
-    }
 
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
@@ -593,26 +557,24 @@ class Player extends PositionComponent
     isLicantropia = true;
     animContrario = false;
     visual.removeFromParent();
-    _currentAccessory!.removeFromParent();
 
-/*
-    visual = GameIcon(
-      icon: MdiIcons.dogSide,
+    visual = GameSprite(
+      imagePath: 'sprites/chars/licantropo.png',
       color: Pallete.marrom,
       size: size, 
       anchor: Anchor.center,
       position: size / 2,
     );
-    */
     currentColor = Pallete.marrom;
     add(visual);
   }
+
   void _handleLicantropia(double dt){
     if (isLicantropia){
       licantropiaTmr += dt;
       if (licantropiaTmr >= 30){
         isLicantropia = false;
-        criaVisual(reset:true);
+        criaVisual(reset:true,image: classImage,color : classColor);
       }
     }
   }
@@ -623,16 +585,15 @@ class Player extends PositionComponent
     animContrario = false;
     _isInvincible = true;
     visual.removeFromParent();
-    _currentAccessory!.removeFromParent();
-/*
-    visual = GameIcon(
-      icon: MdiIcons.pacMan,
+
+    visual = GameSprite(
+      imagePath: 'sprites/chars/pac.png',
       color: Pallete.amarelo,
       size: size, 
       anchor: Anchor.center,
       position: size / 2,
     );
-    */
+    
     currentColor = Pallete.amarelo;
     add(visual);
 
@@ -649,7 +610,7 @@ class Player extends PositionComponent
       if (pacTmr >= 6){
         isPac = false;
         _isInvincible = false;
-        criaVisual(reset:true);
+        criaVisual(reset:true,image: classImage,color : classColor);
       }
     }
   }
@@ -660,10 +621,9 @@ class Player extends PositionComponent
     animContrario = false;
     _isInvincible = true;
     visual.removeFromParent();
-    _currentAccessory!.removeFromParent();
-/*
-    visual = GameIcon(
-      icon: MdiIcons.unicorn,
+
+    visual = GameSprite(
+      imagePath: 'sprites/chars/unicorn.png',
       color: Pallete.laranja,
       size: size, 
       anchor: Anchor.center,
@@ -671,7 +631,7 @@ class Player extends PositionComponent
     );
     currentColor = Pallete.laranja;
     add(visual);
-    */
+    
   }
   void _handleUnicorn(double dt){
     if (isUnicorn){
@@ -679,7 +639,7 @@ class Player extends PositionComponent
       if (unicornTmr >= 10){
         isUnicorn = false;
         _isInvincible = false;
-        criaVisual(reset:true);
+        criaVisual(reset:true,image: classImage,color : classColor);
       }
     }
   }
@@ -929,7 +889,14 @@ class Player extends PositionComponent
         }
       }
 
-      criaVisual(reset : true,image : 'sprites/chars/${charClass.id}.png',color : charClass.color);
+      classImage = 'sprites/chars/${charClass.id}.png';
+      classColor = charClass.color;
+      if(charClass.id == 'licantropo'){
+        classImage = 'sprites/chars/char.png';
+        classColor = Pallete.branco;
+      }
+
+      criaVisual(reset : true,image : classImage,color : classColor);
 
       if (charClass.weaponImage != ''){
         if (armaVisual != null) {
@@ -1123,8 +1090,8 @@ class Player extends PositionComponent
       if(zodiacAries){
         if (ariesIcon == null) {
           numIcons ++;
-          ariesIcon = GameIcon(
-            icon: MdiIcons.zodiacAries,
+          ariesIcon = GameSprite(
+            imagePath: 'sprites/condicoes/aries.png',
             color: Pallete.azulCla,
             size: size/2,
             anchor: Anchor.center,
@@ -1168,8 +1135,8 @@ class Player extends PositionComponent
 
       if(kineticIcon == null){
         numIcons ++;
-        kineticIcon = GameIcon(
-          icon: MdiIcons.sword,
+        kineticIcon = GameSprite(
+          imagePath: 'sprites/condicoes/espada.png',
           color: Pallete.verdeCla,
           size: size/2,
           anchor: Anchor.center,
@@ -1493,7 +1460,7 @@ class Player extends PositionComponent
           flightDuration: 1,
           damage: damage * 2,
           isFire: true,
-          explosionRadius: 100,
+          explosionRadius: 50,
           isPlayer: true,
           goldShot: goldShot,
         ));
@@ -1760,7 +1727,7 @@ class Player extends PositionComponent
       damage: noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? bltSpeed/2 : isWave ? bltSpeed * 0.75 : isSaw ? bltSpeed/10 : bltSpeed,
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
-      image:bltImage,
+      image:isAdaga? 'sprites/projeteis/faca.png' : bltImage ,
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,
@@ -2165,16 +2132,16 @@ class Player extends PositionComponent
     visual.removeFromParent();
     size = size*sizeMod;
 
-    /*
-    visual = GameIcon(
-      icon: Icons.directions_walk, 
+    
+    visual = GameSprite(
+      imagePath: classImage, 
       color: Pallete.branco, 
       size: size,
       anchor: Anchor.center, 
       position: size / 2,    
     );
     add(visual);
-*/
+
     _hitbox.removeFromParent();
 
     _hitbox=RectangleHitbox(
@@ -2189,34 +2156,6 @@ class Player extends PositionComponent
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
 
-    if (_currentAccessory != null) {
-      // Guarda os valores atuais antes de destruir o acessório antigo
-      double currentOffsetY = _currentAccessory!.position.y;
-      double currentAngle = _currentAccessory!.angle;
-      IconData currentIcon = _currentAccessory!.icon;
-      Color currentAccessoryColor = _currentAccessory!.color;
-      Vector2 newAccessorySize = _currentAccessory!.size * sizeMod;
-      
-      _currentAccessory!.removeFromParent();
-
-      // Escala o deslocamento X (offset) para ele não afundar no corpo
-      _baseAccessoryOffsetX *= sizeMod;
-      double newOffsetY = currentOffsetY * sizeMod;
-
-      // Recria o acessório com o novo tamanho
-      _currentAccessory = GameIcon(
-        icon: currentIcon,     
-        color: currentAccessoryColor,   
-        size: newAccessorySize,
-      );
-
-      _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, newOffsetY);
-      _currentAccessory!.scale.x = _baseAccessoryScaleX;
-      _currentAccessory!.angle = currentAngle;
-      _currentAccessory!.priority = 1;
-      
-      add(_currentAccessory!);
-    }
   }
 
 

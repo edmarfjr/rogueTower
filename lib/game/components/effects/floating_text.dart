@@ -9,7 +9,8 @@ class FloatingText extends TextComponent {
   FloatingText({
     required String text,
     required Vector2 position,
-    this.duration = 1,
+    this.duration = 1.0,
+    TextPaint? paint, // 1. Mudamos para TextPaint? (pode ser nulo) e tiramos o valor padrão
     Color color = Colors.white,
     double fontSize = 16,
   }) : super(
@@ -17,7 +18,8 @@ class FloatingText extends TextComponent {
           position: position,
           anchor: Anchor.center,
           priority: 1500, 
-          textRenderer: Pallete.textoPadrao
+          // 2. A Mágica: Se 'paint' for nulo, usa o 'Pallete.textoPadrao'
+          textRenderer: paint ?? Pallete.textoPadrao, 
         );
 
   @override

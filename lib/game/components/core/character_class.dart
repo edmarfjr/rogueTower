@@ -290,7 +290,7 @@ class CharacterRoster {
         CollectibleType.activeUnicorn,
         CollectibleType.activePacmen,
       ],
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
       bltImage: 'sprites/projeteis/arranhao.png',
       unlockConditionText: "licantropoCond".tr(),
     ),
@@ -321,7 +321,7 @@ class CharacterRoster {
         CollectibleType.homing,
         CollectibleType.activeHoming,
       ],
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
       unlockConditionText: "multidaoCond".tr(),
     ),
     CharacterClass(

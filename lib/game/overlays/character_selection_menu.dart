@@ -3,6 +3,7 @@ import 'package:towerrogue/game/components/core/game_progress.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/overlays/hud.dart';
 import '../tower_game.dart';
 // import '../components/core/pallete.dart'; // Se for necessário no futuro
 
@@ -62,13 +63,22 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Icon(
+                  PixelSprite(
+                    imagePath: 'sprites/chars/${charClass.id}.png',
+                    color: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaEsc,
+                     size: 96
+                  ),
+                  /*Icon(
                     charClass.icon, 
                     size: 100, 
                     color: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaEsc
-                  ),
+                  ),*/
                   if (!_isCurrentClassUnlocked)
-                    const Icon(Icons.lock, size: 60, color: Pallete.branco),
+                  const PixelSprite(
+                    imagePath: 'sprites/gameObjs/lock.png',
+                    color: Pallete.branco,
+                     size: 64
+                  ),
                 ],
               ),
               
