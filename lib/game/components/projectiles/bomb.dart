@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
@@ -16,7 +17,7 @@ import '../core/game_icon.dart';
 
 class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   double _timer = 0;
-  GameIcon? visual;
+  GameSprite? visual;
   final double duration;
   final double damage;
   final bool isMine;
@@ -25,7 +26,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   final bool splits;
   final int splitCount;
   final bool isDecoy;
-  final double attractionRadius = 200;
+  final double attractionRadius = 100;
   final bool isGlitterBomb; 
   final bool isBuracoNegro;
 
@@ -46,7 +47,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         this.isGlitterBomb = false,
         this.isBuracoNegro = false,
         Vector2? direction}) 
-      : super(position: position, size: Vector2.all(32), anchor: Anchor.center) {
+      : super(position: position, size: Vector2.all(16), anchor: Anchor.center) {
     this.direction = direction ?? Vector2.zero();
   }
 
@@ -55,8 +56,8 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
     cor = isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas;
     
-    visual = GameIcon(
-      icon: isMine ? MdiIcons.mine : MdiIcons.bomb, 
+    visual = GameSprite(
+      imagePath: isMine ? 'sprites/projeteis/flail' : 'sprites/projeteis/bomba', 
       color: cor,
       size: size,
       anchor: Anchor.center,
@@ -131,9 +132,9 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
     if (_timer <= 0 && !isMine) {
       if (isEnemy) {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:100, owner: owner));
+        gameRef.world.add(Explosion(position: position, damagesPlayer:true, damage:damage, radius:64, owner: owner));
       } else {
-        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:100, owner: owner, isGlitter:isGlitterBomb));
+        gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage, radius:64, owner: owner, isGlitter:isGlitterBomb));
       }
 
       if(splits){
@@ -147,7 +148,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     }
     if (isMine && _timer <= duration/4) {
       // Movimento Lento
-      position.addScaled(direction, 200 * dt);
+      position.addScaled(direction, 100 * dt);
     }
   }
 
@@ -196,7 +197,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       gameRef.world.add(Projectile(
         position: position.clone(), 
         direction: newDir,
-        speed: 500 * 0.8, 
+        speed: 250 * 0.8, 
         damage: damage / 3, 
         isEnemyProjectile: isEnemy,
         owner: owner,

@@ -58,7 +58,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   double offsetY = 0;
   double offX = 0;
   double offY = 0;
-  double detectRadius = 320;
+  double detectRadius = 160;
   bool retorna;
 
   double _currentAngle = 0;
@@ -158,9 +158,9 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = 'sprites/familiares/fantasma.png';
         cor = Pallete.vermelho.withOpacity(0.7);
         dmg = player.damage / 2 ;
-        followDistance = 30;
-        offsetY = -32;
-        offsetX = -16; 
+        followDistance = 16;
+        offsetY = -16;
+        offsetX = -8; 
       case FamiliarType.fly:
         icon = 'sprites/familiares/fada.png';
         cor = Pallete.amarelo.withOpacity(0.7);
@@ -232,7 +232,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         speed = 2;
         cor = Pallete.cinzaCla.withOpacity(0.7);
       case FamiliarType.dummy:
-        followDistance = 100;
+        followDistance = 64;
         icon = 'sprites/familiares/dummy.png';
         cor = Pallete.bege;
         dmg = player.damage;
@@ -334,12 +334,14 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     final dist = position.distanceTo(playerPos);
     PositionComponent? target = getTarget();
 
+    _animateMovement(dt);
+
     if(type == FamiliarType.block && speed !=  player.moveSpeed){
       speed = player.moveSpeed;
     }
 
     if(type == FamiliarType.fly){
-      _animateMovement(dt);
+      //_animateMovement(dt);
       
       if (target != null) {
         speed = 150;
@@ -355,11 +357,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
       if(knockbackVelocity.isZero()){
         if (target != null && dist < maxTetherDistance) {
-          _animateMovement(dt);
+          //_animateMovement(dt);
           segueAlvo(dt, target);
         } else {
           if (dist > followDistance) {
-            _animateMovement(dt);
+            //_animateMovement(dt);
             segueAlvo(dt, player);
           }
         }
@@ -383,7 +385,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       if(type == FamiliarType.eye)_handleAutoAttack(dt);
     
     }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff || type == FamiliarType.bouncer){
-      _animateMovement(dt);
+     // _animateMovement(dt);
       moveBounce(dt);
 
       if (visual != null && type == FamiliarType.glitch) {
@@ -429,7 +431,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x);
     }else{
       if (dist > followDistance) {
-        _animateMovement(dt);
+        //_animateMovement(dt);
         segueAlvo(dt, player);
       }
 
@@ -630,12 +632,14 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       
       final fillPaint = Paint()
         ..color = cor.withOpacity(0.1)
+        ..isAntiAlias = false
         ..style = PaintingStyle.fill;
         
       final borderPaint = Paint()
         ..color = cor.withOpacity(0.4)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+        ..isAntiAlias = false
+        ..strokeWidth = 1;
 
       canvas.drawCircle(center, detectRadius, fillPaint);
       canvas.drawCircle(center, detectRadius, borderPaint);
@@ -651,7 +655,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         ..color = Pallete.branco.withOpacity(0.7) // Uma cor mais clara para o reflexo do metal
         //..style = PaintingStyle.fill;
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
+        ..isAntiAlias = false
+        ..strokeWidth = 1;
       for (int i = 0; i < _chainNodes.length - 1; i++) {
         /* //desenhar circulos
         final node = _chainNodes[i];

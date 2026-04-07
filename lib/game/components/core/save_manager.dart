@@ -13,9 +13,9 @@ class SaveManager {
       return {
         'name': item.name,
         'description': item.description,
-        'iconCodePoint': item.icon.codePoint, 
-        'iconFontFamily': item.icon.fontFamily, 
-        'iconFontPackage': item.icon.fontPackage,
+        'iconCodePoint': item.icon,//.codePoint, 
+        //'iconFontFamily': item.icon.fontFamily, 
+        //'iconFontPackage': item.icon.fontPackage,
         'colorValue': item.color.value,
       };
     }).toList();
@@ -212,11 +212,12 @@ class SaveManager {
     if (savedItems != null) {
       for (var itemMap in savedItems) {
         // Remonta o IconData e a Cor a partir dos números salvos
-        IconData recoveredIcon = IconData(
-          itemMap['iconCodePoint'],
-          fontFamily: itemMap['iconFontFamily'],
-          fontPackage: itemMap['iconFontPackage'],
-        );
+        //IconData recoveredIcon = IconData(
+        //  itemMap['iconCodePoint'],
+        //  fontFamily: itemMap['iconFontFamily'],
+        //  fontPackage: itemMap['iconFontPackage'],
+        //);
+        String recoveredIcon = itemMap['iconCodePoint'];
         Color recoveredColor = Color(itemMap['colorValue']);
 
         game.player.setAcquiredItemsList(

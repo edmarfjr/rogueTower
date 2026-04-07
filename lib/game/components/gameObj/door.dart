@@ -18,7 +18,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   bool bloqueada;
   bool bites;
   final CollectibleType rewardType;
-  final double raioBotao = 60;
+  final double raioBotao = 24;
   bool botaoAtivo = false;
 
   // --- NOVA VARIÁVEL DE CONTROLE DE ZOOM ---
@@ -150,7 +150,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   void desbloqueia(){
     bloqueada = false;
-    _updateDoorIcon('sprites/tileset/portaBloqueada.png', Pallete.lilas);
+    if(isOpen){
+      _updateDoorIcon('sprites/tileset/portaAberta.png', Pallete.lilas);
+    }else{
+      _updateDoorIcon('sprites/tileset/portaTrancada.png', Pallete.lilas);
+    }
+    
   }
 
   void open() {

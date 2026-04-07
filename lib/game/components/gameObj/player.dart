@@ -269,7 +269,7 @@ class Player extends PositionComponent
   //lista de itens
   List<AcquiredItemData> items = [];
   List<CollectibleType> itemsExcluidos = [];
-  GameIcon? itemUsadoIcon;
+  GameSprite? itemUsadoIcon;
   double itemUsadoTmr = 0;
 
   bool noDamage = false;
@@ -281,6 +281,11 @@ class Player extends PositionComponent
   Enemy? target;
 
   bool superShot = false;
+  
+  PositionComponent? arma;
+  GameSprite? armaVisual;
+  double armaAngOffset = 0;
+  bool armaBalanca = false;
 
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
@@ -333,6 +338,14 @@ class Player extends PositionComponent
   Future<void> onLoad() async {
     // Cache do visual para acesso instantâneo
     criaVisual();
+
+    arma = PositionComponent(
+      size: size,
+      anchor: Anchor.center,
+      position: size / 2 
+    );
+
+    add(arma!);
     
   }
 
@@ -708,11 +721,11 @@ class Player extends PositionComponent
     if (itemData != null && itemData.isReady) {
       final atributos = Collectible.getAttributes(itemData.type); 
       
-      final IconData icone = atributos['icon'] as IconData;
+      final String icone = atributos['icon'] as String;
       final Color cor = atributos['color'] as Color;
       if(itemUsadoIcon == null){
-        itemUsadoIcon = GameIcon(
-          icon: icone,
+        itemUsadoIcon = GameSprite(
+          imagePath: 'sprites/itens/$icone.png',
           color: cor,
           size: size,
           anchor: Anchor.center,
@@ -884,6 +897,8 @@ class Player extends PositionComponent
       bltSize = charClass.bltSize;
       bltSpeed = charClass.bltSpeed;
 
+      armaBalanca = charClass.armaBalanca;
+
 
       for (var itemType in charClass.startingItems) {
 
@@ -907,7 +922,7 @@ class Player extends PositionComponent
               itemType,
               attrs['name'] as String,
               attrs['desc'] as String,
-              attrs['icon'] as IconData,
+              attrs['icon'] as String,
               attrs['color'] as Color,
             );
           }
@@ -915,6 +930,21 @@ class Player extends PositionComponent
       }
 
       criaVisual(reset : true,image : 'sprites/chars/${charClass.id}.png',color : charClass.color);
+
+      if (charClass.weaponImage != ''){
+        if (armaVisual != null) {
+          armaVisual!.removeFromParent();
+          armaVisual = null;
+        }
+        armaVisual = GameSprite(
+          imagePath: charClass.weaponImage,
+          size: size,
+          color: charClass.color, 
+          anchor: Anchor.center,
+          position: size / 2 + Vector2(8,0)
+        );
+        arma!.add(armaVisual!);
+      }
 /*
       if (_currentAccessory != null) {
       _currentAccessory!.removeFromParent();
@@ -1016,20 +1046,20 @@ class Player extends PositionComponent
     visual.angle = currentAngle; 
 
     // 2. Aplica a animação no Acessório (Sincronizado!)
-    if (_currentAccessory != null) {
+    if (arma != null) {
       // Sincroniza o "pulo" (escala Y) e a rotação (balanço)
-      _currentAccessory!.scale.y = currentScaleY;
-      _currentAccessory!.angle = currentAngle;
+      arma!.scale.y = currentScaleY;
+      arma!.angle = currentAngle + armaAngOffset;
 
       // Trata a inversão de lado e o "amasso" (escala X)
       if (facingDirection < 0) {
         // Virado para a Esquerda
-        _currentAccessory!.position.x = -_baseAccessoryOffsetX + size.x; // O nosso ajuste fino!
-        _currentAccessory!.scale.x = -_baseAccessoryScaleX * currentScaleX;
+        arma!.position.x = -8 + size.x; // O nosso ajuste fino!
+        arma!.scale.x = - currentScaleX;
       } else {
         // Virado para a Direita
-        _currentAccessory!.position.x = _baseAccessoryOffsetX;
-        _currentAccessory!.scale.x = _baseAccessoryScaleX * currentScaleX;
+        arma!.position.x = 8;
+        arma!.scale.x = currentScaleX;
       }
     }
   }
@@ -1528,6 +1558,13 @@ class Player extends PositionComponent
         }
       }
       lastAttackDirection.setFrom(_tempDirection);
+     /* if(armaBalanca){
+        if(armaAngOffset==0){
+          armaAngOffset = pi/4;
+        }else{
+          armaAngOffset = 0;
+        }
+      }*/
     }
   }
 
@@ -2323,7 +2360,7 @@ class Player extends PositionComponent
         item,
         attrs['name'] as String,
         attrs['desc'] as String,
-        attrs['icon'] as IconData,
+        attrs['icon'] as String,
         attrs['color'] as Color,
       );
 
@@ -2343,7 +2380,7 @@ class Player extends PositionComponent
     return items;
   }
 
-  void setAcquiredItemsList(CollectibleType type, String name, String desc, IconData icon, Color color) {
+  void setAcquiredItemsList(CollectibleType type, String name, String desc, String icon, Color color) {
     items.add(AcquiredItemData(
       type: type, 
       name: name, 
@@ -2356,7 +2393,7 @@ class Player extends PositionComponent
 
 class AcquiredItemData {
   final CollectibleType type;
-  final IconData icon;
+  final String icon;
   final String name;
   final String description;
   final Color color;

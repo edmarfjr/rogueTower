@@ -141,8 +141,8 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       ));
 
     if (!_isPicked){
-      add(GameIcon(
-        icon: _getIconForType(type),
+      add(GameSprite(
+        imagePath: 'sprites/itens/${_getIconForType(type)}.png',
         color: _getColorForType(type),
         size: Vector2.all(16),
        // scale: Vector2.all(1.0), // Adicionado para evitar erro de required
@@ -215,13 +215,13 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   // --- Helpers de ícone (Pode usar o Collectible.getAttributes se quiser centralizar) ---
-  IconData _getIconForType(CollectibleType type) {
-      if (type == CollectibleType.damage) return MdiIcons.flaskRoundBottom;
-      if (type == CollectibleType.healthContainer) return Icons.favorite_outline;
-      if (type == CollectibleType.shield) return MdiIcons.shield;
-      if (type == CollectibleType.fireRate) return MdiIcons.flaskRoundBottom;
-      if (type == CollectibleType.critChance) return MdiIcons.flaskRoundBottom;
-      return Icons.star;
+  String _getIconForType(CollectibleType type) {
+      if (type == CollectibleType.damage) return 'potion';
+      if (type == CollectibleType.healthContainer) return 'hpVazio';
+      if (type == CollectibleType.shield) return 'escudo';
+      if (type == CollectibleType.fireRate) return 'potion';
+      if (type == CollectibleType.critChance) return 'potion';
+      return 'potion';
   }
 
   Color _getColorForType(CollectibleType type) {

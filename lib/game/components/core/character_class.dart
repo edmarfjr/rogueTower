@@ -34,9 +34,12 @@ class CharacterClass {
   final double dot;
   final int stackBonus;
   final bool noDamage;
+
   final String bltImage;
   final double bltSize;
   final double bltSpeed;
+  final String weaponImage;
+  final bool armaBalanca;
 
   // Bônus Passivos (Flags)
   final bool isShotgun;
@@ -87,7 +90,9 @@ class CharacterClass {
     this.noDamage = false,
     this.bltImage = 'sprites/projeteis/blt.png',
     this.bltSize = 6.0,
-    this.bltSpeed = 100,
+    this.bltSpeed = 300,
+    this.weaponImage='',
+    this.armaBalanca = false,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -118,6 +123,8 @@ class CharacterRoster {
       bltSpeed: 650,
       startingShield: 1,
       bltImage: 'sprites/projeteis/corte.png',
+      weaponImage: 'sprites/projeteis/espada.png',
+      armaBalanca: true,
       bltSize: 12.0,
     ),
     CharacterClass(
@@ -177,7 +184,8 @@ class CharacterRoster {
       startingBombs: 1,
       startingKeys: 1,
       attackRange: 0.5,
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
+      bltImage: 'sprites/projeteis/adaga.png',
       unlockConditionText: "ladinoCond".tr(),
     ),
     CharacterClass(
@@ -199,9 +207,10 @@ class CharacterRoster {
       critDamage: 1.5,
       dashCooldown: 2.0, 
       attackRange: 1.0,
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
       unlockConditionText: "arqueiroCond".tr(),
       bltImage: 'sprites/projeteis/flecha.png',
+      weaponImage: 'sprites/projeteis/arco.png',
       bltSize: 4.0,
     ),
     CharacterClass(
@@ -224,6 +233,7 @@ class CharacterRoster {
       attackRange: 0.2,
       isShotgun: true,
       isUnlockedByDefault: false,
+      weaponImage: 'sprites/projeteis/escopeta.png',
       unlockConditionText: "exterminadorCond".tr(),
       itemsExcluidos: [
         CollectibleType.tripleShot,
@@ -281,6 +291,7 @@ class CharacterRoster {
         CollectibleType.activePacmen,
       ],
       isUnlockedByDefault: false,
+      bltImage: 'sprites/projeteis/arranhao.png',
       unlockConditionText: "licantropoCond".tr(),
     ),
     CharacterClass(

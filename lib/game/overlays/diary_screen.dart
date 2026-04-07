@@ -1,5 +1,6 @@
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/overlays/hud.dart';
 import '../components/core/pallete.dart';
 import '../tower_game.dart';
 
@@ -135,11 +136,8 @@ class DiaryScreen extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Icon(
-                isDiscovered ? attrs['icon'] : Icons.question_mark,
-                color:isDiscovered ? attrs['color'] : Colors.white24,
-                size: 32,
-              ),
+              child: PixelSprite(imagePath: isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', color: isDiscovered ? attrs['color'] : Pallete.lilas, size: 32)
+             
             ),
           ),
         );

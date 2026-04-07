@@ -1,6 +1,7 @@
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:towerrogue/game/overlays/hud.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
 import '../components/core/i18n.dart';
@@ -248,7 +249,12 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
               ),
               
               // Ícone do Item
-              Icon(item.icon, size: 40, color: item.color),
+              //Icon(item.icon, size: 40, color: item.color),
+              PixelSprite(
+                  imagePath: 'sprites/itens/${item.icon}.png',
+                  color: item.color,
+                  size: 32,
+                ),
 
               IconButton(
                 icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),

@@ -25,7 +25,7 @@ class BuracoNegro extends PositionComponent with HasGameRef<TowerGame> {
         this.duration = 6,
         this.pullRadius = 400.0,
       })
-      : super(position: position, size: size ?? Vector2.all(48), anchor: Anchor.center);
+      : super(position: position, size: size ?? Vector2.all(24), anchor: Anchor.center);
 
   @override
   void update(double dt) {

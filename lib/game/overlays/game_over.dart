@@ -21,7 +21,7 @@ class GameOver extends StatelessWidget {
               'GAME OVER',
               style: TextStyle(
                 fontSize: 50,
-                fontFamily: 'Pixel', // Se tiver fonte customizada, coloque aqui
+                fontFamily: 'pixelFont', // Se tiver fonte customizada, coloque aqui
                 fontWeight: FontWeight.w900,
                 color: Pallete.vermelho, // Vermelho sangue
                 shadows: [

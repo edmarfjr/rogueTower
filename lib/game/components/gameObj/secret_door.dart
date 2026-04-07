@@ -95,7 +95,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
     if (_currentButton != null) return;
 
     final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x - 150, screenSize.y - 170);
+    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
     _currentButton = InteractButton(
       position: hudPosition,

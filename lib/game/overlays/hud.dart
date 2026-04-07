@@ -132,8 +132,8 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $coins",
                             style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.amarelo,
-                              shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.amarelo,
+                              //shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -153,8 +153,8 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $keys", 
                             style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.laranja,
-                              shadows: [Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))],
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.laranja,
+                              //shadows: [Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -176,8 +176,8 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $bombs", 
                             style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.lilas,
-                              shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                             // shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -199,8 +199,8 @@ class Hud extends StatelessWidget {
                           Text(
                             ": $souls", 
                             style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, color: Pallete.lilas,
-                              shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              //shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -333,7 +333,7 @@ class Hud extends StatelessWidget {
     bool isEmpty = itemData == null;
     bool isReady = isEmpty || itemData.isReady;
 
-    IconData? slotIcon;
+    String? slotIcon;
     Color? slotColor;
     if (!isEmpty) {
       final attrs = Collectible.getAttributes(itemData.type);
@@ -365,12 +365,12 @@ class Hud extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 // 1. O Ícone Oficial puxado do jogo!
-                Icon(
-                  slotIcon,
-                  color: slotColor,
+                PixelSprite(
+                  imagePath: 'sprites/itens/$slotIcon.png',
+                  color: slotColor ?? Pallete.branco,
                   size: 32,
                 ),
-                
+             
                 // 2. A PELÍCULA DE COOLDOWN E A CARGA (Apenas se não estiver pronto)
                 if (!isReady) ...[
                   Container(
