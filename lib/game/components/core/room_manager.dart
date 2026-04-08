@@ -645,8 +645,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //const double spawnHeight = TowerGame.gameHeight - (margin * 4);
 
       double x = rng.nextBool()? spawnWidth/2 : -spawnWidth/2 + 16 ;
-      double y = (rng.nextInt(26)+2) - 14;
-      final pos = Vector2(x, (y*16)-16);
+      double y = (rng.nextInt(26)+3) - 13;
+      //y = 14;
+      final pos = Vector2(x, (y*16) - margin);
       
       gameRef.world.add(SecretDoor(
         position: pos,//Vector2(0, -160),

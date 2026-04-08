@@ -23,7 +23,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   // Controle de Interface
   bool _isInfoVisible = false;
-  final double _pickupRange = 60.0; // Distância para aparecer o botão
+  final double _pickupRange = 16.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
 
   Chest({required Vector2 position, this.isLock = false}) 

@@ -523,13 +523,13 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
       // Primeira vez entrando: Gera a sala do zero
       salaSecretaGeradaNestaSala = true;
       
-      player.position = Vector2(0, 200);
+      player.position = Vector2(0, 170);
       if(rng.nextBool()){
         roomManager.geraItemAleatorio(Vector2(0, 80), 0);
       }else{
         world.add(Chest(position: Vector2(0, 80), isLock: rng.nextBool()));
       }
-      world.add(SecretDoor(position: Vector2(0, 280), isExit: true));
+      world.add(SecretDoor(position: Vector2(0, 200), isExit: true));
       
     } else {
       // Já tínhamos entrado antes: Descongela a sala secreta salva!
@@ -555,7 +555,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     roomManager.pauseManager = false;
     
     // 4. Devolve o jogador
-    player.position = posicaoRetorno + Vector2(0, 30); 
+    double offX = 16;
+    if(posicaoRetorno.x > 0)offX = -16;
+    player.position = posicaoRetorno + Vector2(0, offX); 
   }
 
   @override

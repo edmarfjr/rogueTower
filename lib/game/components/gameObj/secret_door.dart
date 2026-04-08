@@ -22,7 +22,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   GameSprite? _doorIcon;
 
   bool botaoAtivo = false;
-  final double raioBotao = 60.0; // Mesma distância das suas portas normais
+  final double raioBotao = 16.0; // Mesma distância das suas portas normais
 
   SecretDoor({
     required Vector2 position,
@@ -42,7 +42,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
       _updateDoorIcon('sprites/tileset/salaSecretaChave.png');
     }
     if(isExit) temInimigos = false;
-    priority = 1000;
+    priority = -1000;
   }
 
   void _updateDoorIcon(String image) {
@@ -91,7 +91,8 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     gameRef.onInteractAction = () {
-        
+        _hideButton();
+        botaoAtivo = false;
         // --- 1. SE FOR A PORTA DE SAÍDA ---
         if (isExit) {
           _isEntering = true; 
