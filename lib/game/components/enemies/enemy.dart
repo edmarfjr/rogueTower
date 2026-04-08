@@ -582,33 +582,26 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   
   void _animateEnemy(double dt) {
     if (visual == null) return;
-
-    // Descobre o vetor de direção calculando a diferença da posição
     Vector2 delta = position - _lastPosition;
     double displacement = delta.length;
-    bool isMoving = displacement > 0.5;
+    double currentSpeed = displacement / dt;
+    
+    // Se ele estiver se movendo a mais de 5 pixels por segundo, consideramos que está andando.
+    // Isso ignora micro-tremores de colisão e funciona em qualquer FPS!
+    bool isMoving = currentSpeed > 5.0;
 
-    // ==========================================
-    // 1. LÓGICA DE DIREÇÃO E ROTAÇÃO
-    // ==========================================
     if (rotates) {
-      // Inimigos que rotacionam (ex: morcegos apontam o bico pra onde voam)
       if (isMoving) {
-        // atan2 descobre o ângulo do movimento. Somamos rotateOff caso o sprite original esteja "deitado"
         visual!.angle = atan2(delta.y, delta.x) + rotateOff;
       }
-      facingDirection = 1.0; // Mantém a escala sempre positiva para não amassar a rotação
+      facingDirection = 1.0;
       
     } else {
-      // Inimigos normais "flipam" (espelham horizontalmente) para olhar pro player
-      final player = gameRef.player;
-      facingDirection = (player.position.x < position.x) ? -1.0 : 1.0;
+      //final player = gameRef.player;
+      //facingDirection = (player.position.x < position.x) ? -1.0 : 1.0;
       if (flipOposto) facingDirection *= -1.0;
     }
 
-    // ==========================================
-    // 2. LÓGICA DE SQUASH & STRETCH (Pular/Andar)
-    // ==========================================
     if (isMoving) {
       _animTimer += dt * _animSpeed;
       double wave = sin(_animTimer);
@@ -618,12 +611,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       visual!.scale.y = stretchY;
       visual!.scale.x = facingDirection * squashX; 
       
-      // APENAS inimigos que NÃO rotacionam recebem o "gingado" de andar
       if (!rotates) {
          visual!.angle = wave * 0.1; 
       }
     } else {
-      // Parado
       _animTimer = 0;
       visual!.scale.y = 1.0;
       visual!.scale.x = facingDirection; 

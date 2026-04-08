@@ -1202,8 +1202,8 @@ class SummonAttackBehavior extends AttackBehavior {
     });
 
     final rng = Random();
-    double offsetX = (rng.nextDouble() * enemy.x*2) - enemy.x; 
-    double offsetY = (rng.nextDouble() * enemy.y*2) - enemy.y;
+    double offsetX = (rng.nextDouble() * enemy.size.x) - enemy.size.x/2; 
+    double offsetY = (rng.nextDouble() * enemy.size.y) - enemy.size.y/2;
     Vector2 spawnPos = enemy.position + Vector2(offsetX, offsetY);
 
     // --- AQUI A MÁGICA ACONTECE ---
