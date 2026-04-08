@@ -60,7 +60,7 @@ class EnemyFactory {
       speed: 50,
       soul: 250, 
       image: "sprites/inimigos/rat.png",
-      size: Vector2.all(64), 
+      size: Vector2.all(32), 
       originalColor: Pallete.vermelho,
       dropList: [
         CollectibleType.boloDinheiro,
@@ -265,8 +265,8 @@ class EnemyFactory {
       speed: 40,
       soul: 100,
       image: "sprites/inimigos/rat.png",
-      size: Vector2.all(64),
-      hbSize: Vector2(56,36),
+      size: Vector2.all(32),
+      hbSize: Vector2(32,24),
       hbOffset: Vector2(0, 8), 
       originalColor: Pallete.vermelho,
       behaviorChangeInterval: 3.0,
@@ -421,7 +421,7 @@ class EnemyFactory {
       hasFlail: true,
       image: "sprites/inimigos/headless.png",
       hasGhostEffect: true,
-      size: Vector2.all(64), 
+      size: Vector2.all(32), 
       originalColor: Pallete.vermelho,
       behaviorChangeInterval: 4.0,
       
@@ -567,7 +567,7 @@ class EnemyFactory {
       hbSize: Vector2(34,54),
       image: "sprites/inimigos/queen.png",
       hasGhostEffect: true,
-      size: Vector2.all(64), 
+      size: Vector2.all(32), 
       originalColor: Pallete.bege,
       behaviorChangeInterval: 4.0,
       
@@ -719,7 +719,7 @@ class EnemyFactory {
       hbSize: Vector2(50,50),
       soul: 300, 
       hasGhostEffect: true,
-      size: Vector2.all(64), 
+      size: Vector2.all(32), 
       originalColor: Pallete.bege,
       behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---
@@ -893,7 +893,7 @@ class EnemyFactory {
       image: "sprites/inimigos/shark.png",
       hbSize: Vector2(50,50),
       soul: 350, 
-      size: Vector2.all(64), 
+      size: Vector2.all(32), 
       originalColor: Pallete.cinzaCla,
       behaviorChangeInterval: 4.0,
         // --- COMPORTAMENTOS DA FASE 1 ---

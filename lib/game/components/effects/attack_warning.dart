@@ -10,7 +10,7 @@ class AttackWarningEffect extends PositionComponent {
   
   double _timer = 0;
   late Paint _movingPaint;
-  late Paint _targetPaint;
+  //late Paint _targetPaint;
 
   AttackWarningEffect({
     required Vector2 position,
@@ -33,11 +33,11 @@ class AttackWarningEffect extends PositionComponent {
       
 
     
-    _targetPaint = Paint()
-      ..color = color.withOpacity(0.5)
-      ..style = PaintingStyle.stroke
-      ..isAntiAlias = false
-      ..strokeWidth = 1.0;
+   // _targetPaint = Paint()
+    //  ..color = color.withOpacity(0.5)
+    //  ..style = PaintingStyle.stroke
+    //  ..isAntiAlias = false
+     // ..strokeWidth = 1.0;
       
   }
 

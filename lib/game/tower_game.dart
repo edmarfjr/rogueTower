@@ -78,6 +78,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   double _shakeTimer = 0.0;
   double _shakeIntensity = 0.0;
+  final Vector2 _baseViewportPosition = Vector2.zero();
+  bool _isShaking = false;
 
   //final double gameWidth = 500;
   //final double gameHeight = 900;
@@ -156,7 +158,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await world.add(arenaBorder);
 
     camera.setBounds(
-      Rectangle.fromLTWH(-100, -60, 120, 200),
+      Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(100, 100)),
       considerViewport: false, 
     );
 
@@ -189,21 +191,34 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
       _hitStopTimer -= dt;
       return; 
     }
-
     super.update(dt); 
 
     if (_shakeTimer > 0) {
+      
+      // A MÁGICA: No exato milissegundo antes de começar a tremer,
+      // nós salvamos a coordenada perfeita da tela!
+      if (!_isShaking) {
+        _isShaking = true;
+        _baseViewportPosition.setFrom(camera.viewport.position);
+      }
+
       _shakeTimer -= dt;
       
       final rng = Random();
       double offsetX = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       double offsetY = (rng.nextDouble() - 0.5) * 2 * _shakeIntensity;
       
-      camera.viewport.position = Vector2(offsetX, offsetY);
-
-      if (_shakeTimer <= 0) {
-        camera.viewport.position = Vector2.zero();
-      }
+      // Trememos a tela somando o caos na posição original segura
+      camera.viewport.position.setValues(
+        _baseViewportPosition.x + offsetX,
+        _baseViewportPosition.y + offsetY,
+      );
+      
+    } else if (_isShaking) {
+      // 3. O tremor acabou! Devolvemos a moldura pro lugar original
+      // As bordas pretas e o alinhamento voltam ao normal na hora.
+      _isShaking = false;
+      camera.viewport.position.setFrom(_baseViewportPosition);
     }
   }
 

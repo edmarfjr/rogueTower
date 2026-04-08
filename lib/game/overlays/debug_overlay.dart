@@ -54,7 +54,7 @@ class _DebugMenuState extends State<DebugMenu> {
                 value: _selectedLevel.toDouble(),
                 min: 1,
                 max: widget.game.numLevels.toDouble(), // Máximo de níveis do seu jogo
-                divisions: 9,
+                divisions: widget.game.numLevels,
                 activeColor: Pallete.azulCla,
                 onChanged: (val) {
                   setState(() { _selectedLevel = val.toInt(); });
@@ -68,8 +68,8 @@ class _DebugMenuState extends State<DebugMenu> {
               Slider(
                 value: _selectedRoom.toDouble(),
                 min: 0,
-                max: widget.game.bossRoom.toDouble(), // Vai até a sala do boss
-                divisions: widget.game.bossRoom - 1,
+                max: widget.game.bossRoom.toDouble(), 
+                divisions: widget.game.bossRoom,
                 activeColor: Pallete.verdeCla,
                 onChanged: (val) {
                   setState(() { _selectedRoom = val.toInt(); });

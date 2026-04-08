@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 
 // 1. Adicionado "with HasPaint" para permitir efeitos de opacidade (OpacityProvider)
 class GhostParticle extends PositionComponent with HasPaint {

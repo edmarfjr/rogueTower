@@ -493,13 +493,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(
-        position: Vector2(0, posY), 
+        position: Vector2(0, posY - margin), 
         rewardType: CollectibleType.boss,
       ));
       return;
     } else if (roomNumber == bossRoom) {
       gameRef.world.add(Door(
-        position: Vector2(0, posY), 
+        position: Vector2(0, posY - margin), 
         rewardType: CollectibleType.nextLevel,
       ));
       return;

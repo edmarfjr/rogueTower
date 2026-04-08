@@ -212,17 +212,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custo > 0){
       add(TextComponent(
         text: "\$ $custo",
-        textRenderer: TextPaint(
-          style: const TextStyle(fontSize: 14, color: Pallete.amarelo, fontWeight: FontWeight.bold),
-        ),
+        textRenderer: Pallete.textoAmarelo,
         anchor: Anchor.topCenter,
         position: Vector2(size.x / 2, size.y + 5),
       ));
     }
 
     if (custoKeys > 0){
-      add(GameIcon(
-        icon: MdiIcons.key,
+      add(GameSprite(
+        imagePath: 'sprites/hud/key.png',
         color: Pallete.laranja,
         size: size/2,
         anchor: Anchor.center,
@@ -230,17 +228,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
       add(TextComponent(
         text: ": $custoKeys",
-        textRenderer: TextPaint(
-          style: const TextStyle(fontSize: 14, color: Pallete.laranja, fontWeight: FontWeight.bold),
-        ),
+        textRenderer: Pallete.textoLaranja,
         anchor: Anchor.topCenter,
         position: Vector2(size.x / 2, size.y + 5),
       ));
     }
 
     if (custoBombs > 0){
-      add(GameIcon(
-        icon: MdiIcons.bomb,
+      add(GameSprite(
+        imagePath: 'sprites/hud/bomb.png',
         color: Pallete.cinzaEsc,
         size: size/2,
         anchor: Anchor.center,
@@ -248,9 +244,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
       add(TextComponent(
         text: ": $custoBombs",
-        textRenderer: TextPaint(
-          style: const TextStyle(fontSize: 14, color: Pallete.cinzaEsc, fontWeight: FontWeight.bold),
-        ),
+        textRenderer: Pallete.textoCinzaEsc,
         anchor: Anchor.topCenter,
         position: Vector2(size.x / 2, size.y + 5),
       ));

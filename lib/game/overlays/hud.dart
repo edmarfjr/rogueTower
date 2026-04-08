@@ -19,7 +19,7 @@ class Hud extends StatelessWidget {
             // 1. CANTO SUPERIOR ESQUERDO: STATUS E INVENTÁRIO ATIVO
             // ---------------------------------------------
             Positioned(
-              top: 10,
+              top: 5,
               left: 10,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +65,7 @@ class Hud extends StatelessWidget {
                     },
                   ),
                   
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
 
                   // --- VIDA ARTIFICIAL ---
                   ValueListenableBuilder<int>(
@@ -89,7 +89,7 @@ class Hud extends StatelessWidget {
                     },
                   ),
                   
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
                   
                   // ESCUDO
                   ValueListenableBuilder<int>(
@@ -216,7 +216,7 @@ class Hud extends StatelessWidget {
             // 2. CANTO SUPERIOR DIREITO: PAUSE
             // ---------------------------------------------
             Positioned(
-              top: 10,
+              top: 5,
               right: 10,
               child: IconButton(
                 icon: const PixelSprite(imagePath: 'sprites/hud/pause.png', color: Pallete.branco, size: 40),
@@ -244,7 +244,7 @@ class Hud extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
+                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 1),
                     ),
                     child: const Center(
                       child: PixelSprite(imagePath: 'sprites/hud/dash.png', color: Pallete.verdeCla, size: 40),
@@ -272,7 +272,7 @@ class Hud extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Pallete.branco.withOpacity(0.2),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
+                      border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 1),
                     ),
                     child: const Center(
                       child: PixelSprite(imagePath: 'sprites/hud/bomb.png', color: Pallete.cinzaEsc, size: 40),
@@ -307,7 +307,7 @@ class Hud extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Pallete.branco.withOpacity(0.2),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
+                          border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 1),
                         ),
                         child: const Center(
                           // Um ícone de mãozinha ou de exclamação usando sua fonte de pixel

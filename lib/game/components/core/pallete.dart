@@ -69,6 +69,28 @@ class Pallete {
     ),
   );
 
+  static final TextPaint textoAmarelo = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFFFFEC27)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
+    ),
+  );
+
+  static final TextPaint textoCinzaEsc = TextPaint(
+    style: TextStyle(
+      fontFamily: 'pixelFont',
+      fontSize: 8,
+      foreground: Paint()
+        ..color = const Color(0xFF5F574F)
+        ..filterQuality = FilterQuality.none // Exige pixels secos
+        ..isAntiAlias = false,
+    ),
+  );
+
   static final TextPaint textoDanoCritico = TextPaint(
     style: TextStyle(
       fontFamily: 'pixelFont',

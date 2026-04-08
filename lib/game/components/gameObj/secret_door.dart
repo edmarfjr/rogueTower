@@ -98,7 +98,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
           
           // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
           gameRef.camera.setBounds(
-            Rectangle.fromLTWH(-2000, -2000, 4000, 4000),
+            Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(4000, 4000)),
             considerViewport: false,
           );
             
@@ -115,7 +115,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
             
             // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
             gameRef.camera.setBounds(
-              Rectangle.fromLTWH(-60, -60, 120, 130),
+              Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(100, 100)),
               considerViewport: false,
             );
             gameRef.sairDaSalaSecreta();

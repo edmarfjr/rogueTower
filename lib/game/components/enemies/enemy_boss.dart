@@ -276,24 +276,17 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
 
   @override
   Future<void> onLoad() async {
-    // 1. Muda a âncora para o topo-centro, facilitando o alinhamento
     anchor = Anchor.topCenter;
+    
+    const double larguraVirtual = 16*16; 
+    
+    size = Vector2(larguraVirtual * 0.7, 12);
+    
+    double xPerfeito = (larguraVirtual / 2);
+    
+    position = Vector2(xPerfeito, 20); 
 
-    // 2. Reduz a largura da barra (subtrai 160 pixels para fugir do HUD esquerdo e do Pause)
-    double barWidth = gameRef.camera.viewport.size.x/2;
-    size = Vector2(barWidth, 20);
-
-    // 3. Posiciona no meio da tela no eixo X. 
-    position = Vector2((gameRef.camera.viewport.size.x / 2), 20); 
-
-    textPaint = TextPaint(
-      style: const TextStyle(
-        color: Colors.white, 
-        fontSize: 12, 
-        fontWeight: FontWeight.bold,
-        shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-      ),
-    );
+    textPaint = Pallete.textoDanoCritico;
   }
 
   @override
@@ -326,7 +319,7 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
       Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+        ..strokeWidth = 1,
     );
 
     // Texto Centralizado
