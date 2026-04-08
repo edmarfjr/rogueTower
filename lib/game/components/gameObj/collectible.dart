@@ -363,15 +363,12 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     );
 
     // 3. Botão de Pegar
-    if (_currentButton != null) return;
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
-    _currentButton= InteractButton(
-      position: hudPosition,
-      onTrigger: (){_collectItem(); _hideInfo();},
-    );
-    gameRef.camera.viewport.add(_currentButton!);
+    gameRef.onInteractAction = () {
+      _collectItem(); _hideInfo();
+    };
+
+    gameRef.canInteractNotifier.value = true;
     _infoGroup.add(textName);
     _infoGroup.add(textDesc);
     
@@ -384,11 +381,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (contains(_infoGroup)) {
       remove(_infoGroup);
     }
-    if (_currentButton != null) {
-      // Remove diretamente da lista de filhos do Viewport, que é 100% seguro!
-      gameRef.camera.viewport.remove(_currentButton!); 
-      _currentButton = null;
-    }
+    gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 
   void _collectItem() async {
@@ -626,9 +620,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.veneno:
         return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': 'sangue', 'color': Pallete.verdeEsc};
       case CollectibleType.sangramento:
-        return {'name': 'sang'.tr(), 'desc': 'sangDesc'.tr(), 'icon': MdiIcons.water, 'color': Pallete.vermelho};
+        return {'name': 'sang'.tr(), 'desc': 'sangDesc'.tr(), 'icon': 'sangue', 'color': Pallete.vermelho};
      case CollectibleType.druidScroll:
-        return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': 'sangue', 'color': Pallete.verdeEsc};
+        return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': 'scroll', 'color': Pallete.verdeEsc};
       case CollectibleType.dotBook:
         return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': 'book', 'color': Pallete.amarelo};
       case CollectibleType.concentration:
@@ -636,7 +630,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.gravitacao:
         return {'name': 'gravitacao'.tr(), 'desc': 'gravitacaoDesc'.tr(), 'icon': 'tiroOrbital', 'color': Pallete.branco};
       case CollectibleType.mine:
-        return {'name': 'mine'.tr(), 'desc': 'mineDesc'.tr(), 'icon': 'flail', 'color': Pallete.lilas};
+        return {'name': 'mine'.tr(), 'desc': 'mineDesc'.tr(), 'icon': 'mina', 'color': Pallete.verdeEsc};
       case CollectibleType.soda:
          return {'name': 'soda'.tr(), 'desc': 'sodaDesc'.tr(), 'icon': 'vinho', 'color': Pallete.cinzaEsc}; 
       case CollectibleType.bloodstone:
@@ -662,7 +656,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.pocaVeneno:
          return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': 'pocaVeneno', 'color': Pallete.verdeEsc};
       case CollectibleType.rastroFogo:
-         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'rastroFogo', 'color': Pallete.vermelho};
+         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'fogoRastro', 'color': Pallete.vermelho};
       case CollectibleType.tornado:
          return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': 'sonicBoom', 'color': Pallete.branco};
       case CollectibleType.tripleShot:
@@ -680,7 +674,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.regenShield:
          return {'name': 'regenShield'.tr(), 'desc': 'regenShieldDesc'.tr(), 'icon': 'escudoRegen', 'color': Pallete.azulCla};
       case CollectibleType.activeArtHp:
-         return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': 'hoCheio', 'color': Pallete.azulCla};
+         return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.azulCla};
       case CollectibleType.decoy:
         return {'name': 'decoy'.tr(), 'desc': 'decoyDesc'.tr(), 'icon': 'decoy', 'color': Pallete.cinzaCla};
       case CollectibleType.magicMush:
@@ -698,9 +692,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.splitShot:
         return {'name': 'splitShot'.tr(), 'desc': 'splitShotDesc'.tr(), 'icon': 'fragmento', 'color': Pallete.vermelho};
       case CollectibleType.familiarBlock:
-        return {'name': 'familiarBlock'.tr(), 'desc': 'familiarBlockDesc'.tr(), 'icon': 'soul', 'color': Pallete.azulCla};
+        return {'name': 'familiarBlock'.tr(), 'desc': 'familiarBlockDesc'.tr(), 'icon': 'wisp', 'color': Pallete.azulCla};
       case CollectibleType.familiarAtira:
-        return {'name': 'familiarAtira'.tr(), 'desc': 'familiarAtiraDesc'.tr(), 'icon': 'soul', 'color': Pallete.vermelho};
+        return {'name': 'familiarAtira'.tr(), 'desc': 'familiarAtiraDesc'.tr(), 'icon': 'fantasma', 'color': Pallete.vermelho};
       case CollectibleType.confuseCrit:
         return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': 'portal', 'color': Pallete.amarelo};
       case CollectibleType.pregos:
@@ -766,7 +760,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.restock:
         return {'name': 'restock'.tr(), 'desc': 'restockDesc'.tr(), 'icon': 'restock', 'color': Pallete.vermelho};
       case CollectibleType.familiarFreeze:
-        return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': 'neve', 'color': Pallete.azulCla};
+        return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': 'espirito', 'color': Pallete.azulCla};
       case CollectibleType.encolheOnCrit:
         return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': 'encolhe', 'color': Pallete.marrom};
       case CollectibleType.familiarGlitch:
@@ -774,7 +768,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.familiarDmgBuff:
         return {'name': 'familiarDmgBuff'.tr(), 'desc': 'familiarDmgBuffDesc'.tr(), 'icon': 'satelite', 'color': Pallete.vermelho};
       case CollectibleType.familiarCircProt:
-        return {'name': 'familiarCircProt'.tr(), 'desc': 'familiarCircProtDesc'.tr(), 'icon': 'soul', 'color': Pallete.branco};
+        return {'name': 'familiarCircProt'.tr(), 'desc': 'familiarCircProtDesc'.tr(), 'icon': 'circuloProt', 'color': Pallete.branco};
       case CollectibleType.glitterBomb:
         return {'name': 'glitterBomb'.tr(), 'desc': 'glitterBombDesc'.tr(), 'icon': 'bombaGlitter', 'color': Pallete.rosa};
       case CollectibleType.goldShot:
@@ -898,7 +892,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeTurretRotate:
         return {'name': 'activeTurretRotate'.tr(), 'desc': 'activeTurretRotateDesc'.tr(), 'icon': 'turret2', 'color': Pallete.azulCla};
       case CollectibleType.activeGlassStaff:
-        return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': 'cadajado', 'color': Pallete.azulCla};
+        return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': 'cajado', 'color': Pallete.azulCla};
       case CollectibleType.activeBuracoNegro:
         return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': 'buracoNegro', 'color': Pallete.branco};
       case CollectibleType.activeLoja:

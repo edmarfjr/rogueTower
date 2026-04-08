@@ -61,32 +61,19 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
   }
 
   void _showButton() {
-    // Evita criar duplicados
-    if (_currentButton != null) return;
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
-
-    _currentButton = InteractButton(
-      position: hudPosition,
-      onTrigger: () {
+    gameRef.onInteractAction = (){
         // Lógica de abrir o menu
         gameRef.pauseEngine();
         gameRef.overlays.add('bank_menu');
         
         // Esconde o botão logo após clicar para limpar a tela
         _hideButton(); 
-      },
-    );
-
-    // Posiciona o botão ACIMA do banco (no eixo Y negativo)
-    
-    gameRef.camera.viewport.add(_currentButton!);
+      };
+    gameRef.canInteractNotifier.value = true;
   }
 
   void _hideButton() {
-    if (_currentButton != null) {
-      gameRef.camera.viewport.remove(_currentButton!);
-      _currentButton = null;
-    }
+    gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 }

@@ -104,6 +104,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool killDummy = false;
 
+  final ValueNotifier<bool> canInteractNotifier = ValueNotifier(false);
+  
+  // Guarda o que o botão vai fazer quando for clicado
+  VoidCallback? onInteractAction;
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -151,7 +156,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await world.add(arenaBorder);
 
     camera.setBounds(
-      Rectangle.fromLTWH(-40, -40, 100, 80),
+      Rectangle.fromLTWH(-60, -60, 120, 130),
       considerViewport: false, 
     );
 

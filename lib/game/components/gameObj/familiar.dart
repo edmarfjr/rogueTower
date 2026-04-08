@@ -106,7 +106,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   //corrente do gemini
   final List<ChainNode> _chainNodes = []; 
   final int _numLinks = 8; 
-  final double _targetLinkLength = 16.0; 
+  final double _targetLinkLength = 8.0; 
   final double _gravity = 80.0; 
 
   // --- VARIÁVEIS DE KNOCKBACK ---
@@ -149,10 +149,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
     switch(type){
       case FamiliarType.decoy:
-        icon = player.visual.imagePath;
+        icon = 'sprites/familiares/decoy.png';
         cor = Pallete.cinzaCla.withOpacity(0.7);
       case FamiliarType.block:
-        icon = 'sprites/familiares/soul.png';
+        icon = 'sprites/familiares/wisp.png';
         cor = Pallete.azulCla.withOpacity(0.7);
       case FamiliarType.atira:
         icon = 'sprites/familiares/fantasma.png';
@@ -195,12 +195,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.dmgBuff:
         speed = 40;
         detectRadius = 64;
-        icon = 'sprites/familiares/soul.png';
+        icon = 'sprites/familiares/satelite.png';
         cor = Pallete.vermelho.withOpacity(0.7);
       case FamiliarType.circProt:
-        speed = 100;
-        detectRadius = 32;
-        icon = 'sprites/familiares/soul.png';
+        detectRadius = 24;
+        icon = 'sprites/familiares/circuloProt.png';
         cor = Pallete.branco.withOpacity(0.7);
         followDistance = 0;
       case FamiliarType.finger:
@@ -720,7 +719,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       other.takeDamage(dmg*gameRef.player.familiarDmg);
       setKnockBack(other);
     }
-    if (type == FamiliarType.freeze || type == FamiliarType.circProt) {
+    if (type == FamiliarType.freeze) {
       if (!_entitiesList.contains(other)) {
         
         if (other is Enemy) {
@@ -729,13 +728,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           _entitiesList.add(other);
         } 
         else if (other is Projectile && other.isEnemyProjectile) {
-          if (type == FamiliarType.freeze){
-            other.speed *= 0.5;
-            _entitiesList.add(other);
-          }else{
-            double rnd = Random().nextDouble();
-            if(rnd <= 0.3)other.refletir();
-          }
+          other.speed *= 0.5;
+          _entitiesList.add(other);
         }
         
       }
@@ -766,13 +760,20 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         other.refrata();
       }
       if (other is LaserBeam) {
-      final hitPos = intersectionPoints.firstOrNull ?? position;
-      other.refrata(hitPos); 
-    }
+        final hitPos = intersectionPoints.firstOrNull ?? position;
+        other.refrata(hitPos); 
+      }
     }
     if(type == FamiliarType.refletor){
       if(other is Projectile && !other.isEnemyProjectile){
         other.refletir();
+      }
+    }
+
+    if(type == FamiliarType.circProt){
+      if(other is Projectile && other.isEnemyProjectile){
+        int rnd = Random().nextInt(100);
+        if(rnd <= 25) other.refletir();
       }
     }
     

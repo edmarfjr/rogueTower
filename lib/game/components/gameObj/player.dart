@@ -373,7 +373,7 @@ class Player extends PositionComponent
     
     visual = GameSprite(
       imagePath: image,
-      size: size,
+      size: size + Vector2(4,4),
       color: color, 
       anchor: Anchor.center,
       position: size / 2 + vooOffset
@@ -441,8 +441,12 @@ class Player extends PositionComponent
     if (keysPressed.contains(LogicalKeyboardKey.space)) {
       startDash();
     }
+    
     if (keysPressed.contains(LogicalKeyboardKey.shiftLeft)) {
       criaBomba();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.keyE) && gameRef.onInteractAction!=null) {
+      gameRef.onInteractAction!();
     }
     return true;
   }
@@ -561,7 +565,7 @@ class Player extends PositionComponent
     visual = GameSprite(
       imagePath: 'sprites/chars/licantropo.png',
       color: Pallete.marrom,
-      size: size, 
+      size: size + Vector2(4,4), 
       anchor: Anchor.center,
       position: size / 2,
     );
@@ -589,7 +593,7 @@ class Player extends PositionComponent
     visual = GameSprite(
       imagePath: 'sprites/chars/pac.png',
       color: Pallete.amarelo,
-      size: size, 
+      size: size + Vector2(4,4), 
       anchor: Anchor.center,
       position: size / 2,
     );
@@ -898,11 +902,13 @@ class Player extends PositionComponent
 
       criaVisual(reset : true,image : classImage,color : classColor);
 
-      if (charClass.weaponImage != ''){
-        if (armaVisual != null) {
+      if (armaVisual != null) {
           armaVisual!.removeFromParent();
           armaVisual = null;
-        }
+      }
+
+      if (charClass.weaponImage != ''){
+        
         armaVisual = GameSprite(
           imagePath: charClass.weaponImage,
           size: size,

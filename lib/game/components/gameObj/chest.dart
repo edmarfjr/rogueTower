@@ -93,15 +93,12 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     final screenSize = gameRef.camera.viewport.size;
     final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
-    _currentButton = InteractButton(
-      position: hudPosition,
-      onTrigger:(){
+    gameRef.onInteractAction = () {
         _openChest();
         _hideInfo(); 
-      } ,
-    );
+      };
 
-    gameRef.camera.viewport.add(_currentButton!);
+    gameRef.canInteractNotifier.value = true;
 
     add(_infoGroup);
   }
@@ -111,11 +108,8 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (contains(_infoGroup)) {
       remove(_infoGroup);
     }
-    if (_currentButton != null) {
-      // Remove diretamente da lista de filhos do Viewport, que é 100% seguro!
-      gameRef.camera.viewport.remove(_currentButton!); 
-      _currentButton = null;
-    }
+    gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 
 

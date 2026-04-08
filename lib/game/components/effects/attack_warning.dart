@@ -15,7 +15,7 @@ class AttackWarningEffect extends PositionComponent {
   AttackWarningEffect({
     required Vector2 position,
     required this.owner,
-    this.maxRadius = 60.0,
+    this.maxRadius = 32.0,
     this.duration = 1.0, 
     this.color = Pallete.vermelho,
   }) : super(position: position, anchor: Anchor.center);
@@ -26,7 +26,8 @@ class AttackWarningEffect extends PositionComponent {
     _movingPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = 1.0
+      ..isAntiAlias = false
       //..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0)
       ;
       
@@ -35,6 +36,7 @@ class AttackWarningEffect extends PositionComponent {
     _targetPaint = Paint()
       ..color = color.withOpacity(0.5)
       ..style = PaintingStyle.stroke
+      ..isAntiAlias = false
       ..strokeWidth = 1.0;
       
   }

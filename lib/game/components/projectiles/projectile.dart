@@ -22,7 +22,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   // --- PROPRIEDADES ORIGINAIS ---
   Vector2 direction; 
   double speed; 
-  final double damage;
+  double damage;
   bool isEnemyProjectile;
   final bool apagaTiros;
   final PositionComponent? owner;
@@ -377,6 +377,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   void refletir(){
     isEnemyProjectile = false;
+    damage = game.player.damageIni;
     direction *= -1;
     visual!.setColor(isStun?Pallete.marrom:Pallete.branco);
     _timer = 0;

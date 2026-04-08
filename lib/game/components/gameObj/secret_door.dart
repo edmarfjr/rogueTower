@@ -97,9 +97,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
     final screenSize = gameRef.camera.viewport.size;
     final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
-    _currentButton = InteractButton(
-      position: hudPosition,
-      onTrigger: () {
+    gameRef.onInteractAction = () {
         
         // --- 1. SE FOR A PORTA DE SAÍDA ---
         if (isExit) {
@@ -180,17 +178,14 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
           });
           
         }
-      },
-    );
+      };
 
-    gameRef.camera.viewport.add(_currentButton!);
+    gameRef.canInteractNotifier.value = true;
   }
 
   void _hideButton() {
-    if (_currentButton != null) {
-      gameRef.camera.viewport.remove(_currentButton!);
-      _currentButton = null;
-    }
+    gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 
   void abrirPorta() {

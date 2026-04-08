@@ -194,12 +194,12 @@ class Hud extends StatelessWidget {
                     builder: (context, souls, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/hud/soul.png', color: Pallete.lilas, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/soul.png', color: Pallete.azulCla, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $souls", 
                             style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.lilas,
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.azulCla,
                               //shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
                               decoration: TextDecoration.none,
                             ),
@@ -281,6 +281,52 @@ class Hud extends StatelessWidget {
                 ),
               ),
             ),  
+
+            // ---------------------------------------------
+            // BOTÃO DE INTERAÇÃO (Dinâmico)
+            // ---------------------------------------------
+            Positioned(
+              bottom: 130,
+              right: 110, // Fica ao lado esquerdo da bomba e acima do dash
+              child: ValueListenableBuilder<bool>(
+                valueListenable: game.canInteractNotifier,
+                builder: (context, canInteract, child) {
+                  // Se não tiver nada perto, o botão SOME da tela!
+                  if (!canInteract) return const SizedBox.shrink();
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        // Chama a função da porta ou do baú
+                        game.onInteractAction?.call();
+                      },
+                      borderRadius: BorderRadius.circular(40),
+                      child: Container(
+                        width: 80, height: 80,
+                        decoration: BoxDecoration(
+                          color: Pallete.branco.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Pallete.branco.withOpacity(0.5), width: 2),
+                        ),
+                        child: const Center(
+                          // Um ícone de mãozinha ou de exclamação usando sua fonte de pixel
+                          child: Text(
+                            "!", 
+                            style: TextStyle(
+                              fontFamily: 'pixelFont', // Ajuste para sua fonte
+                              color: Pallete.branco,
+                              fontSize: 40,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
 
             // ---------------------------------------------
             // 5. TOPO CENTRO: DESAFIO

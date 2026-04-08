@@ -466,7 +466,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
 
   ProjectileAttackBehavior({
     this.interval = 2.0,
-    this.speed = 200,
+    this.speed = 100,
     this.isShotgun = false,
     this.is2shot = false,
     this.isOrbital = false,
@@ -556,7 +556,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
     }
 
     enemy.gameRef.world.add(Projectile(
-      position: enemy.position + newDir * 20,
+      position: enemy.position + newDir * enemy.size.x/2,
       direction: newDir,
       damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
       speed: enemy.isFreeze? speed/2 : speed,
@@ -587,7 +587,7 @@ class MortarAttackBehavior extends AttackBehavior {
     this.isPoison = false, 
     this.isBarragem = false,
     this.numMortars = 10,
-    this.explosionRadius = 60.0
+    this.explosionRadius = 32.0
   });
 
   @override
@@ -786,10 +786,10 @@ class SpinnerAttackBehavior extends AttackBehavior {
 
   void _spawnProjectile(Vector2 dir) {
     enemy.gameRef.world.add(Projectile(
-      position: enemy.position + dir * 20,
+      position: enemy.position + dir * enemy.size.x/2,
       direction: dir,
       damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
-      speed: 200,
+      speed: 100,
       hbSize: size,
       owner: enemy,
       isBoomerang: isBoomerang,
@@ -1202,8 +1202,8 @@ class SummonAttackBehavior extends AttackBehavior {
     });
 
     final rng = Random();
-    double offsetX = (rng.nextDouble() * 60) - 30; 
-    double offsetY = (rng.nextDouble() * 60) - 30;
+    double offsetX = (rng.nextDouble() * enemy.x*2) - enemy.x; 
+    double offsetY = (rng.nextDouble() * enemy.y*2) - enemy.y;
     Vector2 spawnPos = enemy.position + Vector2(offsetX, offsetY);
 
     // --- AQUI A MÁGICA ACONTECE ---
@@ -1267,7 +1267,7 @@ class ExplosionDeathBehavior extends DeathBehavior {
   final int damage;
   final double radius;
 
-  ExplosionDeathBehavior({this.damage = 10, this.radius = 60});
+  ExplosionDeathBehavior({this.damage = 10, this.radius = 32});
 
   @override
   void onDeath() {
@@ -1304,7 +1304,7 @@ class ProjectileBurstDeathBehavior extends DeathBehavior {
         position: enemy.position,
         direction: dir,
         damage: enemy.isCharmed? enemy.gameRef.player.damage/2 : enemy.dmg,
-        speed: enemy.isFreeze? 100 : 200,
+        speed: enemy.isFreeze? 50 : 100,
         owner: enemy,
         isEnemyProjectile: !enemy.isCharmed,
         isSpectral: !enemy.isSpectral,
@@ -1325,8 +1325,8 @@ class SpawnOnDeathBehavior extends DeathBehavior {
     for (int i = 0; i < count; i++) {
       // Pequena variação na posição para não nascerem empilhados
       Vector2 offset = Vector2(
-        (Random().nextDouble() - 0.5) * 50,
-        (Random().nextDouble() - 0.5) * 50,
+        (Random().nextDouble() - 0.5) * 16,
+        (Random().nextDouble() - 0.5) * 16,
       );
       
       final minion = minionBuilder(enemy.position + offset);

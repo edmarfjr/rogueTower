@@ -33,7 +33,7 @@ class DiaryScreen extends StatelessWidget {
     //final passiveItemsList = validItems.where((t) => !isItemAtivo(t)).toList();
 
     return Material(
-      color: Colors.black87,
+      color: Pallete.preto,
       // DefaultTabController gere a lógica dos separadores automaticamente
       child: DefaultTabController(
         length: 2, 
@@ -47,7 +47,7 @@ class DiaryScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 30),
+                      icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 30),
                       onPressed: (){
                         game.overlays.remove('DiaryScreen'); 
                         game.overlays.add('MainMenu'); 
@@ -70,7 +70,7 @@ class DiaryScreen extends StatelessWidget {
               // --- PROGRESSO GERAL ---
               Text(
                 "ITENS DESCOBERTOS: ${discoveredItems.length} / ${validItems.length}",
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
+                style: const TextStyle(color: Pallete.cinzaCla, fontSize: 16),
               ),
               const SizedBox(height: 10),
 
@@ -123,9 +123,9 @@ class DiaryScreen extends StatelessWidget {
         }
 
         return Tooltip(
-          message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
-          textStyle: const TextStyle(fontSize: 14, color: Colors.white),
-          decoration: BoxDecoration(color: Colors.black87, border: Border.all(color: Pallete.amarelo)),
+          message: "${attrs['name'].toUpperCase()}\n$desc",//isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
+          textStyle: const TextStyle(fontSize: 14, color: Pallete.branco),
+          decoration: BoxDecoration(color: Pallete.preto, border: Border.all(color: Pallete.amarelo)),
           child: Container(
             decoration: BoxDecoration(
               color: Pallete.preto,
@@ -136,8 +136,11 @@ class DiaryScreen extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: PixelSprite(imagePath: isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', color: isDiscovered ? attrs['color'] : Pallete.lilas, size: 32)
-             
+              child: PixelSprite(
+                imagePath: 'sprites/itens/${attrs['icon']}.png',//isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', 
+                color: attrs['color'],//isDiscovered ? attrs['color'] : Pallete.lilas, 
+                size: 48
+              )
             ),
           ),
         );

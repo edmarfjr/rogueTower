@@ -197,131 +197,122 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   void _showButton() {
     if (_currentButton != null) return;
 
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
-
-    _currentButton = InteractButton(
-      position: hudPosition,
-      onTrigger: () {
-        if(trancada){
-          if(gameRef.keysNotifier.value>0){
-            gameRef.keysNotifier.value --;
-            destranca();
-          }else{
-            if(gameRef.player.hasChaveNegra){
-              gameRef.world.add(FloatingText(
-                text: 'ai'.tr(),
-                position: position.clone(), 
-                color: Pallete.branco,
-                fontSize: 12,
-              ));
-              gameRef.player.takeDamage(1);
-              destranca();
-            }else{
-              gameRef.world.add(FloatingText(
-                text: 'trancado'.tr(),
-                position: position.clone(), 
-                color: Pallete.branco,
-                fontSize: 12,
-              ));
-            }
-          }
-        } else if(bloqueada){
-          // ... (Sua lógica da bomba se mantém igual) ...
-          gameRef.world.add(FloatingText(
-              text: 'bloqueado'.tr(),
+    gameRef.onInteractAction =() {
+      if(trancada){
+        if(gameRef.keysNotifier.value>0){
+          gameRef.keysNotifier.value --;
+          destranca();
+        }else{
+          if(gameRef.player.hasChaveNegra){
+            gameRef.world.add(FloatingText(
+              text: 'ai'.tr(),
               position: position.clone(), 
               color: Pallete.branco,
               fontSize: 12,
             ));
-        } else {
-          // ==========================================
-          // O JOGADOR VAI ENTRAR NA PORTA
-          // ==========================================
-          if(bites){
-            gameRef.world.add(FloatingText(
-                text: 'ai'.tr(),
-                position: position.clone(), 
-                color: Pallete.branco,
-                fontSize: 12,
-              ));
             gameRef.player.takeDamage(1);
+            destranca();
+          }else{
+            gameRef.world.add(FloatingText(
+              text: 'trancado'.tr(),
+              position: position.clone(), 
+              color: Pallete.branco,
+              fontSize: 12,
+            ));
           }
+        }
+      } else if(bloqueada){
+        // ... (Sua lógica da bomba se mantém igual) ...
+        gameRef.world.add(FloatingText(
+            text: 'bloqueado'.tr(),
+            position: position.clone(), 
+            color: Pallete.branco,
+            fontSize: 12,
+          ));
+      } else {
+        // ==========================================
+        // O JOGADOR VAI ENTRAR NA PORTA
+        // ==========================================
+        if(bites){
+          gameRef.world.add(FloatingText(
+              text: 'ai'.tr(),
+              position: position.clone(), 
+              color: Pallete.branco,
+              fontSize: 12,
+            ));
+          gameRef.player.takeDamage(1);
+        }
+        
+        _hideButton(); 
+        
+        //AGIOTA
+        if (gameRef.isCurrentRoomBank && gameRef.dividaNotifier.value > 0) {
+            gameRef.player.position.y += 50; 
+            gameRef.roomManager.triggerAgiotaTrap();
+            return; 
+        }
+        _isEntering = true; 
+        
+        // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
+        gameRef.camera.setBounds(
+          Rectangle.fromLTWH(-2000, -2000, 4000, 4000),
+          considerViewport: false,
+        );
+
+
+        gameRef.transitionEffect.startTransition(() {
+          _isEntering = false; 
           
-          _hideButton(); 
+          // RESET DO ZOOM E POSIÇÃO
+          gameRef.camera.viewfinder.zoom = 1.0; 
+          gameRef.camera.viewfinder.position = Vector2.zero(); 
           
-          //AGIOTA
-          if (gameRef.isCurrentRoomBank && gameRef.dividaNotifier.value > 0) {
-              gameRef.player.position.y += 50; 
-              gameRef.roomManager.triggerAgiotaTrap();
-              return; 
-          }
-          _isEntering = true; 
-          
-          // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
+          // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
           gameRef.camera.setBounds(
-            Rectangle.fromLTWH(-2000, -2000, 4000, 4000),
+            Rectangle.fromLTWH(-60, -60, 120, 130),
             considerViewport: false,
           );
+          if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop){
+            gameRef.player.hasCupon = false;
 
-
-          gameRef.transitionEffect.startTransition(() {
-            _isEntering = false; 
-            
-            // RESET DO ZOOM E POSIÇÃO
-            gameRef.camera.viewfinder.zoom = 1.0; 
-            gameRef.camera.viewfinder.position = Vector2.zero(); 
-            
-            // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
-            gameRef.camera.setBounds(
-              Rectangle.fromLTWH(-60, -60, 120, 130),
-              considerViewport: false,
-            );
-            if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop){
-              gameRef.player.hasCupon = false;
-
-              if(gameRef.player.cuponIcon !=null){
-                gameRef.player.numIcons --;
-                gameRef.player.cuponIcon!.removeFromParent();
-                gameRef.player.cuponIcon = null;
-              }
+            if(gameRef.player.cuponIcon !=null){
+              gameRef.player.numIcons --;
+              gameRef.player.cuponIcon!.removeFromParent();
+              gameRef.player.cuponIcon = null;
             }
-            if(gameRef.player.hasShieldRegen)gameRef.player.increaseShield();
-            if(gameRef.player.tempDmgBonus > 0){
-              gameRef.player.tempDmgBonus = 0;
+          }
+          if(gameRef.player.hasShieldRegen)gameRef.player.increaseShield();
+          if(gameRef.player.tempDmgBonus > 0){
+            gameRef.player.tempDmgBonus = 0;
 
-              if(gameRef.player.dmgBuffIcon !=null){
-                gameRef.player.numIcons --;
-                gameRef.player.dmgBuffIcon!.removeFromParent();
-                gameRef.player.dmgBuffIcon = null;
-              }
+            if(gameRef.player.dmgBuffIcon !=null){
+              gameRef.player.numIcons --;
+              gameRef.player.dmgBuffIcon!.removeFromParent();
+              gameRef.player.dmgBuffIcon = null;
             }
-            if(gameRef.player.tempDmgGoldBonus > 0){
-              gameRef.player.tempDmgGoldBonus = 0;
+          }
+          if(gameRef.player.tempDmgGoldBonus > 0){
+            gameRef.player.tempDmgGoldBonus = 0;
 
-              if(gameRef.player.dmgGoldBuffIcon !=null){
-                gameRef.player.numIcons --;
-                gameRef.player.dmgGoldBuffIcon!.removeFromParent();
-                gameRef.player.dmgGoldBuffIcon = null;
-              }
+            if(gameRef.player.dmgGoldBuffIcon !=null){
+              gameRef.player.numIcons --;
+              gameRef.player.dmgGoldBuffIcon!.removeFromParent();
+              gameRef.player.dmgGoldBuffIcon = null;
             }
-            if(gameRef.player.regenCount > 0){
-              game.player.curaHp(1);
-              gameRef.player.regenCount -= 1;
-            }
-            gameRef.nextLevel(rewardType);
-          });
-        }
-      },
-    );
-
-    gameRef.camera.viewport.add(_currentButton!);
+          }
+          if(gameRef.player.regenCount > 0){
+            game.player.curaHp(1);
+            gameRef.player.regenCount -= 1;
+          }
+          gameRef.nextLevel(rewardType);
+        });
+      }
+    };
+    gameRef.canInteractNotifier.value = true;
   }
 
   void _hideButton() {
-    if (_currentButton != null) {
-      gameRef.camera.viewport.remove(_currentButton!);
-      _currentButton = null;
-    }
+   gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 }

@@ -133,13 +133,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
       //gameRef.world.add(EnemyFactory.createBeeHive(Vector2(0, -150)));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(50, -100), champType: 8));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100)));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 8));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiacAries));
-      //gameRef.world.add(Collectible(position: Vector2(0, 0), type: CollectibleType.fogo));
+      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeWoodenCoin));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
@@ -874,10 +874,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       gameRef.world.add(Chest(position: Vector2(0, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.doacaoSangue) {
       _explosaoCriaItem();
-      gameRef.world.add(BloodMachine(position: Vector2(100, 0)));
+      gameRef.world.add(BloodMachine(position: Vector2(64, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.slotMachine) {
       _explosaoCriaItem();
-      gameRef.world.add(SlotMachine(position: Vector2(100, 0)));
+      gameRef.world.add(SlotMachine(position: Vector2(64, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));
@@ -896,7 +896,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           int numExtra = Random().nextInt(2) + 1;
           for(var i=0;i<numExtra;i++){
             gameRef.world.add(Collectible(
-              position: Vector2(-80 + (160 * i.toDouble()), 0),
+              position: Vector2(-40 + (80 * i.toDouble()), 0),
               type: gameRef.nextRoomReward,
             ));
           }

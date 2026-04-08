@@ -57,7 +57,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     cor = isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas;
     
     visual = GameSprite(
-      imagePath: isMine ? 'sprites/projeteis/flail' : 'sprites/projeteis/bomba', 
+      imagePath: isMine ? 'sprites/projeteis/mina' : 'sprites/projeteis/bomba', 
       color: cor,
       size: size,
       anchor: Anchor.center,

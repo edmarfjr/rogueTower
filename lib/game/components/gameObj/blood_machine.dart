@@ -69,14 +69,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   void _showText() {
     _nameText = TextComponent(
       text: "DOAR SANGUE\n(-1 HP)",
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 12, 
-          color: Pallete.vermelho, 
-          fontWeight: FontWeight.bold,
-          shadows: [Shadow(blurRadius: 2, color: Colors.black)],
-        ),
-      ),
+      textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, -10),
     );
@@ -91,23 +84,16 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _showButton() {
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
     _isInfoVisible = true;
+    gameRef.onInteractAction = () {_donate;};
     
-    _currentButton = InteractButton(
-      position: hudPosition,
-      onTrigger: _donate,
-    ); 
-    gameRef.camera.viewport.add(_currentButton!);
+    gameRef.canInteractNotifier.value = true;
   }
 
   void _hideButton() {
     _isInfoVisible = false;
-    if (_currentButton != null) {
-      gameRef.camera.viewport.remove(_currentButton!);
-      _currentButton = null;
-    }
+    gameRef.canInteractNotifier.value = false;
+    gameRef.onInteractAction = null;
   }
 
   void _donate() {
