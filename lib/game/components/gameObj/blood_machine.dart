@@ -1,13 +1,13 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:flutter/material.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 
 import '../../tower_game.dart';
 import '../core/pallete.dart';
-import '../core/game_icon.dart';
-import '../core/interact_button.dart';
+//import '../core/game_icon.dart';
+//import '../core/interact_button.dart';
 import '../core/audio_manager.dart';
 import '../effects/explosion_effect.dart';
 import '../effects/floating_text.dart';
@@ -16,7 +16,7 @@ import 'collectible.dart';
 class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
   final double _interactRange = 60.0;
-  InteractButton? _currentButton;
+  //InteractButton? _currentButton;
   TextComponent? _nameText;
 
   // Evitar que o jogador clique 10x por segundo acidentalmente

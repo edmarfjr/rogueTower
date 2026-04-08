@@ -1,10 +1,11 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/effects/attack_warning.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
-import 'package:towerrogue/game/components/projectiles/bomb.dart';
+//import 'package:towerrogue/game/components/projectiles/bomb.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,6 @@ PositionComponent getEnemyTarget(Enemy enemy) {
     return closestEnemy ?? enemy.gameRef.player; 
   }
   final player = enemy.gameRef.player;
-  bool bombLure = false;
   
   PositionComponent bestTarget = player;
   double shortestDist = enemy.position.distanceTo(player.position);
@@ -809,7 +809,7 @@ class DashAttackBehavior extends AttackBehavior {
   @override
   void update(double dt) {
     _hitProcessed = false; 
-    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
+    final visual = enemy.children.whereType<GameSprite>().firstOrNull;
 
     if (_state == 0) { 
       enemy.canMove = false; 
@@ -855,7 +855,7 @@ class DashAttackBehavior extends AttackBehavior {
          _state = 0; 
          _timer = 0;
          enemy.canMove = true;
-         if(visual != null) visual.setColor(Pallete.amarelo);
+         if(visual != null) visual.changeColor(Pallete.amarelo);
        }
     }
   }
@@ -872,7 +872,7 @@ class DashAttackBehavior extends AttackBehavior {
     _state = 2; 
     _timer = 0;
     enemy.position -= _dashDir * 20; 
-    enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
+    enemy.children.whereType<GameSprite>().firstOrNull?.changeColor(Pallete.branco);
   }
 
   bool _checkArenaImpact() {
@@ -961,7 +961,7 @@ class ChargeAttackBehavior extends AttackBehavior {
         _state = 0; 
         _timer = 0;
          
-        visual?.setColor(enemy.originalColor); 
+        visual?.changeColor(enemy.originalColor); 
       }
     }
   }
@@ -984,7 +984,7 @@ class ChargeAttackBehavior extends AttackBehavior {
   void _stopCharge() {
     _state = 3; 
     _timer = 0;
-    enemy.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.cinzaEsc);
+    enemy.children.whereType<GameSprite>().firstOrNull?.changeColor(Pallete.cinzaEsc);
   }
 }
 
@@ -1195,10 +1195,10 @@ class SummonAttackBehavior extends AttackBehavior {
   }
 
   void _summonMinion() {
-    final visual = enemy.children.whereType<GameIcon>().firstOrNull;
-    visual?.setColor(Pallete.rosa);
+    final visual = enemy.children.whereType<GameSprite>().firstOrNull;
+    visual?.changeColor(Pallete.rosa);
     Future.delayed(const Duration(milliseconds: 200), () {
-      if (enemy.isMounted) visual?.setColor(enemy.originalColor);
+      if (enemy.isMounted) visual?.changeColor(enemy.originalColor);
     });
 
     final rng = Random();

@@ -2,23 +2,22 @@ import 'dart:math';
 
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
-import 'package:towerrogue/game/components/core/interact_button.dart';
+//import 'package:towerrogue/game/components/core/interact_button.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import 'collectible.dart';
 
 class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   bool _isOpen = false;
   bool isLock;
-  InteractButton? _currentButton;
   // Guardamos a referência do ícone para trocar (fechado -> aberto)
   GameSprite? _iconComponent;
 
@@ -86,12 +85,6 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
    
     // Grupo para facilitar remover tudo de uma vez
     _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
-
-
-    // 3. Botão de Pegar
-    if (_currentButton != null) return;
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
 
     gameRef.onInteractAction = () {
         _openChest();

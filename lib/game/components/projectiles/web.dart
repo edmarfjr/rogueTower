@@ -1,11 +1,11 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 
 class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   final double duration;
@@ -46,7 +46,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
     // Efeito de piscar antes de sumir
     if (_timer > duration - 2.0) {
        final opacity = (_timer * 10).toInt() % 2 == 0 ? 0.3 : 0.7;
-       children.whereType<GameIcon>().firstOrNull?.setColor(Colors.white.withValues(alpha: opacity));
+       children.whereType<GameSprite>().firstOrNull?.changeColor(Colors.white.withValues(alpha: opacity));
     }
 
     if (_timer >= duration) {
@@ -85,7 +85,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
     _affectingPlayer = true;
     gameRef.player.moveSpeed *= 0.4; // Reduz para 40% da velocidade
     // Muda cor do player para indicar status (opcional)
-    gameRef.player.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.cinzaCla);
+    gameRef.player.visual.changeColor(Pallete.cinzaCla);
   }
 
   void _removeSlow() {
@@ -95,6 +95,6 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
     gameRef.player.moveSpeed /= 0.4; 
     
     // Restaura cor original (assumindo que seja Ciano/Azul do player)
-    gameRef.player.children.whereType<GameIcon>().firstOrNull?.setColor(Pallete.branco);
+    gameRef.player.visual.changeColor(Pallete.branco);
   }
 }

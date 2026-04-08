@@ -7,9 +7,9 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 
 class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   final double duration;
@@ -153,12 +153,12 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
       _damageTickTimer = 0; 
     }
 
-    if (_lifeTimer > duration - 1.0) {
-       double currentOpacity = (duration - _lifeTimer).clamp(0.0, 1.0);
+    //if (_lifeTimer > duration - 1.0) {
+      // double currentOpacity = (duration - _lifeTimer).clamp(0.0, 1.0);
        //if (visual != null) {
        //  visual?.color = cor.withValues(alpha: 0.6 * currentOpacity);
        //}
-    }
+    //}
 
     if (_lifeTimer >= duration) {
       removeFromParent();

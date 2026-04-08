@@ -4,9 +4,9 @@ import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import 'explosion.dart'; 
 

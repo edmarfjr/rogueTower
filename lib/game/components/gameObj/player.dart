@@ -21,15 +21,15 @@ import 'package:towerrogue/game/components/projectiles/mortar_shell.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/math.dart';
+//import 'package:flame/math.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; 
 import 'dart:math';
 import '../../tower_game.dart'; 
 import '../enemies/enemy.dart'; 
 import '../projectiles/projectile.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import 'wall.dart';
 import '../effects/dust.dart';
@@ -80,11 +80,6 @@ class Player extends PositionComponent
   double bltSize = 16;
   String bltImage = 'sprites/projeteis/blt.png';
   double bltSpeed = 500;
-
-  final double _rawDamage = 0;
-  final double _rawSpeed = 0;
-  final double _rawFireRate = 0;
-  final double _rawRange = 0;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
   double bombButtonTimer = 0;
@@ -349,18 +344,18 @@ class Player extends PositionComponent
 
   void criaVisual({reset = false,image = 'sprites/chars/char.png',color = Pallete.branco}){
     if (reset){
-      if(visual != null){
+      //if(visual != null){
         visual.removeFromParent();
-      }
-      if(_hitbox != null){
+      //}
+      //if(_hitbox != null){
         _hitbox.removeFromParent();
-      }
+      //}
       if(_dodgeAura != null){
         _dodgeAura!.removeFromParent();
       }
-      if(_shadow != null){
+      //if(_shadow != null){
         _shadow.removeFromParent();
-      }
+      //}
      
       currentColor = color;
     }
@@ -1385,14 +1380,14 @@ class Player extends PositionComponent
       _invincibilityTimer -= dt;
       
       if (_invincibilityTimer % 0.2 < 0.1) {
-         visual.setColor(Pallete.vermelho.withOpacity(0.5));
+         visual.changeColor(Pallete.vermelho.withOpacity(0.5));
       } else {
-         visual.setColor(currentColor);
+         visual.changeColor(currentColor);
       }
 
       if (_invincibilityTimer <= 0) {
         _isInvincible = false;
-        visual.setColor(currentColor);
+        visual.changeColor(currentColor);
       }
     }
   }
@@ -1914,7 +1909,7 @@ class Player extends PositionComponent
     rainbowShot = false;
 
     criaVisual(reset:true);
-    visual.setColor(Pallete.branco);
+    visual.changeColor(Pallete.branco);
   }
 
   @override

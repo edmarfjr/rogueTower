@@ -11,9 +11,9 @@ import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 
 class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   double _timer = 0;
@@ -57,7 +57,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     cor = isEnemy ? Pallete.vermelho : isMine ?Pallete.verdeEsc:Pallete.lilas;
     
     visual = GameSprite(
-      imagePath: isMine ? 'sprites/projeteis/mina' : 'sprites/projeteis/bomba', 
+      imagePath: isMine ? 'sprites/projeteis/mina.png' : 'sprites/projeteis/bomba.png', 
       color: cor,
       size: size,
       anchor: Anchor.center,
@@ -108,9 +108,9 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     }
     if(!isMine){
       if (_mostrarBranco) {
-        visual!.setColor(Pallete.branco);
+        visual!.changeColor(Pallete.branco);
       } else {
-        visual!.setColor(cor);
+        visual!.changeColor(cor);
       }
     }
 

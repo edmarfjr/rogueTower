@@ -7,10 +7,10 @@ import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
 import '../core/pallete.dart';
 import '../gameObj/wall.dart';
@@ -379,7 +379,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     isEnemyProjectile = false;
     damage = game.player.damageIni;
     direction *= -1;
-    visual!.setColor(isStun?Pallete.marrom:Pallete.branco);
+    visual!.changeColor(isStun?Pallete.marrom:Pallete.branco);
     _timer = 0;
   }
 

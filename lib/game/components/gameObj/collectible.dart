@@ -7,7 +7,7 @@ import 'package:towerrogue/game/components/effects/explosion_effect.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/effects/unlock_notification.dart';
 import 'package:towerrogue/game/components/enemies/enemy.dart';
-import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
+//import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/projectiles/black_hole.dart';

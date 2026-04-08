@@ -11,10 +11,10 @@ import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import '../core/pallete.dart';
 
 enum FamiliarType {
@@ -413,7 +413,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           final rng = Random();
           Color cor = cores[rng.nextInt(cores.length)];
 
-          visual!.setColor(cor);
+          visual!.changeColor(cor);
         }
       }
     }else if(type == FamiliarType.circProt){

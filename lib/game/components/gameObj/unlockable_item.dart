@@ -1,10 +1,10 @@
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
-import 'package:towerrogue/game/components/core/interact_button.dart'; // Import do novo botão
+//import 'package:towerrogue/game/components/core/interact_button.dart'; // Import do novo botão
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart';
 import './player.dart';
 import '../core/game_icon.dart';
@@ -22,7 +22,6 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   // Controle de Interface (Igual ao Collectible)
   bool _isInfoVisible = false;
   final double _interactRange = 48.0;
-  InteractButton? _currentButton;
 
   TextComponent? _nameText;
   TextComponent? _descText;

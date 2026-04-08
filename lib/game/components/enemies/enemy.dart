@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
-import 'package:towerrogue/game/components/effects/ghost_particle.dart';
+//import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
@@ -14,9 +14,9 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../tower_game.dart'; 
-import '../core/game_icon.dart';
+//import '../core/game_icon.dart';
 import '../core/pallete.dart';
 import '../gameObj/wall.dart';
 import '../effects/floating_text.dart';
@@ -748,7 +748,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!_isHit) { 
         _isHit = true; 
         _hitTimer = 0.1; 
-        visual!.setColor(Pallete.branco);
+        visual!.changeColor(Pallete.branco);
     }
 
     Color cor = Pallete.branco;
@@ -1250,7 +1250,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         freezeTimer = 0.0;
         speed = _baseSpeed;
         if (visual == null) return;
-        visual?.setColor(originalColor);
+        visual?.changeColor(originalColor);
         if (freezeIcon != null) {
          freezeIcon!.removeFromParent();
          freezeIcon = null; 
@@ -1279,7 +1279,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           isBurned = false;
           numCondicoes --;
           if (visual == null) return;
-          visual?.setColor(originalColor);
+          visual?.changeColor(originalColor);
           if (burnIcon != null) {
             burnIcon!.removeFromParent();
             burnIcon = null; 
@@ -1312,7 +1312,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           isPoisoned = false;
           numCondicoes --;
           if (visual == null) return;
-          visual?.setColor(originalColor);
+          visual?.changeColor(originalColor);
           if (poisonIcon != null) {
             poisonIcon!.removeFromParent();
             poisonIcon = null; 
@@ -1345,7 +1345,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           isBleed = false;
           numCondicoes --;
           if (visual == null) return;
-          visual?.setColor(originalColor);
+          visual?.changeColor(originalColor);
           if (bleedIcon != null) {
             bleedIcon!.removeFromParent();
             bleedIcon = null; 
@@ -1411,7 +1411,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         _isHit = false;
         Color cor = originalColor;
         if (visual == null) return;
-        visual?.setColor(cor);
+        visual?.changeColor(cor);
       }
     }
   }

@@ -1,16 +1,16 @@
-import 'dart:math';
+//import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:towerrogue/game/components/core/game_icon.dart';
+//import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+//import 'package:towerrogue/game/components/core/game_icon.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
-import 'package:towerrogue/game/components/core/interact_button.dart';
+//import 'package:towerrogue/game/components/core/interact_button.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
 import '../effects/floating_text.dart';
-import '../core/audio_manager.dart';
+//import '../core/audio_manager.dart';
 
 class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   bool isLocked;
@@ -21,8 +21,6 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
 
   GameSprite? _doorIcon;
 
-  // Variáveis para o sistema do botão
-  InteractButton? _currentButton;
   bool botaoAtivo = false;
   final double raioBotao = 60.0; // Mesma distância das suas portas normais
 
@@ -92,11 +90,6 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _showButton() {
-    if (_currentButton != null) return;
-
-    final screenSize = gameRef.camera.viewport.size;
-    final hudPosition = Vector2(screenSize.x/2-(5*16),screenSize.y/2-(3.5*16));
-
     gameRef.onInteractAction = () {
         
         // --- 1. SE FOR A PORTA DE SAÍDA ---

@@ -2,14 +2,14 @@ import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 import '../../tower_game.dart';
-import '../core/game_icon.dart';
-import '../core/interact_button.dart';
+//import '../core/game_icon.dart';
+//import '../core/interact_button.dart';
 
 class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
-  InteractButton? _currentButton;
+  //InteractButton? _currentButton;
 
   BankAtm({required Vector2 position})
       : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
