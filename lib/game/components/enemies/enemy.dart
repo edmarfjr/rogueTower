@@ -1020,9 +1020,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       charmIcon = GameSprite(
         imagePath: 'sprites/condicoes/charm.png',
         color: Pallete.rosa,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y/4  - (size.y * 0.4)*numCondicoes), 
       );
       
       add(charmIcon!);
@@ -1036,9 +1036,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       fearIcon = GameSprite(
         imagePath: 'sprites/condicoes/caveira.png',
         color: Pallete.branco,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y/4  - (size.y * 0.4)*numCondicoes), 
       );
       
       add(fearIcon!);
@@ -1052,9 +1052,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       paraliseIcon = GameSprite(
         imagePath: 'sprites/condicoes/corrente.png',
         color: Pallete.cinzaCla,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
+        position: Vector2(size.x / 2, size.y / 2 - size.y/4  - (size.y * 0.4)*numCondicoes), 
       );
       
       add(paraliseIcon!);
@@ -1074,9 +1074,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     freezeIcon = GameSprite(
       imagePath: 'sprites/condicoes/gelo.png',
       color: Pallete.azulCla,
-      size: size/2,
+      size: Vector2.all(8),
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
+      position: Vector2(size.x / 2, size.y / 2 - size.y/4  - (size.y * 0.4)*numCondicoes), 
     );
     
     add(freezeIcon!);
@@ -1091,9 +1091,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     confuseIcon = GameSprite(
       imagePath: 'sprites/condicoes/confuso.png',
       color: Pallete.amarelo,
-      size: size/2,
+      size: Vector2.all(8),
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, size.y / 2 - size.y / 4 - 5*numCondicoes), 
+      position: Vector2(size.x / 2, size.y / 2 - size.y/4  - (size.y * 0.4)*numCondicoes), 
     );
     
     add(confuseIcon!);
@@ -1137,9 +1137,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       burnIcon = GameSprite(
       imagePath: 'sprites/condicoes/fogo.png',
       color: Pallete.laranja,
-      size: size/2,
+      size: Vector2.all(8),
       anchor: Anchor.center,
-      position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
+      position: Vector2(size.x / 2, - size.y/4  - (size.y * 0.4)*numCondicoes), 
     );
       add(burnIcon!);
     }
@@ -1147,7 +1147,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (burnText == null){
       burnText = TextComponent(
         text: burnStacks.value.toString(),
-        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y/4  - (size.y * 0.4)*numCondicoes),
         anchor: Anchor.center,
         textRenderer: Pallete.textoLaranja,
         //textRenderer: TextPaint(
@@ -1174,9 +1174,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       bleedIcon = GameSprite(
         imagePath: 'sprites/condicoes/gota.png',
         color: Pallete.vermelho,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
+        position: Vector2(size.x / 2, - size.y/4  - (size.y * 0.4)*numCondicoes), 
       );
       add(bleedIcon!);
     }
@@ -1184,7 +1184,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (bleedText == null){
       bleedText = TextComponent(
         text: bleedStacks.value.toString(),
-        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y/4  - (size.y * 0.4)*numCondicoes),
         anchor: Anchor.center,
         textRenderer: Pallete.textoVermelho,
         //textRenderer: TextPaint(
@@ -1211,9 +1211,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       poisonIcon = GameSprite(
         imagePath: 'sprites/condicoes/gota.png',
         color: Pallete.verdeCla,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, - size.y / 4 - 5*numCondicoes), 
+        position: Vector2(size.x / 2, - size.y/4  - (size.y * 0.4)*numCondicoes), 
       );
       add(poisonIcon!);
     }
@@ -1221,7 +1221,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (poisonText == null){
       poisonText = TextComponent(
         text: poisonStacks.value.toString(),
-        position: Vector2((size.x/2) - 6, - size.y / 4 - 5*numCondicoes),
+        position: Vector2((size.x/2) - 6, - size.y/4  - (size.y * 0.4)*numCondicoes),
         anchor: Anchor.center,
         textRenderer: Pallete.textoVerde,
       );

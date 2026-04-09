@@ -564,7 +564,7 @@ class EnemyFactory {
       position: Vector2(0, -100),
       speed: 60,
       soul: 300, 
-      hbSize: Vector2(17,27),
+      hbSize: Vector2(16,32),
       image: "sprites/inimigos/trueQueen.png",
       hasGhostEffect: true,
       size: Vector2.all(32), 

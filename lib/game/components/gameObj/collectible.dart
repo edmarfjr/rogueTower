@@ -608,7 +608,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.fogo:
         return {'name': 'fogo'.tr(), 'desc': 'fogoDesc'.tr(), 'icon': 'fogo', 'color': Pallete.laranja};
       case CollectibleType.veneno:
-        return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': 'sangue', 'color': Pallete.verdeEsc};
+        return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': 'sangue', 'color': Pallete.verdeCla};
       case CollectibleType.sangramento:
         return {'name': 'sang'.tr(), 'desc': 'sangDesc'.tr(), 'icon': 'sangue', 'color': Pallete.vermelho};
      case CollectibleType.druidScroll:
@@ -644,7 +644,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.bumerangue:
          return {'name': 'bumerangue'.tr(), 'desc': 'bumerangueDesc'.tr(), 'icon': 'bumerangue', 'color': Pallete.marrom};
       case CollectibleType.pocaVeneno:
-         return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': 'pocaVeneno', 'color': Pallete.verdeEsc};
+         return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': 'pocaVeneno', 'color': Pallete.verdeCla};
       case CollectibleType.rastroFogo:
          return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'fogoRastro', 'color': Pallete.laranja};
       case CollectibleType.tornado:
@@ -654,7 +654,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeHeal:
          return {'name': 'activeHeal'.tr(), 'desc': 'activeHealDesc'.tr(), 'icon': 'potCura', 'color': Pallete.vermelho};
       case CollectibleType.activePoisonBomb:
-         return {'name': 'activePoisonBomb'.tr(), 'desc': 'activePoisonBombDesc'.tr(), 'icon': 'bombaVeneno', 'color': Pallete.verdeEsc};
+         return {'name': 'activePoisonBomb'.tr(), 'desc': 'activePoisonBombDesc'.tr(), 'icon': 'bombaVeneno', 'color': Pallete.verdeCla};
       case CollectibleType.activeLicantropia:
          return {'name': 'activeLicantropia'.tr(), 'desc': 'activeLicantropiaDesc'.tr(), 'icon': 'licantropo', 'color': Pallete.vermelho};
       case CollectibleType.activeBattery:
@@ -2943,7 +2943,7 @@ class CollectibleLogic {
         case CollectibleType.activeSuperLaser:
           final dir = player.velocityDash;
           final angle = atan2(player.velocityDash.y, player.velocityDash.x); 
-          player.criaLaserDirecional(dir,angle,player.damage*5,0.5,4,50);
+          player.criaLaserDirecional(dir,angle,player.damage*5,0.5,2,16);
           text = "activeSuperLaser";
           //color = Pallete.vermelho;
           break;

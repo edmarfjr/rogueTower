@@ -49,7 +49,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
           height: MediaQuery.of(context).size.height * 0.8, // Aumentei um pouquinho para caber a dificuldade
           decoration: BoxDecoration(
             color: Pallete.preto,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.zero,
             border: Border.all(color: charClass.color, width: 3),
           ),
           child: Column(
@@ -145,9 +145,9 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaCla,
+                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Pallete.azulCla,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                     ),
                     onPressed: _isCurrentClassUnlocked ? () {
                       
@@ -160,7 +160,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                       widget.game.overlays.remove('CharacterSelectionMenu');
                       
                     } : null,
-                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: const TextStyle(fontSize: 20, color: Pallete.preto, fontWeight: FontWeight.bold)),
                   ),
 
                   IconButton(
@@ -205,8 +205,8 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color : const Color(0xFF2C2C2C), // Fundo mais escuro se não selecionado
-          borderRadius: BorderRadius.circular(8),
+          color: Pallete.preto,//isSelected ? color : const Color(0xFF2C2C2C), // Fundo mais escuro se não selecionado
+          borderRadius: BorderRadius.zero,
           border: Border.all(
             color: isSelected ? Pallete.branco : Colors.transparent, 
             width: 2

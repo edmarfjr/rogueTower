@@ -88,9 +88,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     _isInfoVisible = true;
-    gameRef.onInteractAction = (){
-      _sort;
-    };
+    gameRef.onInteractAction = _sort;
     
     gameRef.canInteractNotifier.value = true;
   }
@@ -146,16 +144,16 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     final player = gameRef.player;
 
-    if(gameRef.coinsNotifier.value >= 5)
+    if(gameRef.coinsNotifier.value >= 1)
     {
-      player.collectCoin(-5); 
+      player.collectCoin(-1); 
       player.slotMachine();
       
     }else{
       gameRef.world.add(FloatingText(
         text: "noCoin".tr(),
         position: player.position.clone() + Vector2(0, -30),
-        color: Pallete.vermelho,
+        paint:Pallete.textoPadrao
       ));
     }
       

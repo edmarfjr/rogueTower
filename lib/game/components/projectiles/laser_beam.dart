@@ -57,7 +57,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     this.target,
     this.damage = 1,
     double length = 400,
-    this.larguraLaser = 20,
+    this.larguraLaser = 8,
     this.chargeTime = 1,
     this.fireTime = 1,
     this.dmgTime = 0.3,
@@ -104,20 +104,21 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       _fire();
       AudioManager.playSfx('laser.mp3');
       
-      // --- A MÁGICA ESTÁ AQUI ---
-      // Forçamos o timer a já começar cheio. 
-      // Assim, no exato frame em que o laser aparece, ele causa dano!
-      dmgTmr = dmgTime; 
+      // A MÁGICA INICIAL: Começa em ZERO para o laser bater imediatamente ao nascer!
+      dmgTmr = 0; 
     }
 
     // --- SEGUNDA PARTE DA MÁGICA ---
-    // Só calculamos o tempo de recarga do dano SE o laser já estiver atirando
     if (_hasFired) {
       if(dmgTmr > 0){
         dmgTmr -= dt;
-        //_canDamageThisFrame = false; // Carregando o próximo ciclo de dano...
+        
+        // CORREÇÃO: É o Update que desliga o dano, não a colisão!
+        _canDamageThisFrame = false; 
       } else {
-        _canDamageThisFrame = true; // SINAL VERDE! Queima tudo!
+        // SINAL VERDE! Deixa aceso por 1 frame para queimar todos na reta!
+        _canDamageThisFrame = true; 
+        
         dmgTmr = dmgTime; // Reseta a contagem para esperar mais 0.3s
       }
     }
@@ -283,12 +284,17 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       // 2. Núcleo Branco
       final paintCore = Paint()
         ..color = Pallete.branco
-        ..style = PaintingStyle.stroke
+        ..style = PaintingStyle.fill
         ..strokeWidth = larguraLaser / 5
         ..isAntiAlias = false;
 
-      canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintGlow);
-      canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintCore);
+      double x = 4;
+      if(owner!=null) x = owner!.size.x/2;
+
+      canvas.drawLine(Offset(x, 0), Offset(currentLength, 0), paintGlow);
+      canvas.drawLine(Offset(x, 0), Offset(currentLength, 0), paintCore);
+      canvas.drawCircle(Offset(currentLength, 0), larguraLaser/2, paintGlow);
+      canvas.drawCircle(Offset(currentLength, 0), larguraLaser/2, paintCore);
     }
   }
 
@@ -335,6 +341,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     final hitPos = intersectionPoints.firstOrNull ?? position;
     
     if(_canDamageThisFrame){
+      
       if (isEnemyProjectile) {
         if (other is Player) {
           createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
@@ -344,50 +351,45 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       else {
         if (other is Enemy) {
           createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-          other.takeDamage(damage,critico:critico);
-          if (chainCount < maxChains) {
+          other.takeDamage(damage, critico: critico);
+          
+          if (chainCount < maxChains && chains) {
             final nextEnemy = _findNextTarget(other);
-            print('raio');
             if (nextEnemy != null) {
-              // Calcula o ângulo para o próximo inimigo
               final direction = nextEnemy.absoluteCenter - other.absoluteCenter;
               final angleToNext = atan2(direction.y, direction.x);
-              print('vai pula raio');
-              // Cria o próximo elo da corrente
+              
               gameRef.world.add(LaserBeam(
                 position: other.absoluteCenter.clone(),
                 angleRad: angleToNext,
-                damage: damage * 0.8, // O dano pode diminuir a cada pulo (opcional)
+                damage: damage * 0.8,
                 chains: true,
-                chainCount: chainCount + 1, // Incrementa o contador
+                chainCount: chainCount + 1,
                 maxChains: maxChains,
-                fireTime: 0.15, // Faíscas de corrente são bem rápidas
+                fireTime: 0.15,
                 chargeTime: 0,
                 cor: Pallete.azulCla,
-                larguraLaser: larguraLaser * 0.9, // Vai ficando mais fino
-                owner: null, // Importante ser null para não teletransportar pro player
-                refratado:true,
+                larguraLaser: larguraLaser * 0.9,
+                owner: null,
+                refratado: true,
               ));
             }
           }
-        
-        // Desativa o dano neste frame para este laser específico não "chainar" infinitamente no mesmo inimigo
-        _canDamageThisFrame = false;
+          // REMOVIDO O _canDamageThisFrame = false; que ficava aqui!
         }
       } 
       
       if (other is ScreenHitbox) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
       }
+      
       if (other is Wall) {
         other.vida--;
-        if (other.vida <=0) other.removeFromParent();
+        if (other.vida <= 0) other.removeFromParent();
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
-        //removeFromParent(); 
       }
-      dmgTmr = 0;
+      
+      // REMOVIDO O dmgTmr = 0; que ficava aqui no final!
     }
-    
-    
   }
 }

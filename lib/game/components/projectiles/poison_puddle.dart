@@ -53,6 +53,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     if(isFire) {
       icon = 'sprites/projeteis/fogo.png';
       cor = Pallete.laranja;
+      isPoison = false;
     }
     if(isFreeze) {
       cor = Pallete.azulCla;
@@ -95,7 +96,7 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
             generator: (i) => AcceleratedParticle(
               acceleration: Vector2(accX, -150), 
               speed: Vector2((rng.nextDouble() - 0.5) * 60, -20), 
-              position: Vector2((size.x / 2) + posX, size.x / 8),
+              position: Vector2((size.x / 2) + posX, size.y / 4),
               child: ComputedParticle(
                 renderer: (canvas, particle) {
                   final paint = Paint()

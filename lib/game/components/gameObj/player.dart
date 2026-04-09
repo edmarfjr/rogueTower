@@ -2292,7 +2292,7 @@ class Player extends PositionComponent
     gameRef.world.add(FloatingText(
       text: "-1\$",
       position: position.clone() + Vector2(0, -30),
-      color: Pallete.vermelho,
+      paint:Pallete.textoPadrao
     ));
 
     // 4. Efeito Visual de Sangue jorrando da máquina
