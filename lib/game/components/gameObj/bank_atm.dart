@@ -12,13 +12,13 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
   //InteractButton? _currentButton;
 
   BankAtm({required Vector2 position})
-      : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
+      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     // Visual: Um cofre ou caixa eletrônico
     add(GameSprite(
-      imagePath: 'sprites/gameObjs/bank.png', // Ou Icons.savings
+      imagePath: 'sprites/gameObjs/banco.png', // Ou Icons.savings
       color: Pallete.laranja,
       size: size,
       anchor: Anchor.center,
@@ -32,7 +32,7 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
     ));
 
     add(CircleHitbox(
-      radius: 60, // Raio de detecção (maior que o objeto)
+      radius: 32, // Raio de detecção (maior que o objeto)
       anchor: Anchor.center,
       position: size / 2,
       isSolid: false, // Player atravessa (apenas gatilho)

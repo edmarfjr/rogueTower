@@ -15,7 +15,7 @@ import 'collectible.dart';
 
 class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
-  final double _interactRange = 60.0;
+  final double _interactRange = 32.0;
   //InteractButton? _currentButton;
   TextComponent? _nameText;
 
@@ -23,7 +23,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
   double _cooldown = 0;
 
   BloodMachine({required Vector2 position}) 
-    : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
+    : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -37,7 +37,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     // Visual da Máquina de Sangue (Uma bolsa de sangue ou cruz vermelha)
     add(GameSprite(
-      imagePath: 'sprites/gameObjs/blood.png', 
+      imagePath: 'sprites/gameObjs/doacaoSangue.png', 
       color: Pallete.vermelho,
       size: size,
       anchor: Anchor.center,
@@ -85,7 +85,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     _isInfoVisible = true;
-    gameRef.onInteractAction = () {_donate;};
+    gameRef.onInteractAction = _donate;
     
     gameRef.canInteractNotifier.value = true;
   }

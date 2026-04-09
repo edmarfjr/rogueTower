@@ -56,6 +56,7 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
     final paintX = Paint()
       ..color = Pallete.vermelho.withOpacity(0.5)
       ..style = PaintingStyle.stroke
+      ..isAntiAlias = false
       ..strokeWidth = 1;
     
     double xSize = radius * 0.4;
@@ -81,7 +82,8 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
       final paintRing = Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+        ..isAntiAlias = false
+        ..strokeWidth = 1;
       
       canvas.drawCircle(center, currentRingRadius, paintRing);
     }

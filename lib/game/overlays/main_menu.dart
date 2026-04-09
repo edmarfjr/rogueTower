@@ -59,8 +59,8 @@ class MainMenu extends StatelessWidget {
                         _buildMenuButton(
                           context,
                           text: 'continue'.tr(), // Crie essa chave de tradução (ex: 'Continuar')
-                          bgColor: Pallete.branco, // Destaque visual
-                          textColor: Colors.black,
+                          //bgColor: Pallete.branco, // Destaque visual
+                          //textColor: Colors.black,
                           onPressed: () async {
                             AdManager.loadRewardedAd();
                             game.continueGame(); 
@@ -75,8 +75,8 @@ class MainMenu extends StatelessWidget {
                         // Se tem save, vira "Novo Jogo" (para o jogador saber que vai sobrescrever).
                         // Se não tem, fica apenas "Jogar"
                         text: 'play'.tr(), 
-                        bgColor: Pallete.branco,
-                        textColor: Colors.black,
+                        //bgColor: Pallete.branco,
+                        //textColor: Colors.black,
                         onPressed: () async {
                           AdManager.loadRewardedAd();
                           if (hasSave) {
@@ -94,8 +94,8 @@ class MainMenu extends StatelessWidget {
                       _buildMenuButton(
                         context,
                         text: 'settings'.tr(),
-                        bgColor: Pallete.branco,
-                        textColor: Colors.black,
+                        //bgColor: Pallete.branco,
+                        //textColor: Colors.black,
                         onPressed: () => game.overlays.add('SettingsMenu'),
                       ),
 
@@ -105,8 +105,8 @@ class MainMenu extends StatelessWidget {
                       _buildMenuButton(
                         context,
                         text: 'colecao'.tr(),
-                        bgColor: Pallete.branco,
-                        textColor: Colors.black,
+                        //bgColor: Pallete.branco,
+                        //textColor: Colors.black,
                         onPressed: () => game.overlays.add('DiaryScreen'),
                       ),
                       
@@ -128,8 +128,8 @@ class MainMenu extends StatelessWidget {
     BuildContext context, {
     required String text,
     required VoidCallback onPressed,
-    Color bgColor = Colors.white,
-    Color textColor = Colors.black,
+    Color bgColor = Pallete.preto,
+    Color textColor = Pallete.branco,
   }) {
     return SizedBox(
       width: 200,
@@ -137,8 +137,8 @@ class MainMenu extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: bgColor,
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
           ),
           elevation: 5,
         ),

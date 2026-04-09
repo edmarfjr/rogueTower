@@ -42,8 +42,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
               width: 340, // Deixei um pouco mais largo para acomodar os sliders
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Pallete.azulEsc,
-                borderRadius: BorderRadius.circular(20),
+                color: Pallete.preto,
+                borderRadius: BorderRadius.zero,
                 border: Border.all(color: Pallete.branco, width: 2),
               ),
               child: Column(
@@ -123,7 +123,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                     },
                   ),
 
-                  const Divider(color: Colors.white30, height: 30, thickness: 1),
+                  const Divider(color: Pallete.cinzaEsc, height: 30, thickness: 1),
                 /*
                   // --- NOVA SEÇÃO: GRÁFICOS ---
                   Text('graphics'.tr(), style: const TextStyle(fontSize: 20, color: Pallete.amarelo, fontWeight: FontWeight.bold)),
@@ -164,13 +164,13 @@ class _SettingsMenuState extends State<SettingsMenu> {
 
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.vermelho,
+                      backgroundColor: Pallete.preto,
                       minimumSize: const Size(double.infinity, 50),
                     ),
                     onPressed: () {
                       widget.game.overlays.remove('SettingsMenu');
                     },
-                    child: Text('close'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+                    child: Text('close'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.vermelho)),
                   ),
                 ],
               ),
@@ -202,7 +202,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
             value: value,
             min: 0.0,
             max: 1.0,
-            activeColor: isDisabled ? Colors.grey : Pallete.verdeCla,
+            activeColor: isDisabled ? Pallete.cinzaEsc : Pallete.branco,
             inactiveColor: Colors.white24,
             onChanged: isDisabled ? null : onChanged, // Desativa o slider se estiver mudo
           ),
@@ -215,8 +215,11 @@ class _SettingsMenuState extends State<SettingsMenu> {
     bool isSelected = currentLang == langCode;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Pallete.verdeCla : Pallete.cinzaEsc,
+        backgroundColor: Pallete.preto,//isSelected ? Pallete.verdeCla : Pallete.cinzaEsc,
         side: isSelected ? const BorderSide(color: Pallete.branco, width: 2) : BorderSide.none,
+        shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       ),
       onPressed: () {

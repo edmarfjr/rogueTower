@@ -244,7 +244,7 @@ class Player extends PositionComponent
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   //late GameIcon visual;
   late GameSprite visual;
-  late ShadowComponent _shadow;
+  //late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
   Color classColor = Pallete.branco;
@@ -356,7 +356,7 @@ class Player extends PositionComponent
         _dodgeAura!.removeFromParent();
       }
       //if(_shadow != null){
-        _shadow.removeFromParent();
+       // _shadow.removeFromParent();
       //}
      
       currentColor = color;
@@ -415,8 +415,8 @@ class Player extends PositionComponent
     
     add(_dodgeAura!);
 
-    _shadow =  ShadowComponent(parentSize: size); 
-    add(_shadow);
+    //_shadow =  ShadowComponent(parentSize: size); 
+    //add(_shadow);
   }
 
   @override
@@ -2196,9 +2196,9 @@ class Player extends PositionComponent
     );
     add(_hitbox);
 
-    _shadow.removeFromParent();
-    _shadow =  ShadowComponent(parentSize: size); 
-    add(_shadow);
+    //_shadow.removeFromParent();
+    //_shadow =  ShadowComponent(parentSize: size); 
+    //add(_shadow);
 
   }
 

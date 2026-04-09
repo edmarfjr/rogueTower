@@ -453,6 +453,8 @@ class I18n {
       'devilInsideDesc':'aumenta dano e velocidade, seus tiros tem chance de amedrontar inimigos, mas transforma sua vida em vida artificial',
       'rainbowShot':'Cajado arco-íris',
       'rainbowShotDesc':'seus tiros tem chance de terem um efeito aleatório',
+      'activeDupliItem':'Duplicar Itens',
+      'activeDupliItemDesc':'Duplica todos os Itens da tela',
       'guerreiro':'GUERREIRO',
       'guerreiroDesc':'Equilibrado e resistente.',
       'piromante':'PIROMANTE',

@@ -61,7 +61,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     add(_iconComponent!);
 
-    add(ShadowComponent(parentSize: size));
+  //  add(ShadowComponent(parentSize: size));
   }
 
   @override
@@ -124,7 +124,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
     
     _updateIcon('sprites/gameObjs/bauAberto.png', cor);
-    
+
     _isOpen = true;
 
     gameRef.itensComunsPoolCurrent.shuffle();

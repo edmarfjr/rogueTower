@@ -19,7 +19,7 @@ class ShadowComponent extends PositionComponent {
   void render(Canvas canvas) {
     // Cor preta com 30% de opacidade
     final paint = Paint()..color = Pallete.azulEsc.withOpacity(0.9)
-                          ..isAntiAlias = false;
+                         ..isAntiAlias = false;
     canvas.drawOval(size.toRect(), paint);
   }
 }

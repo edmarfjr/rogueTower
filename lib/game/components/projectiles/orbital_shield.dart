@@ -47,7 +47,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     // Visual do escudo
     if(isFoice){
       add(GameSprite(
-        imagePath: 'sprites/projeteis/foice',
+        imagePath: 'sprites/projeteis/foice.png',
         color: cor,
         size: size, 
         anchor: Anchor.center,
@@ -55,16 +55,16 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
       ));
     }else if(isFlail){
       add(GameSprite(
-        imagePath: 'sprites/projeteis/flail',
-        color: Pallete.lilas,
+        imagePath: 'sprites/projeteis/flail.png',
+        color: Pallete.cinzaCla,
         size: size, 
         anchor: Anchor.center,
         position: size / 2,
       ));
     } else {
       add(GameSprite(
-        imagePath: 'sprites/projeteis/escudo',
-        color: Pallete.lilas,
+        imagePath: 'sprites/projeteis/escudo.png',
+        color: Pallete.cinzaCla,
         size: size, 
         anchor: Anchor.center,
         position: size / 2,
@@ -130,7 +130,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
         double linkY = startY - sin(_currentAngle) * (radius * progress);
 
         // Desenha o elo (um círculo de raio 2.0)
-        canvas.drawCircle(Offset(linkX, linkY), 2.0, _chainPaint);
+        canvas.drawCircle(Offset(linkX, linkY), 1, _chainPaint);
       }
     }
   }

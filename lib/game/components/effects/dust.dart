@@ -8,14 +8,15 @@ class Dust extends CircleComponent {
 
   Dust({required Vector2 position})
       : super(
-          radius: Random().nextDouble() * 5 + 3, // Tamanho aleatório entre 3 e 8
+          radius: Random().nextDouble() * 3 + 1, // Tamanho aleatório entre 3 e 8
           position: position,
           anchor: Anchor.center,
           priority: 9, // Desenha embaixo do Player (que geralmente é priority 10+)
         ) {
     // Cor cinza/branca aleatória
     int shade = 200 + Random().nextInt(55);
-    paint = Paint()..color = Color.fromARGB(150, shade, shade, shade);
+    paint = Paint()..color = Color.fromARGB(150, shade, shade, shade)
+                    ..isAntiAlias = false;
   }
 
   @override

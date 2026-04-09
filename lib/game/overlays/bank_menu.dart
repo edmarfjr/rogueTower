@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/overlays/hud.dart';
 import '../tower_game.dart';
 
 class BankMenu extends StatelessWidget {
@@ -15,37 +17,42 @@ class BankMenu extends StatelessWidget {
           width: 360,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF2C3E50), // Um cinza azulado
-            border: Border.all(color: Colors.amber, width: 4),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10)],
+            color: Pallete.preto, // Um cinza azulado
+            border: Border.all(color: Pallete.laranja, width: 2),
+            borderRadius: BorderRadius.zero,
+            //oxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10)],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.account_balance, size: 50, color: Colors.amber),
+              //const Icon(Icons.account_balance, size: 50, color: Pallete.laranja),
+              const PixelSprite(
+                  imagePath: 'sprites/gameObjs/bank.png',
+                  color: Pallete.laranja,
+                  size: 48,
+                ),
               const SizedBox(height: 10),
               const Text(
                 "BANCO",
                 style: TextStyle(
-                    color: Colors.amber,
+                    color: Pallete.laranja,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5),
               ),
-              const Divider(color: Colors.white24, height: 30),
+              const Divider(color: Pallete.cinzaEsc, height: 30),
 
               // --- MOSTRADORES DE SALDO ---
-              _buildBalanceRow("Na Carteira", game.coinsNotifier, Colors.white),
-              _buildBalanceRow("No Cofre", game.progress.bankNotifier, Colors.amberAccent),
+              _buildBalanceRow("Na Carteira", game.coinsNotifier, Pallete.branco),
+              _buildBalanceRow("No Cofre", game.progress.bankNotifier, Pallete.branco),
               
               // NOVO: Mostrador de Dívida (Fica Vermelho para assustar!)
-              _buildBalanceRow("Dívida Ativa", game.dividaNotifier, Colors.redAccent),
+              _buildBalanceRow("Dívida Ativa", game.dividaNotifier, Pallete.branco),
 
-              const Divider(color: Colors.white24, height: 30),
+              const Divider(color: Pallete.cinzaEsc, height: 30),
 
               // --- AÇÕES NORMAIS DO BANCO ---
-              _buildActionSection("DEPOSITAR (Guardar)", Colors.blue, (amount) {
+              _buildActionSection("DEPOSITAR", Pallete.preto, (amount) {
                 if (amount == -1) {
                   game.depositCoins(game.coinsNotifier.value);
                 } else {
@@ -55,7 +62,7 @@ class BankMenu extends StatelessWidget {
 
               const SizedBox(height: 15),
 
-              _buildActionSection("SACAR (Retirar)", Colors.green, (amount) {
+              _buildActionSection("SACAR", Pallete.preto, (amount) {
                 if (amount == -1) {
                   game.withdrawCoins(game.progress.bankBalance); 
                 } else {
@@ -63,7 +70,7 @@ class BankMenu extends StatelessWidget {
                 }
               }),
 
-              const Divider(color: Colors.white24, height: 30),
+              const Divider(color: Pallete.cinzaEsc, height: 30),
 
               // --- AGIOTA / EMPRÉSTIMO ---
               ValueListenableBuilder<int>(
@@ -75,7 +82,7 @@ class BankMenu extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
+                          backgroundColor: Pallete.preto,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onPressed: () {
@@ -83,7 +90,7 @@ class BankMenu extends StatelessWidget {
                           game.coinsNotifier.value += 50;
                           game.dividaNotifier.value += 75;
                         },
-                        child: const Text("PEGAR EMPRÉSTIMO (+50G)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: const Text("PEGAR EMPRÉSTIMO (+50G)", style: TextStyle(color: Pallete.laranja, fontWeight: FontWeight.bold)),
                       ),
                     );
                   } 
@@ -99,7 +106,7 @@ class BankMenu extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: conseguePagar ? Colors.orange : Colors.grey,
+                              backgroundColor: Pallete.preto,//conseguePagar ? Colors.orange : Colors.grey,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             onPressed: conseguePagar 
@@ -128,7 +135,7 @@ class BankMenu extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: Pallete.preto,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   onPressed: () {
@@ -151,13 +158,13 @@ class BankMenu extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 16)),
+          Text(label, style: const TextStyle(color: Pallete.cinzaCla, fontSize: 16)),
           ValueListenableBuilder<int>(
             valueListenable: notifier,
             builder: (ctx, value, _) {
               return Text(
                 "$value G",
-                style: TextStyle(color: valueColor, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(color: valueColor, fontSize: 16, fontWeight: FontWeight.bold),
               );
             },
           ),
@@ -170,7 +177,7 @@ class BankMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(title, style: const TextStyle(color: Pallete.branco, fontSize: 12)),
         const SizedBox(height: 5),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,7 +200,7 @@ class BankMenu extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
       ),
       onPressed: onPressed,
-      child: Text(text, style: const TextStyle(fontSize: 12, color: Colors.white)),
+      child: Text(text, style: const TextStyle(fontSize: 16, color: Colors.white)),
     );
   }
 }

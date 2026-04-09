@@ -36,8 +36,8 @@ class PauseMenu extends StatelessWidget {
           width: 320, 
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Pallete.azulEsc,
-            borderRadius: BorderRadius.circular(20),
+            color: Pallete.preto,
+            //borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Pallete.branco, width: 2),
           ),
           // SingleChildScrollView evita o erro de Pixel Overflow se a tela for pequena!
@@ -59,9 +59,9 @@ class PauseMenu extends StatelessWidget {
                 // -----------------------------------------
                 Container(
                   padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Pallete.preto,
-                    borderRadius: BorderRadius.circular(10),
+                  //  borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
                     children: [
@@ -101,9 +101,17 @@ class PauseMenu extends StatelessWidget {
                 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.lilas,
+                    backgroundColor: Pallete.preto,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    //side: const BorderSide(
+                    //  width: 2.0,
+                    //  color: Pallete.branco,
+                    //),
                   ),
+                
                   onPressed: () {
                     game.resumeGame();
                   },
@@ -114,8 +122,15 @@ class PauseMenu extends StatelessWidget {
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.lilas,
+                    backgroundColor: Pallete.preto,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    //side: const BorderSide(
+                    //  width: 2.0,
+                    //  color: Pallete.branco,
+                    //),
                   ),
                   onPressed: () {
                     game.overlays.add('SettingsMenu');
@@ -127,8 +142,15 @@ class PauseMenu extends StatelessWidget {
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.lilas,
+                    backgroundColor: Pallete.preto,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    //side: const BorderSide(
+                    //  width: 2.0,
+                    //  color: Pallete.branco,
+                    //),
                   ),
                   onPressed: () {
                     game.returnToMenu();
@@ -206,9 +228,9 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
     if (widget.items.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Pallete.preto,
-          borderRadius: BorderRadius.circular(10),
+         // borderRadius: BorderRadius.circular(10),
         ),
         child: const Center(
           child: Text(
@@ -226,7 +248,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Pallete.preto,
-        borderRadius: BorderRadius.circular(10),
+        //borderRadius: BorderRadius.circular(10),
         border: Border.all(color: item.color.withOpacity(0.5), width: 1.5),
       ),
       child: Column(

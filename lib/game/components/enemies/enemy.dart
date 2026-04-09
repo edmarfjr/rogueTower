@@ -105,7 +105,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameSprite? visual;
   //GameIcon? targetIcon;
   bool isTarget = false;
-  late ShadowComponent _shadow;
+  //late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   GameSprite? burnIcon;
   GameSprite? freezeIcon;
@@ -222,7 +222,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     add(visual!);
 
     _hitbox=RectangleHitbox(
-      size: hbSize/2 , 
+      size: hbSize , 
       anchor: Anchor.center,
       position: size / 2 + hbOffset, 
       isSolid: true,
@@ -254,8 +254,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     
-    _shadow=ShadowComponent(parentSize: size);
-    add(_shadow);
+    //_shadow=ShadowComponent(parentSize:size);
+    //add(_shadow);
 
     add(TimerComponent(
       period: 0.2, // A cada 0.2 segundos cospe uma fumaça
@@ -961,8 +961,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   
 
   void splitIntoTwoNormalEnemies({isMenor = false}) {
-    final clone1 = criaCopiaNormal(position.clone() + Vector2(-20, 0),isMenor: isMenor);
-    final clone2 = criaCopiaNormal(position.clone() + Vector2(20, 0),isMenor: isMenor);
+    final clone1 = criaCopiaNormal(position.clone() + Vector2(-10, 0),isMenor: isMenor);
+    final clone2 = criaCopiaNormal(position.clone() + Vector2(10, 0),isMenor: isMenor);
 
     gameRef.world.add(clone1);
     gameRef.world.add(clone2);
@@ -1000,9 +1000,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     add(_hitbox);
 
-    _shadow.removeFromParent();
-    _shadow =  ShadowComponent(parentSize: size); 
-    add(_shadow);
+    //_shadow.removeFromParent();
+    //_shadow =  ShadowComponent(parentSize: size); 
+    //add(_shadow);
   }
 
   void setEncolhido(){

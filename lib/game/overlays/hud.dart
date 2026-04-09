@@ -355,7 +355,7 @@ class Hud extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
                           child: PixelSprite(
-                            imagePath: lost ? 'sprites/hud/hpMeio.png' : 'sprites/hud/hpVazio.png',
+                            imagePath: lost ? 'sprites/hud/hpCheio.png' : 'sprites/hud/hpVazio.png',
                             color: lost ? Pallete.vermelho : Colors.white54,
                             size: 32,
                           ),

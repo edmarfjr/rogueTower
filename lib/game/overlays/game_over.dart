@@ -24,9 +24,6 @@ class GameOver extends StatelessWidget {
                 fontFamily: 'pixelFont', // Se tiver fonte customizada, coloque aqui
                 fontWeight: FontWeight.w900,
                 color: Pallete.vermelho, // Vermelho sangue
-                shadows: [
-                  Shadow(blurRadius: 4, color: Colors.black, offset: Offset(4, 4))
-                ],
               ),
             ),
             
@@ -58,8 +55,15 @@ class GameOver extends StatelessWidget {
             // BOTÃO TENTAR NOVAMENTE
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.lilas,
+                  backgroundColor: Pallete.preto,
                   minimumSize: const Size(200, 50),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    side: const BorderSide(
+                      width: 2.0,
+                      color: Pallete.branco,
+                    ),
                 ),
                 onPressed: () {
                   game.resetGame(game.selectedClass); 
@@ -72,8 +76,15 @@ class GameOver extends StatelessWidget {
             // BOTÃO VOLTAR AO MENU
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.lilas,
+                  backgroundColor: Pallete.preto,
                   minimumSize: const Size(200, 50),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    side: const BorderSide(
+                      width: 2.0,
+                      color: Pallete.branco,
+                    ),
                 ),
                 onPressed: () {                 
                   game.returnToMenu(); 
@@ -83,8 +94,15 @@ class GameOver extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Pallete.lilas,
+                  backgroundColor: Pallete.preto,
                   minimumSize: const Size(200, 50),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, 
+                    ),
+                    //side: const BorderSide(
+                    //  width: 2.0,
+                    //  color: Pallete.branco,
+                    //),
                 ),
                 child: const Text('REVIVER', style: TextStyle(fontSize: 18, color: Pallete.branco)),
                 onPressed: () {

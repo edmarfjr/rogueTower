@@ -129,10 +129,10 @@ class DiaryScreen extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Pallete.preto,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.zero,
               border: Border.all(
                 color: isDiscovered ? Pallete.branco: Pallete.cinzaEsc,
-                width: 2,
+                width: 1,
               ),
             ),
             child: Center(

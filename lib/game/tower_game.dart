@@ -480,6 +480,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     currentRoomNotifier.value = 0;
     currentLevelNotifier.value = 1;
+    dividaNotifier.value = 0;
     salasLimpas.clear();
     backupSalaNormal.clear();
     backupSalaSecreta.clear();

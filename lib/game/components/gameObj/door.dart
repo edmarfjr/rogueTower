@@ -184,7 +184,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         break;
       case CollectibleType.bank: 
         iconData = 'sprites/doorIcons/bank.png'; 
-        cor = Pallete.amarelo;
+        cor = Pallete.laranja;
         nome = 'bank';
         descr = 'bankDesc';
         break;

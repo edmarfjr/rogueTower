@@ -273,7 +273,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
     priority = position.y.toInt();
-    add(ShadowComponent(parentSize: size));
+    //add(ShadowComponent(parentSize: size));
   }
 
   @override

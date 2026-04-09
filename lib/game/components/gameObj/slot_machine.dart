@@ -19,14 +19,14 @@ import 'collectible.dart';
 
 class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
   bool _isInfoVisible = false;
-  final double _interactRange = 60.0;
+  final double _interactRange = 32.0;
   TextComponent? _nameText;
 
   // Evitar que o jogador clique 10x por segundo acidentalmente
   double _cooldown = 0;
 
   SlotMachine({required Vector2 position}) 
-    : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
+    : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -40,7 +40,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     // Visual da Máquina de Sangue (Uma bolsa de sangue ou cruz vermelha)
     add(GameSprite(
-      imagePath: 'sprites/gameObjs/slot.png', 
+      imagePath: 'sprites/gameObjs/slot2.png', 
       color: Pallete.laranja,
       size: size,
       anchor: Anchor.center,

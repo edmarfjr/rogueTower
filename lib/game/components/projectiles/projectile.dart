@@ -514,8 +514,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       gameRef.world.add(LaserBeam(
         position: pontoDeImpacto.clone(),
         angleRad: anguloAleatorio,
-        larguraLaser: 10.0, // Um laser mais fino
-        length: 400.0, // Um laser bem curto (alcance da faísca)
+        larguraLaser: 5.0, // Um laser mais fino
+        length: 100.0, // Um laser bem curto (alcance da faísca)
         chargeTime: 0.0, // Aparece instantaneamente
         fireTime: 0.3, // Desaparece quase na mesma hora (pisca rápido)
         damage: danoOriginal / 2, // A faísca dá metade do dano do tiro original
@@ -571,7 +571,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void explode(){
-    _doSplit(false,damage,speed,size,dieTimer,canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,false,6,goldShot,isWave,isSaw,cor);
+    _doSplit(false,damage,300,size,3.0,canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,false,6,goldShot,isWave,isSaw,cor);
     removeFromParent();
   }
 
