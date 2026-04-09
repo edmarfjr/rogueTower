@@ -172,7 +172,7 @@ class CharacterRoster {
       accessoryOffsetX: 30.0, 
       accessoryOffsetY: 10.0,
       acessoryAngle: pi/2,
-      color:  Pallete.verdeCla,
+      color:  Pallete.lilas,
       maxHp: 2, 
       maxDash: 3,
       speed: 110.0, 

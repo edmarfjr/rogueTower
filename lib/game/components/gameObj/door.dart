@@ -111,37 +111,155 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
 
   void _addRewardIcon() {
     String iconData;
+    Color cor = Pallete.branco;
+    String nome = '';
+    String descr = '';
     
     switch (rewardType) {
-      case CollectibleType.potion: iconData = 'sprites/doorIcons/hpCheio.png'; break;
-      case CollectibleType.coin: iconData = 'sprites/doorIcons/coin.png'; break;
-      case CollectibleType.key: iconData = 'sprites/doorIcons/key.png'; break;
-      case CollectibleType.bomba: iconData = 'sprites/doorIcons/bomb.png'; break;
-      case CollectibleType.chest: iconData = 'sprites/doorIcons/bau.png'; break;
-      case CollectibleType.rareChest: iconData = 'sprites/doorIcons/bauTrancado.png'; break;
-      case CollectibleType.shop: iconData = 'sprites/doorIcons/loja.png'; break;
-      case CollectibleType.shield: iconData = 'sprites/doorIcons/escudo.png'; break;
-      case CollectibleType.boss: iconData = 'sprites/doorIcons/boss.png'; break;
-      case CollectibleType.healthContainer: iconData = 'sprites/doorIcons/hpVazio.png'; break;
-      case CollectibleType.nextLevel: iconData = 'sprites/doorIcons/nextLevel.png'; break;
-      case CollectibleType.bank: iconData = 'sprites/doorIcons/bank.png'; break;
-      case CollectibleType.alquimista: iconData = 'sprites/doorIcons/alquimista.png'; break;
-      case CollectibleType.desafio: iconData = 'sprites/doorIcons/desafio.png'; break;
-      case CollectibleType.darkShop: iconData = 'sprites/doorIcons/lojaEvil.png'; break;
-      case CollectibleType.doacaoSangue: iconData = 'sprites/doorIcons/blood.png'; break;
-      case CollectibleType.slotMachine: iconData = 'sprites/doorIcons/slot.png'; break;
+      case CollectibleType.potion: 
+        iconData = 'sprites/doorIcons/hpCheio.png'; 
+        cor = Pallete.vermelho;
+        nome = 'cura';
+        descr = 'curaDesc';
+        break;
+      case CollectibleType.coin: 
+        iconData = 'sprites/doorIcons/coin.png'; 
+        cor = Pallete.amarelo;
+        nome = 'moeda';
+        descr = 'moedaDesc';
+        break;
+      case CollectibleType.key: 
+        iconData = 'sprites/doorIcons/key.png'; 
+        cor = Pallete.amarelo;
+        nome = 'chave';
+        descr = 'chaveDesc';
+        break;
+      case CollectibleType.bomba: 
+        iconData = 'sprites/doorIcons/bomb.png';
+        cor = Pallete.lilas;
+        nome = 'bomba';
+        descr = 'bombaDesc';
+        break;
+      case CollectibleType.chest: 
+        iconData = 'sprites/doorIcons/bau.png'; 
+        cor = Pallete.marrom;
+        nome = 'bau';
+        descr = 'bauDesc';
+        break;
+      case CollectibleType.rareChest: 
+        iconData = 'sprites/doorIcons/bauTrancado.png'; 
+        cor = Pallete.laranja;
+        nome = 'bauRaro';
+        descr = 'bauRaroDesc';
+        break;
+      case CollectibleType.shop: 
+        iconData = 'sprites/doorIcons/loja.png'; 
+        cor = Pallete.marrom;
+        nome = 'shop';
+        descr = 'shopDesc';
+        break;
+      case CollectibleType.shield: 
+        iconData = 'sprites/doorIcons/escudo.png'; 
+        cor = Pallete.cinzaCla;
+        nome = 'escudo';
+        descr = 'escudoDesc';
+        break;
+      case CollectibleType.boss: 
+        iconData = 'sprites/doorIcons/boss.png'; 
+        cor = Pallete.vermelho;
+        nome = 'boss';
+        descr = 'bossDesc';
+        break;
+      case CollectibleType.healthContainer: 
+        iconData = 'sprites/doorIcons/hpVazio.png'; 
+        cor = Pallete.vermelho;
+        nome = 'conteinerVida';
+        descr = 'conteinerVidaDesc';
+        break;
+      case CollectibleType.nextLevel: 
+        iconData = 'sprites/doorIcons/nextLevel.png'; 
+        cor = Pallete.branco;
+        nome = 'proxLevel';
+        descr = 'proxLevelDesc';
+        break;
+      case CollectibleType.bank: 
+        iconData = 'sprites/doorIcons/bank.png'; 
+        cor = Pallete.amarelo;
+        nome = 'bank';
+        descr = 'bankDesc';
+        break;
+      case CollectibleType.alquimista: 
+        iconData = 'sprites/doorIcons/alquimista.png'; 
+        cor = Pallete.azulCla;
+        nome = 'alquimista';
+        descr = 'alquimistaDesc';
+        break;
+      case CollectibleType.desafio: 
+        iconData = 'sprites/doorIcons/desafio.png'; 
+        cor = Pallete.vermelho;
+        nome = 'desafio';
+        descr = 'desafioDesc';
+        break;
+      case CollectibleType.darkShop: 
+        iconData = 'sprites/doorIcons/lojaEvil.png'; 
+        cor = Pallete.vermelho;
+        nome = 'darkShop';
+        descr = 'darkShopDesc';
+        break;
+      case CollectibleType.doacaoSangue: 
+        iconData = 'sprites/doorIcons/blood.png'; 
+        cor = Pallete.vermelho;
+        nome = 'doaSangue';
+        descr = 'doaSangueDesc';
+        break;
+      case CollectibleType.slotMachine: 
+        iconData = 'sprites/doorIcons/slot.png'; 
+        cor = Pallete.laranja;
+        nome = 'slot';
+        descr = 'slotDesc';
+        break;
       default: iconData = 'sprites/doorIcons/hpCheio';
     }
     
     rewardIcon = GameSprite(
       imagePath: iconData,
-      color: Pallete.branco,
+      color: cor,
       size: Vector2(16, 16),
       position: Vector2(size.x / 2, -12), 
       anchor: Anchor.center,
     );
     add(rewardIcon!);
+
+    final textDesc = TextBoxComponent(
+      text: descr.tr().toLowerCase(),
+      textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
+      anchor: Anchor.bottomCenter,
+      align: Anchor.center,
+      position: Vector2(size.x / 2, -16),
+      scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
+      
+      boxConfig: const TextBoxConfig(
+        maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
+        timePerChar: 0.0, 
+      ),
+    );
+
+    double espacoEntreTextos = 1.0;
+    double posicaoYDoTitulo = (textDesc.position.y - textDesc.size.y - espacoEntreTextos)/4;
+
+    // 2. Nome do Item
+    final textName = TextComponent(
+      text: nome.tr().toUpperCase(),
+      textRenderer: Pallete.textoDanoCritico,
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, posicaoYDoTitulo - 8),
+    );
+
+    add(textName);
+    add(textDesc);
   }
+
+  
 
   void destranca(){
     trancada = false;

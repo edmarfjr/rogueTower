@@ -138,8 +138,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiacAries));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.zodiacGemini));
+      gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiacAries));
+      gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.zodiacTaurus));
       //gameRef.world.add(Collectible(position: Vector2(0,-80), type: CollectibleType.activeWoodenCoin));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
@@ -622,7 +622,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
 
     gameRef.world.add(Door(
-      position: Vector2(-2*16 - margin, posY - margin), 
+      position: Vector2(-3*16 - margin, posY - margin), 
       rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
@@ -630,7 +630,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ));
 
     gameRef.world.add(Door(
-      position: Vector2(3*16 + margin, posY - margin),
+      position: Vector2(4*16 + margin, posY - margin),
       rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
@@ -875,10 +875,10 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       gameRef.world.add(Chest(position: Vector2(0, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.doacaoSangue) {
       _explosaoCriaItem();
-      gameRef.world.add(BloodMachine(position: Vector2(64, 0)));
+      gameRef.world.add(BloodMachine(position: Vector2(48, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.slotMachine) {
       _explosaoCriaItem();
-      gameRef.world.add(SlotMachine(position: Vector2(64, 0)));
+      gameRef.world.add(SlotMachine(position: Vector2(0, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));

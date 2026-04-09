@@ -56,7 +56,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
           'sprites/tileset/flor.png', 
           'sprites/tileset/pinheiro.png', 
         ];
-      } else if (gameRef.currentLevel == 4){
+      } else if (gameRef.currentLevel == 5){
         possibleIcons = [
           'sprites/tileset/bloqueio.png', 
           'sprites/tileset/anemona.png', 

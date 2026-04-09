@@ -333,10 +333,6 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       anchor: Anchor.bottomCenter,
       align: Anchor.center,
       position: Vector2(0, 10),
-      
-      // ==========================================
-      // A MÁGICA CONTRA O BORRÃO DAS LINHAS:
-      // ==========================================
       scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
       
       boxConfig: const TextBoxConfig(
@@ -345,7 +341,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ),
     );
 
-    double espacoEntreTextos = 2.0;
+    double espacoEntreTextos = 1.0;
     double posicaoYDoTitulo = (textDesc.position.y - textDesc.size.y - espacoEntreTextos)/4;
 
     // 2. Nome do Item
@@ -353,7 +349,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       text: name.toUpperCase(),
       textRenderer: Pallete.textoDanoCritico,
       anchor: Anchor.bottomCenter,
-      position: Vector2(0, posicaoYDoTitulo),
+      position: Vector2(0, posicaoYDoTitulo + 8),
     );
 
     // 3. Botão de Pegar
@@ -650,7 +646,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.pocaVeneno:
          return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': 'pocaVeneno', 'color': Pallete.verdeEsc};
       case CollectibleType.rastroFogo:
-         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'fogoRastro', 'color': Pallete.vermelho};
+         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'fogoRastro', 'color': Pallete.laranja};
       case CollectibleType.tornado:
          return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': 'sonicBoom', 'color': Pallete.branco};
       case CollectibleType.tripleShot:
@@ -912,7 +908,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeBloodBag:
         return {'name': 'activeBloodBag'.tr(), 'desc': 'activeBloodBagDesc'.tr(), 'icon': 'bloodBag', 'color': Pallete.vermelho};
       case CollectibleType.bltFireHazard:
-        return {'name': 'bltFireHazard'.tr(), 'desc': 'bltFireHazardDesc'.tr(), 'icon': 'bltRastroFogo', 'color': Pallete.vermelho};
+        return {'name': 'bltFireHazard'.tr(), 'desc': 'bltFireHazardDesc'.tr(), 'icon': 'bltRastroFogo', 'color': Pallete.laranja};
       case CollectibleType.trofelCampeao:
         return {'name': 'trofelCampeao'.tr(), 'desc': 'trofelCampeaoDesc'.tr(), 'icon': 'cinturao', 'color': Pallete.vermelho};
       case CollectibleType.bltBuracoNegro:

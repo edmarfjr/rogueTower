@@ -30,7 +30,7 @@ class PauseMenu extends StatelessWidget {
     final itemsList = game.player.getAcquiredItemsList();
 
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.5),
+      backgroundColor: Pallete.preto.withOpacity(0.5),
       body: Center(
         child: Container(
           width: 320, 
@@ -50,7 +50,6 @@ class PauseMenu extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 30,
                     color: Pallete.branco,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -61,7 +60,7 @@ class PauseMenu extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Pallete.preto,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -84,7 +83,7 @@ class PauseMenu extends StatelessWidget {
                       const SizedBox(height: 8),
                       _buildStatRow(Icons.whatshot, 'moveSpeed'.tr(), '$speed%', Pallete.branco),
                       
-                      const Divider(color: Colors.white30, height: 20, thickness: 1),
+                      const Divider(color: Pallete.cinzaCla, height: 20, thickness: 1),
                       
                       _buildStatRow(Icons.map, 'location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room', Pallete.branco),
                     ],
@@ -165,7 +164,7 @@ class PauseMenu extends StatelessWidget {
             Text(label, style: const TextStyle(color: Pallete.branco, fontSize: 16)),
           ],
         ),
-        Text(value, style: const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(value, style: const TextStyle(color: Pallete.branco, fontSize: 16)),
       ],
     );
   }
@@ -208,13 +207,13 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
+          color: Pallete.preto,
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Center(
           child: Text(
             "Nenhum item especial adquirido.",
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(color: Pallete.cinzaCla, fontSize: 14),
             textAlign: TextAlign.center,
           ),
         ),
@@ -226,7 +225,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Pallete.preto,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: item.color.withOpacity(0.5), width: 1.5),
       ),
@@ -235,7 +234,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
         children: [
           const Text(
             "Inventário",
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           
@@ -243,9 +242,9 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 20),
                 onPressed: currentIndex > 0 ? _prevItem : null,
-                disabledColor: Colors.white24,
+                disabledColor: Pallete.cinzaCla,
               ),
               
               // Ícone do Item
@@ -257,9 +256,9 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
                 ),
 
               IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                icon: const Icon(Icons.arrow_forward_ios, color: Pallete.branco, size: 20),
                 onPressed: currentIndex < widget.items.length - 1 ? _nextItem : null,
-                disabledColor: Colors.white24,
+                disabledColor: Pallete.cinzaCla,
               ),
             ],
           ),
@@ -274,7 +273,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
           
           Text(
             item.description,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
+            style: const TextStyle(color: Pallete.cinzaCla, fontSize: 12),
             textAlign: TextAlign.center,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -283,7 +282,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
           const SizedBox(height: 8),
           Text(
             "${currentIndex + 1} / ${widget.items.length}",
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: const TextStyle(color: Pallete.cinzaCla, fontSize: 12),
           ),
         ],
       ),

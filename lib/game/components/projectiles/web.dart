@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/gameObj/player.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
 //import '../core/game_icon.dart';
@@ -58,7 +59,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!isMounted) return;
     super.onCollisionStart(intersectionPoints, other);
-    if (other == gameRef.player && !_affectingPlayer) {
+    if (other is Player && !other.voo && !_affectingPlayer ) {
       _applySlow();
     }
   }
@@ -67,7 +68,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   void onCollisionEnd(PositionComponent other) {
     if (!isMounted) return;
     super.onCollisionEnd(other);
-    if (other == gameRef.player && _affectingPlayer) {
+    if (other is Player && _affectingPlayer) {
       _removeSlow();
     }
   }

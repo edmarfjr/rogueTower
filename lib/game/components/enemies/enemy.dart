@@ -894,8 +894,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           dropList.shuffle();
           final item = Collectible(position: position.clone(), type:itemEq?itemEquilibrio: dropList[0]);
           gameRef.world.add(item);
-          double direcaoX = (Random().nextBool() ? 1 : -1) * 30.0;
-          double altura = Random().nextDouble() * 100 + 150 * -1;
+          double direcaoX = (Random().nextBool() ? 1 : -1) * 16.0;
+          double altura = Random().nextDouble() * 32 + 64 * -1;
           item.pop(Vector2(direcaoX, altura/2), altura:altura);
         }
       }

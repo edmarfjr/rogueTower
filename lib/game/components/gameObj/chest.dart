@@ -116,8 +116,15 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       ));
       return;
     }
+
+    Color cor = Pallete.marrom;
+
+    if(isLock){
+       cor = Pallete.laranja;
+    }
     
-    _updateIcon('sprites/gameObjs/bauAberto.png', Pallete.cinzaEsc);
+    _updateIcon('sprites/gameObjs/bauAberto.png', cor);
+    
     _isOpen = true;
 
     gameRef.itensComunsPoolCurrent.shuffle();

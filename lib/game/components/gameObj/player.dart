@@ -68,7 +68,7 @@ class Player extends PositionComponent
   double moveSpeed = 75.0;
   double moveSpeedIni = 75.0;
   double moveSpeedTaurus = 75.0;
-  final double acceleration = 250.0; 
+  final double acceleration = 125.0; 
   final double friction = 750.0;
   bool velMax = false;
   TextComponent? velMaxText;
@@ -280,6 +280,8 @@ class Player extends PositionComponent
 
   String classImage = '';
 
+  double _colorTimer = 0;
+
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
@@ -450,6 +452,36 @@ class Player extends PositionComponent
   void update(double dt) {
     super.update(dt);
 
+    if (visual != null && isUnicorn) {
+        _colorTimer += dt;
+        
+        if (_colorTimer >= 0.3) {
+          
+          _colorTimer = 0;
+
+          List<Color> cores=[
+            Pallete.vermelho,
+            Pallete.azulCla,
+            Pallete.verdeCla,
+            Pallete.rosa,
+            Pallete.lilas,
+            Pallete.amarelo,
+            Pallete.laranja,
+            Pallete.cinzaCla,
+            Pallete.branco,
+            Pallete.marrom,
+            Pallete.bege,
+            Pallete.vinho,
+            Pallete.verdeEsc,
+          ];
+          
+          final rng = Random();
+          Color cor = cores[rng.nextInt(cores.length)];
+
+          visual!.changeColor(cor);
+        }
+      }
+
     if(itemUsadoTmr>0){
       itemUsadoTmr -= dt;
     }else{
@@ -614,7 +646,7 @@ class Player extends PositionComponent
     }
   }
 
-  void ativaUnicorn(){
+  void ativaUnicorn({bool taurus = false}){
     if(isUnicorn) return;
     isUnicorn = true;
     animContrario = false;
@@ -622,9 +654,9 @@ class Player extends PositionComponent
     visual.removeFromParent();
 
     visual = GameSprite(
-      imagePath: 'sprites/chars/unicorn.png',
+      imagePath:taurus? 'sprites/chars/minotauro.png' : 'sprites/chars/unicorn.png',
       color: Pallete.laranja,
-      size: size, 
+      size: size + Vector2(4,4), 
       anchor: Anchor.center,
       position: size / 2,
     );
@@ -1082,9 +1114,23 @@ class Player extends PositionComponent
       if(isConcentration) fireRate = fireRateIni * 0.5;
     }
 
-    double speedForTrigger = hasTaurus ? taurusLimit : baseLimit;
+    double speedForTrigger = baseLimit;
+    double speedForTriggerTaurus = taurusLimit;
     
     position.addScaled(velocity, dt);
+
+    if(velocity.length >= speedForTriggerTaurus - dt && zodiacTaurus || tempZodiacTaurus){
+      if(!zodiacTaurusTransf){
+        zodiacTaurusTransf = true;
+        gameRef.world.add(FloatingText(
+          text: "TAURUS",
+          position: position.clone(), 
+          color: Pallete.branco,
+          fontSize: 12,
+        ));
+        ativaUnicorn(taurus: true);
+      }
+    }
 
     if (velocity.length >= speedForTrigger - dt) {
       velMax = true;
@@ -1101,18 +1147,7 @@ class Player extends PositionComponent
           add(ariesIcon!);
         }
       }
-      if(zodiacTaurus || tempZodiacTaurus){
-          if(!zodiacTaurusTransf){
-            zodiacTaurusTransf = true;
-            gameRef.world.add(FloatingText(
-              text: "TAURUS",
-              position: position.clone(), 
-              color: Pallete.branco,
-              fontSize: 12,
-            ));
-            ativaUnicorn();
-          }
-        }
+      
     } else {
       velMax = false;
       if(zodiacAries){
@@ -1912,6 +1947,18 @@ class Player extends PositionComponent
     visual.changeColor(Pallete.branco);
   }
 
+   @override
+  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+    if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
+      if( isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax){
+        double dmg = (isUnicorn || isPac)? damage*2 : damage;
+        other.takeDamage(dmg);
+        other.setKnockBack(this);
+      }
+    }
+  }
+
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
@@ -1921,15 +1968,11 @@ class Player extends PositionComponent
         other.die();
       }
     }
-    if (other is Enemy && !other.isIntangivel  && !other.isCharmed) {
-      if( isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax){
-        double dmg = (isUnicorn || isPac)? damage*2 : damage;
-        other.takeDamage(dmg);
-      }else{
-        int danoIni = 1;
-        if(other.isBoss || other.championType>0) danoIni = 2;
-        takeDamage(danoIni);
-      }
+    if (other is Enemy && !other.isIntangivel  && !other.isCharmed &&
+     !(isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax)) {
+      int danoIni = 1;
+      if(other.isBoss || other.championType>0) danoIni = 2;
+      takeDamage(danoIni);
     }
   }
 
@@ -1948,9 +1991,9 @@ class Player extends PositionComponent
 
     // OTIMIZAÇÃO: Usa as tintas cacheadas em vez de instanciar Paint() a 60FPS
     if (_dashCooldownTimer > 0 && dashNotifier.value < maxDash) {
-      const double barHeight = 4.0;
+      const double barHeight = 2.0;
       final double barWidth = size.x; 
-      final double yOffset = size.y + 5; 
+      final double yOffset = size.y + 3; 
 
       double percent = _dashCooldownTimer / dashCooldown;
 
