@@ -123,14 +123,14 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         descr = 'curaDesc';
         break;
       case CollectibleType.coin: 
-        iconData = 'sprites/doorIcons/coin.png'; 
+        iconData = 'sprites/doorIcons/coins.png'; 
         cor = Pallete.amarelo;
         nome = 'moeda';
         descr = 'moedaDesc';
         break;
       case CollectibleType.key: 
         iconData = 'sprites/doorIcons/key.png'; 
-        cor = Pallete.amarelo;
+        cor = Pallete.laranja;
         nome = 'chave';
         descr = 'chaveDesc';
         break;

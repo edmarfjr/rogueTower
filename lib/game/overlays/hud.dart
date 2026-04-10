@@ -127,7 +127,7 @@ class Hud extends StatelessWidget {
                     builder: (context, coins, child) {
                       return Row(
                         children: [
-                          const PixelSprite(imagePath: 'sprites/hud/coin.png', color: Pallete.amarelo, size: 32),
+                          const PixelSprite(imagePath: 'sprites/hud/coins.png', color: Pallete.amarelo, size: 32),
                           const SizedBox(width: 4),
                           Text(
                             ": $coins",

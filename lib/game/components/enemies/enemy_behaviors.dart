@@ -94,17 +94,21 @@ abstract class MovementBehavior {
   late Enemy enemy;
   void update(double dt);
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
+
+  MovementBehavior clone();
 }
 
 abstract class AttackBehavior {
   late Enemy enemy;
   void update(double dt);
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
+  AttackBehavior clone();
 }
 
 abstract class DeathBehavior {
   late Enemy enemy;
   void onDeath();
+  DeathBehavior clone();
 }
 
 // --- MOVIMENTOS (MOVEMENT BEHAVIORS) ---
@@ -112,6 +116,10 @@ abstract class DeathBehavior {
 class IdleBehavior extends MovementBehavior {
   @override
   void update(double dt) {}
+
+  IdleBehavior clone() {
+    return IdleBehavior(); 
+  }
 }
 
 class FollowPlayerBehavior extends MovementBehavior {
@@ -119,6 +127,11 @@ class FollowPlayerBehavior extends MovementBehavior {
   final double speedMod;
 
   FollowPlayerBehavior({this.speedMod = 1});
+
+  FollowPlayerBehavior clone() {
+    return FollowPlayerBehavior(); 
+  }
+
   @override
   void update(double dt) {
     if (!enemy.canMove) return;
@@ -143,6 +156,10 @@ class FollowPlayerBehavior extends MovementBehavior {
 class GoToCenterBehavior extends MovementBehavior {
   final Vector2 _direction = Vector2.zero();
   final Vector2 _target = Vector2.zero();
+
+  GoToCenterBehavior clone() {
+    return GoToCenterBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -171,6 +188,10 @@ class KeepDistanceBehavior extends MovementBehavior {
   final Vector2 _direction = Vector2.zero();
 
   KeepDistanceBehavior({this.minDistance = 150, this.maxDistance = 250});
+
+  KeepDistanceBehavior clone() {
+    return KeepDistanceBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -203,6 +224,10 @@ class RandomWanderBehavior extends MovementBehavior {
   final Vector2 _direction = Vector2.zero();
   final Vector2 _tempCalc = Vector2.zero(); 
   final Random _rng = Random(); 
+
+  RandomWanderBehavior clone() {
+    return RandomWanderBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -275,6 +300,11 @@ class UnderGroundWanderBehavior extends MovementBehavior {
   int _stage = 0;
 
   UnderGroundWanderBehavior({this.cimaDur = 2});
+
+  UnderGroundWanderBehavior clone() {
+    return UnderGroundWanderBehavior(); 
+  }
+
   @override
   void update(double dt) {
     if(_stage == 0){//em cima
@@ -365,6 +395,10 @@ class BouncerBehavior extends MovementBehavior {
 
   BouncerBehavior({this.speedMod = 1});
 
+  BouncerBehavior clone() {
+    return BouncerBehavior(); 
+  }
+
   @override
   void update(double dt) {
     if (_direction == Vector2.zero()) {
@@ -440,6 +474,11 @@ class BouncerBehavior extends MovementBehavior {
 class NoAttackBehavior extends AttackBehavior {
   @override
   void update(double dt) {}
+
+  NoAttackBehavior clone() {
+    return NoAttackBehavior(); 
+  }
+
 }
 
 class ProjectileAttackBehavior extends AttackBehavior {
@@ -455,6 +494,8 @@ class ProjectileAttackBehavior extends AttackBehavior {
   final bool isStraight;
   final bool isHoming;
   final bool isBoomerang;
+  final bool isWave;
+  final double dieTimer;
 
   final bool isBurst;
   final int burstCount;       
@@ -474,12 +515,18 @@ class ProjectileAttackBehavior extends AttackBehavior {
     this.isBurst = false,
     this.isHoming = false,
     this.isBoomerang = false,
+    this.isWave = false,
+    this.dieTimer = 4.0,
     this.burstCount = 3,
     this.burstDelay = 0.2,
     this.orbitalRadius = 50.0,
     Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
+  }
+
+  ProjectileAttackBehavior clone() {
+    return ProjectileAttackBehavior(); 
   }
 
   @override
@@ -566,9 +613,10 @@ class ProjectileAttackBehavior extends AttackBehavior {
       orbitalRadius: orbitalRadius,
       isHoming: isHoming,
       isBoomerang: isBoomerang,
-      dieTimer: isBoomerang ? 1.0 : 4.0,
+      dieTimer: isBoomerang ? 1.0 : dieTimer,
       isEnemyProjectile: !enemy.isCharmed,
       isSpectral: !enemy.isSpectral,
+      isWave: isWave,
     ));
   }
 }
@@ -589,6 +637,10 @@ class MortarAttackBehavior extends AttackBehavior {
     this.numMortars = 10,
     this.explosionRadius = 32.0
   });
+
+  MortarAttackBehavior clone() {
+    return MortarAttackBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -656,6 +708,10 @@ class LaserAttackBehavior extends AttackBehavior {
   final bool isShotgun;
   
   LaserAttackBehavior({this.interval = 3.0, this.isMoving = false, this.isShotgun = false});
+
+  LaserAttackBehavior clone() {
+    return LaserAttackBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -728,6 +784,10 @@ class SpinnerAttackBehavior extends AttackBehavior {
   Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
+  }
+
+  SpinnerAttackBehavior clone() {
+    return SpinnerAttackBehavior(); 
   }
 
   @override
@@ -805,6 +865,10 @@ class DashAttackBehavior extends AttackBehavior {
   double _timer = 0;
   Vector2 _dashDir = Vector2.zero();
   bool _hitProcessed = false; 
+
+  DashAttackBehavior clone() {
+    return DashAttackBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -901,10 +965,14 @@ class ChargeAttackBehavior extends AttackBehavior {
   Vector2 _chargeDir = Vector2.zero();
 
   ChargeAttackBehavior({
-    this.detectRange = 200,
-    this.chargeSpeed = 350,
+    this.detectRange = 100,
+    this.chargeSpeed = 250,
     this.prepTime = 0.5,
   });
+
+  ChargeAttackBehavior clone() {
+    return ChargeAttackBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -984,7 +1052,7 @@ class ChargeAttackBehavior extends AttackBehavior {
   void _stopCharge() {
     _state = 3; 
     _timer = 0;
-    enemy.children.whereType<GameSprite>().firstOrNull?.changeColor(Pallete.cinzaEsc);
+    //enemy.children.whereType<GameSprite>().firstOrNull?.changeColor(Pallete.cinzaEsc);
   }
 }
 
@@ -1023,6 +1091,10 @@ class JumpAttackBehavior extends AttackBehavior {
     this.isExplosionOnLand = true, 
     this.is4ShotOnLand = false, 
   });
+
+  JumpAttackBehavior clone() {
+    return JumpAttackBehavior(); 
+  }
 
   @override
   void update(double dt) {
@@ -1179,6 +1251,10 @@ class SummonAttackBehavior extends AttackBehavior {
     this.maxMinions = 3
   });
 
+  SummonAttackBehavior clone() {
+    return SummonAttackBehavior(minionBuilder: minionBuilder); 
+  }
+
   @override
   void update(double dt) {
     _minions.removeWhere((e) => !e.isMounted || e.hp <= 0);
@@ -1230,6 +1306,10 @@ class DropHazardBehavior extends AttackBehavior {
     this.interval = 3.0,
   });
 
+  DropHazardBehavior clone() {
+    return DropHazardBehavior(hazardBuilder: hazardBuilder); 
+  }
+
   @override
   void update(double dt) {
     _timer += dt;
@@ -1256,6 +1336,10 @@ class DropHazardBehavior extends AttackBehavior {
 
 // 1. Padrão: Apenas morre (dá almas e somem)
 class NoDeathEffect extends DeathBehavior {
+
+  NoDeathEffect clone() {
+    return NoDeathEffect(); 
+  }
   @override
   void onDeath() {
     // Nada acontece (além da lógica padrão do Enemy)
@@ -1268,6 +1352,10 @@ class ExplosionDeathBehavior extends DeathBehavior {
   final double radius;
 
   ExplosionDeathBehavior({this.damage = 10, this.radius = 32});
+
+  ExplosionDeathBehavior clone() {
+    return ExplosionDeathBehavior(); 
+  }
 
   @override
   void onDeath() {
@@ -1291,6 +1379,10 @@ class ProjectileBurstDeathBehavior extends DeathBehavior {
   final int projectileCount;
   
   ProjectileBurstDeathBehavior({this.projectileCount = 8});
+
+  ProjectileBurstDeathBehavior clone() {
+    return ProjectileBurstDeathBehavior(); 
+  }
 
   @override
   void onDeath() {
@@ -1319,6 +1411,10 @@ class SpawnOnDeathBehavior extends DeathBehavior {
   final EnemyBuilder minionBuilder;
 
   SpawnOnDeathBehavior({required this.minionBuilder, this.count = 2});
+
+  SpawnOnDeathBehavior clone() {
+    return SpawnOnDeathBehavior(minionBuilder: minionBuilder); 
+  }
 
   @override
   void onDeath() {

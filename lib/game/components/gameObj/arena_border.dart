@@ -68,12 +68,18 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
 
   Color _getLevelColor(int level) {
     switch (level) {
-      case 1: return Pallete.marrom;      
-      case 2: return Pallete.cinzaEsc; 
-      case 3: return Pallete.azulEsc; 
-      case 4: return Pallete.verdeEsc; 
-      case 5: return Pallete.azulCla; 
-      default: return Pallete.azulEsc;
+      case 1:
+        return Pallete.marrom;      
+      case 2: 
+        return Pallete.cinzaCla; 
+      case 3: 
+        return Pallete.lilas; 
+      case 4: 
+        return Pallete.verdeEsc; 
+      case 5: 
+        return Pallete.azulCla; 
+      default: 
+        return Pallete.azulEsc;
     }
   }  
 

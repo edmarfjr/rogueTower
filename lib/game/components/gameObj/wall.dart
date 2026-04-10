@@ -89,8 +89,8 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
   Color _getLevelColor(int level) {
     switch (level) {
       case 1: return Pallete.marrom;      
-      case 2: return Pallete.cinzaEsc; 
-      case 3: return Pallete.azulEsc; 
+      case 2: return Pallete.cinzaCla; 
+      case 3: return Pallete.lilas; 
       case 4: return Pallete.verdeEsc; 
       case 5: return Pallete.azulCla; 
       default: return Pallete.azulEsc;
@@ -106,15 +106,15 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
   void die(){
     int rnd = Random().nextInt(100);
-    if(rnd <= 5){
+    if(rnd <= 95){
       final newItem = Collectible(
-            position: Vector2(0, 10), 
+            position: position.clone(), 
             type: CollectibleType.coinUm,
           );
         
       gameRef.world.add(newItem);
       
-      newItem.pop(Vector2(0, 20));
+      newItem.pop(Vector2(0, 0));
     }
     removeFromParent();
   }

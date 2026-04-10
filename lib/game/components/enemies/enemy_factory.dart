@@ -933,4 +933,66 @@ class EnemyFactory {
     );
   }
 
+  // inimigos orcs
+
+  static Enemy createOrcShaman(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 40,
+      hbSize: Vector2(12,14),
+      image: "sprites/inimigos/orcShaman.png",
+      originalColor: Pallete.verdeCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0, isHoming: true, speed: 100, isBurst: true, burstCount: 5),
+    );
+  }
+
+  static Enemy createGoblin(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpFraco * (0.5 + (phase*0.5)),
+      speed: 40,
+      hbSize: Vector2(8,14),
+      image: "sprites/inimigos/goblin.png",
+      originalColor: Pallete.verdeCla,
+      movementBehavior: KeepDistanceBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 2.0),
+    );
+  }
+
+  static Enemy createOrc(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 40,
+      hbSize: Vector2(14,14),
+      image: "sprites/inimigos/orc.png",
+      originalColor: Pallete.verdeCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ChargeAttackBehavior(detectRange: 128),
+    );
+  }
+
+  static Enemy createOrcDefensor(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpTanque * (0.5 + (phase*0.5)),
+      speed: 30,
+      hbSize: Vector2(14,14),
+      image: "sprites/inimigos/orcDefensor.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0,isWave: true,dieTimer: 0.5),
+    );
+  }
+
 }

@@ -832,10 +832,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         double angle =(i * (2 * pi / 8));
         Vector2 direction = Vector2(cos(angle), sin(angle));
         gameRef.world.add(Projectile(
-          position: position + direction * 20,
+          position: position + direction * 8,
           direction: direction,
           damage: 1,
-          speed: 200,
+          speed: 100,
           hbSize: Vector2.all(15),
           dieTimer: 3.0,
           isEnemyProjectile: true,
@@ -931,10 +931,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     return Enemy(
       position : novaPos ,
-      movementBehavior: movementBehavior,
-      attackBehavior:attackBehavior,
-      deathBehavior: deathBehavior,
-      attack2Behavior:attack2Behavior,
+      movementBehavior: movementBehavior.clone(),
+      attackBehavior: attackBehavior.clone(),
+      deathBehavior: deathBehavior.clone(),
+      attack2Behavior: attack2Behavior?.clone(),
       hp : hpMax * hpAux,
       speed : speed,
       soul : soul,

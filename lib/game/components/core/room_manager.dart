@@ -132,9 +132,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createBeeHive(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createOrc(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100)));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 8));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 5));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -689,14 +689,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _generateShopRoom(){
     gameRef.world.add(Collectible(
-        position: Vector2(160, 0),
+        position: Vector2(96, 0),
         type: CollectibleType.potion,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(80, 0),
+        position: Vector2(48, 0),
         type: CollectibleType.shield,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
@@ -710,23 +710,23 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(-80, 0),
+        position: Vector2(-48, 0),
         type: CollectibleType.key,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
       int preco = game.player.hasCupon ? 20 : 30;
-      _generateItemAleatorio(Vector2(-160,0), preco); 
+      _generateItemAleatorio(Vector2(-96,0), preco); 
   }
 
   void _generateAlquimistaRoom(){
       bool isBomba1 = Random().nextBool();
       bool isBomba2 = Random().nextBool();
       bool isBomba3 = Random().nextBool();
-      _generatePocoesAleatorias(Vector2(-80,-50), 2,isBomba1); 
+      _generatePocoesAleatorias(Vector2(-64,-50), 2,isBomba1); 
       _generatePocoesAleatorias(Vector2(0,-50), 2,isBomba2); 
-      _generatePocoesAleatorias(Vector2(80,-50), 2,isBomba3); 
+      _generatePocoesAleatorias(Vector2(64,-50), 2,isBomba3); 
   }
 
   void _generateZeroRoom(){

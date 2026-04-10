@@ -169,7 +169,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
   // Controle de Interface
   bool _isInfoVisible = false;
-  final double _pickupRange = 30.0; // Distância para aparecer o botão
+  final double _pickupRange = 16.0; // Distância para aparecer o botão
   late Component _infoGroup; // Grupo que contém texto e botão
   InteractButton? _currentButton;
   GameSprite? visual;
@@ -214,7 +214,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         text: "\$ $custo",
         textRenderer: Pallete.textoAmarelo,
         anchor: Anchor.topCenter,
-        position: Vector2(size.x / 2, size.y + 5),
+        position: Vector2(size.x / 2 + 4, size.y + 5),
       ));
     }
 
@@ -224,52 +224,52 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         color: Pallete.laranja,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2 -15, size.y + 13),
+        position: Vector2(size.x / 2 -4, size.y + 10),
       ));
       add(TextComponent(
         text: ": $custoKeys",
         textRenderer: Pallete.textoLaranja,
         anchor: Anchor.topCenter,
-        position: Vector2(size.x / 2, size.y + 5),
+        position: Vector2(size.x / 2 + 4, size.y + 5),
       ));
     }
 
     if (custoBombs > 0){
       add(GameSprite(
         imagePath: 'sprites/hud/bomb.png',
-        color: Pallete.cinzaEsc,
+        color: Pallete.lilas,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2 -15, size.y + 13),
+        position: Vector2(size.x / 2 -4, size.y + 10),
       ));
       add(TextComponent(
         text: ": $custoBombs",
-        textRenderer: Pallete.textoCinzaEsc,
+        textRenderer: Pallete.textoLilas,
         anchor: Anchor.topCenter,
-        position: Vector2(size.x / 2, size.y + 5),
+        position: Vector2(size.x / 2 + 4, size.y + 5),
       ));
     }
     if(custoVida){
-      add(GameIcon(
-        icon: MdiIcons.heart,
+      add(GameSprite(
+        imagePath: 'sprites/hud/hpVazio.png',
         color: Pallete.vermelho,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2 + size.x/2 + 2, size.y + 13),
+        position: Vector2(size.x / 2 + size.x/2 + 2, size.y + 10),
       ));
-      add(GameIcon(
-        icon: MdiIcons.heart,
+      add(GameSprite(
+        imagePath: 'sprites/hud/hpVazio.png',
         color: Pallete.vermelho,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2, size.y + 13),
+        position: Vector2(size.x / 2, size.y + 10),
       ));
-      add(GameIcon(
-        icon: MdiIcons.heart,
+      add(GameSprite(
+        imagePath: 'sprites/hud/hpVazio.png',
         color: Pallete.vermelho,
         size: size/2,
         anchor: Anchor.center,
-        position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 13),
+        position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 10),
       ));
     }
     priority = position.y.toInt();
@@ -306,7 +306,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void pop(Vector2 offsetDestino, {double altura = -200.0}) {
+  void pop(Vector2 offsetDestino, {double altura = -50.0}) {
     _groundY = position.y + offsetDestino.y;
     
     // Joga a moeda para cima (y negativo) e para o lado (x)
@@ -534,7 +534,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   static Map<String, dynamic> getAttributes(CollectibleType t) {
     switch (t) {
       case CollectibleType.coin:
-        return {'name': 'gold'.tr(), 'desc': 'goldDesc'.tr(), 'icon': 'coin', 'color': Pallete.amarelo};
+        return {'name': 'gold'.tr(), 'desc': 'goldDesc'.tr(), 'icon': 'coins', 'color': Pallete.amarelo};
       case CollectibleType.coinUm:
         return {'name': 'goldUm'.tr(), 'desc': 'goldUmDesc'.tr(), 'icon': 'coin', 'color': Pallete.amarelo};
       case CollectibleType.souls:
