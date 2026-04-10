@@ -976,7 +976,37 @@ class EnemyFactory {
       image: "sprites/inimigos/orc.png",
       originalColor: Pallete.verdeCla,
       movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: ChargeAttackBehavior(detectRange: 128),
+      attackBehavior: ProjectileAttackBehavior(interval: 3.0,isWave: true,dieTimer: 1),
+    );
+  }
+
+  static Enemy createOrcBerserk(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 60,
+      hbSize: Vector2(14,14),
+      image: "sprites/inimigos/orcBerserk.png",
+      originalColor: Pallete.vermelho,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: NoAttackBehavior(),
+    );
+  }
+
+  static Enemy createWarg(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 50,
+      hbSize: Vector2(12,14),
+      image: "sprites/inimigos/orc.png",
+      originalColor: Pallete.marrom,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ChargeAttackBehavior(detectRange: 80),
     );
   }
 

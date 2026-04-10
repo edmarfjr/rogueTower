@@ -132,7 +132,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createOrc(Vector2(0, -150)));
+      gameRef.world.add(EnemyFactory.createOrcBerserk(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100)));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 5));
 
