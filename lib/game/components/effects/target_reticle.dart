@@ -47,14 +47,16 @@ class TargetReticle extends PositionComponent with HasGameRef<TowerGame> {
     
     // 1. FUNDO (Usamos 'center' em vez de Offset.zero)
     final paintArea = Paint()
-      ..color = Pallete.vermelho.withOpacity(0.2)
-      ..style = PaintingStyle.fill;
+      ..color = Pallete.vermelho
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = false
+      ..strokeWidth = 1;
     
     canvas.drawCircle(center, radius, paintArea);
 
     // 2. O "X" (Calculado a partir do 'center')
     final paintX = Paint()
-      ..color = Pallete.vermelho.withOpacity(0.5)
+      ..color = Pallete.vermelho
       ..style = PaintingStyle.stroke
       ..isAntiAlias = false
       ..strokeWidth = 1;

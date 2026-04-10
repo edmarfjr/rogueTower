@@ -54,8 +54,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     priority = 500;
     AudioManager.playSfx('explosion.mp3');
 
-    createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 30, lifespan: _duration*2, velocity: 300);
-    createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 30, lifespan: _duration*2, velocity: 300);
+    createExplosionEffect(gameRef.world, position, Pallete.laranja, count: 30, lifespan: _duration*2, velocity: 250);
+    createExplosionEffect(gameRef.world, position, Pallete.vermelho, count: 30, lifespan: _duration*2, velocity: 250);
 
     // VERIFICA DANO INSTANTÂNEO AO NASCER
     if (damagesPlayer) {
@@ -171,18 +171,21 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     double opacity = 1.0 - progress;
     if (opacity < 0) opacity = 0;
 
-    final paint = Paint()
-      ..color = cor
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = false;
+    //final paint = Paint()
+    //  ..color = cor
+    //  ..style = PaintingStyle.fill
+    //  ..isAntiAlias = false;
       
     final paintBorder = Paint()
       ..color = corBorda
       ..style = PaintingStyle.stroke
-      ..strokeWidth = radius / 4
+      ..strokeWidth = 1
       ..isAntiAlias = false;
+      
 
-    canvas.drawCircle(Offset.zero, currentRadius, paint);
+    //canvas.drawCircle(Offset.zero, currentRadius, paint);
     canvas.drawCircle(Offset.zero, currentRadius, paintBorder);
+    canvas.drawCircle(Offset.zero, currentRadius-2, paintBorder);
+    canvas.drawCircle(Offset.zero, currentRadius-4, paintBorder);
   }
 }

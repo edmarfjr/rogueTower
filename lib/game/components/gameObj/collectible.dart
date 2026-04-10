@@ -778,7 +778,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.adrenalina:
         return {'name': 'adrenalina'.tr(), 'desc': 'adrenalinaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.rosa};
       case CollectibleType.eutanasia:
-        return {'name': 'eutanasia'.tr(), 'desc': 'eutanasiaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.cinzaEsc};
+        return {'name': 'eutanasia'.tr(), 'desc': 'eutanasiaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.lilas};
       case CollectibleType.goldHeart:
         return {'name': 'goldHeart'.tr(), 'desc': 'goldHeartDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.laranja};
       case CollectibleType.familiarPrisma:
@@ -786,7 +786,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.familiarRefletor:
         return {'name': 'familiarRefletor'.tr(), 'desc': 'familiarRefletorDesc'.tr(), 'icon': 'espelho2', 'color': Pallete.cinzaCla};
       case CollectibleType.jumpersCable:
-        return {'name': 'jumpersCable'.tr(), 'desc': 'jumpersCableDesc'.tr(), 'icon': 'jumperCable', 'color': Pallete.cinzaEsc};
+        return {'name': 'jumpersCable'.tr(), 'desc': 'jumpersCableDesc'.tr(), 'icon': 'jumperCable', 'color': Pallete.lilas};
       case CollectibleType.activeCircularShots:
         return {'name': 'activeCircularShots'.tr(), 'desc': 'activeCircularShotsDesc'.tr(), 'icon': 'fragmento', 'color': Pallete.branco};
       case CollectibleType.keysToBombs:

@@ -21,8 +21,8 @@ import 'components/core/game_progress.dart';
 import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
-  static const double gameWidth = 16*16;  // Largura total (Esquerda <-> Direita)
-  static const double gameHeight = 16*28.0; // Altura total (Cima <-> Baixo)
+  static const double gameWidth = 16*16; 
+  static const double gameHeight = 16*28.0; 
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
@@ -33,14 +33,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool useCRTEffect = false;
   
-  // --- SISTEMA DE JOYSTICK MANUAL ---
-  // Em vez de usar JoystickComponent, usamos 2 círculos simples
   late CircleComponent joystickBase;
   late CircleComponent joystickKnob;
   
   final double _maxRadius = 40.0; 
   
-  // Variável pública para o Player ler
   Vector2 joystickDelta = Vector2.zero();
 
   final ValueNotifier<int> currentRoomNotifier = ValueNotifier<int>(0);
@@ -92,13 +89,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool primeiroInimigoPocaVeneno = false;
 
-  // Guarda o ID (ou índice) da sala normal atual antes de entrar na secreta
   int salaAnteriorId = 0; 
 
-  // Posição que o jogador estava para não nascer colado na porta quando voltar
   Vector2 posicaoRetorno = Vector2.zero();
 
-  // --- SISTEMA DE EMPRÉSTIMO ---
   final ValueNotifier<int> dividaNotifier = ValueNotifier<int>(0);
   bool isCurrentRoomBank = false;
 
@@ -108,7 +102,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   final ValueNotifier<bool> canInteractNotifier = ValueNotifier(false);
   
-  // Guarda o que o botão vai fazer quando for clicado
   VoidCallback? onInteractAction;
 
   @override

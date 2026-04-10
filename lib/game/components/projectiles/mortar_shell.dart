@@ -23,8 +23,7 @@ class MortarShell extends PositionComponent with HasGameRef<TowerGame> {
   final bool goldShot;
   
   double _timeElapsed = 0;
-  final double _maxHeight = 150.0;
-  // Referência para o visual para podermos girá-lo
+  final double _maxHeight = 75.0;
   late GameSprite _visualChild; 
 
   MortarShell({

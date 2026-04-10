@@ -333,7 +333,7 @@ class CharacterRoster {
       accessoryOffsetY: 3.0,
       accessorySize: 24.0,
       color: Pallete.lilas, 
-      maxHp: 6,
+      maxHp: 4,
       maxDash: 2,
       speed: 75.0,
       damage: 10.0,
