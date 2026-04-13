@@ -90,11 +90,11 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _hideItemInfo() {
-    if (_nameText != null) {
+    if (_nameText != null && _nameText!.parent != null) {
       remove(_nameText!);
       _nameText = null;
     }
-    if (_descText != null) {
+    if (_descText != null && _descText!.parent != null) {
       remove(_descText!);
       _descText = null;
     }

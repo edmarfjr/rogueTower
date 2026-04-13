@@ -132,14 +132,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      gameRef.world.add(EnemyFactory.createOrcBerserk(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createOrcBerserk(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100)));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 5));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 9));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiacAries));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.laser));
+      gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.souls));
       //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.activeSuperLaser));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));

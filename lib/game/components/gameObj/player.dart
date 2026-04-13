@@ -941,7 +941,7 @@ class Player extends PositionComponent
           size: size,
           color: charClass.color, 
           anchor: Anchor.center,
-          position: size / 2 + Vector2(8,0)
+          position: size / 2 + Vector2(7,0)
         );
         arma!.add(armaVisual!);
       }

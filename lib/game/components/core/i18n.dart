@@ -114,7 +114,7 @@ class I18n {
       'bau':'bau de madeira',
       'bauDesc':'contém um bau destrancado que concede um item simples',
       'bauRaro':'bau dourado',
-      'bauRaroDesc':'contém um bau trancadi que concede um item raro',
+      'bauRaroDesc':'contém um bau trancado que concede um item raro',
       'shop':'loja',
       'shopDesc':'compre itens na loja',
       'escudo':'escudo',

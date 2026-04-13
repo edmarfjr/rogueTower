@@ -150,10 +150,10 @@ class CharacterRoster {
         CollectibleType.dotBook
       ],
       itemsExcluidos: [
-        CollectibleType.damage,
-        CollectibleType.audacious,
-        CollectibleType.steroids,
-        CollectibleType.activeConvBruta,
+        //CollectibleType.damage,
+        //CollectibleType.audacious,
+        //CollectibleType.steroids,
+        //CollectibleType.activeConvBruta,
         CollectibleType.activeRitualDagger,
         CollectibleType.goldDmg,
         CollectibleType.mine,

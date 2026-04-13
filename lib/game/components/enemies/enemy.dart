@@ -424,9 +424,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       }
 
       if (championType == 9) {
-      const double pullRadius = 600.0; // O tamanho do campo gravitacional
-      const double playerPullForce = 50.0; // Quão forte puxa o player (pixels por segundo)
-      const double projGravity = 4.0; // Quão rápido curva os tiros do player
+      const double pullRadius = 300.0; // O tamanho do campo gravitacional
+      const double playerPullForce = 25.0; // Quão forte puxa o player (pixels por segundo)
+      const double projGravity = 2.0; // Quão rápido curva os tiros do player
 
       // 1. ATRAIR O PLAYER
       final player = gameRef.player;
@@ -1256,7 +1256,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         burnTimer = 0.0;
         burnStacks.value -= 1;
 
-        double dmg = 5 ;
+        double dmg = gameRef.player.damage/2 ;
         double dot = gameRef.player.dot;
         if (gameRef.player.goldDmg){
           dot += gameRef.coinsNotifier.value * 0.01;
@@ -1289,7 +1289,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (poisonTimer >= poisonTime){
         poisonStacks.value -= 1;
         
-        double dmg = 3 ;
+        double dmg = gameRef.player.damage/3 ;
         double dot = gameRef.player.dot;
         if (gameRef.player.goldDmg){
           dot += gameRef.coinsNotifier.value * 0.01;
@@ -1322,7 +1322,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (bleedTimer >= bleedTime){
         bleedStacks.value -= 1;
         
-        double dmg = 2 ;
+        double dmg = gameRef.player.damage/5 ;
         double dot = gameRef.player.dot;
         if (gameRef.player.goldDmg){
           dot += gameRef.coinsNotifier.value * 0.01;

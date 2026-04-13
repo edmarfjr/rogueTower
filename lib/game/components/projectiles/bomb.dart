@@ -146,8 +146,7 @@ class Bomb extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
       
       removeFromParent();
     }
-    if (isMine && _timer <= duration/4) {
-      // Movimento Lento
+    if (isMine && _timer >= duration/1.25) {
       position.addScaled(direction, 100 * dt);
     }
   }

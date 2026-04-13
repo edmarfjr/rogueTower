@@ -400,9 +400,9 @@ class Hud extends StatelessWidget {
           color: Pallete.cinzaEsc.withOpacity(0.8),
           border: Border.all(
             color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
-            width: 2
+            width: 1
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.zero,
           boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
         ),
         child: isEmpty 
@@ -528,7 +528,7 @@ class PixelSprite extends StatelessWidget {
     super.key,
     required this.imagePath,
     required this.color,
-    this.size = 30,
+    this.size = 32,
   });
 
   @override
