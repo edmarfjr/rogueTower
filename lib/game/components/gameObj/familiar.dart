@@ -126,7 +126,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     required Vector2 position ,
     required this.type,
     required this.player,
-    this.followDistance = 50,
+    this.followDistance = 16,
     this.speed = 50.0,
     this.offX = 0,
     this.offY = 0,
@@ -203,11 +203,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         cor = Pallete.branco.withOpacity(0.7);
         followDistance = 0;
       case FamiliarType.finger:
-        icon = 'sprites/familiares/soul.png';
+        icon = 'sprites/familiares/dedo.png';
         cor = Pallete.bege.withOpacity(0.7);
         dmg = player.damage/10;
         fireRate = 0.6;
         hbSize = Vector2(8,16); 
+        angleOffset = pi/2;
       case FamiliarType.bouncer:
         speed = 75;
         icon = 'sprites/familiares/tornado.png';
@@ -279,11 +280,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         cor = Pallete.azulCla.withOpacity(0.7);
       case FamiliarType.lanca:
         icon = 'sprites/familiares/lanca.png';
-        cor = Pallete.cinzaCla.withOpacity(0.7);
+        cor = Pallete.verdeEsc.withOpacity(0.7);
         dmg = player.damage * 2;
         fireRate = 0.6;
-        ang = pi/4;
-        hbSize = Vector2(20,10); 
+        angleOffset = pi/2;
+        hbSize = Vector2(6,16); 
       //default:
       //  icon = MdiIcons.fire;
       //  cor = Pallete.branco.withOpacity(0.7);
@@ -420,14 +421,16 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       position = player.position.clone();
     }else if(type == FamiliarType.finger){
       velocity = player.velocity;
-      position = player.position.clone() + player.velocityDash.normalized() * 50;
-      angle = atan2(player.velocityDash.y, player.velocityDash.x);
-      criaLaserDirecional(dt, Vector2(cos(angle),sin(angle)),dmg,0,fireRate,50);
+      position = player.position.clone() + player.velocityDash.normalized() * followDistance;
+      angle = atan2(player.velocityDash.y, player.velocityDash.x) + angleOffset;
+      criaLaserDirecional(dt, Vector2(cos(angle),sin(angle)),dmg*gameRef.player.familiarDmg,0,fireRate,16);
 
     }else if(type == FamiliarType.lanca){
-      velocity = player.velocity;
-      position = player.position.clone() + player.lastAttackDirection.normalized() * 50;
-      angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x);
+      //velocity = player.velocity;
+      position = player.position.clone() + player.lastAttackDirection.normalized() * followDistance;
+      double ang = angleOffset;
+     // if(player.position.x<0)ang = angleOffset - pi/2;
+      angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x) + ang;
     }else{
       if (dist > followDistance) {
         //_animateMovement(dt);

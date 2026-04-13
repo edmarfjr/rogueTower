@@ -18,7 +18,12 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   late Sprite tile3;
   late Sprite tileQ3;
 
+  late Sprite tile4;
+  late Sprite tile42;
+  late Sprite tileQ4;
+
   late Sprite currTile;
+  late Sprite currTile2;
   late Sprite currTileQ;
 
   final Paint _borderPaint = Paint()..style = PaintingStyle.stroke
@@ -63,6 +68,9 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tileQ2 = await Sprite.load('sprites/tileset/2paredeQuina.png');
     tile3 = await Sprite.load('sprites/tileset/3parede.png');
     tileQ3 = await Sprite.load('sprites/tileset/3paredeQuina.png');
+    tile4 = await Sprite.load('sprites/tileset/4parede.png');
+    tile42 = await Sprite.load('sprites/tileset/4parede2.png');
+    tileQ4 = await Sprite.load('sprites/tileset/4paredeQuina.png');
 
   }
 
@@ -98,54 +106,36 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       if(currLevel == 1 || currLevel == 5){
         currTile = tile;
         currTileQ = tileQ;
-      }else if(currLevel == 2 || currLevel == 3 || currLevel == 6){
+      }else if(currLevel == 2 || currLevel == 3){
         currTile = tile2;
         currTileQ = tileQ2;
       }else if(currLevel == 4){
         currTile = tile3;
         currTileQ = tileQ3;
+      }else if(currLevel == 6){
+        currTile = tile4;
+        currTileQ = tileQ4;
+        currTile2 = tile42;
       }
+      
     }
   }
 
   @override
   void render(Canvas canvas) {
     //canvas.drawRRect(_rRect, _borderPaint);
-
-    // Canto Superior Esquerdo (Sem rotação)
-    _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
-
-    // Canto Superior Direito (Rotaciona 90 graus = pi / 2)
-    _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0), pi / 2);
-
-    // Canto Inferior Esquerdo (Rotaciona 270 graus = esquerda = pi * 1.5)
-    _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), pi * 1.5);
-
-    // Canto Inferior Direito (Rotaciona 180 graus = cabeça para baixo = pi)
-    _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16), pi);
-
-    /*
-
-    tileQ2.render(
-        canvas,
-        position: Vector2(16*16, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),  
-        overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-      );
-    tileQ3.render(
-      canvas,
-      position: Vector2(0, 28*16), // Posição local (0,0 é o canto superior esquerdo deste componente)
-      size: Vector2(16, 16),  
-      overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-    );
-    tileQ4.render(
-        canvas,
-        position: Vector2(16*16, 28*16), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),  
-        overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-      ); 
-
-    */
+    if(gameRef.currentLevelNotifier.value != 6){
+      _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0), pi / 2);
+      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), pi * 1.5);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16), pi);
+    }else{
+      _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0),0,flipX: -1);
+      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), 0);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16),0,flipX: -1);
+    }
+    
     for(int i=16; i<16*16; i+=16){
      /*canvas.drawLine(
         Offset(i.toDouble(), 0),
@@ -171,22 +161,38 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
        Offset(16*16,i.toDouble()),
         _borderPaint,
       ); */
-      currTile.render(
-        canvas,
-        position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),  
-        overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-      );
-      currTile.render(
-        canvas,
-        position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),      
-        overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
-      );
+      if(gameRef.currentLevelNotifier.value == 6){
+        currTile2.render(
+          canvas,
+          position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+          size: Vector2(16, 16),  
+          overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
+        );
+        currTile2.render(
+          canvas,
+          position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+          size: Vector2(16, 16),      
+          overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
+        );
+      }else{
+        currTile.render(
+          canvas,
+          position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+          size: Vector2(16, 16),  
+          overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
+        );
+        currTile.render(
+          canvas,
+          position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+          size: Vector2(16, 16),      
+          overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
+        );
+      }
+      
     }
   }
 
-  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo) {
+  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {flipX = 1, flipY = 1}) {
     canvas.save(); // 1. Isola este desenho do resto do mundo
     
     // 2. Movemos o eixo do canvas exatamente para o CENTRO de onde o tile deve ficar.
@@ -195,6 +201,9 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     
     // 3. Rotaciona o canvas
     canvas.rotate(angulo);
+    canvas.scale(flipX, flipY); // Se quiser espelhar, use -1 no eixo desejado (ex: sx:-1 para espelhar horizontalmente)
+    
+     // Escolhe o tile certo baseado no nível atual
 
     // 4. Desenha o tile
     currTileQ.render(

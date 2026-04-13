@@ -112,7 +112,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
   void die(){
     int rnd = Random().nextInt(100);
-    if(rnd <= 95){
+    if(rnd <= 5){
       final newItem = Collectible(
             position: position.clone(), 
             type: CollectibleType.coinUm,

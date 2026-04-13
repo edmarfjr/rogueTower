@@ -306,7 +306,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void pop(Vector2 offsetDestino, {double altura = -50.0}) {
+  void pop(Vector2 offsetDestino, {double altura = -150.0}) {
     _groundY = position.y + offsetDestino.y;
     
     // Joga a moeda para cima (y negativo) e para o lado (x)

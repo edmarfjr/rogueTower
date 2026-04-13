@@ -16,14 +16,14 @@ class BuracoNegro extends PositionComponent with HasGameRef<TowerGame> {
   double damage;
 
   final double pullRadius; // O alcance da gravidade
-  final double basePullForce = 60.0; // A força do puxão
+  final double basePullForce = 30.0; // A força do puxão
 
   BuracoNegro({
         required Vector2 position,
         Vector2? size,
         this.damage = 5,
         this.duration = 6,
-        this.pullRadius = 400.0,
+        this.pullRadius = 200.0,
       })
       : super(position: position, size: size ?? Vector2.all(24), anchor: Anchor.center);
 
@@ -113,7 +113,8 @@ class BuracoNegro extends PositionComponent with HasGameRef<TowerGame> {
     final paintRing = Paint()
       ..color = Colors.white.withOpacity(ringOpacity)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..isAntiAlias = false
+      ..strokeWidth = 1;
 
     final centerOffset = Offset(size.x / 2, size.y / 2);
 

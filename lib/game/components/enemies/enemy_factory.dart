@@ -944,7 +944,7 @@ class EnemyFactory {
       speed: 40,
       hbSize: Vector2(12,14),
       image: "sprites/inimigos/orcShaman.png",
-      originalColor: Pallete.verdeCla,
+      originalColor: Pallete.verdeEsc,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 3.0, isHoming: true, speed: 100, isBurst: true, burstCount: 5),
     );

@@ -141,7 +141,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     
     if(isFoice || isFlail){ 
       if (other is Enemy && !isEnemy && !other.isInvencivel && !other.isIntangivel) {
-        other.takeDamage(gameRef.player.damage);
+        other.takeDamage(gameRef.player.damage*gameRef.player.familiarDmg);
       }else if (other is Player && isEnemy) {
         other.takeDamage(1);
       }
