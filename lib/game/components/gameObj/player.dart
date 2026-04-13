@@ -1356,7 +1356,7 @@ class Player extends PositionComponent
       for (int i = 0; i < 10; i++) {
         double angle = i*(2*pi/10); 
         Vector2 newDir = Vector2(cos(angle), sin(angle));
-        criaTiro(damage*1.5,newDir,attackRange); 
+        criaTiro(damage*1.5,newDir,2,retribuicao: true); 
       }
     }
 
@@ -1684,10 +1684,9 @@ class Player extends PositionComponent
         direction: _tempDirection.clone()));
       return;
     }
-    criaTiro(dmg,_tempDirection.clone(),aRange);
+    criaTiro(dmg,_tempDirection.clone(),aRange,speed: bltSpeed,img:bltImage);
   }
-
-  void criaTiro(dmg,dir,aRange){
+  void criaTiro(dmg,dir,aRange,{speed = 300,img = 'sprites/projeteis/blt.png',retribuicao = false}){
     final rnd = Random();
     bool isAdaga = false;
     bool isFireHazard = false;
@@ -1760,10 +1759,10 @@ class Player extends PositionComponent
       owner: this,
       position: position.clone(), 
       direction: dir, 
-      damage: noDamage? 0 : dmg, 
-      speed: isOrbitalShot ? 4.0 : isHeavyShot ? bltSpeed/2 : isWave ? bltSpeed * 0.75 : isSaw ? bltSpeed/10 : bltSpeed,
+      damage: retribuicao? dmg : noDamage? 0 : dmg, 
+      speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
-      image:isAdaga? 'sprites/projeteis/faca.png' : bltImage ,
+      image:isAdaga? 'sprites/projeteis/faca.png' : img ,
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,

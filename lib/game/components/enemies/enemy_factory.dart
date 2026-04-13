@@ -290,7 +290,7 @@ class EnemyFactory {
         GoToCenterBehavior(),                  
       ],
       phase2Attacks: [
-        ProjectileAttackBehavior(interval: 1.0, size: Vector2.all(15), isBurst: true, burstCount: 15, burstDelay: 0.05),
+        ProjectileAttackBehavior(interval: 1.0, size: Vector2.all(15), isBurst: true, isStraight: false, burstCount: 15, burstDelay: 0.025),
         SpinnerAttackBehavior(interval: 1, size: Vector2.all(15), isSpiral: true, projectilesPerWave: 24),
         MortarAttackBehavior(interval:1, isBarragem: true, isPoison: true),
         SummonAttackBehavior(
@@ -1003,7 +1003,7 @@ class EnemyFactory {
       hp: hpMedio * (0.5 + (phase*0.5)),
       speed: 50,
       hbSize: Vector2(12,14),
-      image: "sprites/inimigos/orc.png",
+      image: "sprites/inimigos/warg.png",
       originalColor: Pallete.marrom,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ChargeAttackBehavior(detectRange: 80),
@@ -1022,6 +1022,44 @@ class EnemyFactory {
       originalColor: Pallete.lilas,
       movementBehavior: FollowPlayerBehavior(),
       attackBehavior: ProjectileAttackBehavior(interval: 3.0,isWave: true,dieTimer: 0.5),
+    );
+  }
+
+  static EnemyBoss createOrcChief(Vector2 pos, {int phase = 1}) {
+    return EnemyBoss(
+      bossName: "orcChief".tr(),
+      hp: hpBossForte * (0.5 + (phase*0.5)), 
+      position: Vector2(0, -100),
+      speed: 40,
+      soul: 500,
+      image: "sprites/inimigos/orcChief.png",
+      size: Vector2.all(32),
+      hbSize: Vector2(30,30),
+      //hbOffset: Vector2(0, 8), 
+      originalColor: Pallete.verdeEsc,
+      behaviorChangeInterval: 3.0,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        phase1Movements: [
+        FollowPlayerBehavior(speedMod: 1),         
+      ],
+      phase1Attacks: [
+        ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isShotgun: true, isWave: true), 
+        ChargeAttackBehavior(detectRange: 80)
+      ],
+       
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movements: [
+        FollowPlayerBehavior(speedMod: 1.2), 
+      ],
+      phase2Attacks: [
+        ProjectileAttackBehavior(interval: 2.0, size: Vector2.all(15), isBurst: true, isStraight: false, burstCount: 15, burstDelay: 0.025),
+        JumpAttackBehavior(isExplosionOnLand: true,cooldown: 3, jumpDuration: 1)
+      ]
+        
     );
   }
 

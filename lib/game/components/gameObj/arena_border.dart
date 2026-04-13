@@ -78,6 +78,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
         return Pallete.verdeEsc; 
       case 5: 
         return Pallete.azulCla; 
+      case 6: 
+        return Pallete.marrom; 
       default: 
         return Pallete.azulEsc;
     }
@@ -96,7 +98,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       if(currLevel == 1 || currLevel == 5){
         currTile = tile;
         currTileQ = tileQ;
-      }else if(currLevel == 2 || currLevel == 3){
+      }else if(currLevel == 2 || currLevel == 3 || currLevel == 6){
         currTile = tile2;
         currTileQ = tileQ2;
       }else if(currLevel == 4){

@@ -61,6 +61,11 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
           'sprites/tileset/bloqueio.png', 
           'sprites/tileset/anemona.png', 
         ];
+      } else if (gameRef.currentLevel == 6){
+        possibleIcons = [
+          'sprites/tileset/crate.png', 
+          'sprites/tileset/weaponRack.png', 
+        ];
       }
 
       final String icon = possibleIcons[rng.nextInt(possibleIcons.length)];
@@ -93,6 +98,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       case 3: return Pallete.lilas; 
       case 4: return Pallete.verdeEsc; 
       case 5: return Pallete.azulCla; 
+      case 6: return Pallete.marrom; 
       default: return Pallete.azulEsc;
     }
   } 

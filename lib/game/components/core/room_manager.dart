@@ -91,6 +91,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createDolphin(pos,phase:phase), 
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster6 = [
+    (pos,phase) => EnemyFactory.createOrc(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcShaman(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcDefensor(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcBerserk(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createWarg(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createGoblin(pos,phase:phase), 
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -139,7 +148,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.zodiacAries));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.souls));
+      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.retribuicao));
       //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.activeSuperLaser));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
@@ -359,6 +368,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           selectedFactory = _enemyRoster4[rng.nextInt(_enemyRoster4.length)];
         case 5:
           selectedFactory = _enemyRoster5[rng.nextInt(_enemyRoster5.length)];  
+        case 6:
+          selectedFactory = _enemyRoster6[rng.nextInt(_enemyRoster6.length)];  
         default:
           selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
       }
@@ -401,6 +412,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       case 3: currentRoster = _enemyRoster3; break;
       case 4: currentRoster = _enemyRoster4; break;
       case 5: currentRoster = _enemyRoster5; break;
+      case 6: currentRoster = _enemyRoster6; break;
       default: currentRoster = _enemyRoster1; break;
     }
 
@@ -471,6 +483,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           gameRef.world.add(EnemyFactory.createBeast(spawnPos));
         } else if (gameRef.currentLevel == 5) {
           gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
+        } else if (gameRef.currentLevel == 6) {
+          gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
         }
         AudioManager.playBgm('retro_plat.mp3');
         isSpawnningBoss = false;

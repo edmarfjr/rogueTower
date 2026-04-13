@@ -45,7 +45,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);
   int get currentLevel => currentLevelNotifier.value;
   final int bossRoom = 10;
-  int numLevels = 5;
+  int numLevels = 6;
 
   final ValueNotifier<int> coinsNotifier = ValueNotifier<int>(0);
   int coinsTotal = 0;
@@ -422,6 +422,10 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
         currentRoomNotifier.value = 0;
         currentLevelNotifier.value++;
         salasLimpas.clear();
+        if(currentLevelNotifier.value > numLevels)
+        {
+          winGame();
+        }
       }
 
       salaSecretaGeradaNestaSala = false;

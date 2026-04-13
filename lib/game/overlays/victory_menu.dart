@@ -21,8 +21,8 @@ class VictoryMenu extends StatelessWidget {
           width: 400,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Pallete.cinzaEsc, // Fundo do cartão
-            borderRadius: BorderRadius.circular(20),
+            color: Pallete.preto, // Fundo do cartão
+            borderRadius: BorderRadius.zero,
             border: Border.all(color: Pallete.amarelo, width: 4), // Borda Dourada
             boxShadow: [
               BoxShadow(color: Pallete.amarelo.withOpacity(0.4), blurRadius: 20, spreadRadius: 5)
@@ -32,12 +32,13 @@ class VictoryMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Título
-              const Icon(Icons.emoji_events, color: Pallete.amarelo, size: 80),
+              //const Icon(Icons.emoji_events, color: Pallete.amarelo, size: 80),
+              //PixelSprite(imagePath: spriteName, color: Pallete.amarelo, size: 80),
               const SizedBox(height: 10),
               const Text(
                 "VITÓRIA!",
                 style: TextStyle(
-                  fontFamily: 'Pixel',
+                  fontFamily: 'pixelFont',
                   fontSize: 40,
                   color: Pallete.amarelo,
                   fontWeight: FontWeight.bold,
@@ -69,9 +70,9 @@ class VictoryMenu extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.verdeEsc,
+                    backgroundColor: Pallete.preto,
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    side: const BorderSide(color: Pallete.verdeCla, width: 3),
+                    side: const BorderSide(color: Pallete.preto, width: 3),
                   ),
                   onPressed: () {
                       game.overlays.remove('VictoryMenu');
@@ -90,9 +91,9 @@ class VictoryMenu extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.verdeEsc,
+                    backgroundColor: Pallete.preto,
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    side: const BorderSide(color: Pallete.verdeCla, width: 3),
+                    side: const BorderSide(color: Pallete.preto, width: 3),
                   ),
                   onPressed: () {
                       game.overlays.remove('VictoryMenu');

@@ -157,6 +157,11 @@ class CharacterRoster {
         CollectibleType.activeRitualDagger,
         CollectibleType.goldDmg,
         CollectibleType.mine,
+        CollectibleType.bumerangue,
+        CollectibleType.saw,
+        CollectibleType.wave,
+        CollectibleType.laser,
+        CollectibleType.activeGlassStaff
       ],
       stackBonus: 5,
       dot: 2,

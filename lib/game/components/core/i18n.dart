@@ -484,6 +484,7 @@ class I18n {
       'ghostKnight': 'O Cavaleiro Fantasma',
       'truQueen': 'A Rainha Verdadeira',
       'beast': 'A Besta de Caerbannog',
+      'orcChief': 'Orc Chefe',
       'agiota':'agiota',
       'ai':'UI!'
     },
