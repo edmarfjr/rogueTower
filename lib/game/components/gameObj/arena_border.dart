@@ -21,10 +21,12 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   late Sprite tile4;
   late Sprite tile42;
   late Sprite tileQ4;
+  late Sprite tileQ42;
 
   late Sprite currTile;
   late Sprite currTile2;
   late Sprite currTileQ;
+  late Sprite currTileQ2;
 
   final Paint _borderPaint = Paint()..style = PaintingStyle.stroke
                                     ..strokeWidth = 1.0
@@ -71,6 +73,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tile4 = await Sprite.load('sprites/tileset/4parede.png');
     tile42 = await Sprite.load('sprites/tileset/4parede2.png');
     tileQ4 = await Sprite.load('sprites/tileset/4paredeQuina.png');
+    tileQ42 = await Sprite.load('sprites/tileset/4paredeQuina2.png');
 
   }
 
@@ -116,6 +119,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
         currTile = tile4;
         currTileQ = tileQ4;
         currTile2 = tile42;
+        currTileQ2 = tileQ42;
       }
       
     }
@@ -132,8 +136,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     }else{
       _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
       _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0),0,flipX: -1);
-      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), 0);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16),0,flipX: -1);
+      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), 0,quina2: true);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16),0,flipX: -1,quina2:true);
     }
     
     for(int i=16; i<16*16; i+=16){
@@ -192,33 +196,34 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {flipX = 1, flipY = 1}) {
-    canvas.save(); // 1. Isola este desenho do resto do mundo
-    
-    // 2. Movemos o eixo do canvas exatamente para o CENTRO de onde o tile deve ficar.
-    // (Posição X + 8) e (Posição Y + 8)
+  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {flipX = 1, flipY = 1,quina2 = false}) {
+    canvas.save(); 
     canvas.translate(posicao.x + 8, posicao.y + 8); 
     
-    // 3. Rotaciona o canvas
     canvas.rotate(angulo);
-    canvas.scale(flipX, flipY); // Se quiser espelhar, use -1 no eixo desejado (ex: sx:-1 para espelhar horizontalmente)
-    
-     // Escolhe o tile certo baseado no nível atual
-
-    // 4. Desenha o tile
-    currTileQ.render(
+    canvas.scale(flipX, flipY); 
+    if(quina2){
+      currTileQ2.render(
       canvas,
       position: Vector2(0, 0), 
       size: Vector2(16, 16),
-      
-      // O SEGREDO: Como movemos o canvas para o centro do tile, 
-      // precisamos avisar o Flame que o ponto (0,0) é o centro da imagem!
       anchor: Anchor.center, 
       
       overridePaint: paintDeCor,
     );
+    }else{
+      currTileQ.render(
+      canvas,
+      position: Vector2(0, 0), 
+      size: Vector2(16, 16),
+      anchor: Anchor.center, 
+      
+      overridePaint: paintDeCor,
+    );
+    }
+    
 
-    canvas.restore(); // 5. Desfaz tudo, deixando o canvas limpo para o próximo tile!
+    canvas.restore();
   }
 
 }
