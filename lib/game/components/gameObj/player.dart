@@ -1544,7 +1544,11 @@ class Player extends PositionComponent
           armaAngOffset = -pi/4;
         }
       }
+    }else{
+      lastAttackDirection.setFrom(velocityDash);
+      armaAngOffset = 0;
     }
+    
   }
 
 
