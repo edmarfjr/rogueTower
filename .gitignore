@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+assets/images/sprites/raw
 
 # IntelliJ related
 *.iml

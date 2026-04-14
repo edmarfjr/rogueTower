@@ -261,7 +261,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     if(isAdaga) _updateRotation();
 
-    if(fireHazzard) _createHazard(dt, isFire: true, tmp: 0.025);
+    if(fireHazzard) _createHazard(dt, isFire: true, tmp: 1/speed);
 
     if (owner != null && !owner!.isMounted) {
       if (!isBoomerang) {
@@ -337,7 +337,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     // --- MOVIMENTO ---
     if (isOrbital) {
-      _currentAngle += speed * dt;
+      double velocidade = speed;
+      if(!isEnemyProjectile) velocidade = speed * game.player.masterOrb;
+
+      _currentAngle += velocidade * dt;
       final double centerX = iniPosition.x ;
       final double centerY = iniPosition.y ;
 

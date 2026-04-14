@@ -151,7 +151,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     await world.add(arenaBorder);
 
     camera.setBounds(
-      Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(100, 100)),
+      Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(120, 100)),
       considerViewport: false, 
     );
 

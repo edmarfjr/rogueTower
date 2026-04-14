@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 //import 'package:towerrogue/game/components/effects/ghost_particle.dart';
@@ -105,7 +106,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameSprite? visual;
   //GameIcon? targetIcon;
   bool isTarget = false;
-  //late ShadowComponent _shadow;
+  late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   GameSprite? burnIcon;
   GameSprite? freezeIcon;
@@ -152,6 +153,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   bool isSpectral = false;
 
   double dmg = 1;
+
+  double championDieTmr = 2;
+
+  double _contadorPiscar =0;
+  bool _mostrarBranco = false;
 
   Enemy({
     required Vector2 position,
@@ -254,8 +260,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     
-    //_shadow=ShadowComponent(parentSize:size);
-    //add(_shadow);
+    _shadow=ShadowComponent(parentSize:size);
+    add(_shadow);
 
     add(TimerComponent(
       period: 0.2, // A cada 0.2 segundos cospe uma fumaça
@@ -376,6 +382,37 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(_initTimer > 0){
       _initTimer -= dt;
       return;
+    }
+
+    if (hp <= 0 && (championType == 2 || championType == 4)) {
+      if (championDieTmr > 0){
+        championDieTmr -=dt;
+        //logica de piscar
+        double progresso = 1.0 - (championDieTmr / 2).clamp(0.0, 1.0);
+
+        const double velocidadeInicial = 0.4;
+        const double velocidadeFinal = 0.05;
+        double intervaloAtual = lerpDouble(
+          velocidadeInicial, 
+          velocidadeFinal, 
+          Curves.easeIn.transform(progresso)
+        )!;
+
+        _contadorPiscar += dt;
+        if (_contadorPiscar >= intervaloAtual) {
+          _contadorPiscar = 0;
+          _mostrarBranco = !_mostrarBranco; // Alterna o estado
+        }
+      
+        if (_mostrarBranco) {
+          visual!.changeColor(Pallete.branco);
+        } else {
+          visual!.changeColor(Pallete.vermelho);
+        }
+        return;
+      }else{
+        die();
+      }
     }
 
     super.update(dt);
@@ -719,27 +756,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     hp -= dmg;
-    /*
-    if (!isDot) {
-      if(gameRef.player.isFreeze){
-        if (rnd.nextDouble() <= 0.2){
-          setFreeze();
-        }
-      }
 
-      if(gameRef.player.isBurn){
-        setBurn();
-      }
-
-      if(gameRef.player.isPoison || gameRef.player.tempPoison){
-        setPoison(alastra: gameRef.player.isPoisonAlastra || gameRef.player.tempPoisonAlastra);
-      }
-
-      if(gameRef.player.isBleed){
-        setBleed();
-      }
-    }
-    */
     if (!_isHit) { 
         _isHit = true; 
         _hitTimer = 0.1; 
@@ -786,6 +803,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     
 
     if (hp <= 0) {
+      if (championType == 2 || championType == 4) return;
       die();
     }
   }
@@ -821,7 +839,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(isDummy && !gameRef.killDummy) gameRef.killDummy = true;
 
     if(championType == 2){
-      gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:2, radius:80));
+      gameRef.world.add(Explosion(position: position.clone(), damagesPlayer:true, damage:2, radius:48));
 
       if(rng.nextInt(100)<= 90){
         gameRef.world.add(Bomb(
@@ -1004,9 +1022,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     add(_hitbox);
 
-    //_shadow.removeFromParent();
-    //_shadow =  ShadowComponent(parentSize: size); 
-    //add(_shadow);
+    _shadow.removeFromParent();
+    _shadow =  ShadowComponent(parentSize: size); 
+    add(_shadow);
   }
 
   void setEncolhido(){

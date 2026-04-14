@@ -80,7 +80,10 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     
     if (owner == null) return;
 
-    _currentAngle += speed * dt;
+    double velocidade = speed;
+    if(!isEnemy) velocidade = speed * game.player.masterOrb;
+
+    _currentAngle += velocidade * dt;
     
     double centerX;
     double centerY;

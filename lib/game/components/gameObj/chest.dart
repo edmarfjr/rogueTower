@@ -61,7 +61,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     add(_iconComponent!);
 
-  //  add(ShadowComponent(parentSize: size));
+    add(ShadowComponent(parentSize: size));
   }
 
   @override

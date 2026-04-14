@@ -44,7 +44,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   int get bossRoom => gameRef.bossRoom;
 
-  final double _minTimeBeforeClear = 0.1; // Tempo mínimo para evitar clear instantâneo
+  final double _minTimeBeforeClear = 0.0; // Tempo mínimo para evitar clear instantâneo
 
   final List<EnemyFactoryFunction> _enemyRoster1 = [
     (pos,phase) => EnemyFactory.createRat(pos,phase:phase), 
@@ -142,15 +142,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
       //gameRef.world.add(EnemyFactory.createOrcBerserk(Vector2(0, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100)));
-      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 9));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 1));
+      //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100), champType: 2));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.familiarLanca));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.bltBuracoNegro));
-      //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.activeSacrifFamiliar));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.zodiacGemini));
+      //gameRef.world.add(Collectible(position: Vector2(112, 160), type: CollectibleType.bloquel));
+      //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.voo));
+      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
 
       //teste de armadilhas

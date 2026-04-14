@@ -47,7 +47,7 @@ enum CollectibleType {
   coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextLevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
   doacaoSangue, slotMachine,
   //itens comuns
-  damage, fireRate, moveSpeed, range, sorte, healthContainer, keys, dash, sanduiche, critChance, critDamage, bombas, piercing, dot,
+  damage, fireRate, moveSpeed, range, sorte, critChance, critDamage, dot, healthContainer, keys, dash, sanduiche, bombas, piercing, 
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming,
   activeGift, activeRerollItem, activeBandage, activeMidas, goldDmg, activeUnicornUnico, activeBombardeioUnico, activeTurretUnico,
@@ -56,7 +56,7 @@ enum CollectibleType {
   cardinalShot, activeBloodBag, activeDullRazor, activeBoxSpider, activeD10, defensiveFairys, familiarDmgBns, itemExtraBoss, activeSlot,
   activeFreezeBomb, activeBltDetonator, activeGoldenrazor, activeSacrifFamiliar, activeTurretRotate, activeGlassStaff, activeBuracoNegro,
   activeLoja, activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, adagaArremeco, bloquel, glifoEquilibrio, 
-  bltFireHazard, trofelCampeao, familiarLanca, activeWoodenCoin, 
+  bltFireHazard, trofelCampeao, familiarLanca, activeWoodenCoin, masterOrb, 
   //itens raros
   berserk, audacious, steroids, cafe, freeze, magicShield, alcool, orbitalShield, foice, revive, antimateria, homing,
   concentration, soda, defBurst, kinetic, heavyShot, conqCrown, flail, tornado, tripleShot, activeLicantropia, regenShield,
@@ -273,7 +273,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       ));
     }
     priority = position.y.toInt();
-    //add(ShadowComponent(parentSize: size));
+    add(ShadowComponent(parentSize: size));
   }
 
   @override
@@ -300,9 +300,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     double dist = position.distanceTo(player.position);
 
     if (dist <= _pickupRange) {
-      //if (!_isInfoVisible){
-      _showInfo();
-      //}
+      if (!_isInfoVisible){
+        _showInfo();
+      }
        
     } else {
       if (_isInfoVisible) _hideInfo();
@@ -339,7 +339,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
       
       boxConfig: const TextBoxConfig(
-        maxWidth: 800.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
+        maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
         timePerChar: 0.0, 
       ),
     );
@@ -928,6 +928,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'devilInside'.tr(), 'desc': 'devilInsideDesc'.tr(), 'icon': 'devil', 'color': Pallete.vermelho};
       case CollectibleType.rainbowShot:
         return {'name': 'rainbowShot'.tr(), 'desc': 'rainbowShotDesc'.tr(), 'icon': 'cajado', 'color': Pallete.rosa};
+      case CollectibleType.masterOrb:
+        return {'name': 'masterOrb'.tr(), 'desc': 'masterOrbDesc'.tr(), 'icon': 'masterOrb', 'color': Pallete.lilas};
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }
@@ -1050,6 +1052,7 @@ List<CollectibleType> retornaItensComuns(player){
       CollectibleType.trofelCampeao,
       CollectibleType.familiarLanca,
       CollectibleType.activeWoodenCoin,
+      CollectibleType.masterOrb,
     ];
     
     return _filtrarPool(itens, player);
@@ -2505,7 +2508,7 @@ class CollectibleLogic {
 
         case CollectibleType.voo:
           player.voo = true ;
-          player.criaVisual(reset : true);
+          player.criaVisual(reset : true,image:player.classImage,color: player.classColor);
           text = "voo";
           //color = Pallete.vermelho;
           break;
@@ -3302,6 +3305,12 @@ class CollectibleLogic {
           player.increaseArtificialHp(player.maxHealth);
           player.increaseHp(-player.maxHealth );
           text = "devilInside";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.masterOrb:
+          player.masterOrb = 1.5;
+          text = "masterOrb";
           //color = Pallete.vermelho;
           break; 
 

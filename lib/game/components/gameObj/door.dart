@@ -387,7 +387,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
           
           // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
           gameRef.camera.setBounds(
-            Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(100, 100)),
+            Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(120, 100)),
             considerViewport: false,
           );
           if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop){

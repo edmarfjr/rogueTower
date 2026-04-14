@@ -483,12 +483,12 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
       _entitiesList.removeAll(toRemove);
     }
-    if (type == FamiliarType.dmgBuff) {
-      double distance = absoluteCenter.distanceTo(player.absoluteCenter);
-      if (distance > detectRadius + 10.0) {
-        player.dmgBuff = false;
-      }
-    }
+    //if (type == FamiliarType.dmgBuff) {
+    //  double distance = absoluteCenter.distanceTo(player.absoluteCenter);
+    //  if (distance > detectRadius + 10.0) {
+    //    player.dmgBuff = false;
+    //  }
+    //}
 
   }
 
@@ -499,7 +499,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   }
 
   void orbitar(double dt, Vector2 playerPos){
-    _currentAngle += speed * dt;
+    _currentAngle += speed * player.masterOrb * dt;
 
     double centerX;
     double centerY;
@@ -743,6 +743,16 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
     
+  }
+
+   @override
+  void onCollisionEnd(PositionComponent other) {
+    super.onCollisionEnd(other);
+    if (type == FamiliarType.dmgBuff) {
+      if(other is Player){
+        other.dmgBuff = false;
+      }
+    }
   }
 
   @override

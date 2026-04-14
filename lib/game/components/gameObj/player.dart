@@ -214,6 +214,7 @@ class Player extends PositionComponent
   bool isParalised = false;
   bool isFear = false;
   bool rainbowShot = false;
+  double masterOrb = 1;
 
   int vidasNoJarro = 0;
   int fadasNoJarro = 0;
@@ -244,7 +245,7 @@ class Player extends PositionComponent
   // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
   //late GameIcon visual;
   late GameSprite visual;
-  //late ShadowComponent _shadow;
+  late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
   Color currentColor = Pallete.branco;
   Color classColor = Pallete.branco;
@@ -276,9 +277,12 @@ class Player extends PositionComponent
   PositionComponent? arma;
   GameSprite? armaVisual;
   double armaAngOffset = 0;
+  double armaAng = 0;
   bool armaBalanca = false;
 
   String classImage = '';
+  String armaImage = '';
+  Color armaCor = Pallete.branco;
 
   double _colorTimer = 0;
 
@@ -348,19 +352,19 @@ class Player extends PositionComponent
       if(_dodgeAura != null){
         _dodgeAura!.removeFromParent();
       }
-      //if(_shadow != null){
-       // _shadow.removeFromParent();
-      //}
+      if(_shadow != null){
+        _shadow.removeFromParent();
+      }
      
       currentColor = color;
     }
 
     Vector2 vooOffset = Vector2(0, 0);
     if(voo){
-      vooOffset = Vector2(0, -15);
+      vooOffset = Vector2(0, -8);
       animContrario = true;
     }    
-    
+
     visual = GameSprite(
       imagePath: image,
       size: size + Vector2(4,4),
@@ -369,18 +373,6 @@ class Player extends PositionComponent
       position: size / 2 + vooOffset
     );
     add(visual);
-
-    /* Debug visual do alcance
-    _rangeIndicator=CircleComponent(
-      radius: attackRange,
-      anchor: Anchor.center,
-      position: size / 2,
-      paint: Paint()..style = PaintingStyle.stroke ..color = Pallete.cinzaEsc.withOpacity(0.5) ..strokeWidth = 2,
-    );
-    add(_rangeIndicator);
-    */
-    
-    // Hitbox
     
     _hitbox=RectangleHitbox(
       size: Vector2(12,24)/2,
@@ -408,8 +400,8 @@ class Player extends PositionComponent
     
     add(_dodgeAura!);
 
-    //_shadow =  ShadowComponent(parentSize: size); 
-    //add(_shadow);
+    _shadow =  ShadowComponent(parentSize: size); 
+    add(_shadow);
   }
 
   @override
@@ -927,86 +919,35 @@ class Player extends PositionComponent
           armaVisual = null;
       }
 
-      armaAngOffset = charClass.armaAngOffset;
+      armaAngOffset = 0;
 
       if (charClass.weaponImage != '') {
-        // 0. Se o jogador já tinha uma arma antes, a gente destrói a velha!
+        armaImage = charClass.weaponImage;
+        armaCor = charClass.armaCor;
+        armaAng = charClass.armaAngOffset;
         if (arma != null && arma!.isMounted) {
           arma!.removeFromParent();
         }
 
-        // 1. Cria a Arma (O Pai / Pivô Central)
         arma = PositionComponent(
           size: Vector2(16, 16),
           anchor: Anchor.center,
-          priority: 100, // Garante que nasce acima de tudo
+          priority: 100,
         );
 
-        // 2. Cria o Visual (O Filho Deslocado)
         armaVisual = GameSprite(
-          imagePath: charClass.weaponImage,
+          imagePath: armaImage,
           size: Vector2(16, 16),
-          color: charClass.armaCor, 
+          color: armaCor , 
           anchor: Anchor.center,
-          // O seu deslocamento mágico (8,8 é o centro do pivô + 8 pixels para a direita)
           position: Vector2(16, 8), 
         );
+        armaVisual!.angle = armaAng;
 
-        // 3. Cola o visual no pivô
         arma!.add(armaVisual!);
 
-        // 4. JOGA NO MUNDO! (Como isso acontece depois do carregamento, nunca falha)
         gameRef.world.add(arma!);
       }
-/*
-      if (_currentAccessory != null) {
-      _currentAccessory!.removeFromParent();
-      _currentAccessory = null;
-    }
-
-     /* 
-      currentColor = charClass.color;
-      if (visual != null) {
-        visual.setColor(charClass.color);
-        // Se a sua classe GameIcon permitir, você pode até trocar o ícone dele aqui:
-        // visualIcon.icon = charClass.icon; 
-      }
-      */
-      if (!charClass.semAcessorio)
-      {
-        _currentAccessory = GameIcon(
-          icon: charClass.icon,     
-          color: charClass.color,   
-          size: Vector2(charClass.accessorySize,charClass.accessorySize),
-        );
-
-        _baseAccessoryOffsetX = charClass.accessoryOffsetX;
-        _baseAccessoryOffsetY = charClass.accessoryOffsetY;
-        _baseAccessoryScaleX = charClass.flipAccessoryBase ? -1.0 : 1.0;
-        _acessorySize = charClass.accessorySize;
-
-        _currentAccessory!.position = Vector2(_baseAccessoryOffsetX, charClass.accessoryOffsetY);
-        _currentAccessory!.scale.x = _baseAccessoryScaleX;
-        _currentAccessory!.angle = charClass.acessoryAngle;
-        _currentAccessory!.priority = 1;
-        add(_currentAccessory!);
-      }
-      if(charClass.mudaIcone){
-         visual.removeFromParent();
-/*
-        visual = GameIcon(
-          icon: charClass.icon,
-          color: Pallete.branco,
-          size: size * 1.2, 
-          anchor: Anchor.center,
-          position: size / 2,
-        );
-        currentColor = Pallete.branco;
-        add(visual);
-*/
-        icone = charClass.icon;
-      }
-*/
     }
 
   void activateShield() {
@@ -1030,7 +971,6 @@ class Player extends PositionComponent
 
     double bSpeed = voo ? _bounceSpeed/2 : _bounceSpeed;
 
-    // Variáveis base de animação
     double currentScaleX = 1.0;
     double currentScaleY = 1.0;
     double currentAngle = 0.0;
@@ -1052,28 +992,32 @@ class Player extends PositionComponent
       
     } else {
       _walkTimer = 0;
+      if(voo){
+        if(facingDirection > 0){
+          currentAngle = pi/8;
+        }else{
+          currentAngle = -pi/8;
+        }
+        
+      }
     }
 
-    // 1. Aplica a animação no Corpo Principal (visual)
     visual.scale.setValues(facingDirection * currentScaleX, currentScaleY);
     visual.angle = currentAngle; 
 
-    // 2. Aplica a animação no Acessório (Sincronizado!)
     if (arma != null) {
       if (!arma!.isMounted && isMounted) {
         gameRef.world.add(arma!);
       }
       
       arma!.scale.y = currentScaleY; 
-      
-      // O PIVÔ: Fica cravado EXATAMENTE no peito do jogador!
-      // Toda a magia do deslocamento já foi feita lá no 'applyClass'
-      arma!.position = absoluteCenter; 
+      Vector2 vooOffsetAtual = voo ? Vector2(0, -8) : Vector2(0, 0);
+
+      arma!.position = absoluteCenter + vooOffsetAtual;
 
       bool atacandoParaEsquerda = lastAttackDirection.x < 0;
 
       if (atacandoParaEsquerda) {
-        // Vira a arma para a esquerda (o visual pula pro lado esquerdo sozinho!)
         arma!.scale.x = -currentScaleX.abs(); 
         arma!.angle = atan2(-lastAttackDirection.y, -lastAttackDirection.x) - armaAngOffset;
         if(atan2(lastAttackDirection.y, lastAttackDirection.x)<pi/2){
@@ -1082,7 +1026,6 @@ class Player extends PositionComponent
           arma!.priority = priority + 1;
         }
       } else {
-        // Arma virada para a direita
         arma!.scale.x = currentScaleX.abs(); 
         arma!.angle = atan2(lastAttackDirection.y, lastAttackDirection.x) + armaAngOffset;
         if(atan2(lastAttackDirection.y, lastAttackDirection.x)>pi/2){
@@ -1974,6 +1917,12 @@ class Player extends PositionComponent
     isParalised = false;
     isFear = false;
     rainbowShot = false;
+    masterOrb = 1;
+    armaImage = '';
+    armaAng = 0;
+    armaCor = Pallete.branco;
+    classColor = Pallete.branco;
+    classImage = '';
 
     criaVisual(reset:true);
     visual.changeColor(Pallete.branco);
@@ -2000,11 +1949,27 @@ class Player extends PositionComponent
         other.die();
       }
     }
-    if (other is Enemy && !other.isIntangivel  && !other.isCharmed &&
+    if (other is Enemy && !other.isIntangivel  && !other.isCharmed && other.hp>0 &&
      !(isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax)) {
       int danoIni = 1;
       if(other.isBoss || other.championType>0) danoIni = 2;
       takeDamage(danoIni);
+      if(other.championType == 6){
+        if (gameRef.coinsNotifier.value > 0)
+        {
+          collectCoin(-5);
+          gameRef.world.add(FloatingText(
+          text: "-5\$",
+          position: position.clone(), 
+          color: Pallete.branco,
+          fontSize: 12,
+        ));
+          if (gameRef.coinsNotifier.value < 0){
+            gameRef.coinsNotifier.value = 0;
+          }
+        }
+        
+      }
     }
   }
 

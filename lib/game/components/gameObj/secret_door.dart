@@ -116,7 +116,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
             
             // DEVOLVE A TRAVA ORIGINAL DA CÂMERA
             gameRef.camera.setBounds(
-              Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(100, 100)),
+              Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(120, 100)),
               considerViewport: false,
             );
             gameRef.sairDaSalaSecreta();

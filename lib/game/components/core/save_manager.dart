@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart'; // NECESSÁRIO PARA O ICONDATA E COLOR
+import 'package:towerrogue/game/components/core/pallete.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import '../../tower_game.dart'; 
 
 class SaveManager {
@@ -11,11 +13,12 @@ class SaveManager {
 
     List<Map<String, dynamic>> serializedItems = game.player.getAcquiredItemsList().map((item) {
       return {
+        // CORREÇÃO 1: Salvando o ENUM como String!
+        'type': item.type.name, 
+        
         'name': item.name,
         'description': item.description,
-        'iconCodePoint': item.icon,//.codePoint, 
-        //'iconFontFamily': item.icon.fontFamily, 
-        //'iconFontPackage': item.icon.fontPackage,
+        'iconCodePoint': item.icon, 
         'colorValue': item.color.value,
       };
     }).toList();
@@ -157,15 +160,20 @@ class SaveManager {
       'glifoEquilibrio':game.player.glifoEquilibrio,
       'bltFireHazard':game.player.bltFireHazard,
       'bltBuracoNegro':game.player.bltBuracoNegro,
-      'bltSparks':game.player.bltBuracoNegro,
+      'bltSparks':game.player.bltSparks, // CORREÇÃO 2: Estava salvo como bltBuracoNegro duas vezes
       'isParalised':game.player.isParalised,
       'isFear':game.player.isFear,
       'rainbowShot':game.player.rainbowShot,
+      'masterOrb':game.player.masterOrb,
+      'armaImage':game.player.armaImage,
+      'armaAng':game.player.armaAng,
+      'armaCor':game.player.armaCor.value,
+      'classImage':game.player.classImage,
+      'classColor':game.player.classColor.value,
     };
 
     String jsonString = jsonEncode(runData);
     await prefs.setString(_saveKey, jsonString);
-    print("💾 Run salva com sucesso (Nível ${game.currentLevelNotifier.value}, Sala ${game.currentRoomNotifier.value})!");
   }
 
   static Future<String?> loadRun(TowerGame game) async {
@@ -185,7 +193,7 @@ class SaveManager {
     if (runData['salasLimpas'] != null) {
       game.salasLimpas = (runData['salasLimpas'] as List).map((e) => e as int).toSet();
     } else {
-      game.salasLimpas = {}; // Segurança caso seja um save muito antigo
+      game.salasLimpas = {}; 
     }
 
     game.usouBomba = runData['usouBomba'] ?? false;
@@ -205,25 +213,30 @@ class SaveManager {
     game.player.dashNotifier.value = runData['dash'] ?? 1;
 
     // --- CARREGA INVENTÁRIO DE ARTEFATOS ---
-    // Limpa a lista atual para garantir que não vai duplicar itens ao carregar
     game.player.getAcquiredItemsList().clear();
     
     final List<dynamic>? savedItems = runData['acquiredItems'];
     if (savedItems != null) {
       for (var itemMap in savedItems) {
-        // Remonta o IconData e a Cor a partir dos números salvos
-        //IconData recoveredIcon = IconData(
-        //  itemMap['iconCodePoint'],
-        //  fontFamily: itemMap['iconFontFamily'],
-        //  fontPackage: itemMap['iconFontPackage'],
-        //);
-        String recoveredIcon = itemMap['iconCodePoint'];
-        Color recoveredColor = Color(itemMap['colorValue']);
+        String recoveredIcon = itemMap['iconCodePoint'] ?? '';
+        
+        // CORREÇÃO 3: Proteção contra cores antigas que possam ter sido salvas como null
+        int savedColorValue = itemMap['colorValue'] ?? Colors.white.value;
+        Color recoveredColor = Color(savedColorValue);
+
+        // CORREÇÃO 4: Onde o erro do tipo Null estava acontecendo!
+        // Transformando a string salva de volta para o Enum
+        String tipoSalvoStr = itemMap['type'] as String? ?? 'passiva'; // Mude 'passiva' para o tipo padrão real
+        
+        CollectibleType recoveredType = CollectibleType.values.firstWhere(
+          (e) => e.name == tipoSalvoStr,
+          orElse: () => CollectibleType.values.first, // Pega o primeiro da lista como salvaguarda
+        );
 
         game.player.setAcquiredItemsList(
-          itemMap['type'],
-          itemMap['name'],
-          itemMap['description'],
+          recoveredType, // <- Passando o enum convertido!
+          itemMap['name'] ?? '',
+          itemMap['description'] ?? '',
           recoveredIcon,
           recoveredColor,
         );
@@ -349,8 +362,28 @@ class SaveManager {
     game.player.isParalised = runData['isParalised'] ?? false;
     game.player.isFear = runData['isFear'] ?? false;
     game.player.rainbowShot = runData['rainbowShot'] ?? false;
+    game.player.masterOrb = (runData['masterOrb'] ?? 1.0).toDouble();
+    game.player.classImage = (runData['classImage'] ?? '');
     
-   // print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
+    int? savedColorValueClass = runData['classColor'] as int?;
+    int? savedColorValueArma = runData['armaCor'] as int?;
+    
+    game.player.armaAng = (runData['armaAng'] ?? 0).toDouble();
+    game.player.armaImage = (runData['armaImage'] ?? '');
+
+    if (savedColorValueClass != null) {
+      game.player.classColor = Color(savedColorValueClass); 
+    } else {
+      game.player.classColor = Pallete.branco; 
+    }
+
+    if (savedColorValueArma != null) {
+      game.player.armaCor = Color(savedColorValueArma); 
+    } else {
+      game.player.armaCor = Pallete.branco; 
+    }
+    
+    print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }
 
