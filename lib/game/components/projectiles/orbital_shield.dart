@@ -32,7 +32,7 @@ class OrbitalShield extends PositionComponent with HasGameRef<TowerGame>, Collis
     this.isFoice = false, 
     this.isFlail = false,
     this.owner,
-    this.radius = 45,
+    this.radius = 32,
     this.speed = 3,
     Vector2? size,
     }) : super(size: size ?? Vector2.all(16), anchor: Anchor.center);

@@ -333,16 +333,9 @@ class Player extends PositionComponent
   Future<void> onLoad() async {
     // Cache do visual para acesso instantâneo
     criaVisual();
-
-    arma = PositionComponent(
-      size: size,
-      anchor: Anchor.center,
-      position: size / 2 
-    );
-
-    add(arma!);
     
   }
+
 
   void criaVisual({reset = false,image = 'sprites/chars/char.png',color = Pallete.branco}){
     if (reset){
@@ -934,16 +927,36 @@ class Player extends PositionComponent
           armaVisual = null;
       }
 
-      if (charClass.weaponImage != ''){
-        
+      armaAngOffset = 0;
+
+      if (charClass.weaponImage != '') {
+        // 0. Se o jogador já tinha uma arma antes, a gente destrói a velha!
+        if (arma != null && arma!.isMounted) {
+          arma!.removeFromParent();
+        }
+
+        // 1. Cria a Arma (O Pai / Pivô Central)
+        arma = PositionComponent(
+          size: Vector2(16, 16),
+          anchor: Anchor.center,
+          priority: 100, // Garante que nasce acima de tudo
+        );
+
+        // 2. Cria o Visual (O Filho Deslocado)
         armaVisual = GameSprite(
           imagePath: charClass.weaponImage,
-          size: size,
-          color: charClass.color, 
+          size: Vector2(16, 16),
+          color: charClass.armaCor, 
           anchor: Anchor.center,
-          position: size / 2 + Vector2(7,0)
+          // O seu deslocamento mágico (8,8 é o centro do pivô + 8 pixels para a direita)
+          position: Vector2(16, 8), 
         );
+
+        // 3. Cola o visual no pivô
         arma!.add(armaVisual!);
+
+        // 4. JOGA NO MUNDO! (Como isso acontece depois do carregamento, nunca falha)
+        gameRef.world.add(arma!);
       }
 /*
       if (_currentAccessory != null) {
@@ -1047,20 +1060,38 @@ class Player extends PositionComponent
 
     // 2. Aplica a animação no Acessório (Sincronizado!)
     if (arma != null) {
-      // Sincroniza o "pulo" (escala Y) e a rotação (balanço)
-      arma!.scale.y = currentScaleY;
-      arma!.angle = currentAngle + armaAngOffset;
-
-      // Trata a inversão de lado e o "amasso" (escala X)
-      if (facingDirection < 0) {
-        // Virado para a Esquerda
-        arma!.position.x = -8 + size.x; // O nosso ajuste fino!
-        arma!.scale.x = - currentScaleX;
-      } else {
-        // Virado para a Direita
-        arma!.position.x = 8;
-        arma!.scale.x = currentScaleX;
+      if (!arma!.isMounted && isMounted) {
+        gameRef.world.add(arma!);
       }
+      
+      arma!.scale.y = currentScaleY; 
+      
+      // O PIVÔ: Fica cravado EXATAMENTE no peito do jogador!
+      // Toda a magia do deslocamento já foi feita lá no 'applyClass'
+      arma!.position = absoluteCenter; 
+
+      bool atacandoParaEsquerda = lastAttackDirection.x < 0;
+
+      if (atacandoParaEsquerda) {
+        // Vira a arma para a esquerda (o visual pula pro lado esquerdo sozinho!)
+        arma!.scale.x = -currentScaleX.abs(); 
+        arma!.angle = atan2(-lastAttackDirection.y, -lastAttackDirection.x) - armaAngOffset;
+        if(atan2(lastAttackDirection.y, lastAttackDirection.x)<pi/2){
+          arma!.priority = priority - 1;
+        }else{
+          arma!.priority = priority + 1;
+        }
+      } else {
+        // Arma virada para a direita
+        arma!.scale.x = currentScaleX.abs(); 
+        arma!.angle = atan2(lastAttackDirection.y, lastAttackDirection.x) + armaAngOffset;
+        if(atan2(lastAttackDirection.y, lastAttackDirection.x)>pi/2){
+          arma!.priority = priority - 1;
+        }else{
+          arma!.priority = priority + 1;
+        }
+      }
+      
     }
   }
 
@@ -1562,13 +1593,14 @@ class Player extends PositionComponent
         }
       }
       lastAttackDirection.setFrom(_tempDirection);
-     /* if(armaBalanca){
-        if(armaAngOffset==0){
-          armaAngOffset = pi/4;
+      
+      if(armaBalanca){
+        if(armaAngOffset==-pi/4){
+          armaAngOffset = pi/2;
         }else{
-          armaAngOffset = 0;
+          armaAngOffset = -pi/4;
         }
-      }*/
+      }
     }
   }
 

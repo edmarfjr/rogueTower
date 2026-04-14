@@ -40,6 +40,7 @@ class CharacterClass {
   final double bltSpeed;
   final String weaponImage;
   final bool armaBalanca;
+  final Color armaCor;
 
   // Bônus Passivos (Flags)
   final bool isShotgun;
@@ -93,6 +94,7 @@ class CharacterClass {
     this.bltSpeed = 300,
     this.weaponImage='',
     this.armaBalanca = false,
+    this.armaCor = Pallete.branco
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -125,6 +127,7 @@ class CharacterRoster {
       bltImage: 'sprites/projeteis/corte.png',
       weaponImage: 'sprites/projeteis/espada.png',
       armaBalanca: true,
+      armaCor: Pallete.lilas,
       bltSize: 12.0,
     ),
     CharacterClass(
@@ -216,6 +219,7 @@ class CharacterRoster {
       unlockConditionText: "arqueiroCond".tr(),
       bltImage: 'sprites/projeteis/flecha.png',
       weaponImage: 'sprites/projeteis/arco.png',
+      armaCor: Pallete.marrom,
       bltSize: 4.0,
     ),
     CharacterClass(
@@ -237,8 +241,9 @@ class CharacterRoster {
       dashCooldown: 2.0, 
       attackRange: 0.2,
       isShotgun: true,
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
       weaponImage: 'sprites/projeteis/escopeta.png',
+      armaCor: Pallete.cinzaCla,
       unlockConditionText: "exterminadorCond".tr(),
       itemsExcluidos: [
         CollectibleType.tripleShot,
@@ -261,12 +266,17 @@ class CharacterRoster {
       critChance: 5,
       critDamage: 1.5,
       dashCooldown: 2.5,
-      attackRange: 0.7,
+      attackRange: 0.2,
+      bltSpeed: 650,
+      bltImage: 'sprites/projeteis/corte.png',
+      weaponImage: 'sprites/projeteis/espada.png',
+      armaBalanca: true,
+      armaCor: Pallete.lilas,
       startingShield: 2,
       startingItems: [
         CollectibleType.orbitalShield,
       ],
-      isUnlockedByDefault: false,
+      isUnlockedByDefault: true,
       unlockConditionText: "defensorCond".tr(),
     ),
     CharacterClass(
