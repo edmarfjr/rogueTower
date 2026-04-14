@@ -927,7 +927,7 @@ class Player extends PositionComponent
           armaVisual = null;
       }
 
-      armaAngOffset = 0;
+      armaAngOffset = charClass.armaAngOffset;
 
       if (charClass.weaponImage != '') {
         // 0. Se o jogador já tinha uma arma antes, a gente destrói a velha!

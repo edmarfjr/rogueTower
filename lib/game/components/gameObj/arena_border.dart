@@ -196,7 +196,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
-  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {flipX = 1, flipY = 1,quina2 = false}) {
+  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {double flipX = 1, double flipY = 1,bool quina2 = false}) {
     canvas.save(); 
     canvas.translate(posicao.x + 8, posicao.y + 8); 
     

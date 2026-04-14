@@ -41,6 +41,7 @@ class CharacterClass {
   final String weaponImage;
   final bool armaBalanca;
   final Color armaCor;
+  final double armaAngOffset;
 
   // Bônus Passivos (Flags)
   final bool isShotgun;
@@ -94,7 +95,8 @@ class CharacterClass {
     this.bltSpeed = 300,
     this.weaponImage='',
     this.armaBalanca = false,
-    this.armaCor = Pallete.branco
+    this.armaCor = Pallete.branco,
+    this.armaAngOffset = 0,
   });
 
   Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
@@ -170,6 +172,9 @@ class CharacterRoster {
       dot: 2,
       attackRange: 0.6,
       bltImage: 'sprites/projeteis/fogo.png',
+      weaponImage: 'sprites/projeteis/varinha.png',
+      armaCor: Pallete.vermelho,
+      armaAngOffset: pi/4,
     ),
     CharacterClass(
       id: 'ladino',
