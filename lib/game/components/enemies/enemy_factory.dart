@@ -26,11 +26,11 @@ class EnemyFactory {
   static const double hpSuperTanque = 200.0;
 
   // --- DEFINIÇÕES DE HP PARA BOSSES ---
-  static const double hpBossFraco = 1000.0;
-  static const double hpBossMedio = 1500.0;
-  static const double hpBossForte = 2000.0;
-  static const double hpBossMuitoForte = 2500.0;
-  static const double hpBossTanque = 3000.0;
+  static const double hpBossFraco = 650.0;
+  static const double hpBossMedio = 1000.0;
+  static const double hpBossForte = 1500.0;
+  static const double hpBossMuitoForte = 2000.0;
+  static const double hpBossTanque = 2500.0;
 
 
   static Enemy createDummy(Vector2 pos,{int champType = 0, int phase = 1}) {

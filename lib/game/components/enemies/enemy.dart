@@ -677,11 +677,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (hp <= 0) return;
     if(championType == 8){
       final allEnemies = gameRef.world.children.query<Enemy>();
-      
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 8);
-
-      print('inimigos: ${realEnemies.length}');
       if (realEnemies.isNotEmpty){
+        gameRef.world.add(FloatingText(
+            text: 'BLOCK!',
+            position: position.clone() + Vector2(0, -size.y/2), 
+            paint: Pallete.textoPadrao,
+            //color: Pallete.branco, 
+           // fontSize: 14,
+          ));
         return;
       }
     }

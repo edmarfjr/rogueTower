@@ -1108,7 +1108,7 @@ class Player extends PositionComponent
       
       _handleDustEffect(dt);
       if(isLicantropia || isUnicorn) _createGhostEffect(dt);
-      if(criaPocaVeneno || zodiacAquarius) _createHazard(dt); 
+      if(criaPocaVeneno || zodiacAquarius || tempZodiacAquarius) _createHazard(dt); 
       if(isConcentration) fireRate = fireRateIni * 1.15;
     } else {
       if(isConcentration) fireRate = fireRateIni * 0.5;
@@ -1256,7 +1256,7 @@ class Player extends PositionComponent
     criaHazardTmr += dt;
   
     if (criaHazardTmr >= tmp) {
-      if(zodiacAquarius){
+      if(zodiacAquarius || tempZodiacAquarius){
         gameRef.world.add(
           PoisonPuddle(
             position: position.clone() + Vector2(0, size.y/2), 
@@ -1290,6 +1290,7 @@ class Player extends PositionComponent
     _dashTimer -= dt;
     _createGhostEffect(dt);
     if(fireDash)_createHazard(dt, isFire: true, tmp: 0.025);
+    if(zodiacAquarius || tempZodiacAquarius) _createHazard(dt); 
     position.addScaled(_dashDirection, dashSpeed * dt);
 
     if (_dashTimer <= 0) {

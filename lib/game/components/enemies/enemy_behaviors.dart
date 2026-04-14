@@ -624,7 +624,7 @@ class ProjectileAttackBehavior extends AttackBehavior {
 class MortarAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
-  final double minRange = 600;
+  final double minRange = 300;
   final bool isPoison;
   final double explosionRadius;
   final bool isBarragem;
@@ -670,8 +670,8 @@ class MortarAttackBehavior extends AttackBehavior {
     AudioManager.playSfx('enemyShot.mp3'); 
 
     for (int i = 0; i < numMortars; i++) {
-      double randomX = (rng.nextDouble() * 320) - 160; 
-      double randomY = (rng.nextDouble() * 560) - 280; 
+      double randomX = (rng.nextDouble() * 160) - 80; 
+      double randomY = (rng.nextDouble() * 280) - 140; 
       Vector2 randomTarget = Vector2(randomX, randomY);
       double variedFlightTime = 1.2 + (rng.nextDouble() * 1.3);
 
@@ -730,7 +730,7 @@ class LaserAttackBehavior extends AttackBehavior {
     final target = getEnemyTarget(enemy); 
     final dist = enemy.position.distanceTo(target.position);
     
-    if (_timer >= interval && dist < 350) {
+    if (_timer >= interval && dist < 175) {
       _isShooting = true;
       _timer = 0;
       

@@ -300,7 +300,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     double dist = position.distanceTo(player.position);
 
     if (dist <= _pickupRange) {
-      if (!_isInfoVisible) _showInfo();
+      //if (!_isInfoVisible){
+      _showInfo();
+      //}
+       
     } else {
       if (_isInfoVisible) _hideInfo();
     }
@@ -381,7 +384,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     final player = game.player;
 
     // Se já foi coletado e está no processo de sumir, ignora novas colisões!
-    if (_isCollected) return;
+    if (_isCollected && !naoEsgota) return;
 
     // 2. VERIFICAÇÃO DE CUSTO (Usa a variável 'game' em vez de 'gameRef')
     if (custo > 0) {
