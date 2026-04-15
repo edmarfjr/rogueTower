@@ -148,7 +148,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.familiarLanca));
-      //gameRef.world.add(Collectible(position: Vector2(112, 160), type: CollectibleType.bloquel));
+      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.pilNanicolina));
       //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.voo));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
@@ -239,7 +239,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         //const double spawnHeight = TowerGame.gameHeight - (margin * 2);
 
         double x = (rng.nextInt(12)+2) - 7;
-        double y = (rng.nextInt(24)+2) - 12;
+        double y = (rng.nextInt(30)+2) - 15;
 
         final candidatePos = Vector2(x*16 - margin, y*16 - margin);
 
@@ -283,19 +283,19 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       switch (parede) {
         case 0: // Parede de Cima
           x = (((rng.nextInt(14)+2) - 8) * 16) - margin;
-          y = -(13*16.0) + margin;
+          y = -(15*16.0) + margin;
           break;
         case 1: // Parede de Baixo
           x = (((rng.nextInt(14)+2) - 8) * 16) - margin;
-          y = (14*16.0) - margin;
+          y = (16*16.0) - margin;
           break;
         case 2: // Parede da Esquerda
           x = -(7*16.0) + margin;
-          y = (((rng.nextInt(26)+2) - 14) * 16) - margin;
+          y = (((rng.nextInt(30)+2) - 15) * 16) - margin;
           break;
         case 3: // Parede da Direita
           x = (7*16.0) + margin;
-          y = (((rng.nextInt(26)+2) - 14) * 16) - margin;
+          y = (((rng.nextInt(30)+2) - 15) * 16) - margin;
           break;
       }
 
@@ -380,7 +380,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       enemiesSpawned++; 
     }
     
-    gameRef.atualizaDebugMode();
   }
 
   void rerollEnemies() {
@@ -503,7 +502,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _spawnDoors(int roomNumber) {
     const double margin = 8.0;
-    const double posY = -16*13; // Posição Y fixa para as portas
+    const double posY = -16*15; // Posição Y fixa para as portas
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(

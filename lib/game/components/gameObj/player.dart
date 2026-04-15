@@ -377,7 +377,7 @@ class Player extends PositionComponent
     _hitbox=RectangleHitbox(
       size: Vector2(12,24)/2,
       anchor: Anchor.center, 
-      position: size / 2 + Vector2(0,4) + vooOffset,    
+      position: size / 2 + vooOffset,    
       isSolid: true,
     );
     add(_hitbox);
@@ -2188,30 +2188,7 @@ class Player extends PositionComponent
     visual.removeFromParent();
     size = size*sizeMod;
 
-    
-    visual = GameSprite(
-      imagePath: classImage, 
-      color: Pallete.branco, 
-      size: size,
-      anchor: Anchor.center, 
-      position: size / 2,    
-    );
-    add(visual);
-
-    _hitbox.removeFromParent();
-
-    _hitbox=RectangleHitbox(
-      size: Vector2(12,24)*sizeMod,
-      anchor: Anchor.center, 
-      position: size / 2 + Vector2(0,4),    
-      isSolid: true,
-    );
-    add(_hitbox);
-
-    //_shadow.removeFromParent();
-    //_shadow =  ShadowComponent(parentSize: size); 
-    //add(_shadow);
-
+    criaVisual(reset:true,image: classImage,color : classColor);
   }
 
 

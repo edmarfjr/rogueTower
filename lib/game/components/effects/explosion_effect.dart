@@ -8,7 +8,9 @@ void createExplosionEffect(World world, Vector2 position, Color color, {int coun
   final rng = Random();
 
   // OTIMIZAÇÃO: Cria o Paint uma única vez fora do loop
-  final paint = Paint()..color = color;
+  final paint = Paint()..color = color
+                      ..isAntiAlias = false; 
+                      
 
   final particleSystem = ParticleSystemComponent(
     particle: Particle.generate(
@@ -29,10 +31,11 @@ void createExplosionEffect(World world, Vector2 position, Color color, {int coun
               // Em vez de criar um novo Paint().
               paint.color = color.withOpacity(1 - particle.progress);
               //paint.color = color;
-              canvas.drawRect(
-                const Rect.fromLTWH(-1, -1, 2, 2), // Usa const para evitar alocação
-                paint,
-              );
+              canvas.drawCircle(Offset.zero, 2 * (1 - particle.progress), paint);
+              //canvas.drawRect(
+              //  const Rect.fromLTWH(-2, -2, 4, 4), // Usa const para evitar alocação
+              //  paint,
+              //);
             },
           ),
         );

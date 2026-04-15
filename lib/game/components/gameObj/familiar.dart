@@ -334,14 +334,14 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     final dist = position.distanceTo(playerPos);
     PositionComponent? target = getTarget();
 
-    _animateMovement(dt);
+    //_animateMovement(dt);
 
     if(type == FamiliarType.block && speed !=  player.moveSpeed){
       speed = player.moveSpeed;
     }
 
     if(type == FamiliarType.fly){
-      //_animateMovement(dt);
+      _animateMovement(dt);
       
       if (target != null) {
         speed = 150;
@@ -357,11 +357,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
       if(knockbackVelocity.isZero()){
         if (target != null && dist < maxTetherDistance) {
-          //_animateMovement(dt);
+          _animateMovement(dt);
           segueAlvo(dt, target);
         } else {
           if (dist > followDistance) {
-            //_animateMovement(dt);
+            _animateMovement(dt);
             segueAlvo(dt, player);
           }
         }
@@ -385,7 +385,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       if(type == FamiliarType.eye)_handleAutoAttack(dt);
     
     }else if(type == FamiliarType.glitch || type == FamiliarType.dmgBuff || type == FamiliarType.bouncer){
-     // _animateMovement(dt);
+      _animateMovement(dt);
       moveBounce(dt);
 
       if (visual != null && type == FamiliarType.glitch) {
@@ -433,7 +433,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x) + ang;
     }else{
       if (dist > followDistance) {
-        //_animateMovement(dt);
+        _animateMovement(dt);
         segueAlvo(dt, player);
       }
 

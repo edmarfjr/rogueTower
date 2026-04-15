@@ -131,19 +131,19 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     if(gameRef.currentLevelNotifier.value != 6){
       _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
       _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0), pi / 2);
-      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), pi * 1.5);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16), pi);
+      _desenharQuinaRotacionado(canvas, Vector2(0, 32 * 16), pi * 1.5);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 32 * 16), pi);
     }else{
       _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
       _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0),0,flipX: -1);
-      _desenharQuinaRotacionado(canvas, Vector2(0, 28 * 16), 0,quina2: true);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 28 * 16),0,flipX: -1,quina2:true);
+      _desenharQuinaRotacionado(canvas, Vector2(0, 32 * 16), 0,quina2: true);
+      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 32 * 16),0,flipX: -1,quina2:true);
     }
     
     for(int i=16; i<16*16; i+=16){
      /*canvas.drawLine(
         Offset(i.toDouble(), 0),
-       Offset(i.toDouble(), 28*16),
+       Offset(i.toDouble(), 32*16),
         _borderPaint,
       );*/
       currTile.render(
@@ -154,12 +154,12 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       );
       currTile.render(
         canvas,
-        position: Vector2(i.toDouble(), 16*28), // Posição local (0,0 é o canto superior esquerdo deste componente)
+        position: Vector2(i.toDouble(), 16*32), // Posição local (0,0 é o canto superior esquerdo deste componente)
         size: Vector2(16, 16),      
         overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
       );
     }
-    for(int i=16; i<16*28; i+=16){
+    for(int i=16; i<16*32; i+=16){
     /*  canvas.drawLine(
         Offset(0,i.toDouble()),
        Offset(16*16,i.toDouble()),

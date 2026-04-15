@@ -22,7 +22,7 @@ import 'package:flutter/services.dart';
 
 class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetection, HasKeyboardHandlerComponents {
   static const double gameWidth = 16*16; 
-  static const double gameHeight = 16*28.0; 
+  static const double gameHeight = 16*32.0; 
   late final Player player;
   late final ArenaBorder arenaBorder;
   late final RoomManager roomManager;
@@ -125,14 +125,18 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     joystickBase = CircleComponent(
       radius: _maxRadius,
-      paint: Paint()..color = Colors.grey.withOpacity(0.3),
+      paint: Paint()..color = Pallete.cinzaCla//.withOpacity(0.3)
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 1.0
+                    ..isAntiAlias = false,
       anchor: Anchor.center,
       priority: 900,        
     );
 
     joystickKnob = CircleComponent(
-      radius: 20,
-      paint: Paint()..color = Colors.white.withOpacity(0.8),
+      radius: 16,
+      paint: Paint()..color = Pallete.branco//.withOpacity(0.8)
+                    ..isAntiAlias = false,
       anchor: Anchor.center,
       priority: 901,         
     );
@@ -337,18 +341,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   void onMount() {
     super.onMount();
     overlays.add('MainMenu');
-  }
-  
-  void toggleDebugMode(){
-    debugMode = !debugMode;
-  }
-
-  void atualizaDebugMode(){
-    for (var component in world.children) {
-        if (component is PositionComponent) {
-          component.debugMode = debugMode;
-        }
-    }
   }
 
   void startGame(CharacterClass selectedClass) {

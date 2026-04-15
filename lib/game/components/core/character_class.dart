@@ -10,16 +10,7 @@ class CharacterClass {
   final String id;
   final String name;
   final String description;
-  final IconData icon;
   final Color color;
-
-  final double accessoryOffsetX;
-  final double accessoryOffsetY;
-  final double accessorySize;
-  final double acessoryAngle;
-  final bool flipAccessoryBase;
-  final bool semAcessorio;
-  final bool mudaIcone;
 
   // Atributos Base
   final int maxHp;
@@ -60,7 +51,6 @@ class CharacterClass {
     required this.id,
     required this.name,
     required this.description,
-    required this.icon,
     required this.color,
     required this.maxHp,
     required this.maxDash,
@@ -77,17 +67,10 @@ class CharacterClass {
     this.startingBombs = 0,
     this.startingShield = 0,
     this.startingKeys = 0,
-    this.accessoryOffsetX = 0,
-    this.accessoryOffsetY = 0,
-    this.accessorySize = 24.0,
-    this.acessoryAngle = 0,
-    this.flipAccessoryBase = false,
     this.isUnlockedByDefault = true, 
     this.unlockConditionText = "",
     this.startingItems = const [],
     this.itemsExcluidos = const [],
-    this.semAcessorio = false,
-    this.mudaIcone = false,
     this.isBomber = false,
     this.noDamage = false,
     this.bltImage = 'sprites/projeteis/blt.png',
@@ -99,21 +82,32 @@ class CharacterClass {
     this.armaAngOffset = 0,
   });
 
-  Vector2 get accessoryOffset => Vector2(accessoryOffsetX, accessoryOffsetY);
 }
 
 // --- O CATÁLOGO DE PERSONAGENS ---
 class CharacterRoster {
   static final List<CharacterClass> classes = [
     CharacterClass(
+      id: "cowboy",
+      name: "cowboy".tr(),
+      description: "cowboyDesc".tr(),
+      color: Pallete.azulCla, 
+      maxHp: 4,
+      maxDash: 3,
+      speed: 75.0,
+      damage: 10.0,
+      fireRate: 0.35,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      weaponImage: 'sprites/projeteis/revolver.png',
+      armaCor: Pallete.lilas,
+    ),
+    CharacterClass(
       id: "guerreiro",
       name: "guerreiro".tr(),
       description: "guerreiroDesc".tr(),
-      icon: MdiIcons.sword,
-      accessoryOffsetX: 30.0, 
-      accessoryOffsetY: 10.0,
-      accessorySize: 24.0,
-      flipAccessoryBase: true,
       color: Pallete.cinzaCla, 
       maxHp: 4,
       maxDash: 2,
@@ -137,10 +131,6 @@ class CharacterRoster {
       id: 'piromante',
       name: "piromante".tr(),
       description: "piromanteDesc".tr(),
-      icon: MdiIcons.fire, 
-      accessoryOffsetX: 30.0, 
-      accessoryOffsetY: 10.0,
-      accessorySize: 24.0,
       color: Pallete.laranja,
       maxHp: 4, 
       maxDash: 2,
@@ -181,11 +171,6 @@ class CharacterRoster {
       id: 'ladino',
       name: "ladino".tr(),
       description: "ladinoDesc".tr(),
-      icon: MdiIcons.knifeMilitary, 
-      accessorySize: 12.0,
-      accessoryOffsetX: 30.0, 
-      accessoryOffsetY: 10.0,
-      acessoryAngle: pi/2,
       color:  Pallete.lilas,
       maxHp: 2, 
       maxDash: 3,
@@ -206,12 +191,7 @@ class CharacterRoster {
       id: 'arqueiro',
       name: "arqueiro".tr(),
       description: "arqueiroDesc".tr(),
-      icon: MdiIcons.bowArrow, 
-      accessorySize: 24.0,
-      accessoryOffsetX: 30.0, 
-      accessoryOffsetY: 10.0,
-      acessoryAngle: pi/2,
-      color:  Pallete.verdeEsc,
+      color:  Pallete.verdeCla,
       maxHp: 4, 
       maxDash: 2,
       speed: 90.0, 
@@ -232,10 +212,6 @@ class CharacterRoster {
       id: 'exterminador',
       name: "exterminador".tr(),
       description: "exterminadorDesc".tr(),
-      icon: MdiIcons.sunglasses, 
-      accessorySize: 6.0,
-      accessoryOffsetX: 18.0, 
-      accessoryOffsetY: 3.0,
       color:  Pallete.lilas,
       maxHp: 4, 
       maxDash: 2,
@@ -259,10 +235,6 @@ class CharacterRoster {
       id: "defensor",
       name: "defensor".tr(),
       description: "defensorDesc".tr(),
-      icon: MdiIcons.shield,
-      accessoryOffsetX: 8.0, 
-      accessoryOffsetY: 15.0,
-      accessorySize: 16.0,
       color: Pallete.lilas, 
       maxHp: 4,
       maxDash: 2,
@@ -289,11 +261,6 @@ class CharacterRoster {
       id: "licantropo",
       name: "licantropo".tr(),
       description: "licantropoDesc".tr(),
-      icon: MdiIcons.dogSide,
-      semAcessorio: true,
-      accessoryOffsetX: 8.0, 
-      accessoryOffsetY: 15.0,
-      accessorySize: 16.0,
       color: Pallete.marrom, 
       maxHp: 4,
       maxDash: 2,
@@ -319,9 +286,6 @@ class CharacterRoster {
       id: "multidao",
       name: "multidao".tr(),
       description: "multidaoDesc".tr(),
-      icon: MdiIcons.humanQueue,
-      semAcessorio: true,
-      mudaIcone: true,
       color: Pallete.branco, 
       maxHp: 6,
       maxDash: 2,
@@ -349,10 +313,6 @@ class CharacterRoster {
       id: "bomberman",
       name: "bomberman".tr(),
       description: "bombermanDesc".tr(),
-      icon: MdiIcons.bomb,
-      accessoryOffsetX: 18.0, 
-      accessoryOffsetY: 3.0,
-      accessorySize: 24.0,
       color: Pallete.lilas, 
       maxHp: 4,
       maxDash: 2,
@@ -381,11 +341,6 @@ class CharacterRoster {
       id: "debug",
       name: "debug".tr(),
       description: "debug".tr(),
-      icon: MdiIcons.bug,
-      accessoryOffsetX: 30.0, 
-      accessoryOffsetY: 10.0,
-      accessorySize: 24.0,
-      flipAccessoryBase: true,
       color: Pallete.marrom, 
       maxHp: 4,
       maxDash: 2,
