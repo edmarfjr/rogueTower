@@ -895,7 +895,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeNuke:
         return {'name': 'activeNuke'.tr(), 'desc': 'activeNukeDesc'.tr(), 'icon': 'nuke', 'color': Pallete.cinzaCla};
       case CollectibleType.activeKamikaze:
-        return {'name': 'activeKamikaze'.tr(), 'desc': 'activeKamikazeDesc'.tr(), 'icon': 'nuke', 'color': Pallete.vermelho};
+        return {'name': 'activeKamikaze'.tr(), 'desc': 'activeKamikazeDesc'.tr(), 'icon': 'nuke2', 'color': Pallete.branco};
       case CollectibleType.retribuicao:
         return {'name': 'retribuicao'.tr(), 'desc': 'retribuicaoDesc'.tr(), 'icon': 'retribuicao', 'color': Pallete.vermelho};
       case CollectibleType.adagaArremeco:
@@ -1972,8 +1972,8 @@ class CollectibleLogic {
             damagesPlayer:false, 
             isStun: true, 
             radius:100,
-            cor:Pallete.laranja.withAlpha(50),
-            corBorda:Pallete.marrom.withAlpha(50)
+            cor:Pallete.laranja,
+            corBorda:Pallete.marrom
           ));
           text = "activeStunBomb";
           //color = Pallete.vermelho;
@@ -2064,8 +2064,8 @@ class CollectibleLogic {
             damagesPlayer:false, 
             isCharm: true, 
             radius:100,
-            cor:Pallete.verdeCla.withAlpha(50),
-            corBorda:Pallete.verdeEsc.withAlpha(50)
+            cor:Pallete.verdeCla,
+            corBorda:Pallete.verdeEsc
           ));
           text = "Suborno";
           //color = Pallete.vermelho;
@@ -2473,8 +2473,8 @@ class CollectibleLogic {
             damagesPlayer:false, 
             isFear: true, 
             radius:150,
-            cor:Pallete.vermelho.withAlpha(50),
-            corBorda:Pallete.vinho.withAlpha(50)
+            cor:Pallete.vermelho,
+            corBorda:Pallete.vinho
           ));
           text = "FEAR";
           //color = Pallete.vermelho;
@@ -2760,8 +2760,8 @@ class CollectibleLogic {
             damagesPlayer:false, 
             damage:player.damage * 2, 
             radius:400,
-            cor: Pallete.amarelo.withAlpha(50),
-            corBorda: Pallete.laranja.withAlpha(50)
+            cor: Pallete.amarelo,
+            corBorda: Pallete.laranja
             ));
           }
           text = "activeGoldenBox".tr();
@@ -2939,8 +2939,8 @@ class CollectibleLogic {
             damage: player.damage * 2,
             isFreeze: true, 
             radius:400,
-            cor:Pallete.lilas.withAlpha(50),
-            corBorda:Pallete.azulCla.withAlpha(50)
+            cor:Pallete.lilas,
+            corBorda:Pallete.azulCla
           ));
           text = "activeFreezeBomb";
           //color = Pallete.vermelho;
@@ -3173,25 +3173,33 @@ class CollectibleLogic {
             position: player.position.clone(),
             damagesPlayer:false, 
             damage: 1000,
-            radius:700,
-            cor:Pallete.amarelo.withAlpha(50),
-            corBorda:Pallete.vermelho.withAlpha(50)
+            radius:300,
+            cor:Pallete.amarelo,
+            corBorda:Pallete.vermelho
           ));
           text = "activeNuke";
           //color = Pallete.vermelho;
           break;
 
         case CollectibleType.activeKamikaze:
-          game.world.add(Explosion(
-            position: player.position.clone(),
-            damagesPlayer:false, 
-            damage: 500,
-            radius:700,
-            cor:Pallete.amarelo.withAlpha(50),
-            corBorda:Pallete.vermelho.withAlpha(50)
-          ));
-          player.takeDamage(1);
-          text = "activeKamikaze";
+          if(player.healthNotifier.value <= 1){
+            return {
+              'text': "noHp".tr(), 
+              'color': Pallete.branco, 
+              'sucesso': false
+            };
+          }else{  
+            game.world.add(Explosion(
+              position: player.position.clone(),
+              damagesPlayer:false, 
+              damage: 500,
+              radius:300,
+              cor:Pallete.amarelo,
+              corBorda:Pallete.vermelho
+            ));
+            player.takeDamage(1);
+            text = "activeKamikaze";
+          }
           //color = Pallete.vermelho;
           break;
 

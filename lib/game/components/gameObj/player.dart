@@ -430,6 +430,17 @@ class Player extends PositionComponent
     if (keysPressed.contains(LogicalKeyboardKey.keyE) && gameRef.onInteractAction!=null) {
       gameRef.onInteractAction!();
     }
+    if (keysPressed.contains(LogicalKeyboardKey.numpad1) || keysPressed.contains(LogicalKeyboardKey.digit1)) {
+      useActiveSlot(0);
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.numpad2) || keysPressed.contains(LogicalKeyboardKey.digit2)) {
+      useActiveSlot(1);
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.escape) || keysPressed.contains(LogicalKeyboardKey.keyP)) {
+      game.pauseGame();
+    }
+
+    
     return true;
   }
 
@@ -1276,10 +1287,10 @@ class Player extends PositionComponent
   void _keepInBounds() {
     double limitX = TowerGame.gameWidth/2 - size.x;
     double limitY = TowerGame.gameHeight/2 - size.y;
-    double arenaBorder = 0;
+    double arenaBorder = 4;
 
-    position.x = position.x.clamp(-limitX + arenaBorder, limitX - arenaBorder);
-    position.y = position.y.clamp(-limitY + arenaBorder, limitY - arenaBorder);
+    position.x = position.x.clamp(-limitX + arenaBorder, limitX + arenaBorder*3);
+    position.y = position.y.clamp(-limitY + arenaBorder, limitY + arenaBorder);
   }
 
 /*
@@ -1784,7 +1795,7 @@ class Player extends PositionComponent
       if(!isBomber)bombNotifier.value--;
       gameRef.world.add(Bomb(
         position: position.clone(), 
-        damage:30, 
+        damage:damage*5, 
         owner: this, 
         splits: isBombSplits,
         isDecoy: isBombDecoy,

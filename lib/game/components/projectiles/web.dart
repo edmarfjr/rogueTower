@@ -14,7 +14,7 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   bool _affectingPlayer = false; // Controle para saber se estamos lentificando o player
 
   Web({required Vector2 position, this.duration = 8.0})
-      : super(position: position, size: Vector2.all(48), anchor: Anchor.center);
+      : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

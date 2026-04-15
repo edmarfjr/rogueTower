@@ -45,8 +45,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.isFear = false,
     Color? cor,
     Color? corBorda,
-  }) : cor = cor ?? Pallete.laranja.withValues(alpha: 0.6),
-       corBorda = corBorda ?? Pallete.vermelho.withValues(alpha: 0.6),
+  }) : cor = cor ?? Pallete.laranja,
+       corBorda = corBorda ?? Pallete.vermelho,
        super(position: position, anchor: Anchor.center);
 
   @override

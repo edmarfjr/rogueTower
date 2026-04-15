@@ -51,9 +51,15 @@ flutter:
     - shaders/crt.frag
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/images/icon.png" # Coloque o caminho exato da sua imagem aqui
+  image_path: "assets/images/icon_ios.png" # O iOS vai usar esse (precisa ter fundo desenhado!)
+  
+  # ==========================================
+  # CONFIGURAÇÃO ANDROID (Ícones Adaptativos)
+  # ==========================================
+  adaptive_icon_background: "#000000" # Um cinza bem escuro de masmorra
+  adaptive_icon_foreground: "assets/images/icon.png"
   min_sdk_version: 21 
   web:
     generate: true

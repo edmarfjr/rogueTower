@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
@@ -24,24 +25,6 @@ class Hud extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
-                  // --- INVENTÁRIO DE ITENS ATIVOS ---
-                  ValueListenableBuilder<List<ActiveItemData?>>(
-                    valueListenable: game.player.activeItems, 
-                    builder: (context, activeItems, child) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0),
-                        child: Row(
-                          children: [
-                            _buildItemSlot(0, activeItems[0]),
-                            const SizedBox(width: 8),
-                            _buildItemSlot(1, activeItems[1]),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-
                   // --- VIDA ---
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.healthNotifier,
@@ -215,7 +198,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // 2. CANTO SUPERIOR DIREITO: PAUSE
             // ---------------------------------------------
-            Positioned(
+            if(!kIsWeb)Positioned(
               top: 5,
               right: 10,
               child: IconButton(
@@ -225,11 +208,54 @@ class Hud extends StatelessWidget {
                 },
               ),
             ),
-
+            // ---------------------------------------------
+            // botao inventario
+            // ---------------------------------------------
+            
+             if(!kIsWeb)Positioned(
+              bottom:220,
+              right:20,
+              child:// --- INVENTÁRIO DE ITENS ATIVOS ---
+                  ValueListenableBuilder<List<ActiveItemData?>>(
+                    valueListenable: game.player.activeItems, 
+                    builder: (context, activeItems, child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Row(
+                          children: [
+                            _buildItemSlot(0, activeItems[0]),
+                            const SizedBox(width: 8),
+                            _buildItemSlot(1, activeItems[1]),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+            ),
+            if(kIsWeb)Positioned(
+              top:5,
+              right:20,
+              child:// --- INVENTÁRIO DE ITENS ATIVOS ---
+                  ValueListenableBuilder<List<ActiveItemData?>>(
+                    valueListenable: game.player.activeItems, 
+                    builder: (context, activeItems, child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Row(
+                          children: [
+                            _buildItemSlot(0, activeItems[0]),
+                            const SizedBox(width: 8),
+                            _buildItemSlot(1, activeItems[1]),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+            ),
             // ---------------------------------------------
             // 3. CANTO INFERIOR DIREITO: BOTÃO DE DASH
             // ---------------------------------------------
-            Positioned(
+            if(!kIsWeb)Positioned(
               bottom: 40,
               right: 90,
               child: Material(
@@ -257,7 +283,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // 4. CANTO INFERIOR DIREITO: BOTÃO DE BOMBA
             // ---------------------------------------------
-            Positioned(
+            if(!kIsWeb)Positioned(
               bottom: 130,
               right: 20,
               child: Material(
@@ -285,7 +311,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // BOTÃO DE INTERAÇÃO (Dinâmico)
             // ---------------------------------------------
-            Positioned(
+            if(!kIsWeb)Positioned(
               bottom: 130,
               right: 110, // Fica ao lado esquerdo da bomba e acima do dash
               child: ValueListenableBuilder<bool>(
