@@ -198,7 +198,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // 2. CANTO SUPERIOR DIREITO: PAUSE
             // ---------------------------------------------
-            if(!kIsWeb)Positioned(
+            /*if(!kIsWeb)*/Positioned(
               top: 5,
               right: 10,
               child: IconButton(
@@ -212,7 +212,7 @@ class Hud extends StatelessWidget {
             // botao inventario
             // ---------------------------------------------
             
-             if(!kIsWeb)Positioned(
+             /*if(!kIsWeb)*/Positioned(
               bottom:220,
               right:20,
               child:// --- INVENTÁRIO DE ITENS ATIVOS ---
@@ -232,7 +232,7 @@ class Hud extends StatelessWidget {
                     },
                   ),
             ),
-            if(kIsWeb)Positioned(
+            /*if(kIsWeb)Positioned(
               top:5,
               right:20,
               child:// --- INVENTÁRIO DE ITENS ATIVOS ---
@@ -252,10 +252,11 @@ class Hud extends StatelessWidget {
                     },
                   ),
             ),
+            */
             // ---------------------------------------------
             // 3. CANTO INFERIOR DIREITO: BOTÃO DE DASH
             // ---------------------------------------------
-            if(!kIsWeb)Positioned(
+            /*if(!kIsWeb)*/Positioned(
               bottom: 40,
               right: 90,
               child: Material(
@@ -283,7 +284,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // 4. CANTO INFERIOR DIREITO: BOTÃO DE BOMBA
             // ---------------------------------------------
-            if(!kIsWeb)Positioned(
+            /*if(!kIsWeb)*/Positioned(
               bottom: 130,
               right: 20,
               child: Material(
@@ -311,7 +312,7 @@ class Hud extends StatelessWidget {
             // ---------------------------------------------
             // BOTÃO DE INTERAÇÃO (Dinâmico)
             // ---------------------------------------------
-            if(!kIsWeb)Positioned(
+            /*if(!kIsWeb)*/Positioned(
               bottom: 130,
               right: 110, // Fica ao lado esquerdo da bomba e acima do dash
               child: ValueListenableBuilder<bool>(
