@@ -130,7 +130,16 @@ class Hud extends StatelessWidget {
                             ": $coins",
                             style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.amarelo,
-                              //shadows: [Shadow(blurRadius: 2, color: Pallete.laranja, offset: Offset(2, 2))],
+                              shadows:[
+                                Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita
+                                Shadow(color: Colors.black, offset: Offset(-1, 0), blurRadius: 0),  // Esquerda
+                                Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 0),   // Baixo
+                                Shadow(color: Colors.black, offset: Offset(0, -1), blurRadius: 0),  // Cima
+                                Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 0),   // Diagonal Inf-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 0), // Diagonal Sup-Esq
+                                Shadow(color: Colors.black, offset: Offset(1, -1), blurRadius: 0),  // Diagonal Sup-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, 1), blurRadius: 0),  // Diagonal Inf-Esq
+                              ],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -151,7 +160,16 @@ class Hud extends StatelessWidget {
                             ": $keys", 
                             style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.laranja,
-                              //shadows: [Shadow(blurRadius: 2, color: Pallete.marrom, offset: Offset(2, 2))],
+                              shadows:[
+                                Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita
+                                Shadow(color: Colors.black, offset: Offset(-1, 0), blurRadius: 0),  // Esquerda
+                                Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 0),   // Baixo
+                                Shadow(color: Colors.black, offset: Offset(0, -1), blurRadius: 0),  // Cima
+                                Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 0),   // Diagonal Inf-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 0), // Diagonal Sup-Esq
+                                Shadow(color: Colors.black, offset: Offset(1, -1), blurRadius: 0),  // Diagonal Sup-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, 1), blurRadius: 0),  // Diagonal Inf-Esq
+                              ],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -174,7 +192,16 @@ class Hud extends StatelessWidget {
                             ": $bombs", 
                             style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.lilas,
-                             // shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
+                              shadows:[
+                                Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita
+                                Shadow(color: Colors.black, offset: Offset(-1, 0), blurRadius: 0),  // Esquerda
+                                Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 0),   // Baixo
+                                Shadow(color: Colors.black, offset: Offset(0, -1), blurRadius: 0),  // Cima
+                                Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 0),   // Diagonal Inf-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 0), // Diagonal Sup-Esq
+                                Shadow(color: Colors.black, offset: Offset(1, -1), blurRadius: 0),  // Diagonal Sup-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, 1), blurRadius: 0),  // Diagonal Inf-Esq
+                              ],
                               decoration: TextDecoration.none,
                             ),
                           ),
@@ -197,7 +224,16 @@ class Hud extends StatelessWidget {
                             ": $souls", 
                             style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold, color: Pallete.azulCla,
-                              //shadows: [Shadow(blurRadius: 2, color: Pallete.azulEsc, offset: Offset(2, 2))],
+                              shadows:[
+                                Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita
+                                Shadow(color: Colors.black, offset: Offset(-1, 0), blurRadius: 0),  // Esquerda
+                                Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 0),   // Baixo
+                                Shadow(color: Colors.black, offset: Offset(0, -1), blurRadius: 0),  // Cima
+                                Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 0),   // Diagonal Inf-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 0), // Diagonal Sup-Esq
+                                Shadow(color: Colors.black, offset: Offset(1, -1), blurRadius: 0),  // Diagonal Sup-Dir
+                                Shadow(color: Colors.black, offset: Offset(-1, 1), blurRadius: 0),  // Diagonal Inf-Esq
+                              ],
                               decoration: TextDecoration.none,
                             ),
                           ),

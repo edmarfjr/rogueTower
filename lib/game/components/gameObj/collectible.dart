@@ -331,17 +331,32 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     _infoGroup.priority = 1500;
 
     // 1. Descrição do Efeito
+    //final textDesc = TextBoxComponent(
+    //  text: desc.toLowerCase(),
+    //  textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
+     // anchor: Anchor.bottomCenter,
+    //  align: Anchor.center,
+    //  position: Vector2(0, 10),
+    //  scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
+      
+    //  boxConfig: const TextBoxConfig(
+    //    maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
+    //    timePerChar: 0.0, 
+    //  ),
+    //);
+
     final textDesc = TextBoxComponent(
       text: desc.toLowerCase(),
-      textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
+      textRenderer: Pallete.textoDescricaoGigante, // Usa nosso super estilo
+      
       anchor: Anchor.bottomCenter,
       align: Anchor.center,
       position: Vector2(0, 10),
-      scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
+      scale: Vector2.all(0.25), 
       
       boxConfig: const TextBoxConfig(
-        maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
-        timePerChar: 0.0, 
+        maxWidth: 600.0, 
+        timePerChar: 0.00, 
       ),
     );
 
@@ -812,7 +827,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.cardinalShot:
         return {'name': 'cardinalShot'.tr(), 'desc': 'cardinalShotDesc'.tr(), 'icon': 'cardinal', 'color': Pallete.vermelho};
       case CollectibleType.noveVidas:
-        return {'name': 'noveVidas'.tr(), 'desc': 'noveVidasDesc'.tr(), 'icon': 'cat', 'color': Pallete.azulEsc};
+        return {'name': 'noveVidas'.tr(), 'desc': 'noveVidasDesc'.tr(), 'icon': 'cat', 'color': Pallete.cinzaEsc};
       case CollectibleType.activePacmen:
         return {'name': 'activePacmen'.tr(), 'desc': 'activePacmenDesc'.tr(), 'icon': 'gameboy', 'color': Pallete.cinzaCla};
       case CollectibleType.hurtPac:
@@ -908,7 +923,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activeCleaver:
         return {'name': 'activeCleaver'.tr(), 'desc': 'activeCleaverDesc'.tr(), 'icon': 'machado', 'color': Pallete.vermelho};
       case CollectibleType.bombaBuracoNegro:
-        return {'name': 'bombaBuracoNegro'.tr(), 'desc': 'bombaBuracoNegroDesc'.tr(), 'icon': 'bombaBuracoNegro', 'color': Pallete.azulEsc};
+        return {'name': 'bombaBuracoNegro'.tr(), 'desc': 'bombaBuracoNegroDesc'.tr(), 'icon': 'bombaBuracoNegro', 'color': Pallete.cinzaEsc};
       case CollectibleType.activeBloodBag:
         return {'name': 'activeBloodBag'.tr(), 'desc': 'activeBloodBagDesc'.tr(), 'icon': 'bloodBag', 'color': Pallete.vermelho};
       case CollectibleType.bltFireHazard:

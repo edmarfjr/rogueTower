@@ -130,12 +130,16 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 30),
-                    onPressed: () {
-                      setState(() {
-                        if (_selectedIndex > 0){
-                          _selectedIndex--;
-                        } else {
+                      icon: const PixelSprite(
+                      imagePath: 'sprites/hud/setaEsq.png',
+                      color: Pallete.branco,
+                      size: 32,
+                    ),
+                      onPressed: () {
+                        setState(() {
+                          if (_selectedIndex > 0){
+                            _selectedIndex--;
+                          } else {
                           _selectedIndex = CharacterRoster.classes.length - 1;
                         }
                         _checkUnlockStatus();
@@ -145,7 +149,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Pallete.azulCla,
+                      backgroundColor: _isCurrentClassUnlocked ? charClass.color : Pallete.branco,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                     ),
@@ -164,7 +168,11 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                   ),
 
                   IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios, color: Pallete.branco, size: 30),
+                    icon: const PixelSprite(
+                    imagePath: 'sprites/hud/setaDir.png',
+                    color: Pallete.branco,
+                    size: 32,
+                  ),
                     onPressed: () {
                       setState(() {
                         if (_selectedIndex < CharacterRoster.classes.length - 1){

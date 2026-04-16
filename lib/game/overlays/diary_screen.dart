@@ -47,7 +47,11 @@ class DiaryScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 30),
+                      icon: const PixelSprite(
+                      imagePath: 'sprites/hud/setaEsq.png',
+                      color: Pallete.branco,
+                      size: 32,
+                    ),
                       onPressed: (){
                         game.overlays.remove('DiaryScreen'); 
                         game.overlays.add('MainMenu'); 

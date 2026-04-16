@@ -25,6 +25,28 @@ class Pallete {
   static const Color rosa = Color(0xFFFF77A8);
   static const Color bege = Color(0xFFFFCCAA);
 
+  static final List<Shadow> shadows = [
+    const Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita
+    const Shadow(color: Colors.black, offset: Offset(-1, 0), blurRadius: 0),  // Esquerda
+    const Shadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 0),   // Baixo
+    const Shadow(color: Colors.black, offset: Offset(0, -1), blurRadius: 0),  // Cima
+    const Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 0),   // Diagonal Inf-Dir
+    const Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 0), // Diagonal Sup-Esq
+    const Shadow(color: Colors.black, offset: Offset(1, -1), blurRadius: 0),  // Diagonal Sup-Dir
+    const Shadow(color: Colors.black, offset: Offset(-1, 1), blurRadius: 0),  // Diagonal Inf-Esq
+  ];
+
+  static final List<Shadow> shadowsG = [
+    const Shadow(color: Colors.black, offset: Offset(4, 0), blurRadius: 0),   // Direita
+    const Shadow(color: Colors.black, offset: Offset(-4, 0), blurRadius: 0),  // Esquerda
+    const Shadow(color: Colors.black, offset: Offset(0, 4), blurRadius: 0),   // Baixo
+    const Shadow(color: Colors.black, offset: Offset(0, -4), blurRadius: 0),  // Cima
+    const Shadow(color: Colors.black, offset: Offset(4, 4), blurRadius: 0),   // Diagonal Inf-Dir
+    const Shadow(color: Colors.black, offset: Offset(-4, -4), blurRadius: 0), // Diagonal Sup-Esq
+    const Shadow(color: Colors.black, offset: Offset(4, -4), blurRadius: 0),  // Diagonal Sup-Dir
+    const Shadow(color: Colors.black, offset: Offset(-4, 4), blurRadius: 0),  // Diagonal Inf-Esq
+  ];
+
   static final TextPaint textoPadrao = TextPaint(
     style: TextStyle(
       fontFamily: 'pixelFont',
@@ -33,6 +55,7 @@ class Pallete {
         ..color = const Color(0xFFFFF1E8)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,  
     ),
   );
 
@@ -44,6 +67,7 @@ class Pallete {
         ..color = const Color(0xFFFFA300)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,  
     ),
   );
 
@@ -55,6 +79,7 @@ class Pallete {
         ..color = const Color(0xFF00E436)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
     ),
   );
 
@@ -66,6 +91,7 @@ class Pallete {
         ..color = const Color(0xFFFF004D)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
     ),
   );
 
@@ -77,6 +103,7 @@ class Pallete {
         ..color = const Color(0xFFFFEC27)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
     ),
   );
 
@@ -88,6 +115,7 @@ class Pallete {
         ..color = const Color(0xFF5F574F)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
     ),
   );
 
@@ -99,6 +127,7 @@ class Pallete {
         ..color = const Color(0xFF83769C)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
     ),
   );
 
@@ -109,6 +138,7 @@ class Pallete {
         ..color = const Color(0xFFFFEC27)
         ..filterQuality = FilterQuality.none // Exige pixels secos
         ..isAntiAlias = false,
+      shadows: shadows,
       fontSize: 10,
     ),
   );
@@ -119,9 +149,14 @@ class Pallete {
       fontSize: 32,
       foreground: Paint()
         ..color = const Color(0xFFFFF1E8)
+        ..style = PaintingStyle.fill
         ..filterQuality = FilterQuality.none
         ..isAntiAlias = false,
+        
+      // O SEGREDO: 8 sombras apontando para todas as direções simulando a borda grossa!
+      shadows: shadowsG,
     ),
   );
+
   
 }

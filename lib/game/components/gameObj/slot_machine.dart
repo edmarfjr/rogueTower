@@ -72,7 +72,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showText() {
     _nameText = TextComponent(
-      text: "5 moedas",
+      text: "2 moedas",
       textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, -10),
@@ -145,9 +145,9 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     final player = gameRef.player;
 
-    if(gameRef.coinsNotifier.value >= 1)
+    if(gameRef.coinsNotifier.value >= 2)
     {
-      player.collectCoin(-1); 
+      player.collectCoin(-2); 
       player.slotMachine();
       
     }else{

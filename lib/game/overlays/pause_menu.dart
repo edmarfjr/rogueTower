@@ -161,7 +161,11 @@ class PauseMenu extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 IconButton(
-                  icon: const Icon(Icons.bug_report, color: Pallete.laranja, size: 30),
+                  icon: const PixelSprite(
+                    imagePath: 'sprites/inimigos/bug.png',
+                    color: Pallete.laranja,
+                    size: 32,
+                  ),
                   tooltip: "Menu de Debug",
                   onPressed: () {
                     game.overlays.remove('PauseMenu');
@@ -264,7 +268,11 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Pallete.branco, size: 20),
+                icon: const PixelSprite(
+                  imagePath: 'sprites/hud/setaEsq.png',
+                  color: Pallete.branco,
+                  size: 32,
+                ),
                 onPressed: currentIndex > 0 ? _prevItem : null,
                 disabledColor: Pallete.cinzaCla,
               ),
@@ -278,7 +286,11 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
                 ),
 
               IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, color: Pallete.branco, size: 20),
+                icon: const PixelSprite(
+                  imagePath: 'sprites/hud/setaDir.png',
+                  color: Pallete.branco,
+                  size: 32,
+                ),
                 onPressed: currentIndex < widget.items.length - 1 ? _nextItem : null,
                 disabledColor: Pallete.cinzaCla,
               ),

@@ -35,16 +35,16 @@ class _DebugMenuState extends State<DebugMenu> {
           width: 320,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Pallete.cinzaEsc,
-            border: Border.all(color: Colors.redAccent, width: 3), // Borda vermelha pra lembrar que é debug
-            borderRadius: BorderRadius.circular(15),
+            color: Pallete.preto,
+            border: Border.all(color: Pallete.branco, width: 3), // Borda vermelha pra lembrar que é debug
+            borderRadius: BorderRadius.zero,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 "DEBUG: SELETOR DE FASE",
-                style: TextStyle(color: Colors.redAccent, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Pallete.branco, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
@@ -55,13 +55,13 @@ class _DebugMenuState extends State<DebugMenu> {
                 min: 1,
                 max: widget.game.numLevels.toDouble(), // Máximo de níveis do seu jogo
                 divisions: widget.game.numLevels,
-                activeColor: Pallete.azulCla,
+                activeColor: Pallete.branco,
                 onChanged: (val) {
                   setState(() { _selectedLevel = val.toInt(); });
                 },
               ),
 
-              const Divider(color: Colors.white30),
+              const Divider(color: Colors.white),
 
               // --- SLIDER DE SALA ---
               Text("Sala Selecionada: $_selectedRoom", style: const TextStyle(color: Colors.white, fontSize: 16)),
@@ -70,7 +70,7 @@ class _DebugMenuState extends State<DebugMenu> {
                 min: 0,
                 max: widget.game.bossRoom.toDouble(), 
                 divisions: widget.game.bossRoom,
-                activeColor: Pallete.verdeCla,
+                activeColor: Colors.white,
                 onChanged: (val) {
                   setState(() { _selectedRoom = val.toInt(); });
                 },
@@ -81,10 +81,10 @@ class _DebugMenuState extends State<DebugMenu> {
               // --- BOTÃO DE TELEPORTE ---
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: Pallete.preto,
                   minimumSize: const Size(double.infinity, 50),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                 ),
-                icon: const Icon(Icons.flash_on, color: Colors.white),
                 label: const Text("TELEPORTAR", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 onPressed: () {
                   _teleportPlayer();
