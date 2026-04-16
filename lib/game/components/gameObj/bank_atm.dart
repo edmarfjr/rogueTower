@@ -61,6 +61,7 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
   }
 
   void _showButton() {
+    if(gameRef.canInteractNotifier.value) return;
     gameRef.onInteractAction = (){
         // Lógica de abrir o menu
         gameRef.pauseEngine();

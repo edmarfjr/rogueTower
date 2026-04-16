@@ -20,19 +20,7 @@ class UnlockNotification extends PositionComponent {
 
   @override
   Future<void> onLoad() async {
-    // Define o estilo do texto (Dourado, Grande e com Sombra)
-    _textPaint = TextPaint(
-      style: const TextStyle(
-        color: Pallete.laranja, // Cor de "Item Épico"
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2,
-        shadows: [
-          Shadow(color: Colors.black, blurRadius: 4, offset: Offset(2, 2)),
-          Shadow(color: Colors.black87, blurRadius: 2, offset: Offset(-1, -1)),
-        ],
-      ),
-    );
+    _textPaint = Pallete.textoDanoCritico;
   }
 
   @override

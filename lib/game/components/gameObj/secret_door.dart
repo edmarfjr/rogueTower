@@ -90,6 +90,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _showButton() {
+    if(gameRef.canInteractNotifier.value) return;
     gameRef.onInteractAction = () {
         _hideButton();
         botaoAtivo = false;

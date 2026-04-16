@@ -93,10 +93,24 @@ class Hud extends StatelessWidget {
                   ValueListenableBuilder<int>(
                     valueListenable: game.player.dashNotifier,
                     builder: (context, currentDash, child) {
-                      if (currentDash == 0) return const SizedBox.shrink();
+                      final int totalDashes = game.player.maxDash; 
                       return Row(
-                        children: List.generate(currentDash, (index) {
-                          return const PixelSprite(imagePath: 'sprites/hud/dash.png', color: Pallete.verdeCla, size: 32);
+                        children: List.generate(totalDashes, (index) {
+                          // 2. Se o índice atual for menor que a quantidade que temos, ele está CHEIO.
+                          // Exemplo: Se temos 2 dashes (currentDash = 2), os índices 0 e 1 são menores que 2 (Cheios).
+                          bool isCheio = index < currentDash;
+
+                          String spriteName = isCheio 
+                              ? 'sprites/hud/dashCheio.png' 
+                              : 'sprites/hud/dashVazio.png'; 
+
+                          Color dashColor = Pallete.verdeCla ; // Deixa o sprite vazio mais apagado
+
+                          return PixelSprite(
+                            imagePath: spriteName, 
+                            color: dashColor, 
+                            size: 32
+                          );
                         }),
                       );
                     },

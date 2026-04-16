@@ -313,6 +313,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   }
 
   void _showButton() {
+    if(gameRef.canInteractNotifier.value) return;
     if (_currentButton != null) return;
 
     gameRef.onInteractAction =() {

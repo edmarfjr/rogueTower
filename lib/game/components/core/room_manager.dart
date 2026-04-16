@@ -147,9 +147,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.familiarLanca));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.pilNanicolina));
-      //gameRef.world.add(Collectible(position: Vector2(0,120), type: CollectibleType.voo));
+      gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.familiarLanca));
+      gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.pilNanicolina));
+      gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.voo));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
 
@@ -857,6 +857,28 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           id: 'permanent_fireRate_5', 
           type: CollectibleType.fireRate,
           soulCost: 1800,
+        ));
+        break;
+      case 6:
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y1),
+          id: 'permanent_shield_6', 
+          type: CollectibleType.shield,
+          soulCost: 1200,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y2),
+          id: 'permanent_health_6', 
+          type: CollectibleType.healthContainer,
+          soulCost: 1700,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y3),
+          id: 'permanent_damage_6', 
+          type: CollectibleType.damage,
+          soulCost: 2000,
         ));
         break;
       default:

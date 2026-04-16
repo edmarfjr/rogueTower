@@ -130,14 +130,15 @@ class MainMenu extends StatelessWidget {
     BuildContext context, {
     required String text,
     required VoidCallback onPressed,
-    Color bgColor = Pallete.preto,
+    Color? bgColor,
     Color textColor = Pallete.branco,
   }) {
+    bgColor ??= Pallete.preto.withAlpha(0);
     return SizedBox(
       width: 200,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
+          backgroundColor: bgColor, // Deixa o fundo transparente para mostrar a arte por trás
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,

@@ -58,6 +58,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     if (dist <= _interactRange) {
       if (!_isInfoVisible) {
+        if(gameRef.canInteractNotifier.value) return;
         _showButton();
         _showText();
       }

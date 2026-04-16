@@ -318,6 +318,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   }
 
   void _showInfo() {
+    if(gameRef.canInteractNotifier.value) return;
     _isInfoVisible = true;
     
     final attrs = Collectible.getAttributes(type);

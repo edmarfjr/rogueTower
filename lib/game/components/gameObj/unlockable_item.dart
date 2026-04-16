@@ -55,6 +55,7 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
 
     if (dist <= _interactRange) {
       if (!_isInfoVisible && !_isPicked){
+        if(gameRef.canInteractNotifier.value) return;
         _showButton();
         _showItemInfo();  
       } 

@@ -81,6 +81,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void _showInfo() {
+    if(gameRef.canInteractNotifier.value) return;
     _isInfoVisible = true;
    
     // Grupo para facilitar remover tudo de uma vez
