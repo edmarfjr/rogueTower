@@ -118,7 +118,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       final charmedEnemies = allEnemies.where((enemy) => !enemy.isDummy && enemy.isCharmed);
 
       if (realEnemies.isEmpty && !isSpawnningBoss) {
-        print('level clear');
+       // print('level clear');
         // limpa inimigos charmeds
         for (var e in charmedEnemies) {
           e.removeFromParent();
@@ -148,7 +148,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
       //gameRef.world.add(Collectible(position: Vector2(-104,160), type: CollectibleType.familiarLanca));
-      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.pilNanicolina));
+      //gameRef.world.add(Collectible(position: Vector2(0, 160), type: CollectibleType.magicMush));
       //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.voo));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));

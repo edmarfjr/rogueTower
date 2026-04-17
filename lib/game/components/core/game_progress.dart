@@ -60,7 +60,7 @@ class GameProgress {
     if (!unlockedList.contains(classId)) {
       unlockedList.add(classId);
       await prefs.setStringList(_unlockedClassesKey, unlockedList);
-      print("🎉 Nova classe desbloqueada no Save: $classId");
+     // print("🎉 Nova classe desbloqueada no Save: $classId");
       
       return true; 
     }
@@ -126,7 +126,7 @@ class GameProgress {
       discoveredItems.add(itemId);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_discoveredKey, discoveredItems);
-      print("📖 Novo item catalogado no Diário: $itemId");
+     // print("📖 Novo item catalogado no Diário: $itemId");
     }
   }
 

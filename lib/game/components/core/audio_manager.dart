@@ -36,7 +36,7 @@ class AudioManager {
       AudioSource source = await SoLoud.instance.loadAsset(fullPath);
       _sfxSources[filename] = source;
     } catch (e) {
-      print("⚠️ AVISO: Falha ao carregar SFX no SoLoud para '$filename'. Erro: $e");
+      //print("⚠️ AVISO: Falha ao carregar SFX no SoLoud para '$filename'. Erro: $e");
     }
   }
 
@@ -66,7 +66,7 @@ class AudioManager {
         'music/retro_plat.mp3',
       ]);
     } catch (e) {
-      print("AVISO: Falha ao carregar Músicas do Cache. Erro: $e");
+      //print("AVISO: Falha ao carregar Músicas do Cache. Erro: $e");
     }
   }
 
@@ -83,7 +83,7 @@ class AudioManager {
          //print("ALERTA: O som '$filename' não foi pré-carregado no init()!");
       }
     } catch (e) {
-       print("Erro ao tocar SFX ($filename) no SoLoud: $e");
+       //print("Erro ao tocar SFX ($filename) no SoLoud: $e");
     }
   }
 
@@ -105,9 +105,9 @@ class AudioManager {
     try {
       FlameAudio.bgm.play('music/$filename', volume: bgmVolume);
       _isBgmPlaying = true;
-      print('tocando $filename');
+     // print('tocando $filename');
     } catch (e) {
-      print("Erro ao tocar BGM: $e");
+     //print("Erro ao tocar BGM: $e");
     }
   }
 
@@ -115,7 +115,7 @@ class AudioManager {
     FlameAudio.bgm.stop();
     _isBgmPlaying = false;
     //_currentBgm = '';
-    print('parou musica');
+   // print('parou musica');
   }
 
   static void pauseBgm(){

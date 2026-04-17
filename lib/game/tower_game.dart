@@ -115,7 +115,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     try {
       await AudioManager.init();
     } catch (e) {
-      print("Erro ao carregar áudio: $e");
+      //print("Erro ao carregar áudio: $e");
     }
     
     await progress.load();
@@ -370,7 +370,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     overlays.remove('HUD');
     overlays.add('MainMenu');
     AudioManager.playBgm('retro_forest.mp3');
-    print('returnToMenu');
+    //print('returnToMenu');
   }
 
   void startLevel({salaAtual = true,sala = 0}) {

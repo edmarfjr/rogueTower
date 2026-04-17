@@ -1660,9 +1660,9 @@ class CollectibleLogic {
           player.hasBattery = true;
           final currentItems = List<ActiveItemData?>.from(player.activeItems.value);
           if (currentItems[0] != null){
-            print('tem item');
+          //  print('tem item');
             if(currentItems[0]!.maxCharge == 1){
-              print('tem item custo 1');
+             // print('tem item custo 1');
               currentItems[0]!.currentCharge = 0;
               currentItems[0]!.maxCharge = 0;
               player.rechargeActiveItem(full: true);
@@ -1700,6 +1700,7 @@ class CollectibleLogic {
           player.increaseRange(1.2);
           player.increaseMovementSpeed(1.2);
           player.increaseFireRate(0.8);
+          player.curaHp(player.maxHealth - player.healthNotifier.value);
           text = "GROWS";
           //color = Pallete.vermelho;
           break;
@@ -1858,10 +1859,10 @@ class CollectibleLogic {
                 CollectibleType novoTipo;
                 if (poolRaros.contains(item.type)) {
                   novoTipo = poolRaros[Random().nextInt(poolRaros.length)];
-                  print('item raro');
+               //   print('item raro');
                 }else{
                   novoTipo = pool[Random().nextInt(pool.length)];
-                  print('item comum');
+               //   print('item comum');
                 }
                 Vector2 pos = item.position.clone();
                 
@@ -2785,15 +2786,15 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeSlot:
-          if(game.coinsNotifier.value < 5){
+          if(game.coinsNotifier.value < 2){
             return {
               'text': "noCoins".tr(), 
               'color': Pallete.branco, 
               'sucesso': false
             };
           }else{
-            player.collectCoin(-5);
-            player.slotMachine();
+            player.collectCoin(-2);
+            player.slotMachine(2);
           }
           text = "-1\$";
           //color = Pallete.vermelho;

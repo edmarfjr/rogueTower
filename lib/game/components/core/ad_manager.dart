@@ -21,7 +21,7 @@ class AdManager {
   static void loadRewardedAd() {
     // Aborta imediatamente se estiver no navegador
     if (kIsWeb) {
-      print('🌐 Web detectada: Ignorando carregamento de anúncios.');
+      //print('🌐 Web detectada: Ignorando carregamento de anúncios.');
       return; 
     }
 
@@ -30,12 +30,12 @@ class AdManager {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
-          print('✅ Anúncio Premiado carregado!');
+          //print('✅ Anúncio Premiado carregado!');
           _rewardedAd = ad;
           _numRewardedLoadAttempts = 0;
         },
         onAdFailedToLoad: (LoadAdError error) {
-          print('❌ Falha ao carregar anúncio premiado: $error');
+          //print('❌ Falha ao carregar anúncio premiado: $error');
           _rewardedAd = null;
           _numRewardedLoadAttempts += 1;
           if (_numRewardedLoadAttempts < maxFailedLoadAttempts) {
@@ -49,25 +49,25 @@ class AdManager {
   static void showRewardedAd({required Function() onRewardEarned}) {
     // Se for Web, simula que o cara assistiu o vídeo para você conseguir testar o jogo!
     if (kIsWeb) {
-      print('🎉 Simulando anúncio assistido na Web. Entregando recompensa livre!');
+      //print('🎉 Simulando anúncio assistido na Web. Entregando recompensa livre!');
       onRewardEarned();
       return;
     }
 
     if (_rewardedAd == null) {
-      print('⚠️ Aviso: Tentou mostrar anúncio, mas não estava carregado ainda.');
+      //print('⚠️ Aviso: Tentou mostrar anúncio, mas não estava carregado ainda.');
       return;
     }
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) => print('Anúncio em tela cheia abriu.'),
       onAdDismissedFullScreenContent: (RewardedAd ad) {
-        print('Anúncio fechado pelo jogador.');
+        //print('Anúncio fechado pelo jogador.');
         ad.dispose();
         loadRewardedAd(); 
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        print('Falha ao mostrar o anúncio em tela cheia: $error');
+       // print('Falha ao mostrar o anúncio em tela cheia: $error');
         ad.dispose();
         loadRewardedAd();
       },
@@ -76,7 +76,7 @@ class AdManager {
     _rewardedAd!.setImmersiveMode(true);
     _rewardedAd!.show(
       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-        print('🎉 O Jogador assistiu tudo! Entregando recompensa...');
+        //print('🎉 O Jogador assistiu tudo! Entregando recompensa...');
         onRewardEarned(); 
       },
     );

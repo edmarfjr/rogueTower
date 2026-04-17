@@ -375,7 +375,7 @@ class Player extends PositionComponent
     add(visual);
     
     _hitbox=RectangleHitbox(
-      size: Vector2(12,24)/2,
+      size: Vector2(size.x*0.3,size.y*0.7),
       anchor: Anchor.center, 
       position: size / 2 + vooOffset,    
       isSolid: true,
@@ -1285,8 +1285,8 @@ class Player extends PositionComponent
   }
 
   void _keepInBounds() {
-    double limitX = TowerGame.gameWidth/2 - size.x;
-    double limitY = TowerGame.gameHeight/2 - size.y;
+    double limitX = TowerGame.gameWidth/2 - _hitbox.size.x;
+    double limitY = TowerGame.gameHeight/2 - _hitbox.size.y;
     double arenaBorder = 4;
 
     position.x = position.x.clamp(-limitX + arenaBorder, limitX + arenaBorder*3);
@@ -2145,16 +2145,7 @@ class Player extends PositionComponent
     if (fireRate < 0.05) {
       fireRate = 0.05;
     }
-/*
-    print('--- DEBUG DA LIBRA ---');
-    print('Dano  -> Raw: $damage | Base: $damageIni | Ratio: $ratioDmg');
-    print('Speed -> Raw: $moveSpeed | Base: $moveSpeedIni | Ratio: $ratioSpd');
-    print('Tiro  -> Raw: $fireRate | Base: $fireRateIni | Ratio: $ratioFR');
-    print('Range  -> Raw: $attackRange | Base: $attackRangeIni | Ratio: $ratioRng');
-    print('Média Global (Average Ratio): $averageRatio');
-    print('Dano Final Aplicado: $damage');
-    print('----------------------');
-    */
+
   }
 /*
   void recalculateStats() {
@@ -2277,9 +2268,9 @@ class Player extends PositionComponent
     }
   }
 
-  void slotMachine(){
+  void slotMachine(int custo){
     gameRef.world.add(FloatingText(
-      text: "-1\$",
+      text: "-${custo}\$",
       position: position.clone() + Vector2(0, -30),
       paint:Pallete.textoPadrao
     ));

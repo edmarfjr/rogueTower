@@ -25,6 +25,8 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
   // Evitar que o jogador clique 10x por segundo acidentalmente
   double _cooldown = 0;
 
+  final int custo = 2;
+
   SlotMachine({required Vector2 position}) 
     : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
 
@@ -145,10 +147,10 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
 
     final player = gameRef.player;
 
-    if(gameRef.coinsNotifier.value >= 2)
+    if(gameRef.coinsNotifier.value >= custo)
     {
-      player.collectCoin(-2); 
-      player.slotMachine();
+      player.collectCoin(-custo); 
+      player.slotMachine(custo);
       
     }else{
       gameRef.world.add(FloatingText(

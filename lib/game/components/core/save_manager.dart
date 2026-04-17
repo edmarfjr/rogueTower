@@ -383,7 +383,7 @@ class SaveManager {
       game.player.armaCor = Pallete.branco; 
     }
     
-    print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
+   // print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");
     return runData['playerClassId'];
   }
 
@@ -395,6 +395,6 @@ class SaveManager {
   static Future<void> clearSavedRun() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_saveKey);
-    print("Save da run deletado (Game Over).");
+   // print("Save da run deletado (Game Over).");
   }
 }

@@ -442,7 +442,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor,refratado){
-    print('criou tiro');
     gameRef.world.add(Projectile(
         owner: owner,
         position: pos, 
