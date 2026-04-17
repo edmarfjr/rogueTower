@@ -27,15 +27,13 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
       position: size / 2
     ));
 
-    // Hitbox (um pouco menor que o desenho para não ser injusto)
     add(CircleHitbox(
       radius: size.x / 2.5,
       anchor: Anchor.center,
       position: size / 2,
-      isSolid: false, // Player pode andar "dentro", é um sensor
+      isSolid: false, 
     ));
     
-    // Fica no chão (abaixo dos inimigos e player)
     priority = -500;
   }
 
@@ -43,6 +41,16 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   void update(double dt) {
     super.update(dt);
     _timer += dt;
+
+    final player = gameRef.player;
+    double dist = position.distanceTo(player.position);
+
+    if (dist <= size.x/2) {
+       _applySlow();
+       
+    } else {
+       _removeSlow();
+    }
 
     // Efeito de piscar antes de sumir
     if (_timer > duration - 2.0) {
@@ -54,11 +62,12 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
       removeFromParent();
     }
   }
+  /*
 
   @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!isMounted) return;
-    super.onCollisionStart(intersectionPoints, other);
+    super.onCollision(intersectionPoints, other);
     if (other is Player && !other.voo && !_affectingPlayer ) {
       _applySlow();
     }
@@ -72,8 +81,8 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
       _removeSlow();
     }
   }
+  */
 
-  // Segurança: Se a teia sumir ENQUANTO o player está em cima, precisamos devolver a velocidade
   @override
   void onRemove() {
     if (_affectingPlayer) {
@@ -83,19 +92,17 @@ class Web extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbac
   }
 
   void _applySlow() {
+    if(_affectingPlayer) return; 
     _affectingPlayer = true;
-    gameRef.player.moveSpeed *= 0.4; // Reduz para 40% da velocidade
-    // Muda cor do player para indicar status (opcional)
+    gameRef.player.moveSpeed *= 0.4;
     gameRef.player.visual.changeColor(Pallete.cinzaCla);
   }
 
   void _removeSlow() {
-    _affectingPlayer = false;
-    // Restaura dividindo pelo mesmo fator (matemática inversa)
-    // Ex: 100 * 0.4 = 40. -> 40 / 0.4 = 100.
-    gameRef.player.moveSpeed /= 0.4; 
-    
-    // Restaura cor original (assumindo que seja Ciano/Azul do player)
-    gameRef.player.visual.changeColor(Pallete.branco);
+    if(_affectingPlayer){
+      _affectingPlayer = false;
+      gameRef.player.moveSpeed /= 0.4; 
+      gameRef.player.visual.changeColor(gameRef.player.classColor);
+    }
   }
 }

@@ -283,8 +283,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         cor = Pallete.verdeEsc.withOpacity(0.7);
         dmg = player.damage * 2;
         fireRate = 0.6;
-        angleOffset = pi/2;
-        hbSize = Vector2(6,16); 
+        angleOffset = pi/4;
+        hbSize = Vector2(6,22); 
       //default:
       //  icon = MdiIcons.fire;
       //  cor = Pallete.branco.withOpacity(0.7);
