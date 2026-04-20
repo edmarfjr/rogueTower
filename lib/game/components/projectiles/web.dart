@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
-import 'package:towerrogue/game/components/gameObj/player.dart';
+//import 'package:towerrogue/game/components/gameObj/player.dart';
 import '../../tower_game.dart';
 import '../core/pallete.dart';
 //import '../core/game_icon.dart';

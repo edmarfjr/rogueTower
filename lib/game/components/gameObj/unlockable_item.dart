@@ -1,4 +1,5 @@
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 //import 'package:towerrogue/game/components/core/interact_button.dart'; // Import do novo botão
 import 'package:flame/collisions.dart';
@@ -189,13 +190,13 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       _updateVisuals();
       
       gameRef.world.add(FloatingText(
-        text: "Unlocked!",
+        text: "unlocked".tr(),
         position: position + Vector2(0, -30),
         color: Colors.blueAccent,
       ));
     } else {
       gameRef.world.add(FloatingText(
-        text: "Need Souls!",
+        text: "needSouls".tr(),
         position: position + Vector2(0, -30),
         color: Pallete.vermelho,
       ));

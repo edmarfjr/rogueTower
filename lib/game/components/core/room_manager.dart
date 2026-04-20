@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
@@ -147,8 +148,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.familiarFinger));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.wave));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.wave));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeGlassStaff));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.antimateria));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
@@ -694,7 +695,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // AudioManager.playSfx('boss_spawn.mp3');
 
     // 4. SPAWNA O AGIOTA!
-    gameRef.world.add(FloatingText(text: "ACHOU QUE IA FUGIR?!", position: Vector2(0, 16), paint: Pallete.textoDanoCritico, fontSize: 24));
+    gameRef.world.add(FloatingText(text: "agiotaMsg".tr(), position: Vector2(0, 16), paint: Pallete.textoDanoCritico, fontSize: 24));
     
     // Substitua pelo seu método de spawnar o boss Agiota
     gameRef.world.add(EnemyFactory.createAgiota(Vector2(0, 24),phase: gameRef.currentLevel)); 

@@ -66,6 +66,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final double sweepAngle; 
   double _currentRadius; 
   late final Paint _wavePaint;
+  late final Paint _wavePaintMeio;
   CircleHitbox? _waveCircleHitbox;
   
   final bool isSaw;
@@ -116,6 +117,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.dieTimer = 3.0,
     this.image = 'sprites/projeteis/blt.png',
     Vector2? hbSize,
+    Vector2? size,
     this.canBounce = false,
     this.maxBounces = 2,
     this.explodes = false,
@@ -153,9 +155,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isCharm = false,
     this.refratado = false,
     Vector2? iniPosition,
-  }): hbSize = hbSize ?? Vector2.all(6.0),
-      _currentRadius = (hbSize?.x ?? 6) / 2, // Raio inicial baseado no tamanho
-      super(position: position, size: Vector2.all(16), anchor: Anchor.center) {
+  }): hbSize = hbSize ?? Vector2.all(16.0),
+      _currentRadius = (hbSize?.x ?? 16) / 2, // Raio inicial baseado no tamanho
+      super(position: position, size: size ?? Vector2.all(16), anchor: Anchor.center) {
     this.iniPosition = iniPosition?.clone() ?? position.clone();
   }
 
@@ -169,7 +171,13 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         ..color = color
         ..style = PaintingStyle.stroke 
         ..isAntiAlias = false
-        ..strokeWidth = 4.0;
+        ..strokeWidth = 1.0;
+
+      _wavePaintMeio= Paint()
+        ..color = Pallete.branco
+        ..style = PaintingStyle.stroke 
+        ..isAntiAlias = false
+        ..strokeWidth = 1.0;
 
       _waveCircleHitbox = CircleHitbox(
         radius: _currentRadius,
@@ -234,7 +242,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (owner is Enemy) critico = false;
   }
 
-  // --- GERAÇÃO DOS PONTOS DA ONDA ---
+  /* --- GERAÇÃO DOS PONTOS DA ONDA ---
   List<Vector2> _generateWavePoints({double radius = 1.0}) {
    final List<Vector2> points = [];
     const int segments = 10;
@@ -252,7 +260,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
     return points;
   }
-
+*/
   @override
   void update(double dt) {
     super.update(dt);
@@ -369,13 +377,16 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       double start = -sweepAngle / 2;
       final center = size / 2;
 
-      canvas.drawArc(
-        Rect.fromCircle(center: Offset(center.x, center.y), radius: _currentRadius),
-        start, 
-        sweepAngle, 
-        false, 
-        _wavePaint,
-      );
+      for(int i = 0; i < 3; i++){
+        double radiusOffset = i * 1.5;
+        canvas.drawArc(
+          Rect.fromCircle(center: Offset(center.x, center.y), radius: _currentRadius - radiusOffset),
+          start, 
+          sweepAngle, 
+          false, 
+          i == 1 ? _wavePaintMeio : _wavePaint,
+        );
+      }
     }
   }
 

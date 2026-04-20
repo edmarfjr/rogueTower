@@ -28,24 +28,34 @@ import '../core/pallete.dart';
 import '../effects/floating_text.dart';
 import '../core/i18n.dart';
 
+enum RechargeType { room, time, singleUse }
+
 class ActiveItemData {
   final CollectibleType type;
-  int currentCharge;
-  int maxCharge;
-
+  double currentCharge; // Mudou para double
+  double maxCharge;     // Mudou para double
+  final RechargeType rechargeType; // NOVO: Guarda a regra de recarga
   ActiveItemData({
     required this.type,
     required this.currentCharge,
     required this.maxCharge,
+    this.rechargeType = RechargeType.room,
   });
 
   bool get isReady => currentCharge >= maxCharge;
 }
 
+
+
+// 3. ATUALIZE O isItemAtivo para enxergar os novos itens de tempo!
+bool isItemAtivo(CollectibleType type) {
+  return isItemRecarregavel(type) || isItemRecarregavelTempo(type) || isItemUsoUnico(type);
+}
+
 enum CollectibleType {
   //tipos de porta 
   coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextLevel, chest, bank, rareChest, bomba, alquimista, desafio, darkShop,
-  doacaoSangue, slotMachine,
+  doacaoSangue, slotMachine,cajadoQuebrado,
   //itens comuns
   damage, fireRate, moveSpeed, range, sorte, critChance, critDamage, dot, healthContainer, keys, dash, sanduiche, bombas, piercing, 
   fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, gravitacao, mine, bloodstone, bounce, spectral, cupon, bumerangue,
@@ -104,10 +114,8 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeJarroFadas,
     CollectibleType.activeFreezeBomb,
     CollectibleType.activeSuperLaser,
-    CollectibleType.activeBltDetonator,
     CollectibleType.activeGoldenrazor,
     CollectibleType.activeTurretRotate,
-    CollectibleType.activeGlassStaff,
     CollectibleType.activeBuracoNegro,
     CollectibleType.activeLoja,
     CollectibleType.activeCleaver,
@@ -115,6 +123,15 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeWoodenCoin,
   ];
   return recarregaveis.contains(type);
+}
+
+// 2. NOVA FUNÇÃO: Coloque aqui os ENUMs dos itens que carregam por tempo
+bool isItemRecarregavelTempo(CollectibleType type) {
+  const recarregaveisTempo = [
+    CollectibleType.activeGlassStaff,
+    CollectibleType.activeBltDetonator,
+  ];
+  return recarregaveisTempo.contains(type);
 }
 
 bool isItemUsoUnico(CollectibleType type) {
@@ -147,10 +164,6 @@ bool isItemUsoUnico(CollectibleType type) {
   return usoUnico.contains(type);
 }
 
-bool isItemAtivo(CollectibleType type) {
-  return isItemRecarregavel(type) || isItemUsoUnico(type);
-}
-
 class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   final CollectibleType type;
   int custo;
@@ -159,7 +172,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   int custoBombs;
   bool custoVida;
   bool naoEsgota;
-  int? activeCharge;
+  double? activeCharge;
   bool _isCollected = false;
 
   Vector2 _velocity = Vector2.zero();
@@ -175,16 +188,18 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   GameSprite? visual;
 
   Collectible({
-    required Vector2 position, 
-    required this.type, 
-    this.custo = 0, 
-    this.souls = 0, 
-    this.custoKeys = 0, 
-    this.custoBombs = 0, 
-    this.custoVida = false,
-    this.naoEsgota=false,
-    this.activeCharge,
-    }): super(position: position, size: Vector2.all(16), anchor: Anchor.center);
+  required Vector2 position, 
+  required this.type, 
+  this.custo = 0, 
+  this.souls = 0, 
+  this.custoKeys = 0, 
+  this.custoBombs = 0, 
+  this.custoVida = false,
+  this.naoEsgota=false,
+  double? activeCharge,
+  }): super(position: position, size: Vector2.all(16), anchor: Anchor.center) {
+    this.activeCharge = activeCharge;
+  }
 
   @override
   Future<void> onLoad() async {
@@ -904,6 +919,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeTurretRotate'.tr(), 'desc': 'activeTurretRotateDesc'.tr(), 'icon': 'turret2', 'color': Pallete.azulCla};
       case CollectibleType.activeGlassStaff:
         return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': 'cajado', 'color': Pallete.azulCla};
+      case CollectibleType.cajadoQuebrado:
+        return {'name': 'cajadoQuebrado'.tr(), 'desc': 'cajadoQuebradoDesc'.tr(), 'icon': 'cajadoQuebrado', 'color': Pallete.azulCla};
       case CollectibleType.activeBuracoNegro:
         return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': 'buracoNegro', 'color': Pallete.branco};
       case CollectibleType.activeLoja:
@@ -3216,7 +3233,11 @@ class CollectibleLogic {
               cor:Pallete.amarelo,
               corBorda:Pallete.vermelho
             ));
-            player.takeDamage(1);
+            int dmg = 2;
+            if(player.classImage == 'sprites/chars/bomberman.png'){
+              dmg = 1;
+            }
+            player.takeDamage(dmg);
             text = "activeKamikaze";
           }
           //color = Pallete.vermelho;
@@ -3339,7 +3360,7 @@ class CollectibleLogic {
           player.masterOrb = 1.5;
           text = "masterOrb";
           //color = Pallete.vermelho;
-          break; 
+          break;   
 
         default:
           text = "";

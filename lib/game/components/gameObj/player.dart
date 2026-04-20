@@ -323,8 +323,17 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeCleaver) return 3;
     if (type == CollectibleType.activeKamikaze) return 0;
     if (type == CollectibleType.activeWoodenCoin) return 1;
+    if (type == CollectibleType.cajadoQuebrado) return 1;
+    
     
     return 5; 
+  }
+
+  double tempoItem(CollectibleType type) {
+    // Retorna os segundos necessários para cada item de tempo
+    // if (type == CollectibleType.activeLaserTempo) return 8.0; 
+    
+    return 5.0; // Padrão: 5 segundos
   }
 
   Player({required Vector2 position}) : super(size: Vector2.all(16), anchor: Anchor.center) {
@@ -577,6 +586,23 @@ class Player extends PositionComponent
       }
     }
 
+    final currentActives = activeItems.value;
+    if (currentActives[0] != null && currentActives[0]!.rechargeType == RechargeType.time) {
+      // Se não está pronto, o tempo corre!
+      if (currentActives[0]!.currentCharge < currentActives[0]!.maxCharge) {
+        currentActives[0]!.currentCharge += dt;
+        
+        // Garante que não passe do limite
+        if (currentActives[0]!.currentCharge >= currentActives[0]!.maxCharge) {
+          currentActives[0]!.currentCharge = currentActives[0]!.maxCharge;
+          // Opcional: Tocar um som de 'Item Pronto' aqui!
+        }
+        
+        // Força a HUD a desenhar a bordinha crescendo copiando a lista
+        activeItems.value = List.from(currentActives);
+      }
+    }
+
   }
 
   void ativaLicantropia(){
@@ -671,29 +697,42 @@ class Player extends PositionComponent
     }
   }
 
-  ActiveItemData? equipActiveItem(CollectibleType newItem, int? incomingCharge) {
+ ActiveItemData? equipActiveItem(CollectibleType newItem, double? incomingCharge) {
     final currentItems = List<ActiveItemData?>.from(activeItems.value);
-    ActiveItemData? droppedData; // Guarda TUDO do item antigo (tipo e carga)
+    ActiveItemData? droppedData; 
 
-    if (isItemRecarregavel(newItem)) {
+    bool isRoom = isItemRecarregavel(newItem);
+    bool isTime = isItemRecarregavelTempo(newItem);
+
+    // Se for item de Slot 0 (Sala OU Tempo)
+    if (isRoom || isTime) {
       if (currentItems[0] != null) droppedData = currentItems[0];
       
-      int max = cargaItem(newItem);
-      // Se veio do chão com carga, usa ela. Se é novo gerado pelo baú, vem cheio (max)!
-      int chargeToSet = incomingCharge ?? max; 
+      // Puxa do dicionário certo dependendo do tipo
+      double max = isTime ? tempoItem(newItem) : cargaItem(newItem).toDouble(); 
+      double chargeToSet = incomingCharge ?? max; 
 
-      // se tem bateria, item de carga 1 vira carga 0
-      if(hasBattery && max == 1){
+      // Se tem bateria, e é item de sala de carga 1
+      if (hasBattery && max == 1 && isRoom) {
         chargeToSet = 0;
         max = 0;
       }
       
-      currentItems[0] = ActiveItemData(type: newItem, currentCharge: chargeToSet, maxCharge: max);
+      currentItems[0] = ActiveItemData(
+        type: newItem, 
+        currentCharge: chargeToSet, 
+        maxCharge: max,
+        rechargeType: isTime ? RechargeType.time : RechargeType.room
+      );
       
     } else if (isItemUsoUnico(newItem)) {
       if (currentItems[1] != null) droppedData = currentItems[1];
-      
-      currentItems[1] = ActiveItemData(type: newItem, currentCharge: 1, maxCharge: 1);
+      currentItems[1] = ActiveItemData(
+        type: newItem, 
+        currentCharge: 1, 
+        maxCharge: 1, 
+        rechargeType: RechargeType.singleUse
+      );
     }
 
     activeItems.value = currentItems;
@@ -738,8 +777,33 @@ class Player extends PositionComponent
     */
 
       if (slotIndex == 0) {
-        // Zera a carga do recarregável
-        if (foiSucesso)itemData.currentCharge = 0; 
+        if (foiSucesso) {
+          // --- LÓGICA DE CONSERTO CORRIGIDA ---
+          if (itemData.type == CollectibleType.cajadoQuebrado) {
+            
+            // 1. Pegamos o valor de tempo do cajado original
+            double tempoMax = tempoItem(CollectibleType.activeGlassStaff);
+
+            // 2. Criamos o novo objeto com a flag de TEMPO
+            currentItems[0] = ActiveItemData(
+              type: CollectibleType.activeGlassStaff, 
+              currentCharge: tempoMax, // Já nasce carregado
+              maxCharge: tempoMax,
+              rechargeType: RechargeType.time // OBRIGATÓRIO para ativar o motor de tempo
+            );
+            
+            gameRef.world.add(FloatingText(
+              text: "Consertado!",
+              position: position.clone() + Vector2(0, -size.y/2), 
+              color: Pallete.verdeCla,
+              fontSize: 12,
+            ));
+            
+          } else {
+            // Comportamento para itens normais (Zera a carga de sala)
+            itemData.currentCharge = 0.0; 
+          }
+        }
       } else if (slotIndex == 1) {
         // Destrói o de uso único
         if (foiSucesso) currentItems[1] = null;
@@ -748,8 +812,44 @@ class Player extends PositionComponent
     }
   }
 
+  void _quebrarItemDeVidro() {
+    final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    
+    // Verifica se o slot 0 tem o cajado intacto
+    if (currentItems[0] != null && currentItems[0]!.type == CollectibleType.activeGlassStaff) {
+
+      gameRef.world.add(FloatingText(
+              text: "Quebrado!",
+              position: position.clone() + Vector2(0, -size.y/2), 
+              color: Pallete.verdeCla,
+              fontSize: 12,
+            ));
+      
+      // Substitui pela versão quebrada, com CARGA ZERO!
+      currentItems[0] = ActiveItemData(
+        type: CollectibleType.cajadoQuebrado,
+        currentCharge: 0.0, // Inicia vazio
+        maxCharge: cargaItem(CollectibleType.cajadoQuebrado).toDouble(),
+        rechargeType: RechargeType.room,
+      );
+      
+      activeItems.value = currentItems; // Atualiza a HUD
+      
+      gameRef.world.add(FloatingText(
+        text: "Quebrou!",
+        position: position.clone() + Vector2(0, -size.y/2), 
+        color: Pallete.vermelho,
+        fontSize: 12,
+      ));
+      
+      // Se você ativou algum buff no item intacto (tipo superShot), desative aqui:
+      superShot = false; 
+    }
+  }
+
   void rechargeActiveItem({bool full = false}) {
     final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    if (currentItems[0] == null || currentItems[0]!.rechargeType == RechargeType.time) return;
     int val = 1;
     if(hasBattery) val = 2;
     if(full) val = cargaItem(currentItems[0]!.type);
@@ -1289,7 +1389,7 @@ class Player extends PositionComponent
     double limitY = TowerGame.gameHeight/2 - _hitbox.size.y;
     double arenaBorder = 4;
 
-    position.x = position.x.clamp(-limitX + arenaBorder, limitX + arenaBorder*3);
+    position.x = position.x.clamp(-limitX + arenaBorder * 3, limitX + arenaBorder);
     position.y = position.y.clamp(-limitY + arenaBorder, limitY + arenaBorder);
   }
 
@@ -1303,6 +1403,14 @@ class Player extends PositionComponent
 */
   void takeDamage(int amount,{bool roubaMoeda = false,bool pulaEscudo = false}) {
     final rng = Random();
+    final currentItems = List<ActiveItemData?>.from(activeItems.value);
+    if (currentItems[0] != null && currentItems[0]!.type == CollectibleType.activeGlassStaff){
+      _quebrarItemDeVidro();
+      return;
+    }
+
+
+
     if(_isInvincible || isDashing) return;
 
     if(evasao){
@@ -1753,6 +1861,7 @@ class Player extends PositionComponent
       damage: retribuicao? dmg : noDamage? 0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
+      size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
       image:isAdaga? 'sprites/projeteis/faca.png' : img ,
       dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
       apagaTiros: hasAntimateria,

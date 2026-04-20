@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+//import 'package:flutter/foundation.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
@@ -17,7 +17,7 @@ class Hud extends StatelessWidget {
         child: Stack(
           children: [
             // ---------------------------------------------
-            // 1. CANTO SUPERIOR ESQUERDO: STATUS E INVENTÁRIO ATIVO
+            // 1. CANTO SUPERIOR ESQUERDO: STATUS
             // ---------------------------------------------
             Positioned(
               top: 5,
@@ -474,7 +474,7 @@ class Hud extends StatelessWidget {
         width: 50,
         height: 50,
         decoration: BoxDecoration(
-          color: Pallete.cinzaEsc.withOpacity(0.8),
+          color: Pallete.cinzaEsc,
           border: Border.all(
             color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
             width: 1
@@ -503,7 +503,7 @@ class Hud extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "${itemData.currentCharge}/${itemData.maxCharge}",
+                    "${itemData.currentCharge.toStringAsFixed(0)}/${itemData.maxCharge.toStringAsFixed(0)}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
