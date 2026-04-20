@@ -101,6 +101,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   bool killDummy = false;
 
   final ValueNotifier<bool> canInteractNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> interactIsItem = ValueNotifier(false);
   
   VoidCallback? onInteractAction;
 

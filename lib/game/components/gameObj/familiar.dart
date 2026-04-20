@@ -208,6 +208,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         dmg = player.damage/10;
         fireRate = 0.6;
         hbSize = Vector2(8,16); 
+        followDistance = 24;
         angleOffset = pi/2;
       case FamiliarType.bouncer:
         speed = 75;
@@ -423,7 +424,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       velocity = player.velocity;
       position = player.position.clone() + player.velocityDash.normalized() * followDistance;
       angle = atan2(player.velocityDash.y, player.velocityDash.x) + angleOffset;
-      criaLaserDirecional(dt, Vector2(cos(angle),sin(angle)),dmg*gameRef.player.familiarDmg,0,fireRate,16);
+      criaLaserDirecional(dt, Vector2(cos(angle),sin(angle)),dmg:dmg*gameRef.player.familiarDmg,chargeTime: 0,durTime: fireRate,largura: 16);
 
     }else if(type == FamiliarType.lanca){
       //velocity = player.velocity;
@@ -866,7 +867,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     ));
   }
 
-  void criaLaserDirecional(double dt, Vector2 dir,dmg,chargeTime,durTime,largura)
+  void criaLaserDirecional(double dt, Vector2 dir,{double dmg = 1, double chargeTime = 0,double durTime = 0.3,double largura = 8})
   {
     _attackTimer += dt;
     double fRate = fireRate;

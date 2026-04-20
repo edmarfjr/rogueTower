@@ -85,6 +85,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showButton() {
     if(gameRef.canInteractNotifier.value) return;
+    if(gameRef.interactIsItem.value) return;
     _isInfoVisible = true;
     gameRef.onInteractAction = _donate;
     

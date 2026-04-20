@@ -166,9 +166,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (isWave) {
       color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
       _wavePaint = Paint()
-        ..color = color.withOpacity(0.8)
+        ..color = color
         ..style = PaintingStyle.stroke 
-        ..strokeWidth = 8.0;
+        ..isAntiAlias = false
+        ..strokeWidth = 4.0;
 
       _waveCircleHitbox = CircleHitbox(
         radius: _currentRadius,
@@ -677,7 +678,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         if (!isPiercing && !isBoomerang && !isWave && !canBounce) kill();
       }
       
-      if (apagaTiros && other is Projectile && !other.isEnemyProjectile) {
+      if (apagaTiros && other is Projectile && other.isEnemyProjectile) {
         _hitTargets.add(other);
         other.removeFromParent();
         if (!isPiercing && !isBoomerang && !isWave) kill();
