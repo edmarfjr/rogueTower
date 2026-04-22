@@ -127,7 +127,7 @@ class DiaryScreen extends StatelessWidget {
         }
 
         return Tooltip(
-          message: "${attrs['name'].toUpperCase()}\n$desc",//isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
+          message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
           textStyle: const TextStyle(fontSize: 14, color: Pallete.branco),
           decoration: BoxDecoration(color: Pallete.preto, border: Border.all(color: Pallete.amarelo)),
           child: Container(
@@ -141,8 +141,8 @@ class DiaryScreen extends StatelessWidget {
             ),
             child: Center(
               child: PixelSprite(
-                imagePath: 'sprites/itens/${attrs['icon']}.png',//isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', 
-                color: attrs['color'],//isDiscovered ? attrs['color'] : Pallete.lilas, 
+                imagePath: isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', 
+                color: isDiscovered ? attrs['color'] : Pallete.lilas, 
                 size: 48
               )
             ),

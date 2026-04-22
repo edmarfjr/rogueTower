@@ -323,8 +323,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeCleaver) return 3;
     if (type == CollectibleType.activeKamikaze) return 0;
     if (type == CollectibleType.activeWoodenCoin) return 1;
-    if (type == CollectibleType.cajadoQuebrado) return 1;
-    
+    if (type == CollectibleType.cajadoQuebrado) return 5;
     
     return 5; 
   }
@@ -815,36 +814,30 @@ class Player extends PositionComponent
   void _quebrarItemDeVidro() {
     final currentItems = List<ActiveItemData?>.from(activeItems.value);
     
-    // Verifica se o slot 0 tem o cajado intacto
-    if (currentItems[0] != null && currentItems[0]!.type == CollectibleType.activeGlassStaff) {
-
-      gameRef.world.add(FloatingText(
-              text: "Quebrado!",
-              position: position.clone() + Vector2(0, -size.y/2), 
-              color: Pallete.verdeCla,
-              fontSize: 12,
-            ));
-      
-      // Substitui pela versão quebrada, com CARGA ZERO!
-      currentItems[0] = ActiveItemData(
-        type: CollectibleType.cajadoQuebrado,
-        currentCharge: 0.0, // Inicia vazio
-        maxCharge: cargaItem(CollectibleType.cajadoQuebrado).toDouble(),
-        rechargeType: RechargeType.room,
-      );
-      
-      activeItems.value = currentItems; // Atualiza a HUD
-      
-      gameRef.world.add(FloatingText(
-        text: "Quebrou!",
-        position: position.clone() + Vector2(0, -size.y/2), 
-        color: Pallete.vermelho,
-        fontSize: 12,
-      ));
-      
-      // Se você ativou algum buff no item intacto (tipo superShot), desative aqui:
-      superShot = false; 
-    }
+    gameRef.world.add(FloatingText(
+      text: "quebrado".tr(),
+      position: position.clone() + Vector2(0, -size.y/2), 
+      color: Pallete.verdeCla,
+      fontSize: 12,
+    ));
+    
+    currentItems[0] = ActiveItemData(
+      type: CollectibleType.cajadoQuebrado,
+      currentCharge: 0.0,
+      maxCharge: cargaItem(CollectibleType.cajadoQuebrado).toDouble(),
+      rechargeType: RechargeType.room,
+    );
+    
+    activeItems.value = currentItems;
+    
+    gameRef.world.add(FloatingText(
+      text: "quebrado".tr(),
+      position: position.clone() + Vector2(0, -size.y/2), 
+      color: Pallete.vermelho,
+      fontSize: 12,
+    ));
+    
+    superShot = false; 
   }
 
   void rechargeActiveItem({bool full = false}) {
@@ -1406,6 +1399,10 @@ class Player extends PositionComponent
     final currentItems = List<ActiveItemData?>.from(activeItems.value);
     if (currentItems[0] != null && currentItems[0]!.type == CollectibleType.activeGlassStaff){
       _quebrarItemDeVidro();
+      if(healthNotifier.value == 1){ 
+        _isInvincible = true;
+        _invincibilityTimer = invincibilityDuration;
+      }
       return;
     }
 

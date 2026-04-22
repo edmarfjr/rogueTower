@@ -91,7 +91,7 @@ class CharacterRoster {
       id: "cowboy",
       name: "cowboy".tr(),
       description: "cowboyDesc".tr(),
-      color: Pallete.azulCla, 
+      color: Pallete.marrom, 
       maxHp: 4,
       maxDash: 2,
       speed: 75.0,
