@@ -1782,7 +1782,7 @@ class Player extends PositionComponent
     }
     criaTiro(dmg,_tempDirection.clone(),aRange,speed: bltSpeed,img:bltImage);
   }
-  void criaTiro(dmg,dir,aRange,{speed = 300,img = 'sprites/projeteis/blt.png',retribuicao = false}){
+  void criaTiro(double dmg, Vector2 dir, double aRange, {double speed = 300, String img = 'sprites/projeteis/blt.png', bool retribuicao = false}){
     final rnd = Random();
     bool isAdaga = false;
     bool isFireHazard = false;
@@ -1855,7 +1855,7 @@ class Player extends PositionComponent
       owner: this,
       position: position.clone(), 
       direction: dir, 
-      damage: retribuicao? dmg : noDamage? 0 : dmg, 
+      damage: retribuicao? dmg : noDamage? 0.0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
