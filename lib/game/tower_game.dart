@@ -105,6 +105,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   
   VoidCallback? onInteractAction;
 
+  bool isGodMode = false;
+
   @override
   Color backgroundColor() => Pallete.preto;
 

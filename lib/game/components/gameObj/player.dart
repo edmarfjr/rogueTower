@@ -456,6 +456,13 @@ class Player extends PositionComponent
   void update(double dt) {
     super.update(dt);
 
+    if (gameRef.isGodMode && damage < 100){
+      damageIni = damage;
+      damage = 100;
+    }else if (!gameRef.isGodMode && damage == 100){
+      damage = damageIni;
+    }
+
     if (visual != null && isUnicorn) {
         _colorTimer += dt;
         
@@ -569,7 +576,7 @@ class Player extends PositionComponent
     _handleUnicorn(dt);
     _handlePacmen(dt);
 
-    if (healthNotifier.value <= 0 && shieldNotifier.value <= 0) {
+    if (healthNotifier.value <= 0 && shieldNotifier.value <= 0 && gameRef.isGodMode == false) {
       _die();
     }
 
@@ -2374,7 +2381,7 @@ class Player extends PositionComponent
     }
   }
 
-  void slotMachine(int custo){
+  void slotMachine(int custo,{bool isPortatil = false}){
     gameRef.world.add(FloatingText(
       text: "-${custo}\$",
       position: position.clone() + Vector2(0, -30),
@@ -2417,7 +2424,7 @@ class Player extends PositionComponent
     String ResultTxt = 'nada';
     if (temItem){
       final newItem = Collectible(
-        position: Vector2(0, 10), 
+        position:isPortatil ? position.clone() + Vector2(0, 10) : Vector2(0, 10), 
         type: item,
       );
     

@@ -133,7 +133,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     this.angleOffset = 0, 
     this.retorna = true,
     this.fireRate = 2,
-    this.radius = 32,
+    this.radius = 16,
     this.noVisual = false,
     this.meleeRate = 0.3,
     }) : super(position: position , size: Vector2.all(16), anchor: Anchor.center) {
@@ -217,23 +217,23 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         dmg = player.damage * 2 ;
       case FamiliarType.eye:
         icon = 'sprites/familiares/olho.png';
-        radius = 48;
+        radius = 24;
         speed = 2;
         cor = Pallete.rosa.withOpacity(0.7);
         fireRate = 0.5;
         dmg = player.damage / 2 ;
       case FamiliarType.prisma:
         icon = 'sprites/familiares/prisma.png';
-        radius = 64;
+        radius = 32;
         speed = 2;
         cor = Pallete.branco.withOpacity(0.7);
       case FamiliarType.refletor:
         icon = 'sprites/familiares/espelho.png';
-        radius = 64;
+        radius = 32;
         speed = 2;
         cor = Pallete.cinzaCla.withOpacity(0.7);
       case FamiliarType.dummy:
-        followDistance = 64;
+        followDistance = 32;
         icon = 'sprites/familiares/dummy.png';
         cor = Pallete.bege;
         dmg = player.damage;
@@ -418,6 +418,31 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
           visual!.changeColor(cor);
         }
       }
+
+    if(type == FamiliarType.dmgBuff){
+      if (dist < detectRadius + 10.0) {
+        player.dmgBuff = true;
+        if(player.dmgBuffIcon == null){
+          player.numIcons ++;
+          player.dmgBuffIcon = GameSprite(
+            imagePath: 'sprites/condicoes/espada.png',
+            color: Pallete.vermelho,
+            size: player.size/2,
+            anchor: Anchor.center,
+            position: Vector2(player.size.x / 2, - player.size.y / 4 - 14*player.numIcons), 
+          );
+          player.add(player.dmgBuffIcon!);
+        }
+      }else if(player.dmgBuff){
+        player.dmgBuff = false;
+        if(player.dmgBuffIcon != null){
+          player.numIcons --;
+          player.dmgBuffIcon!.removeFromParent();
+          player.dmgBuffIcon = null; 
+        }
+      }
+    }
+
     }else if(type == FamiliarType.circProt){
       position = player.position.clone();
     }else if(type == FamiliarType.finger){
@@ -738,15 +763,15 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         
       }
     }
-    if (type == FamiliarType.dmgBuff) {
-      if(other is Player){
-        other.dmgBuff = true;
-      }
-    }
+  //  if (type == FamiliarType.dmgBuff) {
+  //    if(other is Player){
+   //     other.dmgBuff = true;
+   //   }
+   // }
     
   }
 
-   @override
+  /* @override
   void onCollisionEnd(PositionComponent other) {
     super.onCollisionEnd(other);
     if (type == FamiliarType.dmgBuff) {
@@ -755,7 +780,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       }
     }
   }
-
+*/
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);

@@ -1888,7 +1888,8 @@ class CollectibleLogic {
                 item.removeFromParent();
                 
                 game.world.add(Collectible(position: pos, type: novoTipo));
-                
+                game.onInteractAction = null;
+                game.canInteractNotifier.value = false;
                 
                 createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
                 
@@ -2813,7 +2814,7 @@ class CollectibleLogic {
             };
           }else{
             player.collectCoin(-2);
-            player.slotMachine(2);
+            player.slotMachine(2,isPortatil: true);
           }
           text = "-1\$";
           //color = Pallete.vermelho;

@@ -337,24 +337,7 @@ class CharacterRoster {
       isUnlockedByDefault: false,
       unlockConditionText: "bombermanCond".tr(),
     ),
-    CharacterClass(
-      id: "debug",
-      name: "debug".tr(),
-      description: "debug".tr(),
-      color: Pallete.marrom, 
-      maxHp: 4,
-      maxDash: 2,
-      speed: 75.0,
-      damage: 100.0,
-      fireRate: 0.4,
-      critChance: 5,
-      critDamage: 1.5,
-      dashCooldown: 2.5,
-      attackRange: 0.7,
-      startingShield: 1,
-      startingBombs: 5,
-      startingKeys: 5,
-    ),
+    
   ];
 
   static CharacterClass getClassById(String? id) {

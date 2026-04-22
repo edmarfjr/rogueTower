@@ -64,8 +64,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
                     title: Text('muteMusic'.tr(), style: const TextStyle(color: Colors.white, fontSize: 18)),
                     value: _isMutedMusic,
                     activeColor: Pallete.vermelho,
-                    checkColor: Colors.white,
-                    side: const BorderSide(color: Colors.white54, width: 2),
+                    checkColor: Pallete.branco,
+                    side: const BorderSide(color: Pallete.cinzaCla, width: 1),
                     onChanged: (bool? value) {
                       setState(() {
                         _isMutedMusic = value ?? false;
@@ -80,8 +80,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
                     title: Text('muteSfx'.tr(), style: const TextStyle(color: Colors.white, fontSize: 18)),
                     value: _isMutedSfx,
                     activeColor: Pallete.vermelho,
-                    checkColor: Colors.white,
-                    side: const BorderSide(color: Colors.white54, width: 2),
+                    checkColor: Pallete.branco,
+                    side: const BorderSide(color: Pallete.cinzaCla, width: 1),
                     onChanged: (bool? value) {
                       setState(() {
                         _isMutedSfx = value ?? false;

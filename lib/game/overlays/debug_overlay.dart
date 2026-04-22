@@ -16,6 +16,7 @@ class _DebugMenuState extends State<DebugMenu> {
   // Variáveis temporárias do menu
   int _selectedLevel = 1;
   int _selectedRoom = 1;
+  bool _isGodMode = false;
 
   @override
   void initState() {
@@ -24,6 +25,7 @@ class _DebugMenuState extends State<DebugMenu> {
     // Substitua 'currentLevel' pela variável real do seu jogo, se for diferente
     _selectedRoom = widget.game.currentRoomNotifier.value;
     _selectedLevel = 1; // Se você tiver um levelNotifier, puxe o valor dele aqui
+    _isGodMode = widget.game.isGodMode; // Puxa o estado atual do God Mode
   }
 
   @override
@@ -92,6 +94,20 @@ class _DebugMenuState extends State<DebugMenu> {
               ),
 
               const SizedBox(height: 10),
+
+              CheckboxListTile(
+                    title: const Text('God Mode', style: TextStyle(color: Colors.white, fontSize: 18)),
+                    value: _isGodMode,
+                    activeColor: Pallete.vermelho,
+                    checkColor: Pallete.branco,
+                    side: const BorderSide(color: Pallete.cinzaCla, width: 1),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _isGodMode = value ?? false;
+                        widget.game.isGodMode = _isGodMode;
+                      });
+                    },
+                  ),
 
               // Botão Fechar
               TextButton(
