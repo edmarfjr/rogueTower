@@ -79,6 +79,7 @@ class Player extends PositionComponent
 
   double bltSize = 16;
   String bltImage = 'sprites/projeteis/blt.png';
+  String bltImageIni = 'sprites/projeteis/blt.png';
   double bltSpeed = 500;
 
   ValueNotifier<int> bombNotifier = ValueNotifier<int>(0);
@@ -363,6 +364,9 @@ class Player extends PositionComponent
       if(_shadow != null){
         _shadow.removeFromParent();
       }
+      if(armaVisual != null){
+        armaVisual!.removeFromParent();
+      }
      
       currentColor = color;
     }
@@ -410,6 +414,19 @@ class Player extends PositionComponent
 
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
+
+    if(arma != null && !isLicantropia && !isUnicorn && !isPac){
+      armaVisual = GameSprite(
+        imagePath: armaImage,
+        size: Vector2(16, 16),
+        color: armaCor , 
+        anchor: Anchor.center,
+        position: Vector2(16, 8), 
+      );
+      armaVisual!.angle = armaAng;
+
+      arma!.add(armaVisual!);
+    }
   }
 
   @override
@@ -615,46 +632,32 @@ class Player extends PositionComponent
     if(isLicantropia) return;
     isLicantropia = true;
     animContrario = false;
-    visual.removeFromParent();
 
-    visual = GameSprite(
-      imagePath: 'sprites/chars/licantropo.png',
-      color: Pallete.marrom,
-      size: size + Vector2(4,4), 
-      anchor: Anchor.center,
-      position: size / 2,
-    );
-    currentColor = Pallete.marrom;
-    add(visual);
+    bltImage = 'sprites/projeteis/arranhao.png';
+
+    criaVisual(reset:true,image: 'sprites/chars/licantropo.png',color : Pallete.marrom);
+    
   }
 
   void _handleLicantropia(double dt){
     if (isLicantropia){
       licantropiaTmr += dt;
-      if (licantropiaTmr >= 30){
+      if (licantropiaTmr >= 10){
         isLicantropia = false;
         criaVisual(reset:true,image: classImage,color : classColor);
+        bltImage = bltImageIni;
       }
     }
   }
 
   void ativaPacmen(){
     if(isPac) return;
+    pacTmr = 0;
     isPac = true;
     animContrario = false;
     _isInvincible = true;
-    visual.removeFromParent();
 
-    visual = GameSprite(
-      imagePath: 'sprites/chars/pac.png',
-      color: Pallete.amarelo,
-      size: size + Vector2(4,4), 
-      anchor: Anchor.center,
-      position: size / 2,
-    );
-    
-    currentColor = Pallete.amarelo;
-    add(visual);
+    criaVisual(reset:true,image: 'sprites/chars/pac.png',color : Pallete.amarelo); 
 
     gameRef.world.add(FloatingText(
       text: "PAC PAC PAC!!",
@@ -675,22 +678,15 @@ class Player extends PositionComponent
   }
 
   void ativaUnicorn({bool taurus = false}){
-    if(isUnicorn) return;
+    unicornTmr = 0;
+    if(isUnicorn){
+      return;
+    } 
     isUnicorn = true;
     animContrario = false;
     _isInvincible = true;
-    visual.removeFromParent();
 
-    visual = GameSprite(
-      imagePath:taurus? 'sprites/chars/minotauro.png' : 'sprites/chars/unicorn.png',
-      color: Pallete.laranja,
-      size: size + Vector2(4,4), 
-      anchor: Anchor.center,
-      position: size / 2,
-    );
-    currentColor = Pallete.laranja;
-    add(visual);
-    
+    criaVisual(reset:true,image: taurus? 'sprites/chars/minotauro.png' : 'sprites/chars/unicorn.png',color : Pallete.laranja); 
   }
   void _handleUnicorn(double dt){
     if (isUnicorn){
@@ -981,6 +977,7 @@ class Player extends PositionComponent
 
       itemsExcluidos = charClass.itemsExcluidos;
       bltImage = charClass.bltImage;
+      bltImageIni = charClass.bltImage;
       bltSize = charClass.bltSize;
       bltSpeed = charClass.bltSpeed;
 
@@ -1213,6 +1210,7 @@ class Player extends PositionComponent
           color: Pallete.branco,
           fontSize: 12,
         ));
+        if(isUnicorn)isUnicorn = false;
         ativaUnicorn(taurus: true);
       }
     }
@@ -1413,8 +1411,6 @@ class Player extends PositionComponent
       return;
     }
 
-
-
     if(_isInvincible || isDashing) return;
 
     if(evasao){
@@ -1428,7 +1424,7 @@ class Player extends PositionComponent
 
     if(roubaMoeda && gameRef.coinsNotifier.value > 0) collectCoin(rng.nextInt(10) + 5);
 
-    if(hurtPac){
+    if(hurtPac && !isUnicorn){
       double chance = 5.0 + (2.5 * sorte);
       if(rng.nextInt(100) <= chance && !isPac){ 
         ativaPacmen();
@@ -2166,7 +2162,6 @@ class Player extends PositionComponent
           text = "zodiacCancer";
           break;
         case 3:
-          increaseHp(2);
           increaseDamage(1.2);
           increaseMovementSpeed(1.1);
           increaseFireRate(0.85);

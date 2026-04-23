@@ -159,6 +159,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   double _contadorPiscar =0;
   bool _mostrarBranco = false;
 
+  bool isBlocking = false;
+
   Enemy({
     required Vector2 position,
     required this.movementBehavior,
@@ -357,7 +359,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         voa = true;
         break; 
       case 8:
-        originalColor = Pallete.branco;
+        originalColor = Pallete.cinzaCla;
         dropList = [CollectibleType.healthContainer];
         break;
       case 9:
@@ -497,6 +499,17 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
             proj.angle = atan2(proj.direction.y, proj.direction.x);
           }
         }
+      }
+    }
+    if(championType == 8){
+      final allEnemies = gameRef.world.children.query<Enemy>();
+      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 8);
+      if (realEnemies.isNotEmpty && !isBlocking){
+        isBlocking = true;
+      }else if (!realEnemies.isNotEmpty && isBlocking){
+        isBlocking = false;
+        originalColor = Pallete.branco;
+        visual!.changeColor(Pallete.branco);
       }
     }
 
@@ -712,19 +725,16 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   { 
     final rnd = Random();
     if (hp <= 0) return;
-    if(championType == 8){
-      final allEnemies = gameRef.world.children.query<Enemy>();
-      final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed && enemy.championType != 8);
-      if (realEnemies.isNotEmpty){
-        gameRef.world.add(FloatingText(
-            text: 'BLOCK!',
-            position: position.clone() + Vector2(0, -size.y/2), 
-            paint: Pallete.textoPadrao,
-            //color: Pallete.branco, 
-           // fontSize: 14,
-          ));
-        return;
-      }
+    if(isBlocking){
+      gameRef.world.add(FloatingText(
+          text: 'BLOCK!',
+          position: position.clone() + Vector2(0, -size.y/2), 
+          paint: Pallete.textoPadrao,
+          //color: Pallete.branco, 
+          // fontSize: 14,
+        ));
+      return;
+      
     }
     bool isCrit = false;
     double dmg = damage;

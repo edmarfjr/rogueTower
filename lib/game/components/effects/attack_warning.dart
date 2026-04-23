@@ -26,7 +26,7 @@ class AttackWarningEffect extends PositionComponent {
     _movingPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
+      ..strokeWidth = 0.5
       ..isAntiAlias = false
       //..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0)
       ;

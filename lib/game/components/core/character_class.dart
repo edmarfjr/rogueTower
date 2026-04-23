@@ -96,7 +96,7 @@ class CharacterRoster {
       maxDash: 2,
       speed: 75.0,
       damage: 10.0,
-      fireRate: 0.35,
+      fireRate: 0.45,
       critChance: 5,
       critDamage: 1.5,
       dashCooldown: 2.5,
@@ -274,12 +274,12 @@ class CharacterRoster {
       startingItems: [
         CollectibleType.activeLicantropia,
       ],
-      itemsExcluidos: [
-        CollectibleType.activeUnicorn,
-        CollectibleType.activePacmen,
-      ],
+      //itemsExcluidos: [
+      //  CollectibleType.activeUnicorn,
+      //  CollectibleType.activePacmen,
+      //],
       isUnlockedByDefault: false,
-      bltImage: 'sprites/projeteis/arranhao.png',
+      bltImage: 'sprites/projeteis/soco.png',
       unlockConditionText: "licantropoCond".tr(),
     ),
     CharacterClass(

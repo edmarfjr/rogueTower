@@ -266,23 +266,23 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
     if(custoVida){
       add(GameSprite(
-        imagePath: 'sprites/hud/hpVazio.png',
+        imagePath: 'sprites/condicoes/coracao.png',
         color: Pallete.vermelho,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
         position: Vector2(size.x / 2 + size.x/2 + 2, size.y + 10),
       ));
       add(GameSprite(
-        imagePath: 'sprites/hud/hpVazio.png',
+        imagePath: 'sprites/condicoes/coracao.png',
         color: Pallete.vermelho,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
         position: Vector2(size.x / 2, size.y + 10),
       ));
       add(GameSprite(
-        imagePath: 'sprites/hud/hpVazio.png',
+        imagePath: 'sprites/condicoes/coracao.png',
         color: Pallete.vermelho,
-        size: size/2,
+        size: Vector2.all(8),
         anchor: Anchor.center,
         position: Vector2(size.x / 2 - size.x/2 - 2, size.y + 10),
       ));
@@ -1528,7 +1528,7 @@ class CollectibleLogic {
 
         case CollectibleType.soda:
           player.increaseMovementSpeed(2);
-          text = "Gravitation";
+          text = "soda";
           //color = Pallete.vermelho;
           break;
 
@@ -2615,6 +2615,11 @@ class CollectibleLogic {
         case CollectibleType.activeBloodBag:
           player.takeDamage(1,pulaEscudo:true);
           int c = Random().nextInt(20)+5;
+          game.world.add(FloatingText(
+                text: "\$$c",
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.vermelho,
+              ));
           player.collectCoin(c);
           text = "+ $c\$ ";
           //color = Pallete.vermelho;

@@ -55,9 +55,9 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "ESCOLHA SUA CLASSE",
-                style: TextStyle(color: Pallete.branco, fontSize: 32, fontWeight: FontWeight.bold),
+              Text(
+                "escolhaClasse".tr(),
+                style: const TextStyle(color: Pallete.branco, fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Stack(
@@ -84,7 +84,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               
               const SizedBox(height: 10),
               Text(
-                _isCurrentClassUnlocked ? charClass.name : "???",
+                _isCurrentClassUnlocked ? charClass.name.tr() : "???",
                 style: TextStyle(
                   color: _isCurrentClassUnlocked ? charClass.color : Pallete.cinzaCla, 
                   fontSize: 32, 
@@ -95,7 +95,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Text(
-                  _isCurrentClassUnlocked ? charClass.description : charClass.unlockConditionText,
+                  _isCurrentClassUnlocked ? charClass.description.tr() : charClass.unlockConditionText.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _isCurrentClassUnlocked ? Pallete.cinzaCla : Pallete.vermelho, 
@@ -109,7 +109,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               const Spacer(),
 
               // --- SELETOR DE DIFICULDADE AQUI ---
-              const Text("DIFICULDADE", style: TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              Text("dificuldade".tr(), style: const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               const SizedBox(height: 8),
               // Envolvi num Wrap (ou SingleChildScrollView) caso a tela do telemóvel seja muito pequena
               Wrap(
@@ -164,7 +164,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
                       widget.game.overlays.remove('CharacterSelectionMenu');
                       
                     } : null,
-                    child: Text( _isCurrentClassUnlocked ? "INICIAR" : "BLOQUEADO", style: const TextStyle(fontSize: 20, color: Pallete.preto, fontWeight: FontWeight.bold)),
+                    child: Text( _isCurrentClassUnlocked ? "iniciar".tr() : "bloqueado".tr(), style: const TextStyle(fontSize: 20, color: Pallete.preto, fontWeight: FontWeight.bold)),
                   ),
 
                   IconButton(
@@ -190,7 +190,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               
               TextButton(
                 onPressed: () => widget.game.overlays.remove('CharacterSelectionMenu'),
-                child: const Text("VOLTAR", style: TextStyle(color: Pallete.cinzaCla)),
+                child: Text("voltar".tr(), style: const TextStyle(color: Pallete.cinzaCla)),
               ),
               const SizedBox(height: 10),
             ],

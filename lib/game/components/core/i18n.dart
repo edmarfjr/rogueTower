@@ -187,7 +187,7 @@ class I18n {
       'bumerangue':'Bumerangue',
       'bumerangueDesc':'Substitui seus tiro por bumerangues',
       'gravitacao': 'Gravitação',
-      'gravitacaoDesc': 'seus tiros orbitam o ponto de lançamento, +50% Taxa de tiro',
+      'gravitacaoDesc': 'seus tiros orbitam, +50% Taxa de tiro',
       'pocaVeneno' : 'Rastro Venenoso',
       'pocaVenenoDesc' : 'Deixa um Rastro Venenoso atrás de você',
       'rastroFogo' : 'Rastro Flamejante',
@@ -497,7 +497,12 @@ class I18n {
       'beast': 'A Besta de Caerbannog',
       'orcChief': 'Orc Chefe',
       'agiota':'agiota',
-      'ai':'UI!'
+      'ai':'UI!',
+      'escolhaClasse':'Escolha seu personagem',
+      'dificuldade':'Dificuldade',
+      'iniciar':'Iniciar',
+      'bloqueado':'BLOQUEADO',
+      'voltar':'VOLTAR'
     },
     'en': {
       "paused": "PAUSED",
@@ -682,7 +687,7 @@ class I18n {
       'bumerangue': 'Boomerang',
       'bumerangueDesc': 'Replaces your shots with boomerangs',
       'gravitacao': 'Gravity',
-      'gravitacaoDesc': 'Your shots orbit their origin point, +50% fire rate',
+      'gravitacaoDesc': 'Your shots orbits, +50% fire rate',
       'pocaVeneno': 'Poison Trail',
       'pocaVenenoDesc': 'Leaves a poison trail behind you',
       'rastroFogo': 'Flame Trail',
@@ -992,7 +997,12 @@ class I18n {
       "beast": "Beast of Caerbannog",
       "orcChief": "Orc Chief",
       "agiota": "Loan Shark",
-      "ai": "Ouch!"
+      "ai": "Ouch!",
+      'escolhaClasse': 'Choose your character',
+      'dificuldade': 'Difficulty',
+      'iniciar': 'Start',
+      'bloqueado': 'LOCKED',
+      'voltar': 'BACK',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1139,7 +1149,7 @@ class I18n {
 			'bumerangue': 'Búmeran',
 			'bumerangueDesc': 'Reemplaza tus disparos por búmeranes',
 			'gravitacao': 'Gravedad',
-			'gravitacaoDesc': 'Tus disparos orbitan el punto de origen, +50% velocidad de disparo',
+			'gravitacaoDesc': 'Tus disparos orbitan, +50% velocidad de disparo',
 			'pocaVeneno': 'Rastro Venenoso',
 			'pocaVenenoDesc': 'Deja un rastro venenoso detrás de ti',
 			'rastroFogo': 'Rastro de Fuego',
@@ -1448,7 +1458,12 @@ class I18n {
       'truQueen': 'La Reina Verdadera',
       'beast': 'La Bestia de Caerbannog',
       'agiota':'usurero',
-      'ai':'AY!'
+      'ai':'AY!',
+      'escolhaClasse': 'Elige tu personaje',
+      'dificuldade': 'Dificultad',
+      'iniciar': 'Iniciar',
+      'bloqueado': 'BLOQUEADO',
+      'voltar': 'VOLVER',
     }
   };
 

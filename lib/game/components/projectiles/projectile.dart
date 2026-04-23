@@ -350,8 +350,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if(!isEnemyProjectile) velocidade = speed * game.player.masterOrb;
 
       _currentAngle += velocidade * dt;
-      final double centerX = iniPosition.x ;
-      final double centerY = iniPosition.y ;
+      final double centerX = owner!.position.x ;
+      final double centerY = owner!.position.y ;
 
       final newX = centerX + cos(_currentAngle) * orbitalRadius;
       final newY = centerY + sin(_currentAngle) * orbitalRadius;
@@ -453,7 +453,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
-  void criaProjetil(pos,dir,dmg,spd,sz,die,apaga,homing,iniPos,bounce,spectral,piercing,orbital,boomer,split,splitC,gold,wave,saw,cor,refratado){
+  void criaProjetil(Vector2 pos, Vector2 dir, double dmg, double spd, Vector2 sz, double die, bool apaga, bool homing, Vector2 iniPos, bool bounce, bool spectral, bool piercing, bool orbital, bool boomer, bool split, int splitC, bool gold, bool wave, bool saw, Color cor, bool refratado){
     gameRef.world.add(Projectile(
         owner: owner,
         position: pos, 
@@ -559,7 +559,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     removeFromParent();
   }
 
-  void _doSplit(rndDir,dmg,spd,sz,die,canBounce,isSpectral,isPiercing,isOrbital,isBoomerang,splits,splitCount,goldShot,isWave,isSaw,cor) {
+  void _doSplit(bool rndDir,double dmg,double spd,Vector2 sz,double die,bool canBounce,bool isSpectral,bool isPiercing,bool isOrbital,bool isBoomerang,bool splits,int splitCount,bool goldShot,bool isWave,bool isSaw,Color cor) {
     for (int i = 0; i < splitCount; i++) {
       double angle = rndDir? Random().nextDouble() * 2*pi : i*(2*pi/splitCount); 
       Vector2 newDir = Vector2(cos(angle), sin(angle));
