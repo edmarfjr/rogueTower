@@ -154,8 +154,8 @@ class _SettingsMenuState extends State<SettingsMenu> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _langButton('pt', '🇧🇷 PT', currentLang),
                       _langButton('en', '🇺🇸 EN', currentLang),
+                      _langButton('pt', '🇧🇷 PT', currentLang),
                       _langButton('es', '🇪🇸 ES', currentLang),
                     ],
                   ),

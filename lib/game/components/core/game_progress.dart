@@ -17,7 +17,7 @@ class GameProgress {
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
 
-  final ValueNotifier<String> languageNotifier = ValueNotifier('pt');
+  final ValueNotifier<String> languageNotifier = ValueNotifier('en');
 
   int get bankBalance => bankNotifier.value;
   

@@ -236,10 +236,10 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
           color: Pallete.preto,
          // borderRadius: BorderRadius.circular(10),
         ),
-        child: const Center(
+        child:  Center(
           child: Text(
-            "Nenhum item especial adquirido.",
-            style: TextStyle(color: Pallete.cinzaCla, fontSize: 14),
+            "noItems".tr(),
+            style: const TextStyle(color: Pallete.cinzaCla, fontSize: 14),
             textAlign: TextAlign.center,
           ),
         ),

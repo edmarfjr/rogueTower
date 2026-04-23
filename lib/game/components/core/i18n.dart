@@ -502,7 +502,8 @@ class I18n {
       'dificuldade':'Dificuldade',
       'iniciar':'Iniciar',
       'bloqueado':'BLOQUEADO',
-      'voltar':'VOLTAR'
+      'voltar':'VOLTAR',
+      'noItems':'Nenhum item especial adquirido.',
     },
     'en': {
       "paused": "PAUSED",
@@ -1003,6 +1004,7 @@ class I18n {
       'iniciar': 'Start',
       'bloqueado': 'LOCKED',
       'voltar': 'BACK',
+      'noItems':'No special items acquired.',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1464,6 +1466,7 @@ class I18n {
       'iniciar': 'Iniciar',
       'bloqueado': 'BLOQUEADO',
       'voltar': 'VOLVER',
+      'noItems':'No se han adquirido ítems especiales.',
     }
   };
 
