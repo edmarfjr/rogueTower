@@ -46,22 +46,30 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [
-        // 2. O SEU JOGO INTEIRO FICA AQUI (NO FUNDO)
+      children:[
+        // 1. AUMENTA O BRILHO E CONTRASTE DO JOGO (Fósforo CRT)
         ColorFiltered(
-          colorFilter: const ColorFilter.mode(
-            Color(0xFF0A0E18), // O seu novo "preto"
-            BlendMode.lighten, // Substitui apenas o que for mais escuro que a cor acima!
+          colorFilter: const ColorFilter.matrix([
+            1.3,  0.0,  0.0,  0.0,  15.0, // Canal Vermelho: 30% mais contraste, +15 de brilho puro
+            0.0,  1.3,  0.0,  0.0,  15.0, // Canal Verde:   30% mais contraste, +15 de brilho puro
+            0.0,  0.0,  1.3,  0.0,  15.0, // Canal Azul:    30% mais contraste, +15 de brilho puro
+            0.0,  0.0,  0.0,  1.0,   0.0, // Canal Alpha (Transparência): Intacto
+          ]),
+          // 2. O NOSSO FILTRO DO FUNDO QUASE PRETO (Que fizemos antes)
+          child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Color(0xFF0A0E18), 
+              BlendMode.lighten, 
+            ),
+            child: widget.child, // O jogo roda aqui!
           ),
-          child: widget.child, // O seu jogo inteiro roda aqui dentro
         ),
         
-        // 3. A PELÍCULA DO SHADER FICA POR CIMA DE TUDO
+        // 3. A PELÍCULA CRT (Que escuta o botão de liga/desliga)
         ValueListenableBuilder<bool>(
           valueListenable: GameProgress.crtEnabled,
-          builder: (context, isCrtOn, child) {
-            // Se o botão estiver ligado E o shader carregou, desenha a película
-            if (isCrtOn && _program != null) {
+          builder: (context, crtOn, child) {
+            if (crtOn && _program != null) {
               return Positioned.fill(
                 child: IgnorePointer( 
                   child: CustomPaint(
@@ -70,7 +78,6 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
                 ),
               );
             }
-            // Se estiver desligado, retorna um widget vazio invisível
             return const SizedBox.shrink(); 
           },
         ),
@@ -99,7 +106,7 @@ class CrtPainter extends CustomPainter {
 
     shader.setFloat(3, 0.2); // Densidade (Menor = Mais espaçado)
     shader.setFloat(4, 0.65); // Grossura (Maior = Mais fina)
-    shader.setFloat(5, 0.2);     // Alpha (Maior = Mais Escura)
+    shader.setFloat(5, 0.3);     // Alpha (Maior = Mais Escura)
 
     var paint = Paint()..shader = shader;
     
