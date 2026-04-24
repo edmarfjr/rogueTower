@@ -494,7 +494,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _spawnDoors(int roomNumber) {
     const double margin = 8.0;
-    const double posY = -16*15; // Posição Y fixa para as portas
+    const double posY = -16*15 - 1; // Posição Y fixa para as portas
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(

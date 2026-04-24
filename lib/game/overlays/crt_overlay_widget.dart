@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:towerrogue/game/components/core/game_progress.dart';
 
 // 1. Criamos um StatefulWidget para controlar a passagem do tempo
 class CrtOverlayWidget extends StatefulWidget {
@@ -56,15 +57,23 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
         ),
         
         // 3. A PELÍCULA DO SHADER FICA POR CIMA DE TUDO
-        if (_program != null)
-          Positioned.fill(
-            child: IgnorePointer( 
-              // O IgnorePointer é VITAL! Ele impede que o shader bloqueie seus toques na tela
-              child: CustomPaint(
-                painter: CrtPainter(_program!, _time),
-              ),
-            ),
-          ),
+        ValueListenableBuilder<bool>(
+          valueListenable: GameProgress.crtEnabled,
+          builder: (context, isCrtOn, child) {
+            // Se o botão estiver ligado E o shader carregou, desenha a película
+            if (isCrtOn && _program != null) {
+              return Positioned.fill(
+                child: IgnorePointer( 
+                  child: CustomPaint(
+                    painter: CrtPainter(_program!, _time),
+                  ),
+                ),
+              );
+            }
+            // Se estiver desligado, retorna um widget vazio invisível
+            return const SizedBox.shrink(); 
+          },
+        ),
       ],
     );
   }

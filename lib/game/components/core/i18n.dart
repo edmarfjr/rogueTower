@@ -514,6 +514,7 @@ class I18n {
       'pagar_divida':'PAGAR DÍVIDA',
       'falta_moedas' : 'FALTAM MOEDAS PARA PAGAR!',
       'tudo':'TUDO',
+      'crt_effect':'Efeito CRT',
     },
     'en': {
       "paused": "PAUSED",
@@ -1024,6 +1025,7 @@ class I18n {
       'pagar_divida':'PAY DEBT',
       'falta_moedas':'NOT ENOUGH COINS TO PAY!',
       'tudo':'ALL',
+      'crt_effect':'CRT Effect',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1495,6 +1497,7 @@ class I18n {
       'pagar_divida':'PAGAR DEUDA',
       'falta_moedas':'¡NO HAY SUFICIENTES MONEDAS PARA PAGAR!',
       'tudo':'TODO',
+      'crt_effect':'Efecto CRT',
     }
   };
 

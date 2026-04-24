@@ -22,9 +22,24 @@ void main() {
     // Entorta as coordenadas do eixo X na área da onda
     uv.x += waveTear * occasional * 0.03; 
 
-    // 2. SCANLINES (Linhas horizontais)
-    float scanline = sin(uv.y * 3.14159 * (uResolution.y * 0.4));
-    float scanlineAlpha = (scanline * 0.5 + 0.5) * 0.20;
+    // 2. SCANLINES (Finas e Espaçadas)
+    // 1º Passo: DISTÂNCIA (Densidade das linhas)
+    // Diminuir o 0.15 afasta as linhas umas das outras.
+    float densidade = uResolution.y * 0.2; 
+    
+    // Cria uma repetição em loop de 0.0 até 1.0 para cada espaço de linha
+    float ciclo = fract(uv.y * densidade);
+    
+    // 2º Passo: GROSSURA DA LINHA
+    // A função step(0.85, ciclo) só desenha a linha quando o loop chega no final.
+    // O valor 0.85 significa: 85% do espaço é vazio, e apenas 15% vira a linha preta.
+    // Se quiser a linha AINDA MAIS FINA, mude para 0.90 ou 0.95!
+    float scanline = step(0.65, ciclo);
+    
+    // 3º Passo: OPACIDADE
+    // Como a linha agora é fininha, podemos forçar o preto dela para marcar bem.
+    // (Aumente o 0.25 se quiser a linha mais escura)
+    float scanlineAlpha = scanline * 0.20;
 
     // 3. MATRIZ DE PIXELS (AUMENTADA)
     //float matrixX = sin(coord.x * 3.14159 * 0.6); 

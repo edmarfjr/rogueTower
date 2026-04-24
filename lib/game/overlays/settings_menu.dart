@@ -1,3 +1,5 @@
+import 'package:towerrogue/game/components/core/game_progress.dart';
+
 import '../components/core/audio_manager.dart';
 import '../components/core/i18n.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +123,32 @@ class _SettingsMenuState extends State<SettingsMenu> {
                         widget.game.progress.saveSettings(widget.game);
                       });
                     },
+                  ),
+
+
+                  ValueListenableBuilder<bool>(
+                    valueListenable: GameProgress.crtEnabled, // Agora escuta do GameProgress!
+                    builder: (context, crtOn, child) {
+                      return SwitchListTile(
+                        title: Text(
+                          'crt_effect'.tr(),
+                          style: const TextStyle(
+                            fontFamily: 'pixelFont', 
+                            fontSize: 16,
+                            color: Colors.white,
+                            decoration: TextDecoration.none, 
+                          ),
+                        ),
+                        value: crtOn,
+                        activeColor: Pallete.branco, 
+                        inactiveThumbColor: Pallete.cinzaEsc,
+                        inactiveTrackColor: Colors.black54,
+                        onChanged: (bool newValue) {
+                          // Ao clicar, atualiza a tela e salva no disco na mesma hora!
+                          GameProgress.changeCrtEffect(newValue, widget.game);
+                        },
+                      );
+                    }
                   ),
 
                   const Divider(color: Pallete.cinzaEsc, height: 30, thickness: 1),

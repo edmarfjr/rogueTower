@@ -19,6 +19,8 @@ class GameProgress {
 
   final ValueNotifier<String> languageNotifier = ValueNotifier('en');
 
+  static final ValueNotifier<bool> crtEnabled = ValueNotifier<bool>(true);
+
   int get bankBalance => bankNotifier.value;
   
   List<String> unlockedItems = [];
@@ -66,6 +68,18 @@ class GameProgress {
     }
     
     return false; 
+  }
+
+  static Future<void> changeCrtEffect(bool isEnabled, TowerGame game) async {
+    // 1. Atualiza o Notifier (O Shader da tela escuta isso e liga/desliga na hora)
+    crtEnabled.value = isEnabled;
+    
+    // 2. Atualiza a variável interna do Flame (se você ainda usa ela)
+    game.useCRTEffect = isEnabled; 
+    
+    // 3. Salva no disco imediatamente
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useCRTEffect', isEnabled); 
   }
 
   Future<void> addSouls(int amount) async {
@@ -141,7 +155,7 @@ class GameProgress {
   Future<void> loadSettings(TowerGame game) async {
     final prefs = await SharedPreferences.getInstance();
     
-    // Carrega o Áudio (se não existir, usa os valores padrão: 1.0, 0.5, false)
+    // Carrega o Áudio
     AudioManager.sfxVolume = prefs.getDouble('sfxVolume') ?? 1.0;
     AudioManager.bgmVolume = prefs.getDouble('bgmVolume') ?? 0.5;
     
@@ -151,8 +165,10 @@ class GameProgress {
     bool mutedSfx = prefs.getBool('isMutedSfx') ?? false;
     AudioManager.toggleMuteSfx(mutedSfx);
 
-    // Carrega os Gráficos
-    game.useCRTEffect = prefs.getBool('useCRTEffect') ?? true;
+    // --- CARREGA O CRT ---
+    bool savedCrt = prefs.getBool('useCRTEffect') ?? true;
+    crtEnabled.value = savedCrt;
+    game.useCRTEffect = savedCrt;
   }
 
   // --- SALVAR CONFIGURAÇÕES ---
@@ -164,6 +180,5 @@ class GameProgress {
     await prefs.setDouble('bgmVolume', AudioManager.bgmVolume);
     await prefs.setBool('isMutedMusic', AudioManager.isMutedMusic);
     await prefs.setBool('isMutedSfx', AudioManager.isMutedSfx);
-    await prefs.setBool('useCRTEffect', game.useCRTEffect);
   }
 }
