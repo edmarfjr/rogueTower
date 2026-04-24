@@ -3,6 +3,10 @@
 uniform vec2 uResolution;
 uniform float uTime;
 
+uniform float uDensidade; // Espaçamento
+uniform float uGrossura;  // Espessura da linha
+uniform float uAlpha;     //Alpha da linha
+
 out vec4 fragColor;
 
 void main() {
@@ -25,8 +29,7 @@ void main() {
     // 2. SCANLINES (Finas e Espaçadas)
     // 1º Passo: DISTÂNCIA (Densidade das linhas)
     // Diminuir o 0.15 afasta as linhas umas das outras.
-    float densidade = uResolution.y * 0.2; 
-    
+    float densidade = uResolution.y * uDensidade;
     // Cria uma repetição em loop de 0.0 até 1.0 para cada espaço de linha
     float ciclo = fract(uv.y * densidade);
     
@@ -34,12 +37,12 @@ void main() {
     // A função step(0.85, ciclo) só desenha a linha quando o loop chega no final.
     // O valor 0.85 significa: 85% do espaço é vazio, e apenas 15% vira a linha preta.
     // Se quiser a linha AINDA MAIS FINA, mude para 0.90 ou 0.95!
-    float scanline = step(0.65, ciclo);
+    float scanline = step(uGrossura, ciclo);
     
     // 3º Passo: OPACIDADE
     // Como a linha agora é fininha, podemos forçar o preto dela para marcar bem.
     // (Aumente o 0.25 se quiser a linha mais escura)
-    float scanlineAlpha = scanline * 0.20;
+    float scanlineAlpha = scanline * uAlpha;
 
     // 3. MATRIZ DE PIXELS (AUMENTADA)
     //float matrixX = sin(coord.x * 3.14159 * 0.6); 

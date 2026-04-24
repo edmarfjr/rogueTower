@@ -97,6 +97,10 @@ class CrtPainter extends CustomPainter {
     shader.setFloat(1, physicalSize.height);
     shader.setFloat(2, time);
 
+    shader.setFloat(3, 0.2); // Densidade (Menor = Mais espaçado)
+    shader.setFloat(4, 0.65); // Grossura (Maior = Mais fina)
+    shader.setFloat(5, 0.2);     // Alpha (Maior = Mais Escura)
+
     var paint = Paint()..shader = shader;
     
     // Pinta a tela inteira com a película
