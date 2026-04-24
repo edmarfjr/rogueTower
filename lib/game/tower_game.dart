@@ -14,6 +14,7 @@ import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/core/room_manager.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
+import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
 import 'components/gameObj/arena_border.dart';
@@ -72,6 +73,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   //final List<CollectibleType> itensRarosPool = retornaItensRaros();
   List<CollectibleType> itensComunsPoolCurrent = [];
   List<CollectibleType> itensRarosPoolCurrent = [];
+  List<CollectibleType> itensEpicosPoolCurrent = [];
 
   double _shakeTimer = 0.0;
   double _shakeIntensity = 0.0;
@@ -112,9 +114,6 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   @override
   Future<void> onLoad() async {
-
-   // _crtProgram = await FragmentProgram.fromAsset('shaders/crt.frag');
-
     try {
       await AudioManager.init();
     } catch (e) {
@@ -394,6 +393,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     // 3. RECONSTRÓI AS POOLS! (É isto que impedia o jogador de atirar!)
     itensComunsPoolCurrent = retornaItensComuns(player);
     itensRarosPoolCurrent = retornaItensRaros(player);
+    itensEpicosPoolCurrent = retornaItensEpicos(player);
+
 
     // 4. Muda a UI e retoma o motor
     overlays.remove('MainMenu');
@@ -491,9 +492,11 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     itensComunsPoolCurrent = retornaItensComuns(player);
     itensRarosPoolCurrent = retornaItensRaros(player);
+    itensEpicosPoolCurrent = retornaItensEpicos(player);
     itensComunsPoolCurrent.shuffle();
     itensRarosPoolCurrent.shuffle();
-    
+    itensEpicosPoolCurrent.shuffle();
+
     AudioManager.playBgm('8_bit_adventure.mp3');
     startLevel();
   }

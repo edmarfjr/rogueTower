@@ -57,6 +57,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster2 = [
+    (pos,phase) => EnemyFactory.createRabbit(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createUnicorn(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createElephant(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createBird(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createSnake(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTortoise(pos,phase:phase), 
+  ];
+
+  final List<EnemyFactoryFunction> _enemyRoster3 = [
     (pos,phase) => EnemyFactory.createBat(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createGhost(pos,phase:phase),  
     (pos,phase) => EnemyFactory.createMare(pos,phase:phase),  
@@ -65,22 +74,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createHorseMan(pos,phase:phase),   
   ];
 
-  final List<EnemyFactoryFunction> _enemyRoster3 = [
+  final List<EnemyFactoryFunction> _enemyRoster4 = [
     (pos,phase) => EnemyFactory.createChessKnight(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createChessPawn(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createChessRook(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createChessBishop(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createChessKing(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createChessQueen(pos,phase:phase), 
-  ];
-
-  final List<EnemyFactoryFunction> _enemyRoster4 = [
-    (pos,phase) => EnemyFactory.createRabbit(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createUnicorn(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createElephant(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createBird(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createSnake(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createTortoise(pos,phase:phase), 
   ];
 
   final List<EnemyFactoryFunction> _enemyRoster5 = [
@@ -171,11 +171,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } 
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
-      List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
+      List<CollectibleType> possibleRewards = gameRef.itensEpicosPoolCurrent;
 
       final CollectibleType lootType = possibleRewards[0];
 
-      gameRef.itensRarosPoolCurrent.remove(lootType);
+      gameRef.itensEpicosPoolCurrent.remove(lootType);
       gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType, custoVida: true));
       _spawnDoors(roomNumber);
       return;
@@ -454,33 +454,27 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     // A posição onde o Boss vai cair/nascer
     final spawnPos = Vector2(0, -150);
 
-
-    // 1. Opcional: Se você tiver um som de "porta trancando" ou "vento", pode tocar aqui!
     // AudioManager.playSfx('lock.mp3');
 
-    // 2. O Suspense: Um Timer de 1.5 segundos
     add(TimerComponent(
-      period: 1.5,
+      period: 1.0,
       repeat: false,
       removeOnFinish: true, // Se limpa da memória depois de rodar
       onTick: () {
         
-        // 3. O Impacto Visual (Explosões e Tremor)
         createExplosionEffect(gameRef.world, spawnPos, Pallete.vermelho, count: 40);
         gameRef.shakeCamera(intensity: 6.0, duration: 1.0);
         
-        // Toca o som de impacto
         AudioManager.playSfx('explosion.mp3');
 
-        // 4. O Spawn: Cria o Boss na arena de acordo com o andar atual
         if (gameRef.currentLevel == 1) {
           gameRef.world.add(EnemyFactory.createRatKing(spawnPos));
         } else if (gameRef.currentLevel == 2) {
-          gameRef.world.add(EnemyFactory.createGhostKnight(spawnPos));
-        } else if (gameRef.currentLevel == 3) {
-          gameRef.world.add(EnemyFactory.createTruQueen(spawnPos));
-        } else if (gameRef.currentLevel == 4) {
           gameRef.world.add(EnemyFactory.createBeast(spawnPos));
+        } else if (gameRef.currentLevel == 3) {
+          gameRef.world.add(EnemyFactory.createGhostKnight(spawnPos));
+        } else if (gameRef.currentLevel == 4) {
+          gameRef.world.add(EnemyFactory.createTruQueen(spawnPos));
         } else if (gameRef.currentLevel == 5) {
           gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
         } else if (gameRef.currentLevel == 6) {
@@ -488,9 +482,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         }
         AudioManager.playBgm('retro_plat.mp3');
         isSpawnningBoss = false;
-        // 5. Interface: 
-        // Aqui o Boss já foi adicionado. Se você tiver uma classe de HUD para a vida do Boss,
-        // o ideal é que a própria classe do Boss (EnemyBoss) avise o HUD no seu método `onLoad`!
       },
     ));
   }
@@ -1023,12 +1014,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
   
   void _generateBossReward() {
-    List<CollectibleType> possibleRewards = gameRef.itensRarosPoolCurrent;
+    List<CollectibleType> possibleRewards = gameRef.itensEpicosPoolCurrent;
 
     final CollectibleType lootType = possibleRewards[0];
     final CollectibleType itemExtra = possibleRewards[1];
 
-    gameRef.itensRarosPoolCurrent.remove(lootType);
+    gameRef.itensEpicosPoolCurrent.remove(lootType);
 
     final item = Collectible(position: Vector2(0,0), type: lootType);
     gameRef.world.add(item);
@@ -1037,7 +1028,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     item.pop(Vector2(direcaoX, 0), altura:altura);
 
     if(gameRef.player.itemExtraBoss){
-      gameRef.itensRarosPoolCurrent.remove(itemExtra);
+      gameRef.itensEpicosPoolCurrent.remove(itemExtra);
       final itExtra = Collectible(position: Vector2(0,-60), type: itemExtra, custo: 30);
       gameRef.world.add(itExtra);
       double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;

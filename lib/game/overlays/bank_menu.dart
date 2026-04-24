@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/overlays/hud.dart';
 import '../tower_game.dart';
@@ -32,9 +33,9 @@ class BankMenu extends StatelessWidget {
                   size: 48,
                 ),
               const SizedBox(height: 10),
-              const Text(
-                "BANCO",
-                style: TextStyle(
+               Text(
+                "banco".tr(),
+                style: const TextStyle(
                     color: Pallete.laranja,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -43,16 +44,16 @@ class BankMenu extends StatelessWidget {
               const Divider(color: Pallete.cinzaEsc, height: 30),
 
               // --- MOSTRADORES DE SALDO ---
-              _buildBalanceRow("Na Carteira", game.coinsNotifier, Pallete.branco),
-              _buildBalanceRow("No Cofre", game.progress.bankNotifier, Pallete.branco),
+              _buildBalanceRow("carteira".tr(), game.coinsNotifier, Pallete.branco),
+              _buildBalanceRow("cofre".tr(), game.progress.bankNotifier, Pallete.branco),
               
               // NOVO: Mostrador de Dívida (Fica Vermelho para assustar!)
-              _buildBalanceRow("Dívida Ativa", game.dividaNotifier, Pallete.branco),
+              _buildBalanceRow("divida".tr(), game.dividaNotifier, Pallete.branco),
 
               const Divider(color: Pallete.cinzaEsc, height: 30),
 
               // --- AÇÕES NORMAIS DO BANCO ---
-              _buildActionSection("DEPOSITAR", Pallete.preto, (amount) {
+              _buildActionSection("depositar".tr(), Pallete.preto, (amount) {
                 if (amount == -1) {
                   game.depositCoins(game.coinsNotifier.value);
                 } else {
@@ -62,7 +63,7 @@ class BankMenu extends StatelessWidget {
 
               const SizedBox(height: 15),
 
-              _buildActionSection("SACAR", Pallete.preto, (amount) {
+              _buildActionSection("sacar".tr(), Pallete.preto, (amount) {
                 if (amount == -1) {
                   game.withdrawCoins(game.progress.bankBalance); 
                 } else {
@@ -90,7 +91,7 @@ class BankMenu extends StatelessWidget {
                           game.coinsNotifier.value += 50;
                           game.dividaNotifier.value += 75;
                         },
-                        child: const Text("PEGAR EMPRÉSTIMO (+50G)", style: TextStyle(color: Pallete.laranja, fontWeight: FontWeight.bold)),
+                        child: Text("emprestimo".tr(), style: const TextStyle(color: Pallete.laranja, fontWeight: FontWeight.bold)),
                       ),
                     );
                   } 
@@ -117,7 +118,7 @@ class BankMenu extends StatelessWidget {
                                 }
                               : null, // Desativa o botão se for pobre
                             child: Text(
-                              conseguePagar ? "PAGAR DÍVIDA (-${divida}G)" : "FALTAM MOEDAS PARA PAGAR!", 
+                              conseguePagar ? "${"pagar_divida".tr()}(-${divida}G)": "faltam_moedas".tr(),
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
                             ),
                           ),
@@ -185,7 +186,7 @@ class BankMenu extends StatelessWidget {
             _btn("1", color, () => onAction(1)),
             _btn("10", color, () => onAction(10)),
             _btn("100", color, () => onAction(100)),
-            _btn("TUDO", color, () => onAction(-1)),
+            _btn("tudo".tr(), color, () => onAction(-1)),
           ],
         ),
       ],

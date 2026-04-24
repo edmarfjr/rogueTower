@@ -1,4 +1,5 @@
 import 'package:towerrogue/game/overlays/bank_menu.dart';
+import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
 import 'package:towerrogue/game/overlays/diary_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -36,7 +37,9 @@ Future<void> main() async {
         fontFamily: 'pixelFont', // O MESMO NOME do "family" no pubspec!
         // (Você pode definir outras cores base do tema aqui se quiser)
       ),
-    home: const GameEntry(),
+    home: const CrtOverlayWidget(
+      child: GameEntry(),
+    ),
   ));
 }
 

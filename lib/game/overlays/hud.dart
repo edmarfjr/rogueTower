@@ -457,64 +457,99 @@ class Hud extends StatelessWidget {
     bool isReady = isEmpty || itemData.isReady;
 
     String? slotIcon;
+    String? slotDesc;
+    String? slotName;
     Color? slotColor;
     if (!isEmpty) {
       final attrs = Collectible.getAttributes(itemData.type);
       slotIcon = attrs['icon'];
       slotColor = attrs['color'];
+      slotDesc = attrs['desc'];
+      slotName = attrs['name'];
     }
 
+    // 1. Isolamos o container do slot em uma variável
+    Widget slotContainer = Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Pallete.cinzaEsc,
+        border: Border.all(
+          color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
+          width: 1
+        ),
+        borderRadius: BorderRadius.zero,
+        boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
+      ),
+      child: isEmpty 
+        ? const SizedBox.shrink() 
+        : Stack(
+            alignment: Alignment.center,
+            children: [
+              // O Ícone Oficial puxado do jogo!
+              PixelSprite(
+                imagePath: 'sprites/itens/$slotIcon.png',
+                color: slotColor ?? Pallete.branco,
+                size: 32,
+              ),
+            
+              // A PELÍCULA DE COOLDOWN E A CARGA
+              if (!isReady) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.65), 
+                    borderRadius: BorderRadius.zero, // Ajustado para estética retrô
+                  ),
+                ),
+                Text(
+                  "${itemData.currentCharge.toStringAsFixed(0)}/${itemData.maxCharge.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
+            ],
+          ),
+    );
+
+    // 2. Se o slot não estiver vazio, "envelopamos" o slot com o Tooltip customizado!
+    if (!isEmpty) {
+      slotContainer = Tooltip(
+        // Quebra de linha para separar Título da Descrição
+        message: "${slotName?.toUpperCase()}\n$slotDesc", 
+        
+        // Estilização 100% Pixel Art
+        textStyle: const TextStyle(
+          fontFamily: 'pixelFont', 
+          fontSize: 14,
+          color: Colors.white, 
+          decoration: TextDecoration.none,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.black87,
+          border: Border.all(color: Pallete.cinzaCla, width: 2), 
+          borderRadius: BorderRadius.zero, 
+        ),
+        
+        // Configurações de tempo (300ms segurando o toque/mouse para aparecer)
+        waitDuration: const Duration(milliseconds: 300), 
+        showDuration: const Duration(seconds: 3),
+        
+        child: slotContainer,
+      );
+    }
+
+    // 3. O GestureDetector finaliza abraçando tudo
     return GestureDetector(
       onTap: () {
         if (!isEmpty && isReady) {
           game.player.useActiveSlot(index);
         }
       },
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Pallete.cinzaEsc,
-          border: Border.all(
-            color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
-            width: 1
-          ),
-          borderRadius: BorderRadius.zero,
-          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
-        ),
-        child: isEmpty 
-          ? const SizedBox.shrink() 
-          : Stack(
-              alignment: Alignment.center,
-              children: [
-                // 1. O Ícone Oficial puxado do jogo!
-                PixelSprite(
-                  imagePath: 'sprites/itens/$slotIcon.png',
-                  color: slotColor ?? Pallete.branco,
-                  size: 32,
-                ),
-             
-                // 2. A PELÍCULA DE COOLDOWN E A CARGA (Apenas se não estiver pronto)
-                if (!isReady) ...[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65), 
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  Text(
-                    "${itemData.currentCharge.toStringAsFixed(0)}/${itemData.maxCharge.toStringAsFixed(0)}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-      ),
+      child: slotContainer,
     );
   }
 

@@ -48,7 +48,7 @@ flutter:
         - asset: assets/fonts/pixel.ttf
 
   shaders:
-    - shaders/crt.frag
+    - shaders/crt_overlay.frag
 
 flutter_launcher_icons:
   android: true
