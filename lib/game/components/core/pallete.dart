@@ -8,7 +8,7 @@ class Pallete {
   static const Color colorLightest = Color.fromRGBO(155, 188, 15, 1);
   static const Color colorBackground = Color.fromRGBO(202, 220, 159, 1);
 
-  static const Color preto = Color(0xFF000000);
+  static const Color preto = Color(0xFF000000);//0xFF0A0E18
   static const Color azulEsc = Color(0xFF1D2B53);
   static const Color vinho = Color(0xFF7E2553);
   static const Color verdeEsc = Color(0xFF008751);

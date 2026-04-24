@@ -47,7 +47,13 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
     return Stack(
       children: [
         // 2. O SEU JOGO INTEIRO FICA AQUI (NO FUNDO)
-        widget.child, 
+        ColorFiltered(
+          colorFilter: const ColorFilter.mode(
+            Color(0xFF0A0E18), // O seu novo "preto"
+            BlendMode.lighten, // Substitui apenas o que for mais escuro que a cor acima!
+          ),
+          child: widget.child, // O seu jogo inteiro roda aqui dentro
+        ),
         
         // 3. A PELÍCULA DO SHADER FICA POR CIMA DE TUDO
         if (_program != null)
