@@ -156,8 +156,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   double championDieTmr = 2;
 
-  double _contadorPiscar =0;
-  bool _mostrarBranco = false;
+  double contadorPiscar =0;
+  bool mostrarBranco = false;
 
   bool isBlocking = false;
 
@@ -360,7 +360,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         break; 
       case 8:
         originalColor = Pallete.cinzaCla;
-        dropList = [CollectibleType.healthContainer];
+        dropList = [CollectibleType.artificialHp];
         break;
       case 9:
         originalColor = Pallete.rosa;
@@ -400,13 +400,13 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
           Curves.easeIn.transform(progresso)
         )!;
 
-        _contadorPiscar += dt;
-        if (_contadorPiscar >= intervaloAtual) {
-          _contadorPiscar = 0;
-          _mostrarBranco = !_mostrarBranco; // Alterna o estado
+        contadorPiscar += dt;
+        if (contadorPiscar >= intervaloAtual) {
+          contadorPiscar = 0;
+          mostrarBranco = !mostrarBranco; // Alterna o estado
         }
       
-        if (_mostrarBranco) {
+        if (mostrarBranco) {
           visual!.changeColor(Pallete.branco);
         } else {
           visual!.changeColor(Pallete.vermelho);
@@ -643,6 +643,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (rotates) {
       if (isMoving) {
         visual!.angle = atan2(delta.y, delta.x) + rotateOff;
+      }else if(speed == 0){
+        final playerPos = gameRef.player.position;
+        visual!.angle = atan2(playerPos.y - position.y, playerPos.x - position.x) + rotateOff;
       }
       facingDirection = 1.0;
       

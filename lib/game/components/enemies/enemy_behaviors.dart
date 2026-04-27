@@ -5,6 +5,7 @@ import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/effects/attack_warning.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
+import 'package:towerrogue/game/components/projectiles/explosion.dart';
 //import 'package:towerrogue/game/components/projectiles/bomb.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:flame/effects.dart';
@@ -298,8 +299,10 @@ class UnderGroundWanderBehavior extends MovementBehavior {
   double cimaDur;
   double cimaTmr = 0;
   int _stage = 0;
+  double baixoDur;
+  double baixoTmr = 0;
 
-  UnderGroundWanderBehavior({this.cimaDur = 2});
+  UnderGroundWanderBehavior({this.cimaDur = 2, this.baixoDur = 2});
 
   UnderGroundWanderBehavior clone() {
     return UnderGroundWanderBehavior(); 
@@ -333,7 +336,8 @@ class UnderGroundWanderBehavior extends MovementBehavior {
         _stage = 1;
       }
     }else if(_stage == 2){//andando debaixo da terra
-      if(enemy.position.distanceTo(_target) > 10){
+      if(baixoTmr < baixoDur){
+        baixoTmr += dt;
         _direction
         ..setFrom(_target)       
         ..sub(enemy.position)    
@@ -342,6 +346,7 @@ class UnderGroundWanderBehavior extends MovementBehavior {
         enemy.position.addScaled(_direction, enemy.speed * dt);
       }else{
         _stage = 3;
+        baixoTmr = 0;
         enemy.add(
           ScaleEffect.to(Vector2.all(1),
             EffectController(duration: 0.5),
@@ -1061,6 +1066,62 @@ class ChargeAttackBehavior extends AttackBehavior {
   }
 }
 
+class AutoDestructionBehavior extends AttackBehavior {
+  final double distanceToPlayer;
+  double _timer = 0;
+  bool autoDestructing = false;
+  double explosionRadius;
+
+  AutoDestructionBehavior({this.distanceToPlayer = 32, this.explosionRadius = 60});
+
+  AutoDestructionBehavior clone() {
+    return AutoDestructionBehavior(); 
+  }
+
+  @override
+  void update(double dt) {
+    final target = getEnemyTarget(enemy);
+    double dist = enemy.position.distanceTo(target.position);
+
+    if (dist <= distanceToPlayer) {
+      autoDestructing = true;
+    }
+
+    if (autoDestructing) {
+      _timer += dt;
+      double progresso = 1.0 - (_timer / 2).clamp(0.0, 1.0);
+
+        const double velocidadeInicial = 0.4;
+        const double velocidadeFinal = 0.05;
+        double intervaloAtual = lerpDouble(
+          velocidadeInicial, 
+          velocidadeFinal, 
+          Curves.easeIn.transform(progresso)
+        )!;
+
+        if (_timer >= intervaloAtual) {
+          enemy.contadorPiscar = 0;
+          enemy.mostrarBranco = !enemy.mostrarBranco; // Alterna o estado
+        }
+      
+        if (enemy.mostrarBranco) {
+          enemy.visual!.changeColor(Pallete.branco);
+        } else {
+          enemy.visual!.changeColor(Pallete.vermelho);
+        }
+      if (_timer >= 1.0) { 
+        createExplosionEffect(enemy.gameRef.world, enemy.position, Colors.orange, count: 20);
+        
+        enemy.gameRef.world.add(Explosion(position: enemy.position.clone(), damagesPlayer:true, damage:2, radius:explosionRadius));
+        
+        enemy.takeDamage(enemy.hp);
+      }
+    } else {
+      _timer = 0; 
+    }
+  }
+}
+
 class JumpAttackBehavior extends AttackBehavior {
   final double jumpRange;
   final double minRange;
@@ -1327,6 +1388,8 @@ class DropHazardBehavior extends AttackBehavior {
       }
     }
   }
+
+  
 
   void _dropHazard() {
     // 1. Usa a função builder para criar o objeto na posição atual

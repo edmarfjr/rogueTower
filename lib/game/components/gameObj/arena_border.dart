@@ -23,6 +23,11 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   late Sprite tileQ4;
   late Sprite tileQ42;
 
+  late Sprite tile5;
+  late Sprite tile52;
+  late Sprite tileQ5;
+  late Sprite tileQ52;
+
   late Sprite currTile;
   late Sprite currTile2;
   late Sprite currTileQ;
@@ -74,6 +79,10 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tile42 = await Sprite.load('sprites/tileset/4parede2.png');
     tileQ4 = await Sprite.load('sprites/tileset/4paredeQuina.png');
     tileQ42 = await Sprite.load('sprites/tileset/4paredeQuina2.png');
+    tile5 = await Sprite.load('sprites/tileset/5parede.png');
+    tile52 = await Sprite.load('sprites/tileset/5parede2.png');
+    tileQ5 = await Sprite.load('sprites/tileset/5paredeQuina.png');
+    tileQ52 = await Sprite.load('sprites/tileset/5paredeQuina2.png');
 
   }
 
@@ -82,15 +91,17 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       case 1:
         return Pallete.marrom;      
       case 2: 
-        return Pallete.cinzaCla; 
-      case 3: 
-        return Pallete.lilas; 
-      case 4: 
         return Pallete.verdeEsc; 
+      case 3: 
+        return Pallete.cinzaCla; 
+      case 4: 
+        return Pallete.lilas; 
       case 5: 
         return Pallete.azulCla; 
       case 6: 
         return Pallete.marrom; 
+      case 7: 
+        return Pallete.azulCla; 
       default: 
         return Pallete.azulEsc;
     }
@@ -109,10 +120,10 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       if(currLevel == 1 || currLevel == 5){
         currTile = tile;
         currTileQ = tileQ;
-      }else if(currLevel == 2 || currLevel == 3){
+      }else if(currLevel == 4 || currLevel == 3){
         currTile = tile2;
         currTileQ = tileQ2;
-      }else if(currLevel == 4){
+      }else if(currLevel == 2){
         currTile = tile3;
         currTileQ = tileQ3;
       }else if(currLevel == 6){
@@ -120,6 +131,11 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
         currTileQ = tileQ4;
         currTile2 = tile42;
         currTileQ2 = tileQ42;
+      }else if(currLevel == 7){
+        currTile = tile5;
+        currTileQ = tileQ5;
+        currTile2 = tile52;
+        currTileQ2 = tileQ52;
       }
       
     }
@@ -128,7 +144,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   @override
   void render(Canvas canvas) {
     //canvas.drawRRect(_rRect, _borderPaint);
-    if(gameRef.currentLevelNotifier.value != 6){
+    if(gameRef.currentLevelNotifier.value != 6 && gameRef.currentLevelNotifier.value != 7){
       _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
       _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0), pi / 2);
       _desenharQuinaRotacionado(canvas, Vector2(0, 32 * 16), pi * 1.5);
@@ -165,19 +181,24 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
        Offset(16*16,i.toDouble()),
         _borderPaint,
       ); */
-      if(gameRef.currentLevelNotifier.value == 6){
+      if(gameRef.currentLevelNotifier.value == 6 || gameRef.currentLevelNotifier.value == 7){
         currTile2.render(
           canvas,
           position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
           size: Vector2(16, 16),  
           overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
         );
-        currTile2.render(
-          canvas,
-          position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-          size: Vector2(16, 16),      
-          overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
-        );
+        if(gameRef.currentLevelNotifier.value == 7){
+          _desenharParedeDireitaFlipada(canvas, Vector2(17*16, i.toDouble()));
+        }else{
+          currTile2.render(
+            canvas,
+            position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
+            size: Vector2(16, 16),      
+            overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
+          );
+        }
+        
       }else{
         currTile.render(
           canvas,
@@ -194,6 +215,19 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
       }
       
     }
+  }
+
+  void _desenharParedeDireitaFlipada(Canvas canvas, Vector2 posicao) {
+    canvas.save(); 
+    canvas.translate(posicao.x, posicao.y);
+    canvas.scale(-1, 1); // Inverte horizontalmente
+    currTile2.render(
+      canvas,
+      position: Vector2(0, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
+      size: Vector2(16, 16),  
+      overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
+    );
+    canvas.restore();
   }
 
   void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {double flipX = 1, double flipY = 1,bool quina2 = false}) {

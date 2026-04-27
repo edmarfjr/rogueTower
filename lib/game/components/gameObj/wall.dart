@@ -43,18 +43,18 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
 
       if (gameRef.currentLevel == 2){
         possibleIcons = [
-          'sprites/tileset/tumulo.png',
-          'sprites/tileset/ossos.png',  
+          'sprites/tileset/flor.png', 
+          'sprites/tileset/pinheiro.png', 
         ];
       } else if (gameRef.currentLevel == 3){
         possibleIcons = [
-          'sprites/tileset/tabuleiro.png',
-          'sprites/tileset/dama.png',  
+          'sprites/tileset/tumulo.png',
+          'sprites/tileset/ossos.png',    
         ];
       } else if (gameRef.currentLevel == 4){
         possibleIcons = [
-          'sprites/tileset/flor.png', 
-          'sprites/tileset/pinheiro.png', 
+          'sprites/tileset/tabuleiro.png',
+          'sprites/tileset/dama.png',
         ];
       } else if (gameRef.currentLevel == 5){
         possibleIcons = [
@@ -65,6 +65,11 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
         possibleIcons = [
           'sprites/tileset/crate.png', 
           'sprites/tileset/weaponRack.png', 
+        ];
+      } else if (gameRef.currentLevel == 7){
+        possibleIcons = [
+          'sprites/tileset/crate2.png', 
+          'sprites/tileset/barril.png', 
         ];
       }
 

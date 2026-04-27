@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 //import 'package:flutter/material.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 
 import '../../tower_game.dart';
 import '../core/pallete.dart';
@@ -106,7 +109,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
     final player = gameRef.player;
 
     // 2. Verifica se o jogador tem vida maior que 0 (Permitimos suicídio tático!)
-    if (player.healthNotifier.value > 0 || player.artificialHealthNotifier.value > 0) {
+    if (player.healthNotifier.value > 1 || player.artificialHealthNotifier.value > 1 || player.shieldNotifier.value > 0) {
       
       // 3. Aplica o Dano (Usa a sua função padrão de dano)
       player.takeDamage(1); 
@@ -135,9 +138,16 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
         
         gameRef.world.add(newItem);
         
-        // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
-        newItem.pop(Vector2(0, 20));
+        double direcaoX = (Random().nextBool() ? 1 : -1) * 32.0;
+        double altura = Random().nextDouble() * 100 + 150 * -1;
+        newItem.pop(Vector2(direcaoX, altura/2), altura:altura);
       }
+    }else{
+      gameRef.world.add(FloatingText(
+        text: "noHp".tr(),
+        position: player.position.clone() + Vector2(0, -30),
+        color: Pallete.vermelho,
+      ));
     }
   }
 }

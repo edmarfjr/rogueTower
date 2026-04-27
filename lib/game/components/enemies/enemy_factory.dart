@@ -204,7 +204,7 @@ class EnemyFactory {
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: hpMedio * (0.5 + (phase*0.5)),
+      hp: hpFraco * (0.5 + (phase*0.5)),
       speed: 0,
       weight: 2.0,
       image: "sprites/inimigos/beehive.png",
@@ -1060,6 +1060,68 @@ class EnemyFactory {
         JumpAttackBehavior(isExplosionOnLand: true,cooldown: 3, jumpDuration: 1)
       ]
         
+    );
+  }
+
+  //inimigos cyberpunk
+  static Enemy createTurret1(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpFraco * (0.5 + (phase*0.5)),
+      speed: 0,
+      weight: 5,
+      rotates: true,
+      image: "sprites/inimigos/turret1.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: UnderGroundWanderBehavior(cimaDur: 2),
+      attackBehavior: ProjectileAttackBehavior(interval: 4),
+    );
+  }
+
+  static Enemy createTurret2(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 0,
+      weight: 5,
+      rotates: true,
+      image: "sprites/inimigos/turret2.png",
+      originalColor: Pallete.vermelho,
+      movementBehavior: IdleBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 4,isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false,),
+    );
+  }
+
+  static Enemy createDrone(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 50,
+      voa: true,
+      image: "sprites/inimigos/drone.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: AutoDestructionBehavior(),
+    );
+  }
+
+  static Enemy createCyborg(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 30,
+      image: "sprites/inimigos/cyborg.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 4,isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false,),
     );
   }
 

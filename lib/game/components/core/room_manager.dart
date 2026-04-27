@@ -101,6 +101,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createGoblin(pos,phase:phase), 
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster7 = [
+    (pos,phase) => EnemyFactory.createTurret1(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcShaman(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcDefensor(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createOrcBerserk(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createWarg(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createGoblin(pos,phase:phase), 
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -142,7 +151,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createSpider(Vector2(0, -150)));
+      gameRef.world.add(EnemyFactory.createCyborg(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
@@ -371,6 +380,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           selectedFactory = _enemyRoster5[rng.nextInt(_enemyRoster5.length)];  
         case 6:
           selectedFactory = _enemyRoster6[rng.nextInt(_enemyRoster6.length)];  
+        case 7:
+          selectedFactory = _enemyRoster7[rng.nextInt(_enemyRoster7.length)];  
         default:
           selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
       }
@@ -628,7 +639,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(-3*16 - margin, posY - margin), 
-      rewardType: rewardLeft,
+      rewardType: CollectibleType.darkShop,//rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
       bites: bites1,
@@ -636,7 +647,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(4*16 + margin, posY - margin),
-      rewardType: rewardRight,
+      rewardType: CollectibleType.doacaoSangue,//rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
       bites: bites2,
