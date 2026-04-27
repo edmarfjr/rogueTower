@@ -310,6 +310,12 @@ class UnderGroundWanderBehavior extends MovementBehavior {
     if(_stage == 0){//em cima
       if(cimaTmr<cimaDur){
         cimaTmr += dt;
+        final player = enemy.gameRef.player;
+        if(player.position.x > enemy.position.x) {
+          enemy.facingDirection = 1;
+        } else {
+          enemy.facingDirection = -1;
+        }
       }else{
         enemy.add(
           ScaleEffect.to(Vector2.all(0),
@@ -332,8 +338,7 @@ class UnderGroundWanderBehavior extends MovementBehavior {
         ..setFrom(_target)       
         ..sub(enemy.position)    
         ..normalize();
-
-        if(_direction.x>0)enemy.facingDirection = 1; else enemy.facingDirection = -1;     
+        
         enemy.position.addScaled(_direction, enemy.speed * dt);
       }else{
         _stage = 3;
