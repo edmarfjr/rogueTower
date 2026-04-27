@@ -126,7 +126,7 @@ class EnemyFactory {
     );
   }
 
-  static Enemy createFungi2(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+  static Enemy createWorm(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
     return Enemy(
       position: pos,
       noChamp: noChamp,
@@ -134,7 +134,7 @@ class EnemyFactory {
       hp: hpFraco * (0.5 + (phase*0.5)),
       speed: 50,
       weight: 5,
-      image: "sprites/inimigos/mushroom.png",
+      image: "sprites/inimigos/worm.png",
       originalColor: Pallete.vinho,
       movementBehavior: UnderGroundWanderBehavior(cimaDur: 2),
       attackBehavior: ProjectileAttackBehavior(interval: 4),

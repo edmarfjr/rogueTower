@@ -45,14 +45,16 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    double contrast = 1.5; // Brilho do filtro preto
+    double brightness = 15; // Brilho do filtro preto (0.0 a 1.0)
     return Stack(
       children:[
         // 1. AUMENTA O BRILHO E CONTRASTE DO JOGO (Fósforo CRT)
         ColorFiltered(
-          colorFilter: const ColorFilter.matrix([
-            1.3,  0.0,  0.0,  0.0,  15.0, // Canal Vermelho: 30% mais contraste, +15 de brilho puro
-            0.0,  1.3,  0.0,  0.0,  15.0, // Canal Verde:   30% mais contraste, +15 de brilho puro
-            0.0,  0.0,  1.3,  0.0,  15.0, // Canal Azul:    30% mais contraste, +15 de brilho puro
+          colorFilter:  ColorFilter.matrix([
+            contrast,  0.0,  0.0,  0.0,  brightness, // Canal Vermelho: 30% mais contraste, +15 de brilho puro
+            0.0,  contrast,  0.0,  0.0,  brightness, // Canal Verde:   30% mais contraste, +15 de brilho puro
+            0.0,  0.0,  contrast,  0.0,  brightness, // Canal Azul:    30% mais contraste, +15 de brilho puro
             0.0,  0.0,  0.0,  1.0,   0.0, // Canal Alpha (Transparência): Intacto
           ]),
           // 2. O NOSSO FILTRO DO FUNDO QUASE PRETO (Que fizemos antes)
@@ -105,8 +107,11 @@ class CrtPainter extends CustomPainter {
     shader.setFloat(2, time);
 
     shader.setFloat(3, 0.2); // Densidade (Menor = Mais espaçado)
-    shader.setFloat(4, 0.65); // Grossura (Maior = Mais fina)
-    shader.setFloat(5, 0.3);     // Alpha (Maior = Mais Escura)
+    shader.setFloat(4, 0.70); // Grossura (Maior = Mais fina)
+    shader.setFloat(5, 0.2);     // Alpha (Maior = Mais Escura)
+
+    shader.setFloat(6, 0.2);     // tamanho matriz (Maior = Menor)
+    shader.setFloat(7, 0.08);     // Alpha matriz (Maior = Mais Escura)
 
     var paint = Paint()..shader = shader;
     

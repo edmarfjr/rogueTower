@@ -14,6 +14,7 @@ import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/core/room_manager.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
+import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
 import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
@@ -383,7 +384,25 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   void continueGame() async {
     // 1. Limpa o mundo ANTES de carregar para evitar fantasmas da sessão anterior!
-    world.removeAll(world.children.where((c) => c != player && c != arenaBorder && c != roomManager));
+    world.removeAll(
+      world.children.where((c) {
+        // 1. Se for o player, NÃO remove (retorna falso)
+        if (c == player){
+          return false;
+        } 
+        
+        // 2. Se for a borda da arena, NÃO remove
+        if (c == arenaBorder) return false;
+        
+        // 3. Se for um escudo orbital E o dono dele for o player, NÃO remove
+        if (c is OrbitalShield && c.owner == player){
+          return false;
+        } 
+
+        // 4. Qualquer outra coisa (inimigos, escudos de inimigos, tiros, itens), REMOVE! (retorna true)
+        return true;
+      })
+    );
 
     // 2. Carrega o Save
     String? savedClassId = await SaveManager.loadRun(this);
@@ -441,7 +460,25 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     world.children.query<BankAtm>().forEach((c) => c.removeFromParent());
     */
 
-    world.removeAll(world.children.where((c) => c != player && c != arenaBorder));
+    world.removeAll(
+      world.children.where((c) {
+        // 1. Se for o player, NÃO remove (retorna falso)
+        if (c == player){
+          return false;
+        } 
+        
+        // 2. Se for a borda da arena, NÃO remove
+        if (c == arenaBorder) return false;
+        
+        // 3. Se for um escudo orbital E o dono dele for o player, NÃO remove
+        if (c is OrbitalShield && c.owner == player){
+          return false;
+        } 
+
+        // 4. Qualquer outra coisa (inimigos, escudos de inimigos, tiros, itens), REMOVE! (retorna true)
+        return true;
+      })
+    );
     //collisionDetection.items.clear();
     saveGame();
     startLevel();

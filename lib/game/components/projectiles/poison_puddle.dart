@@ -122,8 +122,8 @@ class PoisonPuddle extends PositionComponent with HasGameRef<TowerGame>, Collisi
     _damageTickTimer += dt;
 
     // --- 1. LÓGICA DE DANO/STATUS CONTÍNUO ---
-    // Roda a cada 0.5 segundos (meio segundo)
-    if (_damageTickTimer >= 0.5) {
+    // Roda a cada 0.2 segundos
+    if (_damageTickTimer >= 0.2) {
       
       // A. Poça INIMIGA machuca o Player
       if (!isPlayer && _playerIsInside) {

@@ -6,6 +6,8 @@ uniform float uTime;
 uniform float uDensidade; // Espaçamento
 uniform float uGrossura;  // Espessura da linha
 uniform float uAlpha;     //Alpha da linha
+uniform float uMTamanho;     // tamanho da matriz
+uniform float uMAlpha;        //alpha da matriz
 
 out vec4 fragColor;
 
@@ -45,9 +47,9 @@ void main() {
     float scanlineAlpha = scanline * uAlpha;
 
     // 3. MATRIZ DE PIXELS (AUMENTADA)
-    //float matrixX = sin(coord.x * 3.14159 * 0.6); 
-    //float matrixY = sin(coord.y * 3.14159 * 0.6); 
-    //float pixelMatrixAlpha = (1.0 - (matrixX * matrixY)) * 0.08;
+    float matrixX = sin(coord.x * 3.14159 * uMTamanho); 
+    float matrixY = sin(coord.y * 3.14159 * uMTamanho); 
+    float pixelMatrixAlpha = (1.0 - (matrixX * matrixY)) * uMAlpha;
 
     // 4. VIGNETTE (Sombra profunda dos cantos)
     float vignette = uv.x * uv.y * (1.0 - uv.x) * (1.0 - uv.y);
@@ -58,7 +60,7 @@ void main() {
     float flicker = sin(uTime * 15.0) * 0.02;
 
     // COMBINANDO OS EFEITOS
-    float finalAlpha = scanlineAlpha /*+ pixelMatrixAlpha*/ + vignetteAlpha + flicker;
+    float finalAlpha = scanlineAlpha + pixelMatrixAlpha + vignetteAlpha + flicker;
 
     // Detalhe extra: Quando a onda de distorção passa, ela "clareia" a tela
     finalAlpha -= waveTear * occasional * 0.15;

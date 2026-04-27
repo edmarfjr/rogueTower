@@ -157,10 +157,11 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.atira:
         icon = 'sprites/familiares/fantasma.png';
         cor = Pallete.vermelho.withOpacity(0.7);
-        dmg = player.damage / 2 ;
+        dmg = player.damage;
         followDistance = 16;
         offsetY = -16;
         offsetX = -8; 
+        fireRate = 0.8;
       case FamiliarType.fly:
         icon = 'sprites/familiares/fada.png';
         cor = Pallete.amarelo.withOpacity(0.7);
@@ -458,8 +459,8 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
      // if(player.position.x<0)ang = angleOffset - pi/2;
       angle = atan2(player.lastAttackDirection.y, player.lastAttackDirection.x) + ang;
     }else{
+      _animateMovement(dt);
       if (dist > followDistance) {
-        _animateMovement(dt);
         segueAlvo(dt, player);
       }
 
@@ -519,7 +520,10 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
   }
 
   void segueAlvo(double dt, PositionComponent? alvo){
-    final targetPos = alvo!.position;
+    Vector2 targetPos = alvo!.position;
+    if (alvo is Player){
+      targetPos += Vector2(offsetX,offsetY);
+    }
     velocity = (targetPos - position).normalized();
     position += velocity * speed * dt;
   }

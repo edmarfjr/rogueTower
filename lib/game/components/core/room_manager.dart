@@ -50,7 +50,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   final List<EnemyFactoryFunction> _enemyRoster1 = [
     (pos,phase) => EnemyFactory.createRat(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createFungi(pos,phase:phase),  
-    (pos,phase) => EnemyFactory.createBeeHive(pos,phase:phase),
+    (pos,phase) => EnemyFactory.createWorm(pos,phase:phase),
     (pos,phase) => EnemyFactory.createBug(pos,phase:phase),    
     (pos,phase) => EnemyFactory.createSnail(pos,phase:phase),  
     (pos,phase) => EnemyFactory.createSlimeM(pos,phase:phase),  
@@ -59,7 +59,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   final List<EnemyFactoryFunction> _enemyRoster2 = [
     (pos,phase) => EnemyFactory.createRabbit(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createUnicorn(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createElephant(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createBeeHive(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createBird(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createSnake(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createTortoise(pos,phase:phase), 
@@ -148,9 +148,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeUnicorn));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.gravitacao));
-      //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.antimateria));
+      gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.orbitalShield));
+      gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.flail));
+      gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
 

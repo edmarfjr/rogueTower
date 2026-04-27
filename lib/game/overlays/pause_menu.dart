@@ -49,7 +49,7 @@ class PauseMenu extends StatelessWidget {
                   'paused'.tr(),
                   style: const TextStyle(
                     fontSize: 30,
-                    color: Pallete.branco,
+                    color: Pallete.amarelo,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -115,7 +115,7 @@ class PauseMenu extends StatelessWidget {
                   onPressed: () {
                     game.resumeGame();
                   },
-                  child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+                  child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
                 
                 const SizedBox(height: 15),
@@ -135,7 +135,7 @@ class PauseMenu extends StatelessWidget {
                   onPressed: () {
                     game.overlays.add('SettingsMenu');
                   },
-                  child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+                  child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
 
                 const SizedBox(height: 15),
@@ -155,7 +155,7 @@ class PauseMenu extends StatelessWidget {
                   onPressed: () {
                     game.returnToMenu();
                   },
-                  child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
+                  child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
                 
                 const SizedBox(height: 20),
@@ -163,7 +163,7 @@ class PauseMenu extends StatelessWidget {
                 IconButton(
                   icon: const PixelSprite(
                     imagePath: 'sprites/inimigos/bug.png',
-                    color: Pallete.laranja,
+                    color: Pallete.marrom,
                     size: 32,
                   ),
                   tooltip: "Menu de Debug",
