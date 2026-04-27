@@ -103,11 +103,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   final List<EnemyFactoryFunction> _enemyRoster7 = [
     (pos,phase) => EnemyFactory.createTurret1(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createOrcShaman(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createOrcDefensor(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createOrcBerserk(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createWarg(pos,phase:phase), 
-    (pos,phase) => EnemyFactory.createGoblin(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createCyborg(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTurret2(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createDrone(pos,phase:phase), 
   ];
 
   ValueListenable<int>? get currentRoomNotifier => null;
@@ -151,7 +149,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      gameRef.world.add(EnemyFactory.createCyborg(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createCyborg(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
@@ -489,6 +487,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         } else if (gameRef.currentLevel == 5) {
           gameRef.world.add(EnemyFactory.createMegalodon(spawnPos));
         } else if (gameRef.currentLevel == 6) {
+          gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
+        } else if (gameRef.currentLevel == 7) {
           gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
         }
         AudioManager.playBgm('retro_plat.mp3');
