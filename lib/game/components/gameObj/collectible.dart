@@ -100,7 +100,6 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeUnicorn,
     CollectibleType.activeBombardeio,
     CollectibleType.activeTurret,
-    CollectibleType.activeCircularShots,
     CollectibleType.activeRandPill,
     CollectibleType.activeDiarreiaExplosiva,
     CollectibleType.activeBloodBag,
@@ -131,6 +130,7 @@ bool isItemRecarregavelTempo(CollectibleType type) {
   const recarregaveisTempo = [
     CollectibleType.activeGlassStaff,
     CollectibleType.activeBltDetonator,
+    CollectibleType.activeCircularShots,
   ];
   return recarregaveisTempo.contains(type);
 }

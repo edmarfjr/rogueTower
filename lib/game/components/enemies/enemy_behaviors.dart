@@ -511,6 +511,13 @@ class ProjectileAttackBehavior extends AttackBehavior {
   final int burstCount;       
   final double burstDelay;    
 
+  final bool isFlameThrower;
+  final double flameRange;
+  final double flameDur;
+
+  bool _isFlameActive = false;
+  double _flameTimer = 0;
+
   bool _isBurstActive = false;
   int _burstShotsFired = 0;
   double _burstTimer = 0;
@@ -530,6 +537,10 @@ class ProjectileAttackBehavior extends AttackBehavior {
     this.burstCount = 3,
     this.burstDelay = 0.2,
     this.orbitalRadius = 50.0,
+    this.isFlameThrower = false,
+    this.flameRange = 0.75,
+    this.flameDur = 2.0,
+
     Vector2? size,
   }) {
     this.size = size ?? Vector2.all(10);
@@ -559,6 +570,23 @@ class ProjectileAttackBehavior extends AttackBehavior {
       return; 
     }
 
+    if (_isFlameActive) {
+      _burstTimer += dt;
+      _flameTimer += dt;
+      if (_burstTimer >= 0.1) {
+        _triggerShotPattern(); 
+        _burstTimer = 0; 
+
+        if (_flameTimer >= flameDur) {
+          _isFlameActive = false;
+          _burstTimer = 0;
+          _flameTimer = 0;
+          _timer = 0; 
+        }
+      }
+      return; 
+    }
+
     _timer += dt;
     if(_timer >= interval - 1 && _timer <= interval + dt - 1){
       enemy.gameRef.world.add(AttackWarningEffect(
@@ -574,6 +602,11 @@ class ProjectileAttackBehavior extends AttackBehavior {
         _isBurstActive = true;
         _burstShotsFired = 0;
         _burstTimer = burstDelay; 
+      }else if(isFlameThrower){
+        _isFlameActive = true;
+        _flameTimer = 0;
+        _burstTimer = 0;
+
       } else {
         _triggerShotPattern();
         _timer = 0;
@@ -623,10 +656,11 @@ class ProjectileAttackBehavior extends AttackBehavior {
       orbitalRadius: orbitalRadius,
       isHoming: isHoming,
       isBoomerang: isBoomerang,
-      dieTimer: isBoomerang ? 1.0 : dieTimer,
+      dieTimer: isFlameThrower? flameRange : isBoomerang ? 1.0 : dieTimer,
       isEnemyProjectile: !enemy.isCharmed,
       isSpectral: !enemy.isSpectral,
       isWave: isWave,
+      image: isFlameThrower? 'sprites/projeteis/fogo.png' : 'sprites/projeteis/blt.png',
     ));
   }
 }

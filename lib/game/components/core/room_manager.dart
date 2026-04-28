@@ -162,8 +162,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.bltSparks));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.flail));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeBombardeio));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeCircularShots));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));

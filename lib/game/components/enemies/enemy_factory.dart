@@ -1136,7 +1136,7 @@ class EnemyFactory {
       image: "sprites/inimigos/tank.png",
       originalColor: Pallete.azulCla,
       movementBehavior: FollowPlayerBehavior(),
-      attackBehavior: LaserAttackBehavior(interval: 2),
+      attackBehavior: ProjectileAttackBehavior(interval: 1,isFlameThrower: true,), //LaserAttackBehavior(interval: 2),
     );
   }
 

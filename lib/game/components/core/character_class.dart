@@ -337,6 +337,41 @@ class CharacterRoster {
       isUnlockedByDefault: false,
       unlockConditionText: "bombermanCond".tr(),
     ),
+    /*
+    CharacterClass(
+      id: "samuela",
+      name: "samuela".tr(),
+      description: "samuelaDesc".tr(),
+      color: Pallete.vermelho, 
+      maxHp: 4,
+      maxDash: 2,
+      speed: 75.0,
+      damage: 10.0,
+      fireRate: 0.8,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      weaponImage: 'sprites/projeteis/handCanon.png',
+      armaCor: Pallete.vermelho,
+      startingItems: [
+        CollectibleType.laser,
+      ],
+      itemsExcluidos: [
+        CollectibleType.tripleShot,
+        CollectibleType.mine,
+        CollectibleType.laser,
+        CollectibleType.homing,
+        CollectibleType.activeHoming,
+        CollectibleType.bumerangue,
+        CollectibleType.saw,
+        CollectibleType.wave,
+        CollectibleType.activeGlassStaff
+      ],
+      isUnlockedByDefault: true,
+      unlockConditionText: "samuelaCond".tr(),
+    ),
+    */
     
   ];
 

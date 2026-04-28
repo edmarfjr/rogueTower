@@ -479,38 +479,56 @@ class Hud extends StatelessWidget {
           width: 1
         ),
         borderRadius: BorderRadius.zero,
-        boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
+        boxShadow: const [BoxShadow(color: Pallete.preto, blurRadius: 4, offset: Offset(2, 2))],
       ),
       child: isEmpty 
         ? const SizedBox.shrink() 
         : Stack(
             alignment: Alignment.center,
             children: [
-              // O Ícone Oficial puxado do jogo!
+              // 1. O Ícone Oficial
               PixelSprite(
                 imagePath: 'sprites/itens/$slotIcon.png',
                 color: slotColor ?? Pallete.branco,
                 size: 32,
               ),
             
-              // A PELÍCULA DE COOLDOWN E A CARGA
-              if (!isReady) ...[
+              // 2. A PELÍCULA ESCURA DE COOLDOWN
+              // (Continua aqui para escurecer o ícone quando não estiver pronto)
+              if (!isReady) 
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.65), 
-                    borderRadius: BorderRadius.zero, // Ajustado para estética retrô
+                    color: Pallete.preto.withOpacity(0.65), 
+                    borderRadius: BorderRadius.zero, 
                   ),
                 ),
-                Text(
-                  "${itemData.currentCharge.toStringAsFixed(0)}/${itemData.maxCharge.toStringAsFixed(0)}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    decoration: TextDecoration.none,
+                
+              // 3. A NOVA BARRA VERTICAL DE CARGA
+              Positioned(
+                right: 2,   // Colada no canto direito
+                top: 2,     // Margem no topo
+                bottom: 2,  // Margem em baixo
+                width: 6,   // Grossura da barra
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Pallete.preto, // Fundo da barra vazio
+                    //border: Border.all(color: Pallete.cinzaEsc, width: 1),
+                  ),
+                  // Alinha o preenchimento para começar de baixo para cima!
+                  alignment: Alignment.bottomCenter, 
+                  child: FractionallySizedBox(
+                    // Calcula a porcentagem (Ex: 2/4 de carga = 0.5 = 50% da altura)
+                    // O clamp(0.0, 1.0) é uma trava de segurança para nunca vazar do botão
+                    heightFactor: itemData.maxCharge > 0 
+                        ? (itemData.currentCharge / itemData.maxCharge).clamp(0.0, 1.0)
+                        : 0.0,
+                    child: Container(
+                      // Mágica visual: Fica Azul/Verde quando carregando, e Amarela quando pronta!
+                      color: isReady ? Pallete.verdeCla : Pallete.verdeEsc, 
+                    ),
                   ),
                 ),
-              ],
+              ),
             ],
           ),
     );
