@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/projectiles/black_hole.dart';
+import 'package:towerrogue/game/components/projectiles/eletric_spark.dart';
 import 'package:towerrogue/game/components/projectiles/explosion.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -517,32 +519,92 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void _gerarFaiscasEletricas(Vector2 pontoDeImpacto, double danoOriginal) {
-    // A Jacob's Ladder geralmente gera 1 ou 2 faíscas por impacto
-    int quantidadeFaiscas = Random().nextInt(2) + 1; 
+    int quantidadeFaiscas = Random().nextInt(2) + 2; 
+    double alcanceDaFaisca = 62.0; // Distância máxima que a faísca solta consegue pular
 
+    // 1. Escaneia quem está perto o suficiente para tomar um choque
+    List<Enemy> inimigosProximos = [];
+    for (var inimigo in gameRef.world.children.query<Enemy>()) {
+      if (inimigo.isInvencivel || inimigo.isIntangivel) continue;
+      
+      if (pontoDeImpacto.distanceTo(inimigo.position) <= alcanceDaFaisca) {
+        inimigosProximos.add(inimigo);
+      }
+    }
+
+    // 2. Dispara as faíscas uma por uma
     for (int i = 0; i < quantidadeFaiscas; i++) {
-      // 1. A Matemática do Caos: Gera um ângulo aleatório (0 a 360 graus em radianos)
-      double anguloAleatorio = Random().nextDouble() * 2 * pi;
+      Vector2 alvoDaFaisca;
 
-      // 2. Cria a Faísca (Usando o seu LaserBeam adaptado para ser um choque rápido!)
-      gameRef.world.add(LaserBeam(
-        position: pontoDeImpacto.clone(),
-        angleRad: anguloAleatorio,
-        larguraLaser: 5.0, // Um laser mais fino
-        length: 100.0, // Um laser bem curto (alcance da faísca)
-        chargeTime: 0.0, // Aparece instantaneamente
-        fireTime: 0.3, // Desaparece quase na mesma hora (pisca rápido)
-        damage: danoOriginal / 2, // A faísca dá metade do dano do tiro original
-        cor: Pallete.azulCla, // Azul elétrico
-        owner: null, // O jogador continua sendo o dono
-        chains: true,
-        atravessa: true,
-        refratado:true,
+      // Se ainda tiver inimigos perto, a faísca PULA para ele!
+      if (inimigosProximos.isNotEmpty) {
+        // Pega um inimigo aleatório da lista e já remove para a próxima faísca não ir no mesmo
+        Enemy vitima = inimigosProximos.removeAt(Random().nextInt(inimigosProximos.length));
+        
+        // A ponta da faísca trava no inimigo
+        alvoDaFaisca = vitima.position.clone();
+        
+        // CAUSA O DANO (Porque a faísca literalmente tocou nele)
+        vitima.takeDamage(danoOriginal * 0.5, critico: false);
+        
+      } else {
+        // Se não tem inimigo perto, a faísca espirra para o ar (só enfeite)
+        double anguloAleatorio = Random().nextDouble() * 2 * pi;
+        double tamanhoAleatorio = 20.0 + Random().nextDouble() * 40.0;
+        alvoDaFaisca = pontoDeImpacto + Vector2(cos(anguloAleatorio) * tamanhoAleatorio, sin(anguloAleatorio) * tamanhoAleatorio);
+      }
+
+      // 3. Desenha a Faísca Tremida ligando o impacto até o alvo (ou o ar)
+      gameRef.world.add(ElectricSpark(
+        startPoint: pontoDeImpacto.clone(),
+        endPoint: alvoDaFaisca,
       ));
     }
-    
-    // Opcional: Tocar um som de choque elétrico curtinho!
-    // AudioManager.playSfx('spark.mp3');
+
+    // 4. DISPARA O CHAIN LIGHTNING! (O raio principal que pula mais longe)
+    _dispararRaioEmCadeia(pontoDeImpacto.clone(), 4, [], danoOriginal);
+  }
+
+  /// Função Recursiva que faz o raio pular de inimigo em inimigo
+  Future<void> _dispararRaioEmCadeia(
+    Vector2 posicaoAtual, 
+    int saltosRestantes, 
+    List<Component> inimigosAtingidos, 
+    double danoDoRaio,
+  ) async {
+    if (saltosRestantes <= 0 || !isMounted) return;
+
+    Component? alvoProximo;
+    double menorDistancia = 120.0; 
+
+    for (var inimigo in gameRef.world.children.query<Enemy>()) {
+      if (inimigo.isInvencivel || inimigo.isIntangivel || inimigo.isCharmed) continue;
+      if (inimigosAtingidos.contains(inimigo)) continue;
+
+      double dist = posicaoAtual.distanceTo(inimigo.position);
+      if (dist < menorDistancia) {
+        menorDistancia = dist;
+        alvoProximo = inimigo;
+      }
+    }
+
+    if (alvoProximo != null && alvoProximo is Enemy) {
+      
+      // DESENHA O RAIO EM CADEIA COM O EFEITO TREMIDO AQUI!
+      gameRef.world.add(ElectricSpark(
+        startPoint: posicaoAtual.clone(),
+        endPoint: alvoProximo.position.clone(),
+      ));
+
+      alvoProximo.takeDamage(danoDoRaio, critico: false);
+      inimigosAtingidos.add(alvoProximo);
+
+      await Future.delayed(const Duration(milliseconds: 80));
+
+      if (gameRef.isAttached) { 
+         _dispararRaioEmCadeia(alvoProximo.position.clone(), saltosRestantes - 1, inimigosAtingidos, danoDoRaio);
+      }
+    }
   }
 
   void kill({bool triggerEffects = true}) {

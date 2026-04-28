@@ -1125,4 +1125,57 @@ class EnemyFactory {
     );
   }
 
+  static Enemy createTank(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 30,
+      image: "sprites/inimigos/tank2.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: MortarAttackBehavior(interval:3, isBarragem: true),
+    );
+  }
+
+  static EnemyBoss createMecha(Vector2 pos, {int phase = 1}) {
+    return EnemyBoss(
+      bossName: "mecha".tr(),
+      hp: hpBossForte * (0.5 + (phase*0.5)), 
+      position: Vector2(0, -100),
+      speed: 40,
+      soul: 500,
+      image: "sprites/inimigos/mecha.png",
+      size: Vector2.all(32),
+      hbSize: Vector2(30,30),
+      //hbOffset: Vector2(0, 8), 
+      originalColor: Pallete.lilas,
+      behaviorChangeInterval: 3.0,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        phase1Movements: [
+        FollowPlayerBehavior(speedMod: 1),         
+      ],
+      phase1Attacks: [
+        ProjectileAttackBehavior(interval: 3,isBurst: true, burstCount: 10, burstDelay: 0.1, isStraight:false,), 
+        MortarAttackBehavior(interval:2, isBarragem: true),
+      ],
+       
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movements: [
+        FollowPlayerBehavior(speedMod: 1.2), 
+      ],
+      phase2Attacks: [
+        ProjectileAttackBehavior(interval: 2,isBurst: true, burstCount: 20, burstDelay: 0.1, isStraight:false,), 
+        MortarAttackBehavior(interval:1, isBarragem: true),
+        LaserAttackBehavior(interval: 2, isMoving: true,fireTime: 5),
+      ]
+        
+    );
+  }
+
 }

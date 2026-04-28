@@ -713,11 +713,12 @@ class MortarAttackBehavior extends AttackBehavior {
 class LaserAttackBehavior extends AttackBehavior {
   final double interval;
   double _timer = 0;
+  double fireTime;
   bool _isShooting = false;
   bool isMoving;
   final bool isShotgun;
   
-  LaserAttackBehavior({this.interval = 3.0, this.isMoving = false, this.isShotgun = false});
+  LaserAttackBehavior({this.interval = 3.0, this.isMoving = false, this.isShotgun = false, this.fireTime = 1.0});
 
   LaserAttackBehavior clone() {
     return LaserAttackBehavior(); 
@@ -764,6 +765,7 @@ class LaserAttackBehavior extends AttackBehavior {
       isMoving: isMoving,
       isEnemyProjectile: !enemy.isCharmed,
       damage: enemy.isCharmed? enemy.gameRef.player.damage : enemy.dmg,
+      fireTime: fireTime
     ));
   }
 }

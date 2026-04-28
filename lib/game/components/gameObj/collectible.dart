@@ -1013,6 +1013,18 @@ List<CollectibleType> retornaItensSimples(){
     ];
   }
 
+List<CollectibleType> retornaSalas(){
+    return [
+      CollectibleType.damage,
+      CollectibleType.fireRate,
+      CollectibleType.moveSpeed, 
+      CollectibleType.range, 
+      CollectibleType.critChance,
+      CollectibleType.critDamage,
+      CollectibleType.dot,
+      CollectibleType.sorte,
+    ];
+  }
   
 List<CollectibleType> retornaPocoes(){
     return [

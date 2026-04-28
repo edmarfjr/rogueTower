@@ -22,6 +22,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   bool isEnemyProjectile;
   bool isMoving;
   double speed;
+  double dirMove = 0;
   
   double dmgTmr = 0;
   double dmgTime;
@@ -65,7 +66,7 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     this.isEnemyProjectile = false,
     this.isMoving = false,
     this.followsOwnerMov = false,
-    this.speed = 0.01,
+    this.speed = 0.025,
     this.cor = Pallete.vermelho,
     this.refratado = false,
     this.invisivel = false,
@@ -172,7 +173,18 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
       }
     } else if (isMoving && _hasFired) {
       // Mantém a sua lógica original para os lasers inimigos que giram
-      angle += speed;
+      if(dirMove == 0){
+        if(target != null && target!.isMounted){
+          if (target!.position.x > position.x) {
+            dirMove = 1; // Move no sentido horário
+          } else {
+            dirMove = -1; // Move no sentido anti-horário
+          }
+        } else {
+          dirMove = Random().nextBool() ? 1 : -1; // Se não tiver alvo, escolhe aleatoriamente
+        }
+      }
+      angle += speed * dirMove;
     }
 
     if(!atravessa)_updateLaserLength(); 

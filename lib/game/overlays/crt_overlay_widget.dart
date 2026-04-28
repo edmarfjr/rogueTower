@@ -45,7 +45,7 @@ class _CrtOverlayWidgetState extends State<CrtOverlayWidget> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    double contrast = 1.5; // Brilho do filtro preto
+    double contrast = 1.2; // Brilho do filtro preto
     double brightness = 15; // Brilho do filtro preto (0.0 a 1.0)
     return Stack(
       children:[

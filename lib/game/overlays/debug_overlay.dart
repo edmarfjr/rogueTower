@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
 
@@ -145,9 +146,34 @@ class _DebugMenuState extends State<DebugMenu> {
       widget.game.world.removeAll(coisasParaApagar);
       widget.game.overlays.add('HUD');
 
+      Set<CollectibleType> possibleRewards = {
+        CollectibleType.coin,
+        CollectibleType.potion,
+        CollectibleType.shield,
+        CollectibleType.key,
+        CollectibleType.bomba,
+        CollectibleType.healthContainer,
+        CollectibleType.chest,
+        CollectibleType.rareChest,
+        CollectibleType.doacaoSangue,
+        CollectibleType.slotMachine,
+      };
+      
+      List<CollectibleType> finalPool = possibleRewards.toList();
+      
+      finalPool.shuffle();
+
+      widget.game.nextRoomReward = finalPool[0];
+      if(_selectedRoom == 10){
+        widget.game.nextRoomReward = CollectibleType.boss;
+      }else if(_selectedRoom == 0){
+        widget.game.nextRoomReward = CollectibleType.nextLevel;
+      }
       widget.game.roomManager.startRoom(_selectedRoom);
 
       widget.game.player.position = Vector2(0, 250); 
+
+      //widget.game.startLevel();
     });
   }
 }

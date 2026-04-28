@@ -1584,6 +1584,8 @@ class Player extends PositionComponent
       _attackTimer = 0;
       if(isMorteiro){
         _tempDirection.setFrom(target!.position);
+        _tempDirection.sub(position);
+        _tempDirection.normalize();
         lastAttackDirection.setFrom(_tempDirection);
         gameRef.world.add(MortarShell(
           startPos: position.clone(),
@@ -1600,9 +1602,12 @@ class Player extends PositionComponent
         final dir = (target!.position - position.clone()).normalized();
         final angle = atan2(dir.y, dir.x);
         final dist = position.distanceTo(target!.position);
-        criaLaser(dir,angle,target,dist);
         _tempDirection.setFrom(target!.position);
+        _tempDirection.sub(position);
+        _tempDirection.normalize();
         lastAttackDirection.setFrom(_tempDirection);
+        criaLaser(dir,angle,target,dist);
+        
       }else{
         lastAttackDirection.setFrom(_tempDirection);
         if(clusterShot > -1){

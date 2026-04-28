@@ -106,6 +106,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createCyborg(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createTurret2(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createDrone(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTank(pos,phase:phase), 
   ];
 
   ValueListenable<int>? get currentRoomNotifier => null;
@@ -149,13 +150,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (roomNumber == 0) {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
-      //gameRef.world.add(EnemyFactory.createCyborg(Vector2(0, -150)));
+      //gameRef.world.add(EnemyFactory.createTank(Vector2(0, -150)));
       //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 8));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.orbitalShield));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.bltSparks));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.flail));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
@@ -489,7 +490,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         } else if (gameRef.currentLevel == 6) {
           gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
         } else if (gameRef.currentLevel == 7) {
-          gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
+          gameRef.world.add(EnemyFactory.createMecha(spawnPos));
         }
         AudioManager.playBgm('retro_plat.mp3');
         isSpawnningBoss = false;
@@ -505,7 +506,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _spawnDoors(int roomNumber) {
     const double margin = 8.0;
-    const double posY = -16*15 - 1; // Posição Y fixa para as portas
+    const double posY = -16*15; // Posição Y fixa para as portas
     // Porta do Boss ou Próximo Nível
     if (roomNumber == bossRoom - 1) {
       gameRef.world.add(Door(
@@ -639,7 +640,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(-3*16 - margin, posY - margin), 
-      rewardType: CollectibleType.darkShop,//rewardLeft,
+      rewardType: rewardLeft,
       trancada: tranca1,
       bloqueada: bloq1,
       bites: bites1,
@@ -647,7 +648,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     gameRef.world.add(Door(
       position: Vector2(4*16 + margin, posY - margin),
-      rewardType: CollectibleType.doacaoSangue,//rewardRight,
+      rewardType: rewardRight,
       trancada: tranca2,
       bloqueada: bloq2,
       bites: bites2,
