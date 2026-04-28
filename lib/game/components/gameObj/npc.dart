@@ -75,7 +75,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     gameRef.canInteractNotifier.value = false;
     
     // 2. Prepara os textos
-    gameRef.activeDialogs = dialogs; 
+    gameRef.activeDialogs = List.from(dialogs);
     
     // 3. Abre a caixa de diálogo (o overlay que criamos antes)
     gameRef.overlays.add('DialogOverlay'); 
