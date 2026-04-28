@@ -258,7 +258,7 @@ class SaveManager {
     game.player.bltSize = (runData['bltSize'] ?? 0.5).toDouble();
     game.player.knockbackForce = (runData['knockbackForce'] ?? 0.5).toDouble();
     game.player.stackBonus = (runData['stackBonus'] ?? 0).toInt();
-    game.player.sorte = (runData['sorte'] ?? 0).toInt();
+    game.player.sorte = (runData['sorte'] ?? 0).toDouble();
     game.player.maxArtificialHealth = (runData['maxArtificialHealth'] ?? 0).toInt();
     game.player.artificialHealthNotifier.value = (runData['artificialHealthNotifier'] ?? 0).toInt();
     game.player.velocity.setZero();
