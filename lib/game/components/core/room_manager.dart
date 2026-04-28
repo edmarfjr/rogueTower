@@ -4,6 +4,7 @@ import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
+import 'package:towerrogue/game/components/gameObj/npc.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:flame/components.dart';
@@ -162,14 +163,27 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeBombardeio));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeCircularShots));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.laser));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeSuperLaser));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
       //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
+
+      //teste npc
+      /*gameRef.world.add(Npc(
+        position: Vector2(0,0), 
+        imagePath: 'sprites/npcs/vendedor.png', 
+        dialogs: [
+          "Olá, jovem aventureiro...",
+          "Essas masmorras são muito perigosas, tome cuidado.",
+          "Aquele escudo orbital parece interessante, pena que atrai raios!",
+          "Boa sorte."
+        ],
+      ));
+      */
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank){
@@ -185,6 +199,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     } 
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
+      gameRef.world.add(Npc(
+        position: Vector2(16,-32), 
+        imagePath: 'sprites/npcs/diabo.png', 
+        cor: Pallete.vermelho,
+        dialogs: [
+          "diaboLine1".tr(),
+          "diaboLine2".tr(),
+        ],
+      ));
       List<CollectibleType> possibleRewards = gameRef.itensEpicosPoolCurrent;
 
       final CollectibleType lootType = possibleRewards[0];
@@ -712,6 +735,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateShopRoom(){
+
+    gameRef.world.add(Npc(
+        position: Vector2(16,-32), 
+        imagePath: 'sprites/npcs/vendedor.png', 
+        cor: Pallete.marrom,
+        dialogs: [
+          "vendedorLine1".tr(),
+          "vendedorLine2".tr(),
+        ],
+      ));
+
     gameRef.world.add(Collectible(
         position: Vector2(96, 0),
         type: CollectibleType.potion,
@@ -745,12 +779,22 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
 
   void _generateAlquimistaRoom(){
+      gameRef.world.add(Npc(
+        position: Vector2(16,-32), 
+        imagePath: 'sprites/npcs/alquimista.png', 
+        cor: Pallete.laranja,
+        dialogs: [
+          "alquimistaLine1".tr(),
+          "alquimistaLine2".tr(),
+          "alquimistaLine3".tr(),
+        ],
+      ));
       bool isBomba1 = Random().nextBool();
       bool isBomba2 = Random().nextBool();
       bool isBomba3 = Random().nextBool();
-      _generatePocoesAleatorias(Vector2(-64,-50), 2,isBomba1); 
-      _generatePocoesAleatorias(Vector2(0,-50), 2,isBomba2); 
-      _generatePocoesAleatorias(Vector2(64,-50), 2,isBomba3); 
+      _generatePocoesAleatorias(Vector2(-64,0), 2,isBomba1); 
+      _generatePocoesAleatorias(Vector2(0,0), 2,isBomba2); 
+      _generatePocoesAleatorias(Vector2(64,0), 2,isBomba3); 
   }
 
   void _generateZeroRoom(){
@@ -758,9 +802,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     double y1 =-16*4;
     double y2 =0;
     double y3 = 16*4;
+
+    String txt = ''; 
     switch (gameRef.currentLevel){
       
       case 1:
+        txt = 'caverna'.tr();
         gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_shield_1', 
@@ -783,6 +830,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
         break;
       case 2:
+        txt = 'bosque'.tr();
         gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_health_2', 
@@ -805,6 +853,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
         break;
       case 3:
+        txt = 'cemetery'.tr();
       gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_shield_3', 
@@ -827,6 +876,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
         break;
       case 4:
+      txt = 'salao_de_jogos'.tr();
       gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_shield_4', 
@@ -849,6 +899,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
         break;
       case 5:
+      txt = 'ocean'.tr();
       gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_shield_5', 
@@ -871,6 +922,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ));
         break;
       case 6:
+      txt = 'guarnicao_orc'.tr();
       gameRef.world.add(UnlockableItem(
           position: Vector2(x1, y1),
           id: 'permanent_shield_6', 
@@ -892,9 +944,41 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           soulCost: 2000,
         ));
         break;
+      case 7:
+      txt = 'estacao_espacial'.tr();
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y1),
+          id: 'permanent_shield_7', 
+          type: CollectibleType.shield,
+          soulCost: 1500,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y2),
+          id: 'permanent_health_7', 
+          type: CollectibleType.healthContainer,
+          soulCost: 1900,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y3),
+          id: 'permanent_critChance_7', 
+          type: CollectibleType.critChance,
+          soulCost: 2200,
+        ));
+        break;
       default:
         break;
     }
+
+    gameRef.world.add(Npc(
+        position: Vector2(16,0), 
+        imagePath: 'sprites/npcs/placa.png', 
+        cor: Pallete.bege,
+        dialogs: [
+          txt,
+        ],
+      ));
   }
 
   void _unlockDoors() {

@@ -1,5 +1,6 @@
 import 'package:towerrogue/game/overlays/bank_menu.dart';
 import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
+import 'package:towerrogue/game/overlays/dialog_overlay.dart';
 import 'package:towerrogue/game/overlays/diary_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -74,6 +75,7 @@ class _GameEntryState extends State<GameEntry> {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),
             'HUD': (context, game) => Hud(game: game),
+            'DialogOverlay': (context, game) => DialogOverlay(game: game),
             'GameOver': (context, game) => GameOver(game: game), 
             'VictoryMenu': (context, game) => VictoryMenu(game: game),
             'SettingsMenu': (context, game) => SettingsMenu(game: game), 

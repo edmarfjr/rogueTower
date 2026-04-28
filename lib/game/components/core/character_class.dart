@@ -337,7 +337,6 @@ class CharacterRoster {
       isUnlockedByDefault: false,
       unlockConditionText: "bombermanCond".tr(),
     ),
-    /*
     CharacterClass(
       id: "samuela",
       name: "samuela".tr(),
@@ -368,10 +367,9 @@ class CharacterRoster {
         CollectibleType.wave,
         CollectibleType.activeGlassStaff
       ],
-      isUnlockedByDefault: true,
+      isUnlockedByDefault: false,
       unlockConditionText: "samuelaCond".tr(),
     ),
-    */
     
   ];
 

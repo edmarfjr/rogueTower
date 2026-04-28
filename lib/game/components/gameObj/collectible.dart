@@ -543,7 +543,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     _tentaDesbloquearClasse(game);
   }
 
-  // --- FUNÇÃO AUXILIAR PARA O AWAIT NÃO ATRAPALHAR O FLUXO ---
+  // --- DESBLOQUEAR CLASSES ---
   Future<void> _tentaDesbloquearClasse(TowerGame game) async {
     String clasId = '';
     String clasNome = '';
@@ -553,6 +553,31 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         clasId = 'licantropo'; clasNome = 'licantropo'.tr(); break;
       case CollectibleType.molotov:
         clasId = 'multidao'; clasNome = 'multidao'.tr(); break;
+      // --- DESBLOQUEIOS COMPLEXOS (Múltiplos Itens) ---
+      // Exemplo: O "Piromante" precisa do Molotov E do Anel de Fogo.
+      // Colocamos os cases juntos (fallthrough) para que pegar QUALQUER UM dos dois dispare a checagem.
+      case CollectibleType.laser:
+      case CollectibleType.activeSuperLaser:
+        
+        // 1. Verificamos no GameProgress se o jogador JÁ TEM os itens salvos.
+        // (Ajuste a forma como você converte o enum para String, ex: .name ou .toString())
+        bool temLaser1 = game.progress.discoveredItems.contains(CollectibleType.laser.toString());
+        bool temLaser2 = game.progress.discoveredItems.contains(CollectibleType.activeSuperLaser.toString());
+
+        // 2. Como o jogador está pegando um dos itens EXATAMENTE AGORA, 
+        // ele pode ainda não ter sido salvo no disco. Então garantimos que o atual conta como 'true'.
+        if (type == CollectibleType.laser) temLaser1 = true;
+        if (type == CollectibleType.activeSuperLaser) temLaser2 = true;
+
+        // 3. Só preenche o ID e Nome se tiver TODAS as partes
+        if (temLaser1 && temLaser2) {
+          clasId = 'samuela'; 
+          clasNome = 'samuela'.tr();
+        } else {
+          return; // Falta peça, cancela a função e não tenta desbloquear nada.
+        }
+        break;
+
       default: return; // Não é item de classe
     }
 

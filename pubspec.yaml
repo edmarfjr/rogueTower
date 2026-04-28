@@ -37,6 +37,7 @@ flutter:
     - assets/images/sprites/doorIcons/
     - assets/images/sprites/gameObjs/
     - assets/images/sprites/condicoes/
+    - assets/images/sprites/npcs/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/
