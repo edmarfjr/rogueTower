@@ -107,6 +107,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createTurret2(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createDrone(pos,phase:phase), 
     (pos,phase) => EnemyFactory.createTank(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createTank2(pos,phase:phase),
   ];
 
   ValueListenable<int>? get currentRoomNotifier => null;
@@ -133,13 +134,17 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           e.removeFromParent();
         }
 
-        _unlockDoors();
-        _levelCleared = true;
-        gameRef.salasLimpas.add(gameRef.currentRoom);
-        if(gameRef.currentRoom == 0 && gameRef.currentLevel==1)return;
-        gameRef.saveGame();
+        clearRoom();
       }
     }
+  }
+
+  void clearRoom() {
+    _unlockDoors();
+    _levelCleared = true;
+    gameRef.salasLimpas.add(gameRef.currentRoom);
+    if(gameRef.currentRoom == 0 && gameRef.currentLevel==1)return;
+    gameRef.saveGame();
   }
 
   void startRoom(int roomNumber) {   
@@ -148,6 +153,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     // TESTES DE OBJETOS
     if (roomNumber == 0) {
+      //clearRoom();
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
       //gameRef.world.add(EnemyFactory.createTank(Vector2(0, -150)));
@@ -220,6 +226,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     _spawnDoors(roomNumber);
     //print("Sala $roomNumber iniciada...");
   //  gameRef.atualizaDebugMode();
+
   }
 
   void _generateMap(int seed) {

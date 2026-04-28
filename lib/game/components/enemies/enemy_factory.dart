@@ -1130,7 +1130,22 @@ class EnemyFactory {
       position: pos,
       noChamp: noChamp,
       championType: champType,
-      hp: hpForte * (0.5 + (phase*0.5)),
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 30,
+      rotates: true,
+      image: "sprites/inimigos/tank.png",
+      originalColor: Pallete.azulCla,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: LaserAttackBehavior(interval: 2),
+    );
+  }
+
+  static Enemy createTank2(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      hp: hpMedio * (0.5 + (phase*0.5)),
       speed: 30,
       image: "sprites/inimigos/tank2.png",
       originalColor: Pallete.lilas,
