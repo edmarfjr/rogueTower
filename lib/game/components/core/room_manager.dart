@@ -158,16 +158,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
       //gameRef.world.add(EnemyFactory.createTank(Vector2(0, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 8));
+      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 7));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.laser));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeSuperLaser));
-      //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.foice));
-      //gameRef.world.add(Collectible(position: Vector2(0,-160), type: CollectibleType.foice));
-      //gameRef.world.add(Collectible(position: Vector2(0,-180), type: CollectibleType.familiarBlock));
+      gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.saw));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.rainbowShot));
+      //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.fogo));
+      //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
+      //gameRef.world.add(Collectible(position: Vector2(0,64), type: CollectibleType.familiarBlock));
 
       //teste de armadilhas
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
@@ -200,7 +200,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
       gameRef.world.add(Npc(
-        position: Vector2(16,-32), 
+        position: Vector2(0,-48), 
         imagePath: 'sprites/npcs/diabo.png', 
         cor: Pallete.vermelho,
         dialogs: [
@@ -737,7 +737,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _generateShopRoom(){
 
     gameRef.world.add(Npc(
-        position: Vector2(16,-32), 
+        position: Vector2(0,-48), 
         imagePath: 'sprites/npcs/vendedor.png', 
         cor: Pallete.marrom,
         dialogs: [
@@ -780,7 +780,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _generateAlquimistaRoom(){
       gameRef.world.add(Npc(
-        position: Vector2(16,-32), 
+        position: Vector2(0,-48), 
         imagePath: 'sprites/npcs/alquimista.png', 
         cor: Pallete.laranja,
         dialogs: [
@@ -972,7 +972,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
 
     gameRef.world.add(Npc(
-        position: Vector2(16,0), 
+        position: Vector2(0,0), 
         imagePath: 'sprites/npcs/placa.png', 
         cor: Pallete.bege,
         dialogs: [

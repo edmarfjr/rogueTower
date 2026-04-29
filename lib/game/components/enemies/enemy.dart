@@ -926,12 +926,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         if(dropChest && !itemEq && rng.nextBool()){
           gameRef.world.add(Chest(position: position.clone(),isLock: true));
         } else if (dropList.isNotEmpty || itemEq) {
-          dropList.shuffle();
+          if(dropList.isNotEmpty)dropList.shuffle();
           final item = Collectible(position: position.clone(), type:itemEq?itemEquilibrio: dropList[0]);
           gameRef.world.add(item);
           double direcaoX = (Random().nextBool() ? 1 : -1) * 16.0;
           double altura = Random().nextDouble() * 32 + 64 * -1;
-          item.pop(Vector2(direcaoX, altura/2), altura:altura);
+          item.pop(Vector2(direcaoX,0), altura:altura);
         }
       }
     }

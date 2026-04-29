@@ -134,8 +134,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
     
       gameRef.world.add(newItem);
       
-      // Faz o item "cuspir" para longe da máquina (Usa a função pop que você já tem!)
-      newItem.pop(Vector2(0, 20));
+      newItem.pop(Vector2(0, 32));
     }
 
     removeFromParent();

@@ -142,7 +142,7 @@ class DiaryScreen extends StatelessWidget {
             child: Center(
               child: PixelSprite(
                 imagePath: isDiscovered ? 'sprites/itens/${attrs['icon']}.png' : 'sprites/itens/noItem.png', 
-                color: isDiscovered ? attrs['color'] : Pallete.branco, 
+                color: isDiscovered ? attrs['color'] : Pallete.cinzaEsc, 
                 size: 48
               )
             ),

@@ -8,6 +8,25 @@ class Pallete {
   static const Color colorLightest = Color.fromRGBO(155, 188, 15, 1);
   static const Color colorBackground = Color.fromRGBO(202, 220, 159, 1);
 
+/* paleta chroma noir reduzido a 16 cores
+  static const Color preto = Color(0xFF0D0D0D);//0xFF0A0E18
+  static const Color azulEsc = Color(0xFF639bff);
+  static const Color vinho = Color(0xFF9c3a2b);
+  static const Color verdeEsc = Color(0xFF4ae364);
+  static const Color marrom = Color(0xFFa86437);
+  static const Color cinzaEsc = Color(0xFF383838);
+  static const Color cinzaCla = Color(0xFF828282);
+  static const Color branco = Color(0xFFd9d9d9);
+  static const Color vermelho = Color(0xFFe64e35);
+  static const Color laranja = Color(0xFFe67a30);
+  static const Color amarelo = Color(0xFFf7c756);
+  static const Color verdeCla = Color(0xFF99e550);
+  static const Color azulCla = Color(0xFF4dcced);
+  static const Color lilas = Color(0xFF306082);
+  static const Color rosa = Color(0xFFf873e4);
+  static const Color bege = Color(0xFFad8830);
+*/
+  /* palleta pico 8 */
   static const Color preto = Color(0xFF000000);//0xFF0A0E18
   static const Color azulEsc = Color(0xFF1D2B53);
   static const Color vinho = Color(0xFF7E2553);
@@ -24,6 +43,7 @@ class Pallete {
   static const Color lilas = Color(0xFF83769C);
   static const Color rosa = Color(0xFFFF77A8);
   static const Color bege = Color(0xFFFFCCAA);
+  
 
   static final List<Shadow> shadows = [
     const Shadow(color: Colors.black, offset: Offset(1, 0), blurRadius: 0),   // Direita

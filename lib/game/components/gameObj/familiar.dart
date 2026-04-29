@@ -177,7 +177,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = 'sprites/familiares/turret2.png';
         cor = Pallete.azulCla.withOpacity(0.7);
         dmg = player.damage;
-        fireRate = player.fireRate;
+        fireRate = player.fireRate/2;
         hasAntimateria = player.hasAntimateria;
         canBounce      = player.canBounce;
         isSpectral     = player.isSpectral;

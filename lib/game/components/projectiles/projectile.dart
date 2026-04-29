@@ -108,6 +108,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   Vector2 hbSize;
 
+  bool rotaciona = false;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -139,7 +141,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.sweepAngle = pi / 2,
     this.isSaw = false,
     this.goldShot = false,
-    this.acceleration = 600.0,
+    this.acceleration = 200.0,
     this.maxSpeed = 1000.0,
     this.knockbackForce = 0,
     this.isStun = false,
@@ -192,19 +194,24 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       // Lógica de visual padrão para tiros normais
       //IconData icon = Icons.circle;
       Vector2 tamanho = size;
+
+      if(cor != Pallete.preto){
+        color = cor;
+      }
       
       if (explodes) {
         //icon = Icons.brightness_high;
       } else if (isBoomerang) {
-        //icon = MdiIcons.boomerang; 
+        image = 'sprites/projeteis/bumerangue.png';
         color = Pallete.marrom;
         tamanho = tamanho * 2;
+        rotaciona = true;
       } else if (isHoming) {
         //icon = Icons.rocket_launch;
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
       } else if (isSaw) {
-        //icon = MdiIcons.sawBlade;
+        image = 'sprites/projeteis/saw.png';
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
         color = Pallete.cinzaCla;
@@ -218,9 +225,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         color = Pallete.cinzaCla;
       }
 
-      if(cor != Pallete.preto){
-        color = cor;
-      }
+      
+
+      if(isAdaga) rotaciona = true;
 
       visual = GameSprite(
       imagePath: image,
@@ -270,7 +277,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     _timer += dt;
 
-    if(isAdaga) _updateRotation();
+    if(rotaciona) {
+      visualAngle += 5 * dt; 
+      _updateRotation();
+    }
 
     if(fireHazzard) _createHazard(dt, isFire: true, tmp: 1/speed);
 

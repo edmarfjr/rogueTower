@@ -1056,7 +1056,7 @@ class I18n {
       'caverna':'Cave',
       'bosque':'Forest',
       'cemetery':'Cemetery',
-      'salao_de_jogos':'Arcade',
+      'salao_de_jogos':'Games Room',
       'ocean':'Ocean',
       'guarnicao_orc':'Orc Garrison',
       'estacao_espacial':'Space Station',

@@ -926,7 +926,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.activePa:
         return {'name': 'activePa'.tr(), 'desc': 'activePaDesc'.tr(), 'icon': 'escada', 'color': Pallete.azulCla};
       case CollectibleType.activeBoxOfFriends:
-        return {'name': 'activeBoxOfFriends'.tr(), 'desc': 'activeBoxOfFriendsDesc'.tr(), 'icon': 'caixa', 'color': Pallete.azulCla};
+        return {'name': 'activeBoxOfFriends'.tr(), 'desc': 'activeBoxOfFriendsDesc'.tr(), 'icon': 'caixa', 'color': Pallete.verdeEsc};
       case CollectibleType.activeDupliItem:
         return {'name': 'activeDupliItem'.tr(), 'desc': 'activeDupliItemDesc'.tr(), 'icon': 'duplicado', 'color': Pallete.vinho};
       case CollectibleType.activeJarroFadas:
@@ -1107,7 +1107,6 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.activeCircularShots,
       CollectibleType.keysToBombs,
       CollectibleType.activeRandPillUnico,
-      CollectibleType.familiarDummy,
       CollectibleType.activeBloodBag,
       CollectibleType.activeDullRazor,
       CollectibleType.activeBoxSpider,
@@ -1118,7 +1117,6 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.activeDiarreiaExplosiva,
       CollectibleType.jumpersCable,
       CollectibleType.gravitacao,
-      CollectibleType.bumerangue,
       CollectibleType.saw,
       CollectibleType.familiarBouncer,
       CollectibleType.familiarPrisma,
@@ -1143,6 +1141,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.activeSlot,
       CollectibleType.activeFreezeBomb,
       CollectibleType.activeBltDetonator,
+      CollectibleType.bumerangue,
       CollectibleType.activeGoldenrazor,
       CollectibleType.activeGlassStaff,
       CollectibleType.activeBuracoNegro,
@@ -2461,37 +2460,43 @@ class CollectibleLogic {
           switch(rnd){
             case 0:
               player.increaseDamage(1.2);
-              txt = 'dano';
+              txt = 'dmg'.tr();
               break;
             case 1:
               player.increaseFireRate(0.8);
-              txt = 'taxa de tiro';
+              txt = 'fire_rate'.tr();
               break;
             case 2:
               player.increaseMovementSpeed(1.2);
-              txt = 'velocidade';
+              txt = 'moveSpeed'.tr();
               break;
             case 3:
               player.increaseRange(1.2);
-              txt = 'alcançe';
+              txt = 'range'.tr();
               break;
             case 4:
               player.critChance += 5;
-              txt = 'chance crítica';
+              txt = 'critChance'.tr();
               break;
             case 5:
               player.critDamage *= 1.15;
-              txt = 'dano crítico';
+              txt = 'critDamage'.tr();
               break;
             case 6:
               player.increaseHp(2);
-              txt = 'HP';
+              txt = 'health'.tr();
               break;
             case 7:
               player.dot *= 1.5;
-              txt = 'dano por tempo';
+              txt = 'dot'.tr();
               break;
           }
+          
+          game.world.add(FloatingText(
+                text: txt,
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.branco,
+              ));
           text = txt;
           //color = Pallete.vermelho;
           break;
@@ -2503,37 +2508,43 @@ class CollectibleLogic {
           switch(rnd){
             case 0:
               player.increaseDamage(1.2);
-              txt = 'dano';
+              txt = 'dmg'.tr();
               break;
             case 1:
               player.increaseFireRate(0.8);
-              txt = 'taxa de tiro';
+              txt = 'fire_rate'.tr();
               break;
             case 2:
               player.increaseMovementSpeed(1.2);
-              txt = 'velocidade';
+              txt = 'moveSpeed'.tr();
               break;
             case 3:
               player.increaseRange(1.2);
-              txt = 'alcançe';
+              txt = 'range'.tr();
               break;
             case 4:
               player.critChance += 5;
-              txt = 'chance crítica';
+              txt = 'critChance'.tr();
               break;
             case 5:
               player.critDamage *= 1.15;
-              txt = 'dano crítico';
+              txt = 'critDamage'.tr();
               break;
             case 6:
               player.increaseHp(2);
-              txt = 'HP';
+              txt = 'health'.tr();
               break;
             case 7:
               player.dot *= 1.5;
-              txt = 'dano por tempo';
+              txt = 'dot'.tr();
               break;
           }
+
+          game.world.add(FloatingText(
+                text: txt,
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.branco,
+              ));
 
           text = txt;
           //color = Pallete.vermelho;

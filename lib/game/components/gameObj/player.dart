@@ -298,7 +298,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeRitualDagger) return 0;
     if (type == CollectibleType.activeStunBomb) return 3;
     if (type == CollectibleType.activeFairy) return 4;
-    if (type == CollectibleType.activeUnicorn) return 6;
+    if (type == CollectibleType.activeUnicorn) return 5;
     if (type == CollectibleType.activeConvBruta) return 5;
     if (type == CollectibleType.activeBloodBag) return 0;
     if (type == CollectibleType.activeDullRazor) return 2;
@@ -317,7 +317,7 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeBltDetonator) return 1;
     if (type == CollectibleType.activeGoldenrazor) return 0;
     if (type == CollectibleType.activeTurret) return 2;
-    if (type == CollectibleType.activeTurretRotate) return 3;
+    if (type == CollectibleType.activeTurretRotate) return 2;
     if (type == CollectibleType.activeGlassStaff) return 1;
     if (type == CollectibleType.activeBuracoNegro) return 4;
     if (type == CollectibleType.activeLoja) return 2;
@@ -1682,22 +1682,77 @@ class Player extends PositionComponent
 
   void criaLaser(Vector2 dir,ang,target,tamanho)
   {
+    bool tempBurn = false;
+    bool tempPoison = false;
+    bool tempCharm = false;
+    bool tempHoming = false;
+    bool tempFreeze = false;
+    bool tempParalise = false;
+    bool tempFear = false;
+
+    final rnd = Random();
+
+    Color cor = Pallete.vermelho;
+    if(rainbowShot){
+      int effectRoll = rnd.nextInt(8);
+      switch(effectRoll){
+        case 0:
+          tempBurn = true;
+          cor = Pallete.laranja;
+          break;
+        case 1:
+          tempPoison = true;
+          cor = Pallete.verdeCla;
+          break;
+        case 2:
+          tempCharm = true;
+          cor = Pallete.rosa;
+          break;
+        case 3:
+          tempHoming = true;
+          cor = Pallete.lilas;
+          break;
+        case 4:
+          tempFreeze = true;
+          cor = Pallete.azulCla;
+          break;
+        case 5:
+          tempParalise = true;
+          cor = Pallete.marrom;
+          break;
+        case 6:
+          tempFear = true;
+          cor = Pallete.cinzaEsc;
+          break;
+        case 7:
+          break;
+      }
+    }
+
     gameRef.world.add(LaserBeam(
-      position: position + (dir * 10),
+      position: position + (dir * 16),
       angleRad: ang,
       length: tamanho,
       chargeTime: 0,
       fireTime: fireRate,
       target: target,
       owner: this,
-      damage: damage
+      damage: damage,
+      cor : cor,
+      isParalised:tempParalise || isParalised? Random().nextInt(100) <= min((1/(5-(sorte * 0.15)))*100, 50)? true:false : false,
+      isFreeze:tempFreeze || isFreeze? Random().nextInt(100) <= (1/(4 - (sorte / 5)))*100? true:false : false,
+      isFear: tempFear || isFear? Random().nextInt(100) <= (15/(100 - sorte ))*100? true:false : false,
+      isBleed: isBleed,
+      isPoison:tempPoison || isPoison,
+      isBurn: tempBurn || isBurn,
+      isCharm: tempCharm,
     ));
   }
 
   void criaLaserDirecional(Vector2 dir,ang,dmg,chargeTime,durTime,largura)
   {
     gameRef.world.add(LaserBeam(
-      position: position + (dir * 10),
+      position: position + (dir * 16),
       angleRad: ang,
       larguraLaser: largura,
       chargeTime: chargeTime,
@@ -1872,7 +1927,7 @@ class Player extends PositionComponent
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
       image:isAdaga? 'sprites/projeteis/faca.png' : img ,
-      dieTimer: isBoomerang ? 1.0 : isOrbitalShot ? 2 : isSaw ? aRange*1.5 : aRange,
+      dieTimer: isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : isSaw ? aRange*2 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,
       iniPosition: position.clone(),
@@ -1910,7 +1965,7 @@ class Player extends PositionComponent
     if(bombButtonTimer>0 && !semCusto) return;
     bombButtonTimer = 0.5;
     if (bombNotifier.value > 0 || isBomber || semCusto){
-      if(!isBomber)bombNotifier.value--;
+      if(!isBomber && !semCusto)bombNotifier.value--;
       gameRef.world.add(Bomb(
         position: position.clone(), 
         damage:damage*5, 

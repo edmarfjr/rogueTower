@@ -11,9 +11,8 @@ import '../effects/explosion_effect.dart';
 import '../enemies/enemy.dart';
 import '../gameObj/player.dart';
 import '../gameObj/wall.dart';
-//import '../../audio_manager.dart'; 
 
-class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCallbacks {
+class LaserBeam extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   final double damage;
   final double maxLength;
   double currentLength;
@@ -26,14 +25,14 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   
   double dmgTmr = 0;
   double dmgTime;
-  // Configuração de Tempo
+  
   double _timer = 0;
-  double chargeTime; // Tempo "mirando" (aviso)
-  double fireTime;   // Tempo causando dano
+  double chargeTime; 
+  double fireTime;   
   bool _hasFired = false;
 
   final PositionComponent? owner;
-  final PositionComponent? target;
+  PositionComponent? target;
 
   RectangleHitbox? _hitbox;
 
@@ -43,7 +42,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   bool refratado;
 
   bool followsOwnerMov;
-
   bool invisivel = false;
   bool _canDamageThisFrame = false;
 
@@ -51,6 +49,15 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   bool chains;
   int chainCount;
   int maxChains;
+
+  bool isFreeze;
+  bool isBurn;
+  bool isPoison;
+  bool isBleed;
+  bool isCharm;
+  bool isParalised;
+  bool isFear;
+
 
   LaserBeam({
     required Vector2 position,
@@ -74,24 +81,27 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     this.chains = false,
     this.chainCount = 0,
     this.maxChains = 4,
+    this.isFreeze = false,
+    this.isBurn = false,
+    this.isPoison = false,
+    this.isBleed = false,
+    this.isCharm = false,
+    this.isParalised = false,
+    this.isFear = false,
   }): maxLength = length, 
       currentLength = length, 
-      
       super(position: position, anchor: Anchor.centerLeft);
 
   @override
   Future<void> onLoad() async {
     angle = angleRad;
-    
     priority = 500; 
-
     if (owner is Enemy) critico = false;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-   // if(invisivel) return;
 
     if (owner != null && !owner!.isMounted) {
       removeFromParent(); 
@@ -100,108 +110,72 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
 
     _timer += dt;
     
-    // FASE 1: DISPARAR (Acabou o tempo de carga)
+    // --- LÓGICA DE DISPARO E DANO CONTÍNUO ---
     if (_timer >= chargeTime && !_hasFired) {
       _fire();
       AudioManager.playSfx('laser.mp3');
-      
-      // A MÁGICA INICIAL: Começa em ZERO para o laser bater imediatamente ao nascer!
       dmgTmr = 0; 
     }
 
-    // --- SEGUNDA PARTE DA MÁGICA ---
     if (_hasFired) {
       if(dmgTmr > 0){
         dmgTmr -= dt;
-        
-        // CORREÇÃO: É o Update que desliga o dano, não a colisão!
         _canDamageThisFrame = false; 
       } else {
-        // SINAL VERDE! Deixa aceso por 1 frame para queimar todos na reta!
         _canDamageThisFrame = true; 
-        
-        dmgTmr = dmgTime; // Reseta a contagem para esperar mais 0.3s
+        dmgTmr = dmgTime; 
       }
-    }
-    // FASE 1: DISPARAR (Acabou o tempo de carga)
-    if (_timer >= chargeTime && !_hasFired) {
-      _fire();
-      AudioManager.playSfx('laser.mp3');
     }
 
-    if (owner is Player) {
-      // 1. A origem do feixe fica colada no jogador
-      Player p = owner as Player; // Converte para acessar a velocidade do Player
+    // --- MÁGICA DA MOVIMENTAÇÃO E MIRA ---
+    
+    // 1. A ORIGEM: O laser sempre acompanha o dono (se ele existir)
+    if (owner != null) {
+      position = owner!.position.clone();
+    }
+
+    // 2. A MIRA: Regras de rotação centralizadas e unificadas
+    if (target != null && target!.isMounted) {
+      // Usa o absoluteCenter para mirar perfeitamente no meio do alvo!
+      final directionVector = target!.absoluteCenter - absolutePosition;
+      angle = atan2(directionVector.y, directionVector.x);
       
-      // 1. A origem do feixe fica colada no jogador
-      position = p.position.clone();
+    } else if (followsOwnerMov && owner != null) {
+      // Se não tem alvo, mas o laser deve seguir pra onde o dono anda
+      Vector2 velocity = Vector2.zero();
       
-      // 2. A ponta aponta para o alvo (se ele ainda existir no mundo)
-      if (followsOwnerMov) {
-        
-        // Se o player estiver se movendo (ignoramos tremores menores que 1.0)
-        if (p.velocity.length > 1.0) {
-          // Calcula o ângulo baseado na direção em que ele está andando!
-          angle = atan2(p.velocity.y, p.velocity.x);
-        }
-        // Nota: Se ele ficar parado, o laser simplesmente mantém a última direção que estava apontando!
-        
-      } else if (target != null && target!.isMounted) {
-        final directionVector = target!.position - position;
-        angle = atan2(directionVector.y, directionVector.x);
+      // Coleta a velocidade dependendo de quem é o dono
+      if (owner is Player) velocity = (owner as Player).velocity;
+      if (owner is Familiar) velocity = (owner as Familiar).velocity;
+
+      // Só muda a mira se ele estiver andando
+      if (velocity.length > 1.0) {
+        angle = atan2(velocity.y, velocity.x);
       }
-    }else if (owner is Familiar) {
-      // 1. A origem do feixe fica colada no jogador
-      Familiar p = owner as Familiar; // Converte para acessar a velocidade do Familiar
       
-      // 1. A origem do feixe fica colada no jogador
-      position = p.position.clone();
-      
-      // 2. A ponta aponta para o alvo (se ele ainda existir no mundo)
-      if (followsOwnerMov) {
-        
-        // Se o player estiver se movendo (ignoramos tremores menores que 1.0)
-        if (p.velocity.length > 1.0) {
-          // Calcula o ângulo baseado na direção em que ele está andando!
-          angle = atan2(p.velocity.y, p.velocity.x);
-        }
-        // Nota: Se ele ficar parado, o laser simplesmente mantém a última direção que estava apontando!
-        
-      } else if (target != null && target!.isMounted) {
-        final directionVector = target!.position - position;
-        angle = atan2(directionVector.y, directionVector.x);
-      }
     } else if (isMoving && _hasFired) {
-      // Mantém a sua lógica original para os lasers inimigos que giram
+      // Se for um laser de "varredura" inimigo que só fica girando
       if(dirMove == 0){
-        if(target != null && target!.isMounted){
-          if (target!.position.x > position.x) {
-            dirMove = 1; // Move no sentido horário
-          } else {
-            dirMove = -1; // Move no sentido anti-horário
-          }
-        } else {
-          dirMove = Random().nextBool() ? 1 : -1; // Se não tiver alvo, escolhe aleatoriamente
-        }
+         dirMove = Random().nextBool() ? 1 : -1; 
       }
       angle += speed * dirMove;
     }
 
-    if(!atravessa)_updateLaserLength(); 
+    // --- ATUALIZA O TAMANHO (Raycast) ---
+    if(!atravessa) _updateLaserLength(); 
 
-    // FASE 2: DESTRUIR (Acabou o tempo de fogo)
+    // --- FINALIZAÇÃO ---
     if (_timer >= chargeTime + fireTime) {
       removeFromParent();
     }
   }
 
   Enemy? _findNextTarget(Enemy currentEnemy) {
-    double jumpRange = 150.0; // Distância máxima do pulo elétrico
+    double jumpRange = 150.0; 
     Enemy? closest;
     double minDistance = jumpRange;
 
     for (final enemy in gameRef.world.children.whereType<Enemy>()) {
-      // Ignora o inimigo que acabou de levar o choque e inimigos mortos
       if (enemy == currentEnemy || !enemy.isMounted) continue;
 
       double dist = currentEnemy.absoluteCenter.distanceTo(enemy.absoluteCenter);
@@ -214,38 +188,31 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   }
 
   void _updateLaserLength() {
-    // Cria um raio matemático a partir do laser na direção atual
     final directionVector = Vector2(cos(absoluteAngle), sin(absoluteAngle));
     final ray = Ray2(origin: absolutePosition, direction: directionVector);
 
-    // Faz a varredura
     final result = gameRef.collisionDetection.raycast(
       ray,
       maxDistance: maxLength,
       ignoreHitboxes: [
-        if (_hitbox != null) _hitbox!, // O raio ignora a própria hitbox do laser
-        if (owner != null) ...owner!.children.whereType<ShapeHitbox>(), // Ignora o dono
+        if (_hitbox != null) _hitbox!, 
+        if (owner != null) ...owner!.children.whereType<ShapeHitbox>(), 
       ],
     );
 
-    // Se o raio bateu em algo...
     if (result != null && result.hitbox != null) {
       final hitParent = result.hitbox!.parent;
       
-      // Se for parede ou o limite da tela, corta o laser ali
       if (hitParent is Wall || result.hitbox is ScreenHitbox || hitParent is Enemy || hitParent is Player
       || hitParent is Familiar && hitParent.type == FamiliarType.prisma) {
         currentLength = result.distance!;
       } else {
-        // Se bateu em outra coisa (Player/Enemy), ignora e atravessa
         currentLength = maxLength;
       }
     } else {
-      currentLength = maxLength; // Nada no caminho
+      currentLength = maxLength; 
     }
 
-    // Se a hitbox já foi criada (já disparou), ajustamos o tamanho dela
-    // Isso garante que você não tome dano se estiver atrás de uma parede!
     if (_hitbox != null) {
       _hitbox!.size.x = currentLength;
     }
@@ -268,32 +235,23 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
   void render(Canvas canvas) {
     super.render(canvas);
     if(invisivel) return;
+    
     if (!_hasFired) {
-      // --- VISUAL DE CARGA (Aviso) ---
-      // Linha fina que pisca
       double opacity = (_timer * 10).toInt() % 2 == 0 ? 0.3 : 0.6;
-      
       final paintWarning = Paint()
         ..color = Pallete.vermelho.withOpacity(opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
         ..isAntiAlias = false;
 
-      // Desenha linha da origem (0,0) até o alcance (length, 0)
       canvas.drawLine(Offset.zero, Offset(currentLength, 0), paintWarning);
-
     } else {
-      // --- VISUAL DE DISPARO (Laser Real) ---
-      
-      // 1. Brilho Externo (Glow)
       final paintGlow = Paint()
         ..color = cor.withOpacity(0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = larguraLaser * 0.8
-        //..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
         ..isAntiAlias = false; 
 
-      // 2. Núcleo Branco
       final paintCore = Paint()
         ..color = Pallete.branco
         ..style = PaintingStyle.fill
@@ -301,8 +259,12 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         ..isAntiAlias = false;
 
       double x = 4;
-      if(owner!=null) x = owner!.size.x/2;
-
+      if(owner!=null){
+        x = owner!.size.x/2;
+        if(owner! is Player && gameRef.player.arma != null){
+          x = owner!.size.x/2 + 8;
+        }
+      } 
       canvas.drawLine(Offset(x, 0), Offset(currentLength, 0), paintGlow);
       canvas.drawLine(Offset(x, 0), Offset(currentLength, 0), paintCore);
       canvas.drawCircle(Offset(currentLength, 0), larguraLaser/2, paintGlow);
@@ -343,7 +305,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         refratado: true
       ));
     }
-    
   }
 
   @override
@@ -353,18 +314,25 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
     final hitPos = intersectionPoints.firstOrNull ?? position;
     
     if(_canDamageThisFrame){
-      
       if (isEnemyProjectile) {
         if (other is Player) {
-          createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
+          createExplosionEffect(gameRef.world, hitPos, cor, count: 15);
           other.takeDamage(1); 
         }
       } 
       else {
         if (other is Enemy) {
-          createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
+          target ??= other;
+          createExplosionEffect(gameRef.world, hitPos, cor, count: 15);
           other.takeDamage(damage, critico: critico);
-          
+          if(isBurn)other.setBurn();
+          if(isFreeze)other.setFreeze();
+          if(isPoison)other.setPoison(alastra: gameRef.player.isPoisonAlastra || gameRef.player.tempPoisonAlastra);
+          if(isBleed)other.setBleed();
+          if(isCharm)other.setCharm();
+          if(isParalised)other.setParalise();
+          if(isFear)other.setFear();
+
           if (chainCount < maxChains && chains) {
             final nextEnemy = _findNextTarget(other);
             if (nextEnemy != null) {
@@ -387,7 +355,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
               ));
             }
           }
-          // REMOVIDO O _canDamageThisFrame = false; que ficava aqui!
         }
       } 
       
@@ -400,8 +367,6 @@ class LaserBeam extends PositionComponent with HasGameRef<TowerGame>,CollisionCa
         if (other.vida <= 0) other.removeFromParent();
         createExplosionEffect(gameRef.world, hitPos, Pallete.laranja, count: 5);
       }
-      
-      // REMOVIDO O dmgTmr = 0; que ficava aqui no final!
     }
   }
 }

@@ -140,7 +140,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
         
         double direcaoX = (Random().nextBool() ? 1 : -1) * 32.0;
         double altura = Random().nextDouble() * 100 + 150 * -1;
-        newItem.pop(Vector2(direcaoX, altura/2), altura:altura);
+        newItem.pop(Vector2(direcaoX, 0), altura:altura);
       }
     }else{
       gameRef.world.add(FloatingText(
