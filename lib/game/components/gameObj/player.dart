@@ -364,8 +364,8 @@ class Player extends PositionComponent
       if(_shadow != null){
         _shadow.removeFromParent();
       }
-      if(armaVisual != null){
-        armaVisual!.removeFromParent();
+      if(arma != null){
+        arma!.removeFromParent();
       }
      
       currentColor = color;
@@ -415,17 +415,25 @@ class Player extends PositionComponent
     _shadow =  ShadowComponent(parentSize: size); 
     add(_shadow);
 
-    if(arma != null && !isLicantropia && !isUnicorn && !isPac){
-      armaVisual = GameSprite(
-        imagePath: armaImage,
-        size: Vector2(16, 16),
-        color: armaCor , 
-        anchor: Anchor.center,
-        position: Vector2(16, 8), 
-      );
-      armaVisual!.angle = armaAng;
+    if(armaImage != '' && !isLicantropia && !isUnicorn && !isPac){
+      arma = PositionComponent(
+          size: Vector2(16, 16),
+          anchor: Anchor.center,
+          priority: 100,
+        );
 
-      arma!.add(armaVisual!);
+        armaVisual = GameSprite(
+          imagePath: armaImage,
+          size: Vector2(16, 16),
+          color: armaCor , 
+          anchor: Anchor.center,
+          position: Vector2(16, 8), 
+        );
+        armaVisual!.angle = armaAng;
+
+        arma!.add(armaVisual!);
+
+        gameRef.world.add(arma!);
     }
   }
 

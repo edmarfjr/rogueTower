@@ -798,13 +798,12 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     selectedClass = CharacterRoster.getClassById(savedClassId);
 
-    player.criaVisual(reset : true);
+    player.criaVisual(reset:true, image: player.classImage, color: player.classColor);
 
-    // 3. RECONSTRÓI AS POOLS! (É isto que impedia o jogador de atirar!)
+    // 3. RECONSTRÓI AS POOLS!
     itensComunsPoolCurrent = retornaItensComuns(player);
     itensRarosPoolCurrent = retornaItensRaros(player);
     itensEpicosPoolCurrent = retornaItensEpicos(player);
-
 
     // 4. Muda a UI e retoma o motor
     overlays.remove('MainMenu');
