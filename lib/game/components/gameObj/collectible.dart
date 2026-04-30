@@ -1311,23 +1311,22 @@ class CollectibleLogic {
                 color: Pallete.vermelho,
               ));
         
+            }else{
+              return {
+                'text': "${"hpCheio".tr()}!", 
+                'color': Pallete.branco, 
+                'sucesso': false
+              };
             }
-            
-            text = "${"Cheio".tr()}!";
-            game.world.add(FloatingText(
-                text: text,
-                position: player.absoluteCenter.clone() + Vector2(0, -30),
-                color: Pallete.vermelho,
-              ));
+          
             //color = Pallete.cinzaCla;
           }
           break;
 
         case CollectibleType.sanduiche:
-        if (player.healthNotifier.value >= player.maxHealth 
-          && player.artificialHealthNotifier.value >= player.maxArtificialHealth) {
+        if (player.healthNotifier.value >= player.maxHealth) {
             return {
-              'text': "Vida Cheia!", 
+              'text': "${"hpCheio".tr()}!", 
               'color': Pallete.branco, 
               'sucesso': false
             };
@@ -1821,32 +1820,38 @@ class CollectibleLogic {
           switch(rng){
             case 0:
               player.curaHp(2);
-              txt = 'Cura!';
+              txt = 'heart'.tr();
               break;  
             case 1:
               player.increaseShield();
-              txt = 'Escudo!';
+              txt = 'shield'.tr();
               break;
             case 2:
               game.keysNotifier.value += 1;
-              txt = 'Chave!';
+              txt = 'key'.tr();
               break;
             case 3:
               player.bombNotifier.value += 1;
-              txt = 'Bomba!';
+              txt = 'bomb'.tr();
               break;
             case 4:
               final int c = Random().nextInt(20)+5;
               player.collectCoin(c);
-              txt = 'Moedas!';
+              txt = 'gold'.tr();
               break;
             case 5:
               game.progress.addSouls(50);
               game.soulsTotal += 50;
-              txt = 'Almas!';
+              txt = 'souls'.tr();
               break;
           }
           text = txt;
+
+          game.world.add(FloatingText(
+                text: "$txt!",
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.vermelho,
+              ));
           //color = Pallete.vermelho;
           break;
 

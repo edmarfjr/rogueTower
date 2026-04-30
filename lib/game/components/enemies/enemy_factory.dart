@@ -905,7 +905,10 @@ class EnemyFactory {
             chargeSpeed: 100, 
             prepTime: 0.6,   
           ),
-          DropHazardBehavior(
+          
+        ],
+        phase1Drops: [
+          DropHazardBehavior2(
             interval: 0.5, 
             hazardBuilder: (p,owner) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true),
           ),
@@ -924,7 +927,10 @@ class EnemyFactory {
             chargeSpeed: 200, 
             prepTime: 0.6,   
           ),
-            DropHazardBehavior(
+            
+        ],
+        phase2Drops: [
+          DropHazardBehavior2(
             interval: 1.5, 
             hazardBuilder: (p,owner) => Bomb(position: p, duration: 3.0, damage: 1, isEnemy: true, isMine: true),
           ),

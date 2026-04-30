@@ -203,10 +203,12 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
   Color _getLevelColor(int level) {
     switch (level) {
       case 1: return Pallete.marrom;      
-      case 2: return Pallete.cinzaEsc; 
-      case 3: return Pallete.azulEsc; 
-      case 4: return Pallete.verdeEsc; 
+      case 2: return Pallete.verdeEsc; 
+      case 3: return Pallete.cinzaCla; 
+      case 4: return Pallete.lilas; 
       case 5: return Pallete.azulCla; 
+      case 6: return Pallete.marrom; 
+      case 7: return Pallete.azulCla; 
       default: return Pallete.azulEsc;
     }
   } 

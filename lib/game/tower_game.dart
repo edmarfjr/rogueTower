@@ -10,12 +10,19 @@ import 'package:flame/game.dart';
 import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/camera.dart';
+import 'package:towerrogue/game/components/enemies/enemy.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
+import 'package:towerrogue/game/components/gameObj/door.dart';
 import 'package:towerrogue/game/components/gameObj/npc.dart'; 
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:towerrogue/game/components/core/room_manager.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
+import 'package:towerrogue/game/components/gameObj/unlockable_item.dart';
+import 'package:towerrogue/game/components/gameObj/wall.dart';
+import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
 import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
+import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/projectiles/projectile.dart';
 import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
@@ -791,6 +798,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
     selectedClass = CharacterRoster.getClassById(savedClassId);
 
+    player.criaVisual(reset : true);
+
     // 3. RECONSTRÓI AS POOLS! (É isto que impedia o jogador de atirar!)
     itensComunsPoolCurrent = retornaItensComuns(player);
     itensRarosPoolCurrent = retornaItensRaros(player);
@@ -973,6 +982,59 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     double offX = 16;
     if(posicaoRetorno.x > 0)offX = -16;
     player.position = posicaoRetorno + Vector2(0, offX); 
+  }
+
+  void forceTeleportToRoom(int targetRoom, int targetLevel) {
+    // 1. Reseta os notifiers
+    currentRoomNotifier.value = targetRoom;
+    currentLevelNotifier.value = targetLevel;
+    
+    // 2. Limpeza profunda do mundo
+    final coisasParaApagar = world.children.where((component) {
+        return component is Enemy ||
+               component is Door ||
+               component is Collectible ||
+               component is Projectile ||
+               component is UnlockableItem ||
+               component is LaserBeam ||
+               component is Npc ||
+               component is Wall ||
+               component is Wall ||
+               component is PoisonPuddle;
+      }).toList(); // O .toList() é obrigatório aqui para evitar erros de remoção!
+      
+      world.removeAll(coisasParaApagar);
+
+    // 3. Pool de recompensas (Igual ao seu código)
+    Set<CollectibleType> possibleRewards = {
+      CollectibleType.coin,
+      CollectibleType.potion,
+      CollectibleType.shield,
+      CollectibleType.key,
+      CollectibleType.bomba,
+      CollectibleType.healthContainer,
+      CollectibleType.chest,
+      CollectibleType.rareChest,
+      CollectibleType.doacaoSangue,
+      CollectibleType.slotMachine,
+    };
+    List<CollectibleType> finalPool = possibleRewards.toList();
+    finalPool.shuffle();
+
+    nextRoomReward = finalPool[0];
+    if(targetRoom == 10){
+      nextRoomReward = CollectibleType.boss;
+    }else if(targetRoom == 0){
+      nextRoomReward = CollectibleType.nextLevel;
+    }
+
+    // 4. Posiciona o player antes de iniciar a sala
+    player.position = Vector2(0, 250); 
+
+    // 5. O CÓDIGO CHAVE: Reinicia completamente o RoomManager
+    // Forçamos ele a "esquecer" que já tinha uma sala ativa
+    roomManager.resetStateForTeleport(); 
+    roomManager.startRoom(targetRoom);
   }
 
   @override

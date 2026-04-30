@@ -273,9 +273,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     _timer += dt;
 
     if (_timer % 0.2 < 0.1) {
-         visual!.changeColor(Pallete.branco);
+         visual?.changeColor(Pallete.branco);
       } else {
-         visual!.changeColor(corAtual);
+         visual?.changeColor(corAtual);
       }
 
     if(rotaciona) {

@@ -25,12 +25,14 @@ class EnemyBoss extends Enemy {
   // Listas de comportamentos da FASE 1
   final List<MovementBehavior> phase1Movements;
   final List<AttackBehavior> phase1Attacks;
+  final List<DropBehavior> phase1Drops;
 
   // Listas de comportamentos da FASE 2
   final bool hasSecondForm;
   bool isSecondForm = false;
   final List<MovementBehavior> phase2Movements;
   final List<AttackBehavior> phase2Attacks;
+  final List<DropBehavior> phase2Drops;
 
   bool _isTransforming = false;
   double _transformTimer = 0;
@@ -50,6 +52,8 @@ class EnemyBoss extends Enemy {
     this.hasSecondForm = false,
     this.phase2Movements = const [],
     this.phase2Attacks = const [],
+    this.phase1Drops = const [],
+    this.phase2Drops = const [],
     super.dropList = const [],
     super.deathBehavior,
     super.speed = 100,
@@ -70,6 +74,7 @@ class EnemyBoss extends Enemy {
           isBoss: true,
           movementBehavior: phase1Movements.isNotEmpty ? phase1Movements.first : IdleBehavior() as MovementBehavior,
           attackBehavior: phase1Attacks.isNotEmpty ? phase1Attacks.first : IdleBehavior() as AttackBehavior,
+          dropBehavior: phase1Drops.isNotEmpty ? phase1Drops.first : null,
         );
 
   @override

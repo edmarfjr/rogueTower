@@ -130,50 +130,11 @@ class _DebugMenuState extends State<DebugMenu> {
     widget.game.resumeEngine(); 
 
     widget.game.transitionEffect.startTransition(() async {   
-      widget.game.currentRoomNotifier.value = _selectedRoom;
-      widget.game.currentLevelNotifier.value = _selectedLevel; 
       
-      final coisasParaApagar = widget.game.world.children.where((component) {
-        return component.runtimeType.toString() == 'Enemy' ||
-                component.runtimeType.toString() == 'Door' ||
-                component.runtimeType.toString() == 'Collectible' ||
-                component.runtimeType.toString() == 'Projectile' ||
-                component.runtimeType.toString() == 'UnlockableItem' ||
-                component.runtimeType.toString() == 'LaserBeam';
-                
-      });
+      // DEIXA O FLAME CUIDAR DO RESTO!
+      widget.game.forceTeleportToRoom(_selectedRoom, _selectedLevel);
       
-      widget.game.world.removeAll(coisasParaApagar);
       widget.game.overlays.add('HUD');
-
-      Set<CollectibleType> possibleRewards = {
-        CollectibleType.coin,
-        CollectibleType.potion,
-        CollectibleType.shield,
-        CollectibleType.key,
-        CollectibleType.bomba,
-        CollectibleType.healthContainer,
-        CollectibleType.chest,
-        CollectibleType.rareChest,
-        CollectibleType.doacaoSangue,
-        CollectibleType.slotMachine,
-      };
-      
-      List<CollectibleType> finalPool = possibleRewards.toList();
-      
-      finalPool.shuffle();
-
-      widget.game.nextRoomReward = finalPool[0];
-      if(_selectedRoom == 10){
-        widget.game.nextRoomReward = CollectibleType.boss;
-      }else if(_selectedRoom == 0){
-        widget.game.nextRoomReward = CollectibleType.nextLevel;
-      }
-      widget.game.roomManager.startRoom(_selectedRoom);
-
-      widget.game.player.position = Vector2(0, 250); 
-
-      //widget.game.startLevel();
     });
   }
 }

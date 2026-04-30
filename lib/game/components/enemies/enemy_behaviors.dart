@@ -106,6 +106,13 @@ abstract class AttackBehavior {
   AttackBehavior clone();
 }
 
+abstract class DropBehavior {
+  late Enemy enemy;
+  void update(double dt);
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
+  DropBehavior clone();
+}
+
 abstract class DeathBehavior {
   late Enemy enemy;
   void onDeath();
@@ -1410,6 +1417,53 @@ class DropHazardBehavior extends AttackBehavior {
 
   DropHazardBehavior clone() {
     return DropHazardBehavior(hazardBuilder: hazardBuilder); 
+  }
+
+  @override
+  void update(double dt) {
+    _timer += dt;
+    
+    if (_timer >= interval) {
+      // Verifica se o inimigo ainda existe antes de tentar soltar algo
+      if (enemy.isMounted) {
+        _dropHazard();
+        _timer = 0;
+      }
+    }
+  }
+
+  
+
+  void _dropHazard() {
+    // 1. Usa a função builder para criar o objeto na posição atual
+    final hazard = hazardBuilder(enemy.position.clone(), enemy);
+    
+    // 2. Adiciona ao mundo
+    enemy.gameRef.world.add(hazard);
+  }
+}
+
+class NoDrop extends DropBehavior {
+  @override
+  void update(double dt) {}
+
+  NoDrop clone() {
+    return NoDrop(); 
+  }
+}
+
+class DropHazardBehavior2 extends DropBehavior {
+  final double interval;
+  final HazardBuilder hazardBuilder; // A função que cria o objeto
+  double _timer = 0;
+
+  DropHazardBehavior2({
+    required this.hazardBuilder, // Obrigatório: O que soltar?
+    this.interval = 3.0,
+  });
+
+  DropHazardBehavior2 clone() {
+    return DropHazardBehavior2(hazardBuilder: hazardBuilder); 
   }
 
   @override

@@ -46,7 +46,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   int get bossRoom => gameRef.bossRoom;
 
-  final double _minTimeBeforeClear = 0.0; // Tempo mínimo para evitar clear instantâneo
+  final double _minTimeBeforeClear = 0.5; // Tempo mínimo para evitar clear instantâneo
 
   final List<EnemyFactoryFunction> _enemyRoster1 = [
     (pos,phase) => EnemyFactory.createRat(pos,phase:phase), 
@@ -163,7 +163,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.machadoArremeco));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeGift));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.bumerangue));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.saw));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
@@ -251,7 +251,11 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   //  gameRef.atualizaDebugMode();
 
   }
-
+  void resetStateForTeleport() {
+    _levelCleared = false;
+    _checkTimer = 100.0; // Um valor artificialmente alto para pular a trava de tempo do update
+    isSpawnningBoss = false;
+  }
   void _generateMap(int seed) {
     // Remove paredes antigas
     gameRef.world.children.query<Wall>().forEach((w) => w.removeFromParent());
@@ -984,7 +988,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _unlockDoors() {
     final doors = gameRef.world.children.query<Door>();
     
-    if (doors.isEmpty) return;
+    //if (doors.isEmpty) return;
 
     for (final door in doors) {
       door.open();

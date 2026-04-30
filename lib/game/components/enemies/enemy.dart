@@ -132,6 +132,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   late MovementBehavior movementBehavior;
   late AttackBehavior attackBehavior;
   AttackBehavior? attack2Behavior;
+  DropBehavior? dropBehavior;
   late DeathBehavior deathBehavior;
   final String image;
 
@@ -166,6 +167,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     required this.movementBehavior,
     required this.attackBehavior,
     DeathBehavior? deathBehavior,
+    DropBehavior? dropBehavior,
     this.attack2Behavior,
     this.hp = 30,
     this.speed = 80,
@@ -192,9 +194,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.noChamp = false,
   }) : super(position: position, size: size ?? Vector2.all(16), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
+    this.dropBehavior = dropBehavior ?? NoDrop();
     _baseSpeed = speed;
     movementBehavior.enemy = this;
     attackBehavior.enemy = this;
+    dropBehavior?.enemy = this;
     confuseBehavior.enemy = this;
     encolhidoBehavior.enemy = this;
     this.deathBehavior.enemy = this;
@@ -461,6 +465,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         attackBehavior.update(dt);
         attack2Behavior?.update(dt);
       }
+
+      dropBehavior?.update(dt);
 
       if (championType == 9) {
       const double pullRadius = 300.0; // O tamanho do campo gravitacional

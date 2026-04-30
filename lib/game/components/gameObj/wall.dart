@@ -39,7 +39,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       List<String> possibleIcons = [
         'sprites/tileset/bloqueio.png', 
         'sprites/tileset/mushroom.png', 
-        'sprites/tileset/estalagminte.png', 
+        'sprites/tileset/estalagmite.png', 
       ];
 
       if (gameRef.currentLevel == 2){
