@@ -1685,7 +1685,6 @@ class Player extends PositionComponent
     bool tempBurn = false;
     bool tempPoison = false;
     bool tempCharm = false;
-    bool tempHoming = false;
     bool tempFreeze = false;
     bool tempParalise = false;
     bool tempFear = false;
@@ -1709,8 +1708,6 @@ class Player extends PositionComponent
           cor = Pallete.rosa;
           break;
         case 3:
-          tempHoming = true;
-          cor = Pallete.lilas;
           break;
         case 4:
           tempFreeze = true;
@@ -1851,7 +1848,7 @@ class Player extends PositionComponent
   }
   void criaTiro(double dmg, Vector2 dir, double aRange, {double speed = 300, String img = 'sprites/projeteis/blt.png', bool retribuicao = false}){
     final rnd = Random();
-    bool isAdaga = false;
+    bool isMachadoArremeco = false;
     bool isFireHazard = false;
     bool isBuracoNegro = false;
 
@@ -1860,7 +1857,7 @@ class Player extends PositionComponent
     double buracoNegroChance = min((1/(20-sorte))*100,20);
 
     if(rnd.nextInt(100) <= adagaCha && adagaChance){
-      isAdaga = true;
+      isMachadoArremeco = true;
       dmg *= 4;
     }
 
@@ -1926,8 +1923,8 @@ class Player extends PositionComponent
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
-      image:isAdaga? 'sprites/projeteis/faca.png' : img ,
-      dieTimer: isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : isSaw ? aRange*2 : aRange,
+      image:isMachadoArremeco? 'sprites/projeteis/machadoArremeco.png' : img ,
+      dieTimer: (isBoomerang && isSaw)? aRange*3 : isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : isSaw ? aRange*2 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,
       iniPosition: position.clone(),
@@ -1945,7 +1942,7 @@ class Player extends PositionComponent
       sweepAngle: pi / 1.5, // <-- Quase um semicírculo de largura!
       isSaw: isSaw,
       knockbackForce: knockbackForce,
-      isAdaga: isAdaga,
+      isMachadoArremeco: isMachadoArremeco,
       fireHazzard: isFireHazard,
       buracoNegro: isBuracoNegro,
       isSpark: bltSparks,

@@ -168,9 +168,9 @@ class CharacterRoster {
       armaAngOffset: pi/4,
     ),
     CharacterClass(
-      id: 'ladino',
-      name: "ladino".tr(),
-      description: "ladinoDesc".tr(),
+      id: 'ninja',
+      name: "ninja".tr(),
+      description: "ninjaDesc".tr(),
       color:  Pallete.lilas,
       maxHp: 2, 
       maxDash: 3,
@@ -184,8 +184,8 @@ class CharacterRoster {
       startingKeys: 1,
       attackRange: 0.5,
       isUnlockedByDefault: false,
-      bltImage: 'sprites/projeteis/adaga.png',
-      unlockConditionText: "ladinoCond".tr(),
+      bltImage: 'sprites/projeteis/kunai.png',
+      unlockConditionText: "ninjaCond".tr(),
     ),
     CharacterClass(
       id: 'arqueiro',

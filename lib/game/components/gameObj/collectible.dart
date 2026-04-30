@@ -62,7 +62,7 @@ enum CollectibleType {
   keys, dash, sanduiche, bombas, piercing, fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, mine, bloodstone, bounce, spectral, cupon, 
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming, activeGift, activeBandage,
   activeMidas, boloDinheiro, restock, primeiroInimigoPocaVeneno, activeCircularShots, keysToBombs, activeRandPillUnico, familiarDummy, activeBloodBag, 
-  activeDullRazor, activeBoxSpider, adagaArremeco, bloquel, activeWoodenCoin, activeTurretRotate, activeDiarreiaExplosiva, jumpersCable, gravitacao, 
+  activeDullRazor, activeBoxSpider, machadoArremeco, bloquel, activeWoodenCoin, activeTurretRotate, activeDiarreiaExplosiva, jumpersCable, gravitacao, 
   bumerangue, saw, familiarBouncer, familiarPrisma, activeBombardeioUnico, defensiveFairys, foice, familiarAtira,
   //itens raros
   activeRerollItem, goldDmg, activeUnicornUnico, activeTurretUnico, activeD10, orbitalShield, itemExtraBoss, activeSlot, activeFreezeBomb, 
@@ -959,8 +959,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'activeKamikaze'.tr(), 'desc': 'activeKamikazeDesc'.tr(), 'icon': 'nuke2', 'color': Pallete.branco};
       case CollectibleType.retribuicao:
         return {'name': 'retribuicao'.tr(), 'desc': 'retribuicaoDesc'.tr(), 'icon': 'retribuicao', 'color': Pallete.vermelho};
-      case CollectibleType.adagaArremeco:
-        return {'name': 'adagaArremeco'.tr(), 'desc': 'adagaArremecoDesc'.tr(), 'icon': 'faca', 'color': Pallete.cinzaCla};
+      case CollectibleType.machadoArremeco:
+        return {'name': 'machadoArremeco'.tr(), 'desc': 'machadoArremecoDesc'.tr(), 'icon': 'machadoArremeco', 'color': Pallete.lilas};
       case CollectibleType.bloquel:
         return {'name': 'bloquel'.tr(), 'desc': 'bloquelDesc'.tr(), 'icon': 'bloquel', 'color': Pallete.cinzaCla};
       case CollectibleType.glifoEquilibrio:
@@ -1110,7 +1110,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.activeBloodBag,
       CollectibleType.activeDullRazor,
       CollectibleType.activeBoxSpider,
-      CollectibleType.adagaArremeco,
+      CollectibleType.machadoArremeco,
       CollectibleType.bloquel,
       CollectibleType.activeWoodenCoin,
       CollectibleType.activeTurretRotate,
@@ -1312,7 +1312,13 @@ class CollectibleLogic {
               ));
         
             }
+            
             text = "${"Cheio".tr()}!";
+            game.world.add(FloatingText(
+                text: text,
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.vermelho,
+              ));
             //color = Pallete.cinzaCla;
           }
           break;
@@ -3341,10 +3347,10 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break; 
 
-        case CollectibleType.adagaArremeco:
+        case CollectibleType.machadoArremeco:
           player.adagaChance = true;
           player.increaseFireRate(0.8);
-          text = "adagaArremeco";
+          text = "machadoArremeco";
           //color = Pallete.vermelho;
           break; 
 

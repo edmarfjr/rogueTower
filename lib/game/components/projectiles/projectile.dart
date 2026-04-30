@@ -88,9 +88,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   double knockbackForce;
 
   Color cor;
+  Color corAtual = Pallete.branco;
 
   bool isStun;
-  bool isAdaga;
+  bool isMachadoArremeco;
   bool buracoNegro;
   bool isParalised;
   bool isFreeze;
@@ -145,7 +146,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.maxSpeed = 1000.0,
     this.knockbackForce = 0,
     this.isStun = false,
-    this.isAdaga = false,
+    this.isMachadoArremeco = false,
     this.cor = Pallete.preto,
     this.fireHazzard = false,
     this.buracoNegro = false,
@@ -167,12 +168,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   @override
   Future<void> onLoad() async {
-    Color color = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.amarelo : Pallete.branco) : cor;
+    corAtual = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.amarelo : Pallete.azulCla) : cor;
 
     if (isWave) {
-      color = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
+      corAtual = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
       _wavePaint = Paint()
-        ..color = color
+        ..color = corAtual
         ..style = PaintingStyle.stroke 
         ..isAntiAlias = false
         ..strokeWidth = 1.0;
@@ -196,43 +197,37 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       Vector2 tamanho = size;
 
       if(cor != Pallete.preto){
-        color = cor;
+        corAtual = cor;
       }
       
       if (explodes) {
-        //icon = Icons.brightness_high;
       } else if (isBoomerang) {
         image = 'sprites/projeteis/bumerangue.png';
-        color = Pallete.marrom;
+        corAtual = Pallete.marrom;
         tamanho = tamanho * 2;
         rotaciona = true;
       } else if (isHoming) {
-        //icon = Icons.rocket_launch;
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
       } else if (isSaw) {
         image = 'sprites/projeteis/saw.png';
         visualAngle = -pi / 4; 
         tamanho = tamanho * 2;
-        color = Pallete.cinzaCla;
+        corAtual = Pallete.lilas;
+        rotaciona = true;
       } else if (gameRef.selectedClass.name == 'PIROMANTE'){
-        //icon = MdiIcons.fire; 
-        color = Pallete.laranja;
+        corAtual = Pallete.laranja;
         tamanho = tamanho * 2;
-      }else if(isAdaga){
-        //icon = MdiIcons.knifeMilitary;
+      }else if(isMachadoArremeco){
         tamanho = tamanho * 2;
-        color = Pallete.cinzaCla;
+        corAtual = Pallete.lilas;
+        rotaciona = true;
       }
-
-      
-
-      if(isAdaga) rotaciona = true;
 
       visual = GameSprite(
       imagePath: image,
       size: size,
-      color: color, 
+      color: corAtual,
       anchor: Anchor.center,
       position: size / 2
     );
@@ -277,8 +272,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     _timer += dt;
 
+    if (_timer % 0.2 < 0.1) {
+         visual!.changeColor(Pallete.branco);
+      } else {
+         visual!.changeColor(corAtual);
+      }
+
     if(rotaciona) {
-      visualAngle += 5 * dt; 
+      visualAngle += 15 * dt; 
       _updateRotation();
     }
 
@@ -293,7 +294,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     // --- LÓGICA DO BUMERANGUE ---
     if (isBoomerang) {
-      visualAngle += 15 * dt; 
       if (!isHoming || _isReturning) _updateRotation();
 
       if (!_isReturning && _timer >= dieTimer / 2) {
@@ -351,9 +351,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         speed += acceleration * dt;
       }
       
-      visualAngle += (speed * 0.05) * dt; 
-      
-      if (!isHoming || _isReturning) _updateRotation(); 
     }
 
     // --- MOVIMENTO ---
