@@ -185,6 +185,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                       _langButton('en', '🇺🇸 EN', currentLang),
                       _langButton('pt', '🇧🇷 PT', currentLang),
                       _langButton('es', '🇪🇸 ES', currentLang),
+                      _langButton('fr', '🇫🇷 FR', currentLang),
                     ],
                   ),
 
