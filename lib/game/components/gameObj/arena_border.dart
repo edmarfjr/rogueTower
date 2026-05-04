@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui'; // Necessário para o PictureRecorder
 
 import 'package:towerrogue/game/tower_game.dart';
 import 'package:flame/components.dart';
@@ -9,39 +10,29 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   final double wallThickness;
   final double radius;
 
-  late Sprite tile;
-  late Sprite tileQ;
+  // --- Dimensões da Arena ---
+  static const double tileSize = 16.0;
+  static const double gridWidth = 16.0;
+  static const double gridHeight = 32.0;
+  static const double arenaWidth = gridWidth * tileSize;
+  static const double arenaHeight = gridHeight * tileSize;
 
-  late Sprite tile2;
-  late Sprite tileQ2;
+  // --- Sprites ---
+  late Sprite tile, tileQ;
+  late Sprite tile2, tileQ2;
+  late Sprite tile3, tileQ3;
+  late Sprite tile4, tile42, tileQ4, tileQ42;
+  late Sprite tile5, tile52, tileQ5, tileQ52;
+  late Sprite tile6, tileQ6;
 
-  late Sprite tile3;
-  late Sprite tileQ3;
+  late Sprite currTile, currTileQ;
+  Sprite? currTile2, currTileQ2; // Transformados em nullables pois nem todo nível usa
 
-  late Sprite tile4;
-  late Sprite tile42;
-  late Sprite tileQ4;
-  late Sprite tileQ42;
-
-  late Sprite tile5;
-  late Sprite tile52;
-  late Sprite tileQ5;
-  late Sprite tileQ52;
-
-  late Sprite tile6;
-  late Sprite tileQ6;
-
-  late Sprite currTile;
-  late Sprite currTile2;
-  late Sprite currTileQ;
-  late Sprite currTileQ2;
-
-  final Paint _borderPaint = Paint()..style = PaintingStyle.stroke
-                                    ..strokeWidth = 1.0
-                                    ..color = Pallete.cinzaCla.withAlpha(50);
-  final paintDeCor = Paint();
-
+  final Paint paintDeCor = Paint();
   int _lastLevel = -1;
+
+  // O SEGREDO DA PERFORMANCE: A "Foto" em cache da arena inteira
+  Picture? _cachedBorder;
 
   ArenaBorder({
     required Vector2 size,
@@ -50,28 +41,14 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   }) : super(
           size: size,
           anchor: Anchor.center,
-          position: Vector2.zero(), 
+          position: Vector2.zero(),
           priority: -10000,
-        ) {
-    // Configura a espessura da linha
-    //_borderPaint.strokeWidth = 1;
-
-    // Pré-calcula a matemática geométrica na hora que a arena é criada
-   /* _rect = Rect.fromCenter(
-      center: Offset(size.x / 2, size.y / 2),
-      width: size.x,
-      height: size.y,
-    );
-    
-    _rRect = RRect.fromRectAndRadius(_rect, Radius.circular(radius));
-    */
-  }
+        );
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
     
-    // 2. Carrega a imagem (Lembre-se: não precisa escrever 'assets/images/')
     tile = await Sprite.load('sprites/tileset/1parede.png');
     tileQ = await Sprite.load('sprites/tileset/1paredeQuina.png');
     tile2 = await Sprite.load('sprites/tileset/2parede.png');
@@ -92,182 +69,150 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
 
   Color _getLevelColor(int level) {
     switch (level) {
-      case 1:
-        return Pallete.marrom;      
-      case 2: 
-        return Pallete.verdeEsc; 
-      case 3: 
-        return Pallete.cinzaCla; 
-      case 4: 
-        return Pallete.lilas; 
-      case 5: 
-        return Pallete.azulCla; 
-      case 6: 
-        return Pallete.marrom; 
-      case 7: 
-        return Pallete.azulCla; 
-      case 8: 
-        return Pallete.rosa; 
-      default: 
-        return Pallete.azulEsc;
+      case 1: return Pallete.marrom;
+      case 2: return Pallete.verdeEsc;
+      case 3: return Pallete.cinzaCla;
+      case 4: return Pallete.lilas;
+      case 5: return Pallete.azulCla;
+      case 6: return Pallete.marrom;
+      case 7: return Pallete.azulCla;
+      case 8: return Pallete.rosa;
+      default: return Pallete.azulEsc;
     }
-  }  
+  }
 
   @override
   void update(double dt) {
     super.update(dt);
     
-    // 3. ATUALIZAÇÃO CONDICIONAL: 
-    // Muda a cor da tinta apenas se o nível tiver mudado, sem recriar o Paint()
     final int currLevel = gameRef.currentLevelNotifier.value;
+    
+    // Se o nível mudou, configuramos os tiles e "batemos a foto" da nova arena!
     if (currLevel != _lastLevel) {
       _lastLevel = currLevel;
-      paintDeCor.colorFilter = ColorFilter.mode(_getLevelColor(currLevel), BlendMode.modulate);
-      if(currLevel == 1 || currLevel == 5){
-        currTile = tile;
-        currTileQ = tileQ;
-      }else if(currLevel == 4 || currLevel == 3){
-        currTile = tile2;
-        currTileQ = tileQ2;
-      }else if(currLevel == 2){
-        currTile = tile3;
-        currTileQ = tileQ3;
-      }else if(currLevel == 6){
-        currTile = tile4;
-        currTileQ = tileQ4;
-        currTile2 = tile42;
-        currTileQ2 = tileQ42;
-      }else if(currLevel == 7){
-        currTile = tile5;
-        currTileQ = tileQ5;
-        currTile2 = tile52;
-        currTileQ2 = tileQ52;
-      }
-      else if(currLevel == 8){
-        currTile = tile6;
-        currTileQ = tileQ6;
-      }
-      
+      _updateLevelConfig(currLevel);
+      _buildCachedBorder(); 
     }
+  }
+
+  // --- 1. SEPARAÇÃO DE LÓGICA: Configura as variáveis do nível ---
+  void _updateLevelConfig(int level) {
+    paintDeCor.colorFilter = ColorFilter.mode(_getLevelColor(level), BlendMode.modulate);
+    
+    // Reseta as secundárias por padrão
+    currTile2 = null;
+    currTileQ2 = null;
+
+    if (level == 1 || level == 5) {
+      currTile = tile; currTileQ = tileQ;
+    } else if (level == 3 || level == 4) {
+      currTile = tile2; currTileQ = tileQ2;
+    } else if (level == 2) {
+      currTile = tile3; currTileQ = tileQ3;
+    } else if (level == 6) {
+      currTile = tile4; currTileQ = tileQ4;
+      currTile2 = tile42; currTileQ2 = tileQ42;
+    } else if (level == 7) {
+      currTile = tile5; currTileQ = tileQ5;
+      currTile2 = tile52; currTileQ2 = tileQ52;
+    } else if (level == 8) {
+      currTile = tile6; currTileQ = tileQ6;
+    } else {
+      currTile = tile; currTileQ = tileQ; // Fallback de segurança
+    }
+  }
+
+  // --- 2. O SEGREDO DA PERFORMANCE: Desenha tudo em um Canvas temporário ---
+  void _buildCachedBorder() {
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    final bool usesSecondaryTiles = (_lastLevel == 6 || _lastLevel == 7);
+
+    // 1. Quinas
+    if (!usesSecondaryTiles) {
+      _desenharQuina(canvas, Vector2(0, 0), 0);
+      _desenharQuina(canvas, Vector2(arenaWidth, 0), pi / 2);
+      _desenharQuina(canvas, Vector2(0, arenaHeight), pi * 1.5);
+      _desenharQuina(canvas, Vector2(arenaWidth, arenaHeight), pi);
+    } else {
+      _desenharQuina(canvas, Vector2(0, 0), 0);
+      _desenharQuina(canvas, Vector2(arenaWidth, 0), 0, flipX: -1);
+      _desenharQuina(canvas, Vector2(0, arenaHeight), 0, quina2: true);
+      _desenharQuina(canvas, Vector2(arenaWidth, arenaHeight), 0, flipX: -1, quina2: true);
+    }
+    
+    // 2. Paredes Horizontais (Cima e Baixo)
+    for (double i = tileSize; i < arenaWidth; i += tileSize) {
+      _renderSprite(canvas, currTile, Vector2(i, 0));
+      _renderSprite(canvas, currTile, Vector2(i, arenaHeight));
+    }
+
+    // 3. Paredes Verticais (Esquerda e Direita)
+    for (double i = tileSize; i < arenaHeight; i += tileSize) {
+      if (usesSecondaryTiles && currTile2 != null) {
+        _renderSprite(canvas, currTile2!, Vector2(0, i));
+        
+        if (_lastLevel == 7) {
+          _desenharParedeDireitaFlipada(canvas, Vector2(arenaWidth + tileSize, i));
+        } else {
+          _renderSprite(canvas, currTile2!, Vector2(arenaWidth, i));
+        }
+      } else {
+        _renderSprite(canvas, currTile, Vector2(0, i));
+        _renderSprite(canvas, currTile, Vector2(arenaWidth, i));
+      }
+    }
+
+    // "Salva a foto" do Canvas
+    _cachedBorder = recorder.endRecording();
+  }
+
+  // Helper para não repetir o código de render no laço
+  void _renderSprite(Canvas canvas, Sprite spriteToRender, Vector2 position) {
+    spriteToRender.render(
+      canvas,
+      position: position,
+      size: Vector2(tileSize, tileSize),
+      overridePaint: paintDeCor,
+    );
   }
 
   @override
   void render(Canvas canvas) {
-    //canvas.drawRRect(_rRect, _borderPaint);
-    if(gameRef.currentLevelNotifier.value != 6 && gameRef.currentLevelNotifier.value != 7){
-      _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0), pi / 2);
-      _desenharQuinaRotacionado(canvas, Vector2(0, 32 * 16), pi * 1.5);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 32 * 16), pi);
-    }else{
-      _desenharQuinaRotacionado(canvas, Vector2(0, 0), 0);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 0),0,flipX: -1);
-      _desenharQuinaRotacionado(canvas, Vector2(0, 32 * 16), 0,quina2: true);
-      _desenharQuinaRotacionado(canvas, Vector2(16 * 16, 32 * 16),0,flipX: -1,quina2:true);
-    }
+    super.render(canvas);
     
-    for(int i=16; i<16*16; i+=16){
-     /*canvas.drawLine(
-        Offset(i.toDouble(), 0),
-       Offset(i.toDouble(), 32*16),
-        _borderPaint,
-      );*/
-      currTile.render(
-        canvas,
-        position: Vector2(i.toDouble(), 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),  
-        overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-      );
-      currTile.render(
-        canvas,
-        position: Vector2(i.toDouble(), 16*32), // Posição local (0,0 é o canto superior esquerdo deste componente)
-        size: Vector2(16, 16),      
-        overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
-      );
-    }
-    for(int i=16; i<16*32; i+=16){
-    /*  canvas.drawLine(
-        Offset(0,i.toDouble()),
-       Offset(16*16,i.toDouble()),
-        _borderPaint,
-      ); */
-      if(gameRef.currentLevelNotifier.value == 6 || gameRef.currentLevelNotifier.value == 7){
-        currTile2.render(
-          canvas,
-          position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-          size: Vector2(16, 16),  
-          overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-        );
-        if(gameRef.currentLevelNotifier.value == 7){
-          _desenharParedeDireitaFlipada(canvas, Vector2(17*16, i.toDouble()));
-        }else{
-          currTile2.render(
-            canvas,
-            position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-            size: Vector2(16, 16),      
-            overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
-          );
-        }
-        
-      }else{
-        currTile.render(
-          canvas,
-          position: Vector2(0, i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-          size: Vector2(16, 16),  
-          overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-        );
-        currTile.render(
-          canvas,
-          position: Vector2(16*16,i.toDouble()), // Posição local (0,0 é o canto superior esquerdo deste componente)
-          size: Vector2(16, 16),      
-          overridePaint: paintDeCor,         // Estica a imagem para preencher todo o tamanho do componente
-        );
-      }
-      
+    // Agora o nosso render só tem UMA linha! Extremamente leve.
+    if (_cachedBorder != null) {
+      canvas.drawPicture(_cachedBorder!);
     }
   }
 
+  // --- Helpers de Desenho Transformado ---
   void _desenharParedeDireitaFlipada(Canvas canvas, Vector2 posicao) {
+    if (currTile2 == null) return;
     canvas.save(); 
     canvas.translate(posicao.x, posicao.y);
-    canvas.scale(-1, 1); // Inverte horizontalmente
-    currTile2.render(
-      canvas,
-      position: Vector2(0, 0), // Posição local (0,0 é o canto superior esquerdo deste componente)
-      size: Vector2(16, 16),  
-      overridePaint: paintDeCor,             // Estica a imagem para preencher todo o tamanho do componente
-    );
+    canvas.scale(-1, 1); 
+    _renderSprite(canvas, currTile2!, Vector2.zero());
     canvas.restore();
   }
 
-  void _desenharQuinaRotacionado(Canvas canvas, Vector2 posicao, double angulo, {double flipX = 1, double flipY = 1,bool quina2 = false}) {
+  void _desenharQuina(Canvas canvas, Vector2 posicao, double angulo, {double flipX = 1, double flipY = 1, bool quina2 = false}) {
     canvas.save(); 
-    canvas.translate(posicao.x + 8, posicao.y + 8); 
-    
+    canvas.translate(posicao.x + (tileSize / 2), posicao.y + (tileSize / 2)); 
     canvas.rotate(angulo);
     canvas.scale(flipX, flipY); 
-    if(quina2){
-      currTileQ2.render(
-      canvas,
-      position: Vector2(0, 0), 
-      size: Vector2(16, 16),
-      anchor: Anchor.center, 
-      
-      overridePaint: paintDeCor,
-    );
-    }else{
-      currTileQ.render(
-      canvas,
-      position: Vector2(0, 0), 
-      size: Vector2(16, 16),
-      anchor: Anchor.center, 
-      
-      overridePaint: paintDeCor,
-    );
-    }
     
-
+    final sprite = (quina2 && currTileQ2 != null) ? currTileQ2! : currTileQ;
+    
+    sprite.render(
+      canvas,
+      position: Vector2.zero(),
+      size: Vector2(tileSize, tileSize),
+      anchor: Anchor.center,
+      overridePaint: paintDeCor,
+    );
     canvas.restore();
   }
-
 }
