@@ -9,9 +9,14 @@ import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 import 'package:towerrogue/game/components/effects/magic_shield_effect.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/effects/unlock_notification.dart';
+import 'package:towerrogue/game/components/gameObj/bank_atm.dart';
+import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
+import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/door.dart';
+import 'package:towerrogue/game/components/gameObj/npc.dart';
+import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:towerrogue/game/components/gameObj/unlockable_item.dart';
 import 'package:towerrogue/game/components/projectiles/bomb.dart';
 import 'package:towerrogue/game/components/projectiles/explosion.dart';
@@ -1617,7 +1622,7 @@ class Player extends PositionComponent
         criaLaser(dir,angle,target,dist);
         
       }else{
-        lastAttackDirection.setFrom(_tempDirection);
+        
         if(clusterShot > -1){
           clusterShot ++;
         }
@@ -1831,6 +1836,8 @@ class Player extends PositionComponent
     double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
     _tempDirection.setValues(x, y);
 
+    
+
     double dmg = returnDamage();
     double aRange = attackRange;
 
@@ -1840,6 +1847,10 @@ class Player extends PositionComponent
       double y = _tempDirection.x * sin(angOffset) + _tempDirection.y * cos(angOffset);
       _tempDirection.setValues(x, y);
     }
+
+    lastAttackDirection.setFrom(_tempDirection);
+
+
     if(isLicantropia){
       aRange = aRange * 0.5;
     }
@@ -1925,7 +1936,7 @@ class Player extends PositionComponent
     }
     gameRef.world.add(Projectile(
       owner: this,
-      position: position.clone(), 
+      position: position.clone() + dir * 8, 
       direction: dir, 
       damage: retribuicao? dmg : noDamage? 0.0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
@@ -2136,7 +2147,8 @@ class Player extends PositionComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Wall || other is Door || other is UnlockableItem) {
+    if (other is Wall || other is Door || other is UnlockableItem || other is Npc || other is Chest
+    || other is BankAtm  || other is BloodMachine  || other is SlotMachine) {
       _handleWallCollision(intersectionPoints, other);
       if(other is Wall && zodiacLeo){
         other.die();

@@ -364,7 +364,6 @@ class SaveManager {
     game.player.rainbowShot = runData['rainbowShot'] ?? false;
     game.player.masterOrb = (runData['masterOrb'] ?? 1.0).toDouble();
     game.player.classImage = (runData['classImage'] ?? '');
-    
     int? savedColorValueClass = runData['classColor'] as int?;
     int? savedColorValueArma = runData['armaCor'] as int?;
     

@@ -501,6 +501,7 @@ class I18n {
       'beast': 'A Besta de Caerbannog',
       'orcChief': 'Orc Chefe',
       'agiota':'agiota',
+      'olhoBoss':'O OLHO',
       'ai':'UI!',
       'escolhaClasse':'Escolha seu personagem',
       'dificuldade':'Dificuldade',
@@ -533,6 +534,7 @@ class I18n {
       'ocean':'Oceano',
       'guarnicao_orc':'Guarnição Orc',
       'estacao_espacial':'Estação Espacial',
+      'alem':'O Além',
     },
     'en': {
       "paused": "PAUSED",
@@ -1031,6 +1033,7 @@ class I18n {
       "beast": "Beast of Caerbannog",
       "orcChief": "Orc Chief",
       "agiota": "Loan Shark",
+      'olhoBoss':'THE EYE',
       "ai": "Ouch!",
       'escolhaClasse': 'Choose your character',
       'dificuldade': 'Difficulty',
@@ -1062,6 +1065,7 @@ class I18n {
       'ocean':'Ocean',
       'guarnicao_orc':'Orc Garrison',
       'estacao_espacial':'Space Station',
+      'alem':'The Beyound',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1520,7 +1524,8 @@ class I18n {
       'ghostKnight': 'El Caballero Fantasma',
       'truQueen': 'La Reina Verdadera',
       'beast': 'La Bestia de Caerbannog',
-      'agiota':'usurero',
+      'agiota':'Usurero',
+      'olhoBoss':'EL OJO',
       'ai':'AY!',
       'escolhaClasse': 'Elige tu personaje',
       'dificuldade': 'Dificultad',
@@ -1552,6 +1557,7 @@ class I18n {
       'ocean':'Océano',
       'guarnicao_orc':'Guarnición Orco',
       'estacao_espacial':'Estación Espacial',
+      'alem':'El Más Allá',
     }
   };
 

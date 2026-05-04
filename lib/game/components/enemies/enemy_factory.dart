@@ -131,6 +131,7 @@ class EnemyFactory {
       position: pos,
       noChamp: noChamp,
       championType: champType,
+      animSemMove: true,
       hp: hpFraco * (0.5 + (phase*0.5)),
       speed: 50,
       weight: 5,
@@ -1193,6 +1194,155 @@ class EnemyFactory {
       phase2Attacks: [
         ProjectileAttackBehavior(interval: 2,isBurst: true, burstCount: 20, burstDelay: 0.1, isStraight:false,), 
         MortarAttackBehavior(interval:1, isBarragem: true),
+        LaserAttackBehavior(interval: 2, isMoving: true,fireTime: 5),
+      ]
+        
+    );
+  }
+
+  //inimigos lovecraft
+  static Enemy createEye(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpFraco * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/olho.png",
+      originalColor: Pallete.rosa,
+      movementBehavior: UnderGroundWanderBehavior(cimaDur: 1.5),
+      attackBehavior: ProjectileAttackBehavior(interval: 3, isWave: true),
+    );
+  }
+
+   static Enemy createCultista(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/cultista.png",
+      originalColor: Pallete.amarelo,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: LaserAttackBehavior(interval: 3, isMoving: true),
+    );
+  }
+
+  static Enemy createStarSpawn(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/starspawn.png",
+      originalColor: Pallete.verdeEsc,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: ProjectileAttackBehavior(interval: 3, isBoomerang: true),
+    );
+  }
+
+  static Enemy createElder(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpMedio * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/elder.png",
+      originalColor: Pallete.bege,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: LaserAttackBehavior(interval: 3),
+    );
+  }
+
+  static Enemy createRastejante(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/rastejante.png",
+      originalColor: Pallete.vinho,
+      movementBehavior: RandomWanderBehavior(),
+      attackBehavior: MortarAttackBehavior(interval: 3),
+      dropBehavior: DropHazardBehavior2(interval: 0.5, 
+      hazardBuilder: (p, owner) => PoisonPuddle(
+                                position: p, 
+                                duration: 5.0, 
+                                damage: 1,
+                                isPlayer : owner.isCharmed 
+                              ),)
+    );
+  }
+
+  static Enemy createDeepOne(Vector2 pos,{bool noChamp = false, int champType = 0, int phase = 1}) {
+    return Enemy(
+      position: pos,
+      noChamp: noChamp,
+      championType: champType,
+      animSemMove: true,
+      hp: hpForte * (0.5 + (phase*0.5)),
+      speed: 50,
+      weight: 5,
+      image: "sprites/inimigos/deepone.png",
+      originalColor: Pallete.lilas,
+      movementBehavior: FollowPlayerBehavior(),
+      attackBehavior: DropHazardBehavior(interval: 0.5, 
+      hazardBuilder: (p, owner) => PoisonPuddle(
+                                position: p, 
+                                duration: 5.0, 
+                                damage: 1,
+                                isPlayer : owner.isCharmed 
+                              ),),
+    );
+  }
+
+  static EnemyBoss createOlhoBoss(Vector2 pos, {int phase = 1}) {
+    return EnemyBoss(
+      bossName: "olhoBoss".tr(),
+      hp: hpBossMedio * (0.5 + (phase*0.5)), 
+      position: Vector2(0, -100),
+      speed: 40,
+      soul: 500,
+      image: "sprites/inimigos/olhoBoss.png",
+      size: Vector2.all(32),
+      hbSize: Vector2(30,30),
+      //hbOffset: Vector2(0, 8), 
+      originalColor: Pallete.lilas,
+      behaviorChangeInterval: 3.0,
+      
+        // --- COMPORTAMENTOS DA FASE 1 ---
+        phase1Movements: [
+        RandomWanderBehavior(),         
+      ],
+      phase1Attacks: [
+        SpinnerAttackBehavior(interval: 1, projectilesPerWave: 16, isSpiral: true), 
+        MortarAttackBehavior(interval:2, isBarragem: true),
+      ],
+       
+        // --- ATIVANDO A FASE 2 ---
+        hasSecondForm: true,
+        
+        // --- COMPORTAMENTOS DA FASE 2 ---
+        phase2Movements: [
+        FollowPlayerBehavior(speedMod: 1.2), 
+      ],
+      phase2Attacks: [
+        SpinnerAttackBehavior(interval: 1, projectilesPerWave: 24, isSpiral: true),
+        MortarAttackBehavior(interval:1.5, isBarragem: true),
         LaserAttackBehavior(interval: 2, isMoving: true,fireTime: 5),
       ]
         

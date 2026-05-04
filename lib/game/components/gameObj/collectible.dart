@@ -236,7 +236,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     if (custoKeys > 0){
       add(GameSprite(
-        imagePath: 'sprites/hud/key.png',
+        imagePath: 'sprites/condicoes/key.png',
         color: Pallete.laranja,
         size: size/2,
         anchor: Anchor.center,
@@ -252,7 +252,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
     if (custoBombs > 0){
       add(GameSprite(
-        imagePath: 'sprites/hud/bomb.png',
+        imagePath: 'sprites/condicoes/bomb.png',
         color: Pallete.lilas,
         size: size/2,
         anchor: Anchor.center,
@@ -684,7 +684,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.mine:
         return {'name': 'mine'.tr(), 'desc': 'mineDesc'.tr(), 'icon': 'mina', 'color': Pallete.verdeEsc};
       case CollectibleType.soda:
-         return {'name': 'soda'.tr(), 'desc': 'sodaDesc'.tr(), 'icon': 'vinho', 'color': Pallete.cinzaEsc}; 
+         return {'name': 'soda'.tr(), 'desc': 'sodaDesc'.tr(), 'icon': 'soda', 'color': Pallete.azulCla}; 
       case CollectibleType.bloodstone:
          return {'name': 'bloodstone'.tr(), 'desc': 'bloodstoneDesc'.tr(), 'icon': 'colar', 'color': Pallete.vermelho}; 
       case CollectibleType.spectral:

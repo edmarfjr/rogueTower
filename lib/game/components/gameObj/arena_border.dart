@@ -28,6 +28,9 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
   late Sprite tileQ5;
   late Sprite tileQ52;
 
+  late Sprite tile6;
+  late Sprite tileQ6;
+
   late Sprite currTile;
   late Sprite currTile2;
   late Sprite currTileQ;
@@ -83,6 +86,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tile52 = await Sprite.load('sprites/tileset/5parede2.png');
     tileQ5 = await Sprite.load('sprites/tileset/5paredeQuina.png');
     tileQ52 = await Sprite.load('sprites/tileset/5paredeQuina2.png');
+    tile6 = await Sprite.load('sprites/tileset/6parede.png');
+    tileQ6 = await Sprite.load('sprites/tileset/6parede.png');
 
   }
 
@@ -102,6 +107,8 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
         return Pallete.marrom; 
       case 7: 
         return Pallete.azulCla; 
+      case 8: 
+        return Pallete.rosa; 
       default: 
         return Pallete.azulEsc;
     }
@@ -136,6 +143,10 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
         currTileQ = tileQ5;
         currTile2 = tile52;
         currTileQ2 = tileQ52;
+      }
+      else if(currLevel == 8){
+        currTile = tile6;
+        currTileQ = tileQ6;
       }
       
     }

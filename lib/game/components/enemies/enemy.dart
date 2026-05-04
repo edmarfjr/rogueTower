@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/effects/explosion_effect.dart';
 //import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
@@ -162,6 +163,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   bool isBlocking = false;
 
+  bool animSemMove;
+
   Enemy({
     required Vector2 position,
     required this.movementBehavior,
@@ -192,6 +195,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     this.dropList = const [],
     this.championType = 0,
     this.noChamp = false,
+    this.animSemMove = false,
   }) : super(position: position, size: size ?? Vector2.all(16), anchor: Anchor.center) {
     this.deathBehavior = deathBehavior ?? NoDeathEffect();
     this.dropBehavior = dropBehavior ?? NoDrop();
@@ -661,7 +665,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       if (flipOposto) facingDirection *= -1.0;
     }
 
-    if (isMoving) {
+    if (isMoving || animSemMove) {
       _animTimer += dt * _animSpeed;
       double wave = sin(_animTimer);
       double stretchY = 1.0 + (wave * _animAmplitude);
@@ -828,6 +832,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void die() {
+    createExplosionEffect(gameRef.world, position, originalColor, count: 10);
     final rng = Random();
     if (_isDead) return;
     _isDead = true;

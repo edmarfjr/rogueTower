@@ -111,6 +111,15 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     (pos,phase) => EnemyFactory.createTank2(pos,phase:phase),
   ];
 
+  final List<EnemyFactoryFunction> _enemyRoster8 = [
+    (pos,phase) => EnemyFactory.createRastejante(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createElder(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createStarSpawn(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createEye(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createDeepOne(pos,phase:phase), 
+    (pos,phase) => EnemyFactory.createCultista(pos,phase:phase),
+  ];
+
   ValueListenable<int>? get currentRoomNotifier => null;
 
   @override
@@ -414,7 +423,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         case 6:
           selectedFactory = _enemyRoster6[rng.nextInt(_enemyRoster6.length)];  
         case 7:
-          selectedFactory = _enemyRoster7[rng.nextInt(_enemyRoster7.length)];  
+          selectedFactory = _enemyRoster7[rng.nextInt(_enemyRoster7.length)]; 
+        case 8:
+          selectedFactory = _enemyRoster8[rng.nextInt(_enemyRoster8.length)];   
         default:
           selectedFactory = _enemyRoster1[rng.nextInt(_enemyRoster1.length)];
       }
@@ -457,6 +468,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       case 4: currentRoster = _enemyRoster4; break;
       case 5: currentRoster = _enemyRoster5; break;
       case 6: currentRoster = _enemyRoster6; break;
+      case 7: currentRoster = _enemyRoster7; break;
+      case 8: currentRoster = _enemyRoster8; break;
       default: currentRoster = _enemyRoster1; break;
     }
 
@@ -525,6 +538,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           gameRef.world.add(EnemyFactory.createOrcChief(spawnPos));
         } else if (gameRef.currentLevel == 7) {
           gameRef.world.add(EnemyFactory.createMecha(spawnPos));
+        } else if (gameRef.currentLevel == 8) {
+          gameRef.world.add(EnemyFactory.createOlhoBoss(spawnPos));
         }
         AudioManager.playBgm('retro_plat.mp3');
         isSpawnningBoss = false;
@@ -793,12 +808,22 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           "alquimistaLine3".tr(),
         ],
       ));
+      
       bool isBomba1 = Random().nextBool();
       bool isBomba2 = Random().nextBool();
       bool isBomba3 = Random().nextBool();
-      _generatePocoesAleatorias(Vector2(-64,0), 2,isBomba1); 
-      _generatePocoesAleatorias(Vector2(0,0), 2,isBomba2); 
-      _generatePocoesAleatorias(Vector2(64,0), 2,isBomba3); 
+
+      List<CollectibleType> availablePotions = retornaPocoes();
+      
+      availablePotions.shuffle();
+
+      CollectibleType pot1 = availablePotions.isNotEmpty ? availablePotions[0] : CollectibleType.potion;
+      CollectibleType pot2 = availablePotions.length > 1 ? availablePotions[1] : CollectibleType.potion;
+      CollectibleType pot3 = availablePotions.length > 2 ? availablePotions[2] : CollectibleType.potion;
+
+      gameRef.world.add(Collectible(position: Vector2(-64,0), type: pot1, custoKeys: isBomba1?0:2, custoBombs: isBomba1?2:0));
+      gameRef.world.add(Collectible(position: Vector2(0,0), type: pot2, custoKeys: isBomba2?0:2, custoBombs: isBomba2?2:0));
+      gameRef.world.add(Collectible(position: Vector2(64,0), type: pot3, custoKeys: isBomba3?0:2, custoBombs: isBomba3?2:0));
   }
 
   void _generateZeroRoom(){
@@ -971,6 +996,29 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           soulCost: 2200,
         ));
         break;
+      case 8:
+      txt = 'alem'.tr();
+      gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y1),
+          id: 'permanent_shield_8', 
+          type: CollectibleType.shield,
+          soulCost: 1800,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y2),
+          id: 'permanent_health_8', 
+          type: CollectibleType.healthContainer,
+          soulCost: 2100,
+        ));
+
+        gameRef.world.add(UnlockableItem(
+          position: Vector2(x1, y3),
+          id: 'permanent_damage_8', 
+          type: CollectibleType.damage,
+          soulCost: 2500,
+        ));
+        break;
       default:
         break;
     }
@@ -1100,25 +1148,6 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     gameRef.world.add(Collectible(position: pos, type: lootType, custo: preco));
   }
   
-
-  void _generatePocoesAleatorias(Vector2 pos, int preco, bool isBomba ) {
-     final rng = Random();
-
-    final List<CollectibleType> possibleRewards = retornaPocoes();
-
-    final CollectibleType lootType = possibleRewards[rng.nextInt(possibleRewards.length)];
-
-    int precoKey = 0;
-    int precoBomb = 0;
-
-    if (isBomba){
-      precoBomb = preco;
-    }else{
-      precoKey = preco;
-    }
-    
-    gameRef.world.add(Collectible(position: pos, type: lootType, custoKeys: precoKey, custoBombs: precoBomb));
-  }
   
   void _generateBossReward() {
     List<CollectibleType> possibleRewards = gameRef.itensEpicosPoolCurrent;

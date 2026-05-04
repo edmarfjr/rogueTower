@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
@@ -35,8 +36,16 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     );
     add(visual);
 
+    add(RectangleHitbox(
+      size: size,
+      anchor: Anchor.center,
+      position: size / 2,
+      isSolid: true
+    ));
+
     _shadow=ShadowComponent(parentSize:size);
     add(_shadow);
+    priority = position.y.toInt();
   }
 
   @override
@@ -45,7 +54,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     
     double distance = position.distanceTo(gameRef.player.position);
 
-    if (distance < 24) {
+    if (distance < size.y * 1.5) {
       // Se chegou perto e o botão ainda não apareceu...
       if (!_isPlayerNear) {
         _isPlayerNear = true;

@@ -10,6 +10,9 @@ import '../../tower_game.dart';
 class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCallbacks {
   
   //InteractButton? _currentButton;
+  double _cooldown = 0;
+  final double _interactRange = 32;
+  bool _isInfoVisible = false;
 
   BankAtm({required Vector2 position})
       : super(position: position, size: Vector2.all(32), anchor: Anchor.center);
@@ -27,36 +30,31 @@ class BankAtm extends PositionComponent with HasGameRef<TowerGame>, CollisionCal
 
     // Hitbox
     add(RectangleHitbox(
-      size: size, 
-      isSolid: true, // Player bate nela
-    ));
-
-    add(CircleHitbox(
-      radius: 32, // Raio de detecção (maior que o objeto)
+      size: size,
       anchor: Anchor.center,
       position: size / 2,
-      isSolid: false, // Player atravessa (apenas gatilho)
+      isSolid: true,
     ));
 
     priority = position.y.toInt();
   }
 
-  @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
-    
-    if (other == gameRef.player) {
-      _showButton();
-    }
-  }
+   @override
+  void update(double dt) {
+    super.update(dt);
+    if (_cooldown > 0) _cooldown -= dt;
 
-  // Quando o Player SAI da área
-  @override
-  void onCollisionEnd(PositionComponent other) {
-    super.onCollisionEnd(other);
-    
-    if (other == gameRef.player) {
-      _hideButton();
+    final player = gameRef.player;
+    double dist = position.distanceTo(player.position);
+
+    if (dist <= _interactRange) {
+      if (!_isInfoVisible) {
+        _showButton();
+      }
+    } else {
+      if (_isInfoVisible) {
+        _hideButton();
+      }
     }
   }
 

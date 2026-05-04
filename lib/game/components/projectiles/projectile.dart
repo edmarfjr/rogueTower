@@ -686,7 +686,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
     // 1. COLISÃO COM PAREDES
     if (!isSpectral && (other is Wall || other is ScreenHitbox)) {
-      createExplosionEffect(gameRef.world, hitPos, Pallete.branco, count: 5);
+      createExplosionEffect(gameRef.world, hitPos, Pallete.cinzaCla, count: 5);
       if (canBounce /*&& _bounceCount < maxBounces*/) {
         _handleBounce(other, hitPos);
         if (other is Wall) other.takeDamage(); 
@@ -720,12 +720,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         // Bumerangue e Ondas normalmente perfuram alvos vivos!
         if (!isPiercing && !isBoomerang && !isWave) kill(); 
       } else if (other is Familiar && other.type == FamiliarType.block ){
-        createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
+        createExplosionEffect(gameRef.world, hitPos, Pallete.cinzaCla, count: 10);
         kill();
       }
     } else {
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel && !other.isCharmed) {
-        createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
+        createExplosionEffect(gameRef.world, hitPos, other.originalColor, count: 10);
         _hitTargets.add(other); 
         other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
