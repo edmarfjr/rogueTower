@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
 
@@ -35,9 +36,9 @@ class VictoryMenu extends StatelessWidget {
               //const Icon(Icons.emoji_events, color: Pallete.amarelo, size: 80),
               //PixelSprite(imagePath: spriteName, color: Pallete.amarelo, size: 80),
               const SizedBox(height: 10),
-              const Text(
-                "VITÓRIA!",
-                style: TextStyle(
+               Text(
+                "vitoria".tr(),
+                style: const TextStyle(
                   fontFamily: 'pixelFont',
                   fontSize: 40,
                   color: Pallete.amarelo,
@@ -48,9 +49,9 @@ class VictoryMenu extends StatelessWidget {
               const SizedBox(height: 20),
               
               // Estatísticas
-              _buildStatRow("Almas Coletadas", "${game.soulsTotal}", Icons.whatshot),
-              _buildStatRow("Ouro Acumulado", "${game.coinsTotal}", Icons.monetization_on),
-              _buildStatRow("Vida Restante", "${game.player.healthNotifier.value}", Icons.favorite),
+              _buildStatRow("almas_coletadas".tr(), "${game.soulsTotal}", Icons.whatshot),
+              _buildStatRow("ouro_acumulado", "${game.coinsTotal}", Icons.monetization_on),
+              _buildStatRow("vida_restante", "${game.player.healthNotifier.value}", Icons.favorite),
               
               const Divider(color: Pallete.cinzaCla, thickness: 2, height: 30),
               
@@ -78,9 +79,9 @@ class VictoryMenu extends StatelessWidget {
                       game.overlays.remove('VictoryMenu');
                       game.resetGame(game.selectedClass);                             
                   },
-                  child: const Text(
-                    "MENU PRINCIPAL",
-                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  child: Text(
+                    'main_menu'.tr(),
+                    style:const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -100,7 +101,7 @@ class VictoryMenu extends StatelessWidget {
                       game.returnToMenu();                            
                   },
                   child: const Text(
-                    "JOGAR NOVAMENTE",
+                    "jogar_novamente",
                     style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),

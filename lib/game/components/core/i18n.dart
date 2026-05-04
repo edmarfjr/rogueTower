@@ -541,6 +541,11 @@ class I18n {
       'tente_novamente':'TENTAR NOVAMENTE',
       'voltar_menu':'VOLTAR AO MENU',
       'reviver':'REVIVER',
+      'vitoria':'VITÓRIA!',
+      'ouro_acumulado':'Ouro Acumulado',
+      'vida_restante':'Vida Restante',
+      'score':'PONTUAÇÃO TOTAL',
+      'jogar_novamente':'JOGAR NOVAMENTE'
     },
     'en': {
       "paused": "PAUSED",
@@ -1078,6 +1083,11 @@ class I18n {
       'tente_novamente':'TRY AGAIN',
       'voltar_menu':'BACK TO MENU',
       'reviver':'REVIVE',
+      'vitoria':'VICTORY!',
+      'ouro_acumulado':'Gold Collected',
+      'vida_restante':'Remaining Health',
+      'score':'TOTAL SCORE',
+      'jogar_novamente':'PLAY AGAIN',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1576,6 +1586,11 @@ class I18n {
       'tente_novamente':'INTENTAR DE NUEVO',
       'voltar_menu':'VOLVER AL MENÚ',
       'reviver':'REVIVIR',
+      'vitoria':'¡VICTORIA!',
+      'ouro_acumulado':'Oro Acumulado',
+      'vida_restante':'Vida Restante',
+      'score':'PUNTUACIÓN TOTAL',
+      'jogar_novamente':'JUGAR DE NUEVO',
     }
   };
 
