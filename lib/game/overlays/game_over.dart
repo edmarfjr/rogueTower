@@ -1,5 +1,6 @@
 import 'package:towerrogue/game/components/core/ad_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
 
@@ -31,7 +32,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DA SALA
             Text(
-              'Você sobreviveu até a Sala ${game.currentRoom} do andar ${game.currentLevel}',
+              'Você sobreviveu até a Sala'.tr() + game.currentRoom.toString() + 'do andar '.tr() + game.currentLevel.toString(),
               style: const TextStyle(
                 fontSize: 20,
                 color: Pallete.branco,
@@ -43,7 +44,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DE MOEDAS (Opcional)
             Text(
-              'Almas coletadas: ${game.progress.souls}',
+              'almas_coletadas'.tr() + game.progress.souls.toString(),
               style: const TextStyle(
                 fontSize: 16,
                 color: Pallete.amarelo,
@@ -68,7 +69,7 @@ class GameOver extends StatelessWidget {
                 onPressed: () {
                   game.resetGame(game.selectedClass); 
                 },
-                child: const Text('TENTAR NOVAMENTE', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child:  Text('tente_novamente'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
             
             const SizedBox(height: 20),
@@ -89,7 +90,7 @@ class GameOver extends StatelessWidget {
                 onPressed: () {                 
                   game.returnToMenu(); 
                 },
-                child: const Text('VOLTAR AO MENU', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child: Text('voltar_menu'.tr(), style:const  TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -104,7 +105,7 @@ class GameOver extends StatelessWidget {
                     //  color: Pallete.branco,
                     //),
                 ),
-                child: const Text('REVIVER', style: TextStyle(fontSize: 18, color: Pallete.branco)),
+                child: Text('reviver'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {

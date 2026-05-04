@@ -535,6 +535,12 @@ class I18n {
       'guarnicao_orc':'Guarnição Orc',
       'estacao_espacial':'Estação Espacial',
       'alem':'O Além',
+      'sobreviveu_ate':'Você sobreviveu até a Sala ',
+      'do_andar':' do andar ',
+      'almas_coletadas':'Almas coletadas: ',
+      'tente_novamente':'TENTAR NOVAMENTE',
+      'voltar_menu':'VOLTAR AO MENU',
+      'reviver':'REVIVER',
     },
     'en': {
       "paused": "PAUSED",
@@ -1066,6 +1072,12 @@ class I18n {
       'guarnicao_orc':'Orc Garrison',
       'estacao_espacial':'Space Station',
       'alem':'The Beyound',
+      'sobreviveu_ate':'You survived up to Room ',
+      'do_andar':' on Floor ',
+      'almas_coletadas':'Souls collected: ',
+      'tente_novamente':'TRY AGAIN',
+      'voltar_menu':'BACK TO MENU',
+      'reviver':'REVIVE',
     },
     'es': {
       'paused': 'PAUSADO',
@@ -1558,6 +1570,12 @@ class I18n {
       'guarnicao_orc':'Guarnición Orco',
       'estacao_espacial':'Estación Espacial',
       'alem':'El Más Allá',
+      'sobreviveu_ate':'Sobreviviste hasta la Sala ',
+      'do_andar':' del Piso ',
+      'almas_coletadas':'Almas recolectadas: ',
+      'tente_novamente':'INTENTAR DE NUEVO',
+      'voltar_menu':'VOLVER AL MENÚ',
+      'reviver':'REVIVIR',
     }
   };
 
