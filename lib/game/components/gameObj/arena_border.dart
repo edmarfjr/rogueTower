@@ -87,8 +87,7 @@ class ArenaBorder extends PositionComponent with HasGameRef<TowerGame> {
     tileQ5 = await Sprite.load('sprites/tileset/5paredeQuina.png');
     tileQ52 = await Sprite.load('sprites/tileset/5paredeQuina2.png');
     tile6 = await Sprite.load('sprites/tileset/6parede.png');
-    tileQ6 = await Sprite.load('sprites/tileset/6parede.png');
-
+    tileQ6 = await Sprite.load('sprites/tileset/6paredeQuina.png');
   }
 
   Color _getLevelColor(int level) {
