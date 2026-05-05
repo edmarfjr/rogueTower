@@ -455,8 +455,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoKeys > 0) game.keysNotifier.value -= custoKeys;
     if (custoBombs > 0) player.bombNotifier.value -= custoBombs;
     if (custoVida) {
-      player.maxHealth -= 6;
-      player.healthNotifier.value = min(player.healthNotifier.value, player.maxHealth);
+      player.increaseHp(-6);
     }
 
     // 4. RESTOCK DE ITENS
@@ -486,7 +485,25 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
     }
 
-    // 5. APLICAÇÃO DE EFEITOS E ITENS ATIVOS
+    // 5. INVENTÁRIO
+    final List<CollectibleType> consumiveis = [
+      CollectibleType.coin, CollectibleType.coinUm ,CollectibleType.potion, CollectibleType.sanduiche,
+      CollectibleType.potionUm,CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+      CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
+      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
+      CollectibleType.healthContainer,CollectibleType.slotMachine,CollectibleType.artificialHp
+    ];
+
+    if (!consumiveis.contains(type)) {
+      final attrs = Collectible.getAttributes(type);
+      player.setAcquiredItemsList(
+        type, attrs['name'] as String, attrs['desc'] as String, attrs['icon'] as String, attrs['color'] as Color,
+      );
+      game.progress.discoverItem(type.toString());
+    }
+
+    // 6. APLICAÇÃO DE EFEITOS E ITENS ATIVOS
     if (isItemAtivo(type)) {
       ActiveItemData? droppedData = player.equipActiveItem(type, activeCharge);
 
@@ -518,24 +535,6 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     }
     */
 
-    // 6. INVENTÁRIO
-    final List<CollectibleType> consumiveis = [
-      CollectibleType.coin, CollectibleType.coinUm ,CollectibleType.potion, CollectibleType.sanduiche,
-      CollectibleType.potionUm,CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
-      CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
-      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
-      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
-      CollectibleType.healthContainer,CollectibleType.slotMachine
-    ];
-
-    if (!consumiveis.contains(type)) {
-      final attrs = Collectible.getAttributes(type);
-      player.setAcquiredItemsList(
-        type, attrs['name'] as String, attrs['desc'] as String, attrs['icon'] as String, attrs['color'] as Color,
-      );
-      game.progress.discoverItem(type.toString());
-    }
-    
     // 7. REMOVE DO JOGO IMEDIATAMENTE!
     if (!naoEsgota) removeFromParent();
     

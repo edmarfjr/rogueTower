@@ -149,7 +149,7 @@ class Chest extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       gameRef.itensComunsPoolCurrent.remove(lootType);
     }
     // 3. Cria o item sorteado
-    final item =Collectible(
+    final item = Collectible(
       position: position.clone(),
       type: lootType,
     );

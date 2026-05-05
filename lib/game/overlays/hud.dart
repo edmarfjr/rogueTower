@@ -473,13 +473,13 @@ class Hud extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: Pallete.cinzaEsc,
+        color: Colors.transparent,
         border: Border.all(
-          color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
+          color: !isEmpty && isReady ? Pallete.amarelo.withOpacity(0.5)  : Pallete.cinzaCla.withOpacity(0.5) , 
           width: 1
         ),
         borderRadius: BorderRadius.zero,
-        boxShadow: const [BoxShadow(color: Pallete.preto, blurRadius: 4, offset: Offset(2, 2))],
+        boxShadow: [BoxShadow(color: Pallete.preto.withOpacity(0.5) , blurRadius: 4, offset: Offset(2, 2))],
       ),
       child: isEmpty 
         ? const SizedBox.shrink() 
@@ -489,12 +489,13 @@ class Hud extends StatelessWidget {
               // 1. O Ícone Oficial
               PixelSprite(
                 imagePath: 'sprites/itens/$slotIcon.png',
-                color: slotColor ?? Pallete.branco,
+                color: slotColor?.withOpacity(0.65) ?? Pallete.branco.withOpacity(0.5),
                 size: 32,
               ),
             
               // 2. A PELÍCULA ESCURA DE COOLDOWN
               // (Continua aqui para escurecer o ícone quando não estiver pronto)
+              if (index == 0)
               if (!isReady) 
                 Container(
                   decoration: BoxDecoration(
@@ -502,16 +503,16 @@ class Hud extends StatelessWidget {
                     borderRadius: BorderRadius.zero, 
                   ),
                 ),
-                
+              if (index == 0) 
               // 3. A NOVA BARRA VERTICAL DE CARGA
               Positioned(
                 right: 2,   // Colada no canto direito
                 top: 2,     // Margem no topo
                 bottom: 2,  // Margem em baixo
                 width: 6,   // Grossura da barra
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Pallete.preto, // Fundo da barra vazio
+                child:  Container(
+                  decoration:  BoxDecoration(
+                    color: Pallete.preto.withOpacity(0.5), // Fundo da barra vazio
                     //border: Border.all(color: Pallete.cinzaEsc, width: 1),
                   ),
                   // Alinha o preenchimento para começar de baixo para cima!
@@ -524,9 +525,9 @@ class Hud extends StatelessWidget {
                         : 0.0,
                     child: Container(
                       // Mágica visual: Fica Azul/Verde quando carregando, e Amarela quando pronta!
-                      color: isReady ? Pallete.verdeCla : Pallete.verdeEsc, 
+                      color: isReady ? Pallete.verdeCla.withOpacity(0.5) : Pallete.verdeEsc.withOpacity(0.5), 
                     ),
-                  ),
+                  )
                 ),
               ),
             ],
@@ -536,6 +537,8 @@ class Hud extends StatelessWidget {
     // 2. Se o slot não estiver vazio, "envelopamos" o slot com o Tooltip customizado!
     if (!isEmpty) {
       slotContainer = Tooltip(
+        preferBelow: false, 
+        verticalOffset: 35,
         // Quebra de linha para separar Título da Descrição
         message: "${slotName?.toUpperCase()}\n$slotDesc", 
         

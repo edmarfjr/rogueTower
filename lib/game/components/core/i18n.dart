@@ -545,7 +545,8 @@ class I18n {
       'ouro_acumulado':'Ouro Acumulado',
       'vida_restante':'Vida Restante',
       'score':'PONTUAÇÃO TOTAL',
-      'jogar_novamente':'JOGAR NOVAMENTE'
+      'jogar_novamente':'JOGAR NOVAMENTE',
+      'loading':"CARREGANDO..."
     },
     'fr':{
       'paused': 'EN PAUSE',
@@ -1088,7 +1089,8 @@ class I18n {
       'ouro_acumulado': 'Or Total',
       'vida_restante': 'Vie Restante',
       'score': 'SCORE TOTAL',
-      'jogar_novamente': 'REJOUER'
+      'jogar_novamente': 'REJOUER',
+      'loading': 'CHARGEMENT...'
     },
     'en': {
       "paused": "PAUSED",
@@ -1631,6 +1633,7 @@ class I18n {
       'vida_restante':'Remaining Health',
       'score':'TOTAL SCORE',
       'jogar_novamente':'PLAY AGAIN',
+      'loading':"LOADING..."
     },
     'es': {
       'paused': 'PAUSADO',
@@ -2134,6 +2137,7 @@ class I18n {
       'vida_restante':'Vida Restante',
       'score':'PUNTUACIÓN TOTAL',
       'jogar_novamente':'JUGAR DE NUEVO',
+      'loading':"CARGANDO..."
     }
   };
 

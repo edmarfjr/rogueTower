@@ -10,7 +10,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 //import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
@@ -37,7 +36,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   // --- COMPORTAMENTOS OPCIONAIS ---
   final bool canBounce;
   final int maxBounces;
-  int _bounceCount = 0;
 
   final bool explodes;
   final double explosionRadius;
@@ -67,6 +65,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   final double maxRadius; 
   final double sweepAngle; 
   double _currentRadius; 
+  double _initialRadius = 0;
   late final Paint _wavePaint;
   late final Paint _wavePaintMeio;
   CircleHitbox? _waveCircleHitbox;
@@ -132,7 +131,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isOrbital = false,
     this.orbitalRadius = 50.0,
     this.isHoming = false,
-    this.homingTurnSpeed = 4.0, 
+    this.homingTurnSpeed = 6.0, 
     this.isPiercing = false,
     this.isSpectral = false,
     this.isBoomerang = false,
@@ -171,6 +170,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     corAtual = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.amarelo : Pallete.azulCla) : cor;
 
     if (isWave) {
+      _initialRadius = _currentRadius;
       corAtual = isEnemyProjectile ? Pallete.vermelho : Pallete.azulCla;
       _wavePaint = Paint()
         ..color = corAtual
@@ -399,12 +399,25 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
-  void refletir(){
+  void refletir({Vector2? pos}){
+    pos ??= Vector2.zero();
     isEnemyProjectile = false;
-    damage = game.player.damageIni;
+    damage = gameRef.player.damageIni;
     direction *= -1;
-    visual!.changeColor(isStun?Pallete.marrom:Pallete.branco);
-    _timer = 0;
+    
+    if (isWave) {
+      _currentRadius = _initialRadius;
+      _waveCircleHitbox?.radius = _currentRadius;
+      corAtual = Pallete.azulCla; 
+      _wavePaint.color = corAtual;
+      position = pos;
+      _updateRotation();
+    } else {
+      visual?.changeColor(isStun ? Pallete.marrom : Pallete.branco);
+    }
+    
+    _hitTargets.clear(); 
+    _timer = 0; 
   }
 
   
@@ -707,13 +720,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     if (isEnemyProjectile) {
       if (other is Player) {
         createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
-        _hitTargets.add(other);
+        
         final rnd = Random();
-        if(rnd.nextInt(100)<50 && other.refletirChance){
+        if(rnd.nextInt(100) < 50 && other.refletirChance){
           isStun = true;
-          refletir();
+          refletir(pos:hitPos);
           return; 
-        }else{
+        } else {
+          _hitTargets.add(other);
           other.takeDamage(damage.toInt());
         } 
         
@@ -767,8 +781,6 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void _handleBounce(PositionComponent obstacle, Vector2 hitPos) {
-    _bounceCount++;
-
     Vector2 relativePos = position - obstacle.position;
     
     if (relativePos.x.abs() > relativePos.y.abs()) {

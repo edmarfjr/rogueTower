@@ -354,7 +354,6 @@ class Player extends PositionComponent
     
   }
 
-
   void criaVisual({reset = false,image = 'sprites/chars/char.png',color = Pallete.branco}){
     if (reset){
       //if(visual != null){
@@ -642,6 +641,7 @@ class Player extends PositionComponent
   }
 
   void ativaLicantropia(){
+    licantropiaTmr = 0;
     if(isLicantropia) return;
     isLicantropia = true;
     animContrario = false;
@@ -664,8 +664,8 @@ class Player extends PositionComponent
   }
 
   void ativaPacmen(){
-    if(isPac) return;
     pacTmr = 0;
+    if(isPac) return;
     isPac = true;
     animContrario = false;
     _isInvincible = true;
@@ -1279,15 +1279,9 @@ class Player extends PositionComponent
       if (kineticText == null){
         kineticText = TextComponent(
           text: kineticStacks.toString(),
-          position: Vector2((size.x/2) - 12, - size.y / 4 - 10*numIcons),
+          position: Vector2((size.x/2) - 12, - size.y / 4 - 14*numIcons),
           anchor: Anchor.center,
-          textRenderer: TextPaint(
-            style: const TextStyle(
-              color: Pallete.verdeCla,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          textRenderer: Pallete.textoVerde
         );
         add(kineticText!);
       }
@@ -1620,6 +1614,10 @@ class Player extends PositionComponent
         _tempDirection.normalize();
         lastAttackDirection.setFrom(_tempDirection);
         criaLaser(dir,angle,target,dist);
+        if(tripleShot){
+          criaLaser(dir,angle + 0.2,null,dist);
+          criaLaser(dir,angle - 0.2,null,dist);
+        }
         
       }else{
         
@@ -1740,7 +1738,7 @@ class Player extends PositionComponent
     }
 
     gameRef.world.add(LaserBeam(
-      position: position + (dir * 16),
+      position: position + (dir * 12),
       angleRad: ang,
       length: tamanho,
       chargeTime: 0,
@@ -1762,7 +1760,7 @@ class Player extends PositionComponent
   void criaLaserDirecional(Vector2 dir,ang,dmg,chargeTime,durTime,largura)
   {
     gameRef.world.add(LaserBeam(
-      position: position + (dir * 16),
+      position: position + (dir * 12),
       angleRad: ang,
       larguraLaser: largura,
       chargeTime: chargeTime,
@@ -1835,8 +1833,6 @@ class Player extends PositionComponent
     double x = _tempDirection.x * cos(angleOffset) - _tempDirection.y * sin(angleOffset);
     double y = _tempDirection.x * sin(angleOffset) + _tempDirection.y * cos(angleOffset);
     _tempDirection.setValues(x, y);
-
-    
 
     double dmg = returnDamage();
     double aRange = attackRange;

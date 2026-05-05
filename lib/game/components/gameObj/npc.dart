@@ -65,7 +65,6 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
       // Se o jogador se afastar...
       if (_isPlayerNear) {
         _isPlayerNear = false;
-        
         // Só esconde o botão se a ação atual ainda for a deste NPC
         // (Isso evita apagar o botão se ele chegou perto de um baú logo em seguida)
         if (gameRef.onInteractAction == iniciarDialogo) {

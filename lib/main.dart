@@ -8,6 +8,7 @@ import 'package:towerrogue/game/overlays/character_selection_menu.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:towerrogue/game/overlays/loading_screen.dart';
 import 'game/tower_game.dart';
 import 'game/overlays/hud.dart';
 import 'game/overlays/main_menu.dart';
@@ -71,6 +72,7 @@ class _GameEntryState extends State<GameEntry> {
     return Scaffold(
       body: GameWidget<TowerGame>(
           game: _game,
+          loadingBuilder: (context) => const LoadingScreen(),
           overlayBuilderMap: {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),
