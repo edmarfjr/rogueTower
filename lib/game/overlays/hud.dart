@@ -20,7 +20,7 @@ class Hud extends StatelessWidget {
             // 1. CANTO SUPERIOR ESQUERDO: STATUS
             // ---------------------------------------------
             Positioned(
-              top: 5,
+              top: 28,
               left: 10,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,13 +473,13 @@ class Hud extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: Colors.transparent,
+        color: Pallete.branco.withOpacity(0.2),
         border: Border.all(
-          color: !isEmpty && isReady ? Pallete.amarelo.withOpacity(0.5)  : Pallete.cinzaCla.withOpacity(0.5) , 
+          color: !isEmpty && isReady ? Pallete.amarelo.withOpacity(0.65)  : Pallete.cinzaCla.withOpacity(0.5) , 
           width: 1
         ),
         borderRadius: BorderRadius.zero,
-        boxShadow: [BoxShadow(color: Pallete.preto.withOpacity(0.5) , blurRadius: 4, offset: Offset(2, 2))],
+        boxShadow: [BoxShadow(color: Pallete.preto.withOpacity(0.65) , blurRadius: 4, offset: Offset(2, 2))],
       ),
       child: isEmpty 
         ? const SizedBox.shrink() 
@@ -512,7 +512,7 @@ class Hud extends StatelessWidget {
                 width: 6,   // Grossura da barra
                 child:  Container(
                   decoration:  BoxDecoration(
-                    color: Pallete.preto.withOpacity(0.5), // Fundo da barra vazio
+                    color: Pallete.preto.withOpacity(0.65), // Fundo da barra vazio
                     //border: Border.all(color: Pallete.cinzaEsc, width: 1),
                   ),
                   // Alinha o preenchimento para começar de baixo para cima!
@@ -525,7 +525,7 @@ class Hud extends StatelessWidget {
                         : 0.0,
                     child: Container(
                       // Mágica visual: Fica Azul/Verde quando carregando, e Amarela quando pronta!
-                      color: isReady ? Pallete.verdeCla.withOpacity(0.5) : Pallete.verdeEsc.withOpacity(0.5), 
+                      color: isReady ? Pallete.verdeCla.withOpacity(0.65) : Pallete.verdeEsc.withOpacity(0.65), 
                     ),
                   )
                 ),
@@ -543,15 +543,15 @@ class Hud extends StatelessWidget {
         message: "${slotName?.toUpperCase()}\n$slotDesc", 
         
         // Estilização 100% Pixel Art
-        textStyle: const TextStyle(
+        textStyle:  TextStyle(
           fontFamily: 'pixelFont', 
           fontSize: 14,
-          color: Colors.white, 
+          color: Pallete.branco.withOpacity(0.65) , 
           decoration: TextDecoration.none,
         ),
         decoration: BoxDecoration(
-          color: Colors.black87,
-          border: Border.all(color: Pallete.cinzaCla, width: 2), 
+          color: Pallete.branco.withOpacity(0.2),
+          border: Border.all(color: Pallete.cinzaCla.withOpacity(0.65), width: 2), 
           borderRadius: BorderRadius.zero, 
         ),
         

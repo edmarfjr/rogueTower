@@ -1225,9 +1225,9 @@ class JumpAttackBehavior extends AttackBehavior {
         enemy.scale = Vector2.all(1.0 + (heightFactor * 0.5));
       }
 
-      if (_shadow != null) {
-        _shadow!.scale = Vector2.all(1.0 - (arc * 0.6)); 
-        _shadow!.paint.color = Pallete.cinzaEsc;
+      if (enemy.shadow != null) {
+        enemy.shadow.scale = Vector2.all(1.0 - (arc * 0.6)); 
+        //enemy.shadow.paint.color = Pallete.cinzaEsc;
       }
 
       if (progress >= 1.0) {
@@ -1284,15 +1284,16 @@ class JumpAttackBehavior extends AttackBehavior {
       ));
     }
     
-    _shadow = CircleComponent(
+    /*_shadow = CircleComponent(
       radius: enemy.size.x / 2.5,
-      position: enemy.size / 2, 
+      position: Vector2(enemy.size.x / 2, enemy.size.y), 
       anchor: Anchor.center,
       paint: Paint()..color = Colors.black.withOpacity(0.5),
       priority: -1, 
     );
     _shadow!.scale.y = 0.5; 
     enemy.add(_shadow!);
+    */
   }
 
   void _land() {
@@ -1301,8 +1302,8 @@ class JumpAttackBehavior extends AttackBehavior {
     _timer = 0;
     enemy.canMove = true;
 
-    _shadow?.removeFromParent();
-    _shadow = null;
+    //_shadow?.removeFromParent();
+    //_shadow = null;
     
     if (enemy.visual != null) {
       enemy.visual!.position.y = enemy.size.y / 2; 

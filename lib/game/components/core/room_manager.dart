@@ -172,7 +172,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-     //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeLicantropia));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeLicantropia));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.zodiacTaurus));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
@@ -209,7 +209,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
       gameRef.world.add(Npc(
-        position: Vector2(0,-48), 
+        position: Vector2(8,-48), 
         imagePath: 'sprites/npcs/diabo.png', 
         cor: Pallete.vermelho,
         dialogs: [
@@ -756,7 +756,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _generateShopRoom(){
 
     gameRef.world.add(Npc(
-        position: Vector2(0,-48), 
+        position: Vector2(8,-48), 
         imagePath: 'sprites/npcs/vendedor.png', 
         cor: Pallete.marrom,
         dialogs: [
@@ -799,7 +799,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _generateAlquimistaRoom(){
       gameRef.world.add(Npc(
-        position: Vector2(0,-48), 
+        position: Vector2(8,-48), 
         imagePath: 'sprites/npcs/alquimista.png', 
         cor: Pallete.laranja,
         dialogs: [
@@ -1024,7 +1024,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
 
     gameRef.world.add(Npc(
-        position: Vector2(0,32), 
+        position: Vector2(8,32), 
         imagePath: 'sprites/npcs/placa.png', 
         cor: Pallete.bege,
         dialogs: [
@@ -1054,16 +1054,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
-      gameRef.world.add(Chest(position: Vector2(0, 0)));
+      gameRef.world.add(Chest(position: Vector2(8, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.doacaoSangue) {
       _explosaoCriaItem();
       gameRef.world.add(BloodMachine(position: Vector2(48, 0)));
     }else if (gameRef.nextRoomReward == CollectibleType.slotMachine) {
       _explosaoCriaItem();
-      gameRef.world.add(SlotMachine(position: Vector2(0, 0)));
+      gameRef.world.add(SlotMachine(position: Vector2(8, 0)));
     } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
-      gameRef.world.add(Chest(position: Vector2(0, 0), isLock: true));
+      gameRef.world.add(Chest(position: Vector2(8, 0), isLock: true));
     } else if (gameRef.nextRoomReward == CollectibleType.nextLevel){
       _generateZeroRoom();
     } else if (gameRef.nextRoomReward == CollectibleType.desafio){
@@ -1087,7 +1087,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       }
       _explosaoCriaItem();
       gameRef.world.add(Collectible(
-        position: Vector2(0, 0),
+        position: Vector2(8, 0),
         type: gameRef.nextRoomReward,
       ));
     }

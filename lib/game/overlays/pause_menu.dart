@@ -258,9 +258,9 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Inventário",
-            style: TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold),
+           Text(
+            "inventario".tr(),
+            style:const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           

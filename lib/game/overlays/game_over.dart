@@ -32,7 +32,7 @@ class GameOver extends StatelessWidget {
 
             // INFORMAÇÃO DA SALA
             Text(
-              'Você sobreviveu até a Sala'.tr() + game.currentRoom.toString() + 'do andar '.tr() + game.currentLevel.toString(),
+              'sobreviveu_ate'.tr() + game.currentRoom.toString() + 'do_andar'.tr() + game.currentLevel.toString(),
               style: const TextStyle(
                 fontSize: 20,
                 color: Pallete.branco,
@@ -100,10 +100,10 @@ class GameOver extends StatelessWidget {
                   shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero, 
                     ),
-                    //side: const BorderSide(
-                    //  width: 2.0,
-                    //  color: Pallete.branco,
-                    //),
+                    side: const BorderSide(
+                      width: 2.0,
+                      color: Pallete.branco,
+                    ),
                 ),
                 child: Text('reviver'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.branco)),
                 onPressed: () {

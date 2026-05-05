@@ -1,8 +1,11 @@
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/overlays/bestiary_widget.dart';
 import 'package:towerrogue/game/overlays/hud.dart';
 import '../components/core/pallete.dart';
 import '../tower_game.dart';
+// IMPORTANTE: Importe o arquivo onde você salvou o BestiaryWidget que criamos antes!
+// import 'bestiary_widget.dart'; 
 
 class DiaryScreen extends StatelessWidget {
   final TowerGame game;
@@ -13,6 +16,9 @@ class DiaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Puxa a lista direto da memória do jogo
     final discoveredItems = game.progress.discoveredItems;
+    
+    // ATENÇÃO: Puxa a lista de inimigos mortos (ajuste para o local exato onde você salvou no seu jogo)
+    final unlockedEnemies = game.bestiaryKills; // ou game.progress.bestiaryKills
 
     // Filtra itens que não devem aparecer no diário
     final ignoreList = [
@@ -27,10 +33,6 @@ class DiaryScreen extends StatelessWidget {
 
     // 1. Pega em todos os itens válidos
     final validItems = CollectibleType.values.where((t) => !ignoreList.contains(t)).toList();
-    
-    // 2. Separa em duas listas usando a função que criámos anteriormente!
-    //final activeItemsList = validItems.where((t) => isItemAtivo(t)).toList();
-    //final passiveItemsList = validItems.where((t) => !isItemAtivo(t)).toList();
 
     return Material(
       color: Pallete.preto,
@@ -71,28 +73,40 @@ class DiaryScreen extends StatelessWidget {
                 ),
               ),
               
-              // --- PROGRESSO GERAL ---
-              Text(
-                "ITENS DESCOBERTOS: ${discoveredItems.length} / ${validItems.length}",
-                style: const TextStyle(color: Pallete.cinzaCla, fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-
-              /* --- OS SEPARADORES (TABS) ---
+              // --- OS SEPARADORES (TABS) ---
               const TabBar(
                 indicatorColor: Pallete.amarelo,
                 labelColor: Pallete.amarelo,
                 unselectedLabelColor: Colors.white54,
                 tabs: [
-                  Tab(text: "RELIQUIAS"),
                   Tab(text: "ITENS"),
+                  Tab(text: "BESTIÁRIO"), // Nova aba!
                 ],
               ),
-              */
-
-              // --- O CONTEÚDO DE CADA SEPARADOR ---
+              
+              // --- O CONTEÚDO DAS ABAS (TabBarView) ---
               Expanded(
-                child: _buildGrid(validItems, discoveredItems),
+                child: TabBarView(
+                  children: [
+                    // --- ABA 1: ITENS ---
+                    Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        Text(
+                          "ITENS DESCOBERTOS: ${discoveredItems.length} / ${validItems.length}",
+                          style: const TextStyle(color: Pallete.cinzaCla, fontSize: 16),
+                        ),
+                        Expanded(
+                          child: _buildGrid(validItems, discoveredItems),
+                        ),
+                      ],
+                    ),
+
+                    // --- ABA 2: BESTIÁRIO ---
+                    // Chama o widget do bestiário passando a lista de monstros mortos
+                    BestiaryWidget(unlockedEnemyIds: unlockedEnemies),
+                  ],
+                ),
               ),
             ],
           ),

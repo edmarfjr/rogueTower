@@ -585,7 +585,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (isNewUnlock) {
       // Como usamos a variável 'game' salva, adicionar o texto funciona mesmo com o item já removido!
       game.world.add(UnlockNotification(
-        message: "NOVA CLASSE: $clasNome!",
+        message: '$clasNome ${'unlocked'.tr()}!',
         position: position.clone(),
       ));
     }

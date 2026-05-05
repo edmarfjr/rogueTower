@@ -142,13 +142,15 @@ class EnemyBoss extends Enemy {
       String clasId = '';
       String clasNome = '';
       switch (gameRef.currentLevel) {
-        case 3:
+        case 5:
           clasId = 'arqueiro';
           clasNome = 'arqueiro'.tr();
           break;
-        case 5:
+        case 7:
           clasId = 'exterminador';
           clasNome = 'exterminador'.tr();
+          break;
+        case 8:
           if(!gameRef.usouBomba){
             clasId = 'bomberman';
             clasNome = 'bomberman'.tr();
@@ -162,7 +164,7 @@ class EnemyBoss extends Enemy {
         if (isNewUnlock) {
           gameRef.world.add(
             UnlockNotification(
-              message: "NOVA CLASSE: $clasNome!",
+              message: '$clasNome ${'unlocked'.tr()}!',
               position: position.clone(), // Nasce no cadáver do Boss
             )
           );
@@ -289,7 +291,7 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
     
     double xPerfeito = (larguraVirtual / 2);
     
-    position = Vector2(xPerfeito, 20); 
+    position = Vector2(xPerfeito, 4); 
 
     textPaint = Pallete.textoDanoCritico;
   }
@@ -327,11 +329,9 @@ class BossHealthBar extends PositionComponent with HasGameRef<TowerGame> {
         ..strokeWidth = 1,
     );
 
-    // Texto Centralizado
-    String phaseText = boss.isSecondForm ? " (Fase 2)" : "";
     textPaint.render(
       canvas, 
-      "${boss.bossName.toUpperCase()}$phaseText", 
+      boss.bossName.toUpperCase(), 
       Vector2(size.x / 2, size.y / 2), 
       anchor: Anchor.center,
     );

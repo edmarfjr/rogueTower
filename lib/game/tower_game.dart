@@ -124,6 +124,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   // Guarda a lista de textos do diálogo atual
   List<String> activeDialogs = [];
 
+  List<String> bestiaryKills = [];
+
   @override
   Color backgroundColor() => Pallete.preto;
 

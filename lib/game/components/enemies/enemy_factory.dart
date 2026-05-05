@@ -16,7 +16,7 @@ import '../core/pallete.dart';
 class EnemyFactory {
 
   // --- DEFINIÇÕES GERAIS DE HP (Base) ---
-  static const double hpMinimo = 20.0;
+  static const double hpMinimo = 15.0;
   static const double hpFraco = 30.0;
   static const double hpMedio = 50.0;
   static const double hpForte = 70.0;
@@ -26,11 +26,11 @@ class EnemyFactory {
   static const double hpSuperTanque = 200.0;
 
   // --- DEFINIÇÕES DE HP PARA BOSSES ---
-  static const double hpBossFraco = 650.0;
-  static const double hpBossMedio = 1000.0;
-  static const double hpBossForte = 1500.0;
-  static const double hpBossMuitoForte = 2000.0;
-  static const double hpBossTanque = 2500.0;
+  static const double hpBossFraco = 1000.0;
+  static const double hpBossMedio = 1200.0;
+  static const double hpBossForte = 2000.0;
+  static const double hpBossMuitoForte = 2500.0;
+  static const double hpBossTanque = 3000.0;
 
 
   static Enemy createDummy(Vector2 pos,{int champType = 0, int phase = 1}) {
@@ -754,8 +754,8 @@ class EnemyFactory {
         ],
         phase2Attacks: [
           ProjectileAttackBehavior(interval: 3.0, isBurst: true, burstCount: 20, burstDelay: 0.075, isStraight: false),
-          SpinnerAttackBehavior(interval: 0.8, isSpiral: true, projectilesPerWave: 24), 
-            JumpAttackBehavior(
+          SpinnerAttackBehavior(interval: 1.0, isSpiral: true, projectilesPerWave: 24), 
+          JumpAttackBehavior(
             jumpRange: 150,    
             minRange: 25,      
             jumpDuration: 1.0, 

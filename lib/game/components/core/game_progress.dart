@@ -13,6 +13,9 @@ class GameProgress {
   static const String _langKey = 'game_language';
   static const String _unlockedClassesKey = 'unlocked_classes';
   static const String _discoveredKey = 'discovered_items';
+  
+  // --- NOVA CHAVE DO BESTIÁRIO ---
+  static const String _bestiaryKey = 'bestiary_kills'; 
 
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
@@ -25,6 +28,9 @@ class GameProgress {
   
   List<String> unlockedItems = [];
   List<String> discoveredItems = [];
+  
+  // --- LISTA DE INIMIGOS DESCOBERTOS ---
+  List<String> bestiaryKills = [];
 
   // Getter para facilitar o acesso ao valor int puro se precisar
   int get souls => soulsNotifier.value;
@@ -36,6 +42,9 @@ class GameProgress {
     bankNotifier.value = prefs.getInt(_bankKey) ?? 0;
     unlockedItems = prefs.getStringList(_unlocksKey) ?? [];
     discoveredItems = prefs.getStringList(_discoveredKey) ?? [];
+    
+    // CARREGA O BESTIÁRIO SALVO
+    bestiaryKills = prefs.getStringList(_bestiaryKey) ?? [];
 
     // --- LÓGICA DO IDIOMA ---
     // Carrega o idioma salvo ou usa 'pt' como padrão
@@ -46,47 +55,34 @@ class GameProgress {
     I18n.currentLanguage = savedLang;
   }
 
+  // ... (MANTENHA OS MÉTODOS DE CLASSE, CRT E BANK IGUAIS AO SEU CÓDIGO) ...
   static Future<bool> isClassUnlocked(CharacterClass charClass) async {
     if (charClass.isUnlockedByDefault) return true;
-
     final prefs = await SharedPreferences.getInstance();
     List<String> unlockedList = prefs.getStringList(_unlockedClassesKey) ?? [];
-    
     return unlockedList.contains(charClass.id);
   }
 
   static Future<bool> unlockClass(String classId) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> unlockedList = prefs.getStringList(_unlockedClassesKey) ?? [];
-    
     if (!unlockedList.contains(classId)) {
       unlockedList.add(classId);
       await prefs.setStringList(_unlockedClassesKey, unlockedList);
-     // print("🎉 Nova classe desbloqueada no Save: $classId");
-      
       return true; 
     }
-    
     return false; 
   }
 
   static Future<void> changeCrtEffect(bool isEnabled, TowerGame game) async {
-    // 1. Atualiza o Notifier (O Shader da tela escuta isso e liga/desliga na hora)
     crtEnabled.value = isEnabled;
-    
-    // 2. Atualiza a variável interna do Flame (se você ainda usa ela)
     game.useCRTEffect = isEnabled; 
-    
-    // 3. Salva no disco imediatamente
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('useCRTEffect', isEnabled); 
   }
 
   Future<void> addSouls(int amount) async {
-    // Atualiza o notificador (o HUD vai ver isso instantaneamente)
     soulsNotifier.value += amount;
-    
-    // Salva no disco
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_soulsKey, soulsNotifier.value);
   }
@@ -94,7 +90,6 @@ class GameProgress {
   Future<bool> spendSouls(int amount) async {
     if (soulsNotifier.value >= amount) {
       soulsNotifier.value -= amount;
-      
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_soulsKey, soulsNotifier.value);
       return true;
@@ -107,13 +102,11 @@ class GameProgress {
     await prefs.setInt(_bankKey, bankNotifier.value);
   }
 
-  // Depositar: Aumenta o saldo do banco e salva
   Future<void> depositToBank(int amount) async {
     bankNotifier.value += amount;
     await _saveBank();
   }
 
-  // Sacar: Diminui o saldo do banco e salva (retorna true se sucesso)
   Future<bool> withdrawFromBank(int amount) async {
     if (bankNotifier.value >= amount) {
       bankNotifier.value -= amount;
@@ -140,22 +133,39 @@ class GameProgress {
       discoveredItems.add(itemId);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_discoveredKey, discoveredItems);
-     // print("📖 Novo item catalogado no Diário: $itemId");
+    }
+  }
+
+  // ========================================================
+  // --- NOVA FUNÇÃO: DESCOBRIR INIMIGO PELO PATH DA IMAGEM
+  // ========================================================
+  Future<void> discoverEnemy(String imagePath) async {
+    // 1. Pega apenas a última parte do caminho (Ex: "sprites/inimigos/orc.png" -> "orc.png")
+    String fileName = imagePath.split('/').last;
+    
+    // 2. Remove o ".png" para isolar o ID (Ex: "orc.png" -> "orc")
+    String enemyId = fileName.replaceAll('.png', '');
+
+    // 3. Salva no Bestiário se for inédito!
+    if (!bestiaryKills.contains(enemyId)) {
+      bestiaryKills.add(enemyId);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_bestiaryKey, bestiaryKills);
+      // print("📖 Novo Monstro Catalogado: $enemyId");
     }
   }
 
   Future<void> changeLanguage(String lang) async {
     languageNotifier.value = lang;
-    I18n.currentLanguage = lang; // Atualiza a classe de traduções
+    I18n.currentLanguage = lang; 
     
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_langKey, lang); // Salva no disco
+    await prefs.setString(_langKey, lang); 
   }
 
   Future<void> loadSettings(TowerGame game) async {
     final prefs = await SharedPreferences.getInstance();
     
-    // Carrega o Áudio
     AudioManager.sfxVolume = prefs.getDouble('sfxVolume') ?? 1.0;
     AudioManager.bgmVolume = prefs.getDouble('bgmVolume') ?? 0.5;
     
@@ -165,14 +175,11 @@ class GameProgress {
     bool mutedSfx = prefs.getBool('isMutedSfx') ?? false;
     AudioManager.toggleMuteSfx(mutedSfx);
 
-    // --- CARREGA O CRT ---
     bool savedCrt = prefs.getBool('useCRTEffect') ?? true;
     crtEnabled.value = savedCrt;
     game.useCRTEffect = savedCrt;
   }
 
-  // --- SALVAR CONFIGURAÇÕES ---
-  // Chame isso sempre que o jogador mexer em algum slider ou checkbox
   Future<void> saveSettings(TowerGame game) async {
     final prefs = await SharedPreferences.getInstance();
     

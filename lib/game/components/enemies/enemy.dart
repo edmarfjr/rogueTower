@@ -107,7 +107,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   GameSprite? visual;
   //GameIcon? targetIcon;
   bool isTarget = false;
-  late ShadowComponent _shadow;
+  late ShadowComponent shadow;
   late RectangleHitbox _hitbox;
   GameSprite? burnIcon;
   GameSprite? freezeIcon;
@@ -270,8 +270,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     }
 
     
-    _shadow=ShadowComponent(parentSize:size);
-    add(_shadow);
+    shadow=ShadowComponent(parentSize:size);
+    add(shadow);
 
     add(TimerComponent(
       period: 0.2, // A cada 0.2 segundos cospe uma fumaça
@@ -963,6 +963,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     }
 
+    gameRef.progress.discoverEnemy(image);
+
     removeFromParent();
   }
 
@@ -1046,9 +1048,9 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     );
     add(_hitbox);
 
-    _shadow.removeFromParent();
-    _shadow =  ShadowComponent(parentSize: size); 
-    add(_shadow);
+    shadow.removeFromParent();
+    shadow =  ShadowComponent(parentSize: size); 
+    add(shadow);
   }
 
   void setEncolhido(){
