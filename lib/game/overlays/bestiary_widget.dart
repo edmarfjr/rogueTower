@@ -70,7 +70,7 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Pallete.cinzaEsc,
+                    color: Pallete.preto,
                     border: Border.all(
                       color: _selectedEnemy == enemy ? Pallete.amarelo : Pallete.cinzaCla,
                       width: 2,
@@ -82,7 +82,7 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
                     // Se estiver desbloqueado pinta com a cor do inimigo, senão pinta de preto puro!
                     // (Ajuste "enemy.color" para "enemy.cor" se você usou esse nome no seu arquivo)
                     scale: 0.5,
-                    color: isUnlocked ? enemy.cor : Colors.black, 
+                    color: isUnlocked ? enemy.cor : Pallete.cinzaEsc, 
                     colorBlendMode: isUnlocked ? BlendMode.modulate : BlendMode.srcIn,
                     filterQuality: FilterQuality.none, 
                   ),

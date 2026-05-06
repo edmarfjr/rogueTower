@@ -151,8 +151,8 @@ class DiaryScreen extends StatelessWidget {
               color: Pallete.preto,
               borderRadius: BorderRadius.zero,
               border: Border.all(
-                color: isDiscovered ? Pallete.branco: Pallete.cinzaEsc,
-                width: 1,
+                color: isDiscovered ? Pallete.amarelo: Pallete.cinzaCla,
+                width: 2,
               ),
             ),
             child: Center(
