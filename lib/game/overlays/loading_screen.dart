@@ -16,6 +16,22 @@ class _LoadingScreenState extends State<LoadingScreen> {
     super.didChangeDependencies();
 
     precacheImage(const AssetImage('assets/images/sprites/mainMenu.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/hud/setaEsq.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/hud/setaDir.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/arqueiro.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/bomberman.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/char.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/cowboy.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/defensor.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/exterminador.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/guerreiro.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/licantropo.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/multidao.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/ninja.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/piromante.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/chars/samuela.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/gameObjs/lock.png'), context);
+
     
   }
 

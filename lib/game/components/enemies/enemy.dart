@@ -963,7 +963,11 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
     }
 
-    gameRef.progress.discoverEnemy(image);
+    if (championType > 0){
+      gameRef.progress.discoverEnemy(championType.toString(), isChamp: true);
+    }else{
+      gameRef.progress.discoverEnemy(image, isBoss: isBoss);
+    }
 
     removeFromParent();
   }

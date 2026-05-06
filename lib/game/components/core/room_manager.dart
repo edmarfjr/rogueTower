@@ -1073,23 +1073,25 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       _generateBossReward();
       ();
     } else {
+      int totalItems = 1;
       if(gameRef.nextRoomReward == CollectibleType.potion || gameRef.nextRoomReward == CollectibleType.shield){
         double itExtras = Random().nextDouble();
-        if (itExtras <= 0.2){
+        if (itExtras <= 0.92){
           int numExtra = Random().nextInt(2) + 1;
-          for(var i=0;i<numExtra;i++){
-            gameRef.world.add(Collectible(
-              position: Vector2(-40 + (80 * i.toDouble()), 0),
-              type: gameRef.nextRoomReward,
-            ));
-          }
+          totalItems += numExtra;
         }
       }
       _explosaoCriaItem();
-      gameRef.world.add(Collectible(
-        position: Vector2(8, 0),
-        type: gameRef.nextRoomReward,
-      ));
+      double espacamento = 40.0; 
+      
+      double startX = -((totalItems - 1) * espacamento) / 2;
+
+      for (var i = 0; i < totalItems; i++) {
+        gameRef.world.add(Collectible(
+          position: Vector2(startX + (i * espacamento), 0),
+          type: gameRef.nextRoomReward,
+        ));
+      }
     }
   }
 

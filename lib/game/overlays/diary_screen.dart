@@ -18,7 +18,8 @@ class DiaryScreen extends StatelessWidget {
     final discoveredItems = game.progress.discoveredItems;
     
     // ATENÇÃO: Puxa a lista de inimigos mortos (ajuste para o local exato onde você salvou no seu jogo)
-    final unlockedEnemies = game.bestiaryKills; // ou game.progress.bestiaryKills
+    final unlockedEnemies = game.progress.bestiaryKills; // ou game.progress.bestiaryKills
+    final killCounts = game.progress.enemyKillCounts;
 
     // Filtra itens que não devem aparecer no diário
     final ignoreList = [
@@ -104,7 +105,7 @@ class DiaryScreen extends StatelessWidget {
 
                     // --- ABA 2: BESTIÁRIO ---
                     // Chama o widget do bestiário passando a lista de monstros mortos
-                    BestiaryWidget(unlockedEnemyIds: unlockedEnemies),
+                    BestiaryWidget(unlockedEnemyIds: unlockedEnemies,killCounts: killCounts,),
                   ],
                 ),
               ),

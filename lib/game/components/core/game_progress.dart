@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/character_class.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
@@ -16,6 +18,7 @@ class GameProgress {
   
   // --- NOVA CHAVE DO BESTIÁRIO ---
   static const String _bestiaryKey = 'bestiary_kills'; 
+  static const String _enemyKillsCountKey = 'enemy_kills_count';
 
   final ValueNotifier<int> soulsNotifier = ValueNotifier(0);
   final ValueNotifier<int> bankNotifier = ValueNotifier(0);
@@ -31,6 +34,8 @@ class GameProgress {
   
   // --- LISTA DE INIMIGOS DESCOBERTOS ---
   List<String> bestiaryKills = [];
+  Map<String, int> enemyKillCounts = {};
+  
 
   // Getter para facilitar o acesso ao valor int puro se precisar
   int get souls => soulsNotifier.value;
@@ -45,6 +50,13 @@ class GameProgress {
     
     // CARREGA O BESTIÁRIO SALVO
     bestiaryKills = prefs.getStringList(_bestiaryKey) ?? [];
+
+    String? killsJson = prefs.getString(_enemyKillsCountKey);
+    if (killsJson != null) {
+      // Converte o texto JSON salvo de volta para um Mapa do Dart
+      enemyKillCounts = Map<String, int>.from(jsonDecode(killsJson));
+    }
+    
 
     // --- LÓGICA DO IDIOMA ---
     // Carrega o idioma salvo ou usa 'pt' como padrão
@@ -139,19 +151,36 @@ class GameProgress {
   // ========================================================
   // --- NOVA FUNÇÃO: DESCOBRIR INIMIGO PELO PATH DA IMAGEM
   // ========================================================
-  Future<void> discoverEnemy(String imagePath) async {
-    // 1. Pega apenas a última parte do caminho (Ex: "sprites/inimigos/orc.png" -> "orc.png")
-    String fileName = imagePath.split('/').last;
+  Future<void> discoverEnemy(String imagePath, {bool isBoss = false, bool isChamp = false}) async {
+    String enemyId = '';
+    if(isChamp){
+      enemyId = 'champ$imagePath';
+    }else{
+      String fileName = imagePath.split('/').last;
+      enemyId = fileName.replaceAll('.png', '');
+    }
     
-    // 2. Remove o ".png" para isolar o ID (Ex: "orc.png" -> "orc")
-    String enemyId = fileName.replaceAll('.png', '');
 
-    // 3. Salva no Bestiário se for inédito!
-    if (!bestiaryKills.contains(enemyId)) {
+    // Se o inimigo já está 100% desbloqueado no bestiário, não precisamos fazer mais nada
+    if (bestiaryKills.contains(enemyId)) return;
+
+    // Incrementa a contagem de mortes deste ID específico (se for nulo, começa em 0 + 1)
+    enemyKillCounts[enemyId] = (enemyKillCounts[enemyId] ?? 0) + 1;
+    
+    // Salva o novo placar no SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_enemyKillsCountKey, jsonEncode(enemyKillCounts));
+
+    // Define a meta: 1 se for Boss, 10 se for inimigo comum
+    int meta = isBoss ? 1 : isChamp? 5: 10;
+
+    // Se bateu a meta, finalmente libera a visualização dele no diário!
+    if (enemyKillCounts[enemyId]! >= meta) {
       bestiaryKills.add(enemyId);
-      final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_bestiaryKey, bestiaryKills);
-      // print("📖 Novo Monstro Catalogado: $enemyId");
+      print("📖 BESTIÁRIO: O monstro '$enemyId' foi totalmente desbloqueado!");
+    } else {
+      print("⚔️ BESTIÁRIO: Progresso do '$enemyId' (${enemyKillCounts[enemyId]}/$meta)");
     }
   }
 
