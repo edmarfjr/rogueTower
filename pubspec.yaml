@@ -38,6 +38,7 @@ flutter:
     - assets/images/sprites/gameObjs/
     - assets/images/sprites/condicoes/
     - assets/images/sprites/npcs/
+    - assets/images/sprites/flags/
     - assets/audio/
     - assets/audio/music/
     - assets/audio/sfx/wav/

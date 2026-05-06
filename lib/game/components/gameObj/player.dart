@@ -1290,14 +1290,14 @@ class Player extends PositionComponent
 
     if(isFreezeDash){
       gameRef.world.add(Explosion(
-                          position: position, 
-                          damagesPlayer:false, 
-                          radius:150, 
-                          owner: this,
-                          isFreeze: true,
-                          cor: Pallete.branco.withAlpha(50),
-                          corBorda: Pallete.azulCla.withAlpha(50),
-                        ));
+        position: position, 
+        damagesPlayer:false, 
+        radius:150, 
+        owner: this,
+        isFreeze: true,
+        cor: Pallete.branco,
+        corBorda: Pallete.azulCla,
+      ));
     }
 
     AudioManager.playSfx('dash.mp3');

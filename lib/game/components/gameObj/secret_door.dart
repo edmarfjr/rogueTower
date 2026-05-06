@@ -209,7 +209,7 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
       case 5: return Pallete.azulCla; 
       case 6: return Pallete.marrom; 
       case 7: return Pallete.azulCla; 
-      case 8: return Pallete.rosa; 
+      case 8: return Pallete.lilas; 
       default: return Pallete.azulEsc;
     }
   } 

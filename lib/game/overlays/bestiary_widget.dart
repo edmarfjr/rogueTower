@@ -25,17 +25,24 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        
+        const SizedBox(height: 16),
         Expanded(
           flex: 2,
           child: Container(
-            color: Colors.black87,
+            width: MediaQuery.of(context).size.width * 0.935,
+            decoration: BoxDecoration(
+                    color: Pallete.preto,
+                    border: Border.all(
+                      color:Pallete.cinzaCla,
+                      width: 2,
+                    ),
+                  ),
             padding: const EdgeInsets.all(16),
             child: _selectedEnemy == null
-                ? const Center(
+                ?  Center(
                     child: Text(
-                      "Selecione uma criatura",
-                      style: TextStyle(fontFamily: 'pixelFont', color: Colors.white),
+                      "selec_criat".tr(),
+                      style:const TextStyle(fontFamily: 'pixelFont', color: Colors.white, fontSize: 18),
                     ),
                   )
                 : _buildEnemyDetails(),
@@ -107,19 +114,19 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
                      size: 64
                   ),
           const SizedBox(height: 16),
-          const Text(
-            "CRIATURA DESCONHECIDA",
-            style: TextStyle(fontFamily: 'pixelFont', color: Pallete.vermelho, fontSize: 18),
+           Text(
+            "criat_desco".tr(),
+            style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.vermelho, fontSize: 18),
           ),
           const SizedBox(height: 16),
-          const Text(
-            "Derrote este monstro na masmorra para registrar suas informações.",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'pixelFont', color: Pallete.cinzaCla),
-          ),
+          //const Text(
+          //  "Derrote este monstro na masmorra para registrar suas informações.",
+          //  textAlign: TextAlign.center,
+          //  style: TextStyle(fontFamily: 'pixelFont', color: Pallete.cinzaCla),
+          //),
           const SizedBox(height: 24),
           Text(
-            "MORTES: $mortesAtuais / $meta",
+            "${'mortes'.tr()}: $mortesAtuais / $meta",
             style: const TextStyle(
               fontFamily: 'pixelFont', 
               color: Pallete.amarelo, 

@@ -216,6 +216,10 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
       setState(() {
         currentIndex++;
       });
+    }else{
+      setState(() {
+        currentIndex = 0;
+      });
     }
   }
 
@@ -223,6 +227,10 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
     if (currentIndex > 0) {
       setState(() {
         currentIndex--;
+      });
+    }else{
+      setState(() {
+        currentIndex = widget.items.length - 1;
       });
     }
   }
@@ -273,7 +281,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
                   color: Pallete.branco,
                   size: 32,
                 ),
-                onPressed: currentIndex > 0 ? _prevItem : null,
+                onPressed: _prevItem, //currentIndex > 0 ? _prevItem : null,
                 disabledColor: Pallete.cinzaCla,
               ),
               
@@ -291,7 +299,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
                   color: Pallete.branco,
                   size: 32,
                 ),
-                onPressed: currentIndex < widget.items.length - 1 ? _nextItem : null,
+                onPressed: _nextItem, //currentIndex < widget.items.length - 1 ? _nextItem : null,
                 disabledColor: Pallete.cinzaCla,
               ),
             ],

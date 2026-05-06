@@ -91,7 +91,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       // Visual: Um bloco sólido (ícone de grade ou quadrado)
       add(GameSprite(
         imagePath: icon, // Parecido com tijolos ou pedras
-        color: Pallete.cinzaEsc,     // Cor de pedra
+        color: _getLevelColor(gameRef.currentLevel),    // Cor de pedra
         size: size,
         anchor: Anchor.center,
         position: size / 2,
@@ -118,7 +118,7 @@ class Wall extends PositionComponent with HasGameRef<TowerGame> {
       case 5: return Pallete.azulCla; 
       case 6: return Pallete.marrom; 
       case 7: return Pallete.azulCla; 
-      case 8: return Pallete.rosa; 
+      case 8: return Pallete.lilas; 
       default: return Pallete.azulEsc;
     }
   } 

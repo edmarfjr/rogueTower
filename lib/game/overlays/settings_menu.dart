@@ -1,4 +1,5 @@
 import 'package:towerrogue/game/components/core/game_progress.dart';
+import 'package:towerrogue/game/overlays/hud.dart';
 
 import '../components/core/audio_manager.dart';
 import '../components/core/i18n.dart';
@@ -182,10 +183,10 @@ class _SettingsMenuState extends State<SettingsMenu> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _langButton('en', '🇺🇸 EN', currentLang),
-                      _langButton('pt', '🇧🇷 PT', currentLang),
-                      _langButton('es', '🇪🇸 ES', currentLang),
-                      _langButton('fr', '🇫🇷 FR', currentLang),
+                      _langButton('en', currentLang),//_langButton('en', '🇺🇸 EN', currentLang),
+                      _langButton('pt', currentLang),//_langButton('pt', '🇧🇷 PT', currentLang),
+                      _langButton('es', currentLang),//_langButton('es', '🇪🇸 ES', currentLang),
+                      _langButton('fr', currentLang),//_langButton('fr', '🇫🇷 FR', currentLang),
                     ],
                   ),
 
@@ -240,7 +241,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
     );
   }
 
-  Widget _langButton(String langCode, String label, String currentLang) {
+  Widget _langButton(String langCode, String currentLang) {
     bool isSelected = currentLang == langCode;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -254,10 +255,20 @@ class _SettingsMenuState extends State<SettingsMenu> {
       onPressed: () {
         widget.game.progress.changeLanguage(langCode);
       },
-      child: Text(
-        label, 
-        style: TextStyle(fontSize: 16, color: isSelected ? Colors.white : Colors.white54)
-      ),
+      child:Image.asset(
+      'assets/images/sprites/flags/$langCode.png', // Caminho padrão do Flame para o Flutter
+      width: 32,
+      height: 32,
+      //color: color,
+      colorBlendMode: BlendMode.modulate, 
+      filterQuality: FilterQuality.none, 
+      fit: BoxFit.contain,
+      isAntiAlias: false,
+    ),
+      //child: Text(
+      //  label, 
+      //  style: TextStyle(fontSize: 16, color: isSelected ? Colors.white : Colors.white54)
+      //),
     );
   }
 }

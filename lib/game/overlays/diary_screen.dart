@@ -1,3 +1,4 @@
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import 'package:towerrogue/game/overlays/bestiary_widget.dart';
@@ -60,9 +61,9 @@ class DiaryScreen extends StatelessWidget {
                         game.overlays.add('MainMenu'); 
                       } ,
                     ),
-                    const Text(
-                      "COMPÊNDIO",
-                      style: TextStyle(
+                     Text(
+                      'colecao'.tr(),
+                      style: const TextStyle(
                         color: Pallete.amarelo,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -75,13 +76,13 @@ class DiaryScreen extends StatelessWidget {
               ),
               
               // --- OS SEPARADORES (TABS) ---
-              const TabBar(
+               TabBar(
                 indicatorColor: Pallete.amarelo,
                 labelColor: Pallete.amarelo,
                 unselectedLabelColor: Colors.white54,
                 tabs: [
-                  Tab(text: "ITENS"),
-                  Tab(text: "BESTIÁRIO"), // Nova aba!
+                  Tab(text: "itens".tr()),
+                  Tab(text: "bestiario".tr()), // Nova aba!
                 ],
               ),
               
@@ -94,7 +95,7 @@ class DiaryScreen extends StatelessWidget {
                       children: [
                         const SizedBox(height: 10),
                         Text(
-                          "ITENS DESCOBERTOS: ${discoveredItems.length} / ${validItems.length}",
+                          "${'itens_descob'.tr()} ${discoveredItems.length} / ${validItems.length}",
                           style: const TextStyle(color: Pallete.cinzaCla, fontSize: 16),
                         ),
                         Expanded(
@@ -135,14 +136,14 @@ class DiaryScreen extends StatelessWidget {
 
         if (isItemAtivo(type)) {
           if (isItemRecarregavel(type)) {
-            desc += "\n[recarregável]";
+            desc += "recar".tr();
           } else if (isItemUsoUnico(type)) {
-            desc += "\n[uso único]";
+            desc += "uso_unico".tr();
           }
         }
 
         return Tooltip(
-          message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : "Item Desconhecido",
+          message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : 'item_desco'.tr(),
           textStyle: const TextStyle(fontSize: 14, color: Pallete.branco),
           decoration: BoxDecoration(color: Pallete.preto, border: Border.all(color: Pallete.amarelo)),
           child: Container(
