@@ -11,7 +11,7 @@ class BestiaryWidget extends StatefulWidget {
   const BestiaryWidget({
     super.key, 
     required this.unlockedEnemyIds,
-    required this.killCounts, // 2. REQUER NO CONSTRUTOR
+    required this.killCounts, 
   });
 
   @override
@@ -26,6 +26,9 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
     return Column(
       children: [
         const SizedBox(height: 16),
+        // ==========================================
+        // PAINEL DE DETALHES (TOPO)
+        // ==========================================
         Expanded(
           flex: 2,
           child: Container(
@@ -48,6 +51,10 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
                 : _buildEnemyDetails(),
           ),
         ),
+        
+        // ==========================================
+        // GRADE DE MONSTROS (BASE)
+        // ==========================================
         Expanded(
           flex: 3,
           child: GridView.builder(
@@ -76,23 +83,42 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
                       width: 2,
                     ),
                   ),
-                  // MUDANÇA AQUI: Usa a propriedade 'color' nativa da imagem!
-                  child: Image.asset(
-                    enemy.imagePath,
-                    // Se estiver desbloqueado pinta com a cor do inimigo, senão pinta de preto puro!
-                    // (Ajuste "enemy.color" para "enemy.cor" se você usou esse nome no seu arquivo)
-                    scale: 0.5,
-                    color: isUnlocked ? enemy.cor : Pallete.cinzaEsc, 
-                    colorBlendMode: isUnlocked ? BlendMode.modulate : BlendMode.srcIn,
-                    filterQuality: FilterQuality.none, 
+                  // MUDANÇA: Stack com a Aura e o Inimigo!
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // --- AURA NO GRID ---
+                      if (enemy.isChamp && isUnlocked)
+                        Container(
+                          width: 24, 
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _selectedEnemy!.cor.withOpacity(0.4),
+                                blurRadius: 15,  
+                                spreadRadius: 5, 
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                      // --- FOTO NO GRID ---
+                      Image.asset(
+                        enemy.imagePath,
+                        scale: 0.5,
+                        color: isUnlocked ? enemy.cor : Pallete.cinzaEsc, 
+                        colorBlendMode: isUnlocked ? BlendMode.modulate : BlendMode.srcIn,
+                        filterQuality: FilterQuality.none, 
+                      ),
+                    ],
                   ),
                 ),
               );
             },
           ),
         ),
-
-        
       ],
     );
   }
@@ -103,7 +129,6 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
     if (!isUnlocked) {
       int mortesAtuais = widget.killCounts[_selectedEnemy!.id] ?? 0;
       
-      // O Truque: Se tiver 1000 ou mais de HP Base, a meta é 1 (Boss), senão é 10!
       int meta = _selectedEnemy!.baseHealth >= 1000 ? 1 : _selectedEnemy!.isChamp? 5 : 10;
       return  Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -118,12 +143,6 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
             "criat_desco".tr(),
             style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.vermelho, fontSize: 18),
           ),
-          const SizedBox(height: 16),
-          //const Text(
-          //  "Derrote este monstro na masmorra para registrar suas informações.",
-          //  textAlign: TextAlign.center,
-          //  style: TextStyle(fontFamily: 'pixelFont', color: Pallete.cinzaCla),
-          //),
           const SizedBox(height: 24),
           Text(
             "${'mortes'.tr()}: $mortesAtuais / $meta",
@@ -134,12 +153,11 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
             ),
           ),
           const SizedBox(height: 8),
-          // Uma barrinha visual de carregamento!
           SizedBox(
             width: 150,
-            height: 10, // Grossura da barra
+            height: 10, 
             child: LinearProgressIndicator(
-              value: mortesAtuais / meta, // Porcentagem de preenchimento
+              value: mortesAtuais / meta, 
               backgroundColor: Pallete.cinzaEsc,
               color: Pallete.verdeCla,
             ),
@@ -148,21 +166,46 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
       );
     }
 
-    // Se estiver desbloqueado, mostra os dados reais COM A COR!
+    // Se estiver desbloqueado, mostra os dados reais COM A COR E AURA!
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(
-          child: Image.asset(
-            _selectedEnemy!.imagePath, 
-            scale: 0.25, 
-            color: _selectedEnemy!.cor, // MUDANÇA AQUI: Pinta a foto grande também!
-            colorBlendMode: isUnlocked ? BlendMode.modulate : BlendMode.srcIn,
-            filterQuality: FilterQuality.none, 
-                  ), 
+          // MUDANÇA: Stack com a Aura Gigante
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // --- AURA NOS DETALHES ---
+              if (_selectedEnemy!.isChamp)
+                Container(
+                  width: 80, // Aumentado para acompanhar o scale: 0.25 da imagem
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: _selectedEnemy!.cor.withOpacity(0.3), 
+                        blurRadius: 16,
+                        spreadRadius: 8,
+                      ),
+                    ],
+                  ),
+                ),
+                
+              // --- FOTO EM DESTAQUE ---
+              Image.asset(
+                _selectedEnemy!.imagePath, 
+                scale: 0.25, 
+                color: _selectedEnemy!.cor, 
+                colorBlendMode: isUnlocked ? BlendMode.modulate : BlendMode.srcIn,
+                filterQuality: FilterQuality.none, 
+              ),
+            ],
+          ), 
         ),
         const SizedBox(height: 24),
         Text(
+          // Adiciona a estrela no título se for um campeão
           _selectedEnemy!.name.toUpperCase(),
           style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.amarelo, fontSize: 24),
         ),

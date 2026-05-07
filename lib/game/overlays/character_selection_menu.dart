@@ -106,7 +106,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               ),
 
               const Spacer(),
-              const Spacer(),
+              //const Spacer(),
 
               // --- SELETOR DE DIFICULDADE AQUI ---
               Text("dificuldade".tr(), style: const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
@@ -190,7 +190,7 @@ class _CharacterSelectionMenuState extends State<CharacterSelectionMenu> {
               
               TextButton(
                 onPressed: () => widget.game.overlays.remove('CharacterSelectionMenu'),
-                child: Text("voltar".tr(), style: const TextStyle(color: Pallete.cinzaCla)),
+                child: Text("voltar".tr(), style: const TextStyle(color: Pallete.cinzaCla,fontSize: 18)),
               ),
               const SizedBox(height: 10),
             ],

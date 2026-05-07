@@ -178,10 +178,10 @@ class GameProgress {
     if (enemyKillCounts[enemyId]! >= meta) {
       bestiaryKills.add(enemyId);
       await prefs.setStringList(_bestiaryKey, bestiaryKills);
-      print("📖 BESTIÁRIO: O monstro '$enemyId' foi totalmente desbloqueado!");
-    } else {
-      print("⚔️ BESTIÁRIO: Progresso do '$enemyId' (${enemyKillCounts[enemyId]}/$meta)");
-    }
+      //print("📖 BESTIÁRIO: O monstro '$enemyId' foi totalmente desbloqueado!");
+    } //else {
+     // print("⚔️ BESTIÁRIO: Progresso do '$enemyId' (${enemyKillCounts[enemyId]}/$meta)");
+   // }
   }
 
   Future<void> changeLanguage(String lang) async {
