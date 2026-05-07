@@ -203,7 +203,7 @@ class _BestiaryWidgetState extends State<BestiaryWidget> {
             ],
           ), 
         ),
-        const SizedBox(height: 24),
+       // const SizedBox(height: 24),
         Text(
           // Adiciona a estrela no título se for um campeão
           _selectedEnemy!.name.toUpperCase(),

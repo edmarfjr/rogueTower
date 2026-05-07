@@ -218,6 +218,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         nome = 'slot';
         descr = 'slotDesc';
         break;
+      case CollectibleType.pescaria: 
+        iconData = 'sprites/doorIcons/pescaria.png'; 
+        cor = Pallete.azulCla;
+        nome = 'pescaria';
+        descr = 'pescariaDesc';
+        break;
       default: iconData = 'sprites/doorIcons/hpCheio';
     }
     

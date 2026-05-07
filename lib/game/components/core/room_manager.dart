@@ -4,6 +4,7 @@ import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
+import 'package:towerrogue/game/components/gameObj/fishing_pond.dart';
 import 'package:towerrogue/game/components/gameObj/npc.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
@@ -206,6 +207,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       _spawnDoors(roomNumber);
       return;
     } 
+
+    if (gameRef.nextRoomReward == CollectibleType.pescaria){
+      gameRef.world.add(FishingPond(position: Vector2(8, 0)));
+      _spawnDoors(roomNumber);
+      return;
+    }
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
       gameRef.world.add(Npc(
@@ -586,6 +593,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       possibleRewards.add(CollectibleType.rareChest);
       possibleRewards.add(CollectibleType.doacaoSangue);
       possibleRewards.add(CollectibleType.slotMachine);
+      possibleRewards.add(CollectibleType.pescaria);
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -1050,7 +1058,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
     
     if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop
-    || gameRef.nextRoomReward == CollectibleType.alquimista || gameRef.nextRoomReward == CollectibleType.darkShop){
+    || gameRef.nextRoomReward == CollectibleType.alquimista || gameRef.nextRoomReward == CollectibleType.darkShop
+    || gameRef.nextRoomReward == CollectibleType.pescaria){
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();
@@ -1061,7 +1070,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }else if (gameRef.nextRoomReward == CollectibleType.slotMachine) {
       _explosaoCriaItem();
       gameRef.world.add(SlotMachine(position: Vector2(8, 0)));
-    } else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
+    }else if (gameRef.nextRoomReward == CollectibleType.rareChest) {
       _explosaoCriaItem();
       gameRef.world.add(Chest(position: Vector2(8, 0), isLock: true));
     } else if (gameRef.nextRoomReward == CollectibleType.nextLevel){

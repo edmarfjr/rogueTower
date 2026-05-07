@@ -55,7 +55,7 @@ bool isItemAtivo(CollectibleType type) {
 enum CollectibleType {
   //tipos de porta e itens simples
   coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextLevel, chest, bank, rareChest, bomba, alquimista, desafio, 
-  darkShop, doacaoSangue, slotMachine,cajadoQuebrado,
+  darkShop, doacaoSangue, slotMachine,cajadoQuebrado,pescaria,
   //pocoes
   damage, fireRate, moveSpeed, range, sorte, critChance, critDamage, dot, healthContainer,
   //itens comuns

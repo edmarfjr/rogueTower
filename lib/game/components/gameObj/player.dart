@@ -15,6 +15,7 @@ import 'package:towerrogue/game/components/gameObj/chest.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/door.dart';
+import 'package:towerrogue/game/components/gameObj/fishing_pond.dart';
 import 'package:towerrogue/game/components/gameObj/npc.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:towerrogue/game/components/gameObj/unlockable_item.dart';
@@ -292,6 +293,8 @@ class Player extends PositionComponent
 
   double _colorTimer = 0;
 
+  bool parado = false;
+
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
@@ -484,7 +487,7 @@ class Player extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
-
+    
     if (gameRef.isGodMode && damage < 100){
       damageIni = damage;
       damage = 100;
@@ -572,7 +575,7 @@ class Player extends PositionComponent
           kineticIcon = null; 
         }  
     }
-
+    if (parado) return;
     if (isDashing) {
       _handleDashMovement(dt); 
     } else {
@@ -2144,7 +2147,7 @@ class Player extends PositionComponent
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if (other is Wall || other is Door || other is UnlockableItem || other is Npc || other is Chest
-    || other is BankAtm  || other is BloodMachine  || other is SlotMachine) {
+    || other is BankAtm || other is BloodMachine || other is SlotMachine || other is FishingPond) {
       _handleWallCollision(intersectionPoints, other);
       if(other is Wall && zodiacLeo){
         other.die();
