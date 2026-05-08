@@ -498,10 +498,15 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     ];
 
     if (!consumiveis.contains(type)) {
-      final attrs = Collectible.getAttributes(type);
-      player.setAcquiredItemsList(
-        type, attrs['name'] as String, attrs['desc'] as String, attrs['icon'] as String, attrs['color'] as Color,
-      );
+      bool jaPossuiItem = player.items.any((item) => item.type == type);
+
+      if (!jaPossuiItem) {
+        final attrs = Collectible.getAttributes(type);
+        player.setAcquiredItemsList(
+          type, attrs['name'] as String, attrs['desc'] as String, attrs['icon'] as String, attrs['color'] as Color,
+        );
+      }
+
       game.progress.discoverItem(type.toString());
     }
 
@@ -1001,17 +1006,17 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.botaVelha:
         return {'name': 'botaVelha'.tr(), 'desc': 'botaVelhaDesc'.tr(), 'icon': 'botaVelha', 'color': Pallete.marrom};
       case CollectibleType.atum:
-        return {'name': 'atum'.tr(), 'desc': 'atumDesc'.tr(), 'icon': 'atum', 'color': Pallete.azulCla};
+        return {'name': 'atum'.tr(), 'desc': 'atumDesc'.tr(), 'icon': 'piranha', 'color': Pallete.vermelho};
       case CollectibleType.xicara:
         return {'name': 'xicara'.tr(), 'desc': 'xicaraDesc'.tr(), 'icon': 'xicara', 'color': Pallete.laranja};
       case CollectibleType.lagosta:
-        return {'name': 'lagosta'.tr(), 'desc': 'lagostaDesc'.tr(), 'icon': 'lagosta', 'color': Pallete.vermelho};
+        return {'name': 'lagosta'.tr(), 'desc': 'lagostaDesc'.tr(), 'icon': 'camarao', 'color': Pallete.vermelho};
       case CollectibleType.tetra:
-        return {'name': 'tetra'.tr(), 'desc': 'tetraDesc'.tr(), 'icon': 'tetra', 'color': Pallete.vermelho};
+        return {'name': 'tetra'.tr(), 'desc': 'tetraDesc'.tr(), 'icon': 'tilapia', 'color': Pallete.azulCla};
       case CollectibleType.kelp:
         return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'kelp', 'color': Pallete.verdeCla};
       case CollectibleType.truta:
-        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'truta', 'color': Pallete.lilas};  
+        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'pacu', 'color': Pallete.lilas};  
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }

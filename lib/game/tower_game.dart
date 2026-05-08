@@ -538,6 +538,18 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   'sprites/tileset/toten.png',
   'sprites/tileset/tumulo.png',
   'sprites/tileset/weaponRack.png',
+  'sprites/itens/alga.png',
+  'sprites/itens/pirarucu.png',
+  'sprites/itens/espinhaPeixe.png',
+  'sprites/itens/botaVelha.png',
+  'sprites/itens/atum.png',
+  'sprites/itens/xicara.png',
+  'sprites/itens/lagosta.png',
+  'sprites/itens/tetra.png',
+  'sprites/itens/kelp.png',
+  'sprites/itens/truta.png',
+  'sprites/itens/pacu.png',
+  'sprites/itens/piranha.png',
     ]);
     
     await progress.load();

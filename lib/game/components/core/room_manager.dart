@@ -733,7 +733,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   void _spawnBankRoom() {
       // 1. Cria o ATM no centro
       if(gameRef.dividaNotifier.value > 0)gameRef.isCurrentRoomBank = true;
-      gameRef.world.add(BankAtm(position: Vector2(0, 0)));
+      gameRef.world.add(BankAtm(position: Vector2(8, 0)));
       
   }
 

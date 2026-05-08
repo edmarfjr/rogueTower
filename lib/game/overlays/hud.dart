@@ -468,7 +468,6 @@ class Hud extends StatelessWidget {
       slotName = attrs['name'];
     }
 
-    // 1. Isolamos o container do slot em uma variável
     Widget slotContainer = Container(
       width: 50,
       height: 50,
@@ -486,15 +485,12 @@ class Hud extends StatelessWidget {
         : Stack(
             alignment: Alignment.center,
             children: [
-              // 1. O Ícone Oficial
               PixelSprite(
                 imagePath: 'sprites/itens/$slotIcon.png',
                 color: slotColor?.withOpacity(0.65) ?? Pallete.branco.withOpacity(0.5),
                 size: 32,
               ),
             
-              // 2. A PELÍCULA ESCURA DE COOLDOWN
-              // (Continua aqui para escurecer o ícone quando não estiver pronto)
               if (index == 0)
               if (!isReady) 
                 Container(
@@ -504,27 +500,22 @@ class Hud extends StatelessWidget {
                   ),
                 ),
               if (index == 0) 
-              // 3. A NOVA BARRA VERTICAL DE CARGA
               Positioned(
-                right: 2,   // Colada no canto direito
-                top: 2,     // Margem no topo
-                bottom: 2,  // Margem em baixo
-                width: 6,   // Grossura da barra
+                right: 2,   
+                top: 2,    
+                bottom: 2,  
+                width: 6,   
                 child:  Container(
                   decoration:  BoxDecoration(
-                    color: Pallete.preto.withOpacity(0.65), // Fundo da barra vazio
+                    color: Pallete.preto.withOpacity(0.65),
                     //border: Border.all(color: Pallete.cinzaEsc, width: 1),
                   ),
-                  // Alinha o preenchimento para começar de baixo para cima!
                   alignment: Alignment.bottomCenter, 
                   child: FractionallySizedBox(
-                    // Calcula a porcentagem (Ex: 2/4 de carga = 0.5 = 50% da altura)
-                    // O clamp(0.0, 1.0) é uma trava de segurança para nunca vazar do botão
                     heightFactor: itemData.maxCharge > 0 
                         ? (itemData.currentCharge / itemData.maxCharge).clamp(0.0, 1.0)
                         : 0.0,
                     child: Container(
-                      // Mágica visual: Fica Azul/Verde quando carregando, e Amarela quando pronta!
                       color: isReady ? Pallete.verdeCla.withOpacity(0.65) : Pallete.verdeEsc.withOpacity(0.65), 
                     ),
                   )
@@ -534,15 +525,12 @@ class Hud extends StatelessWidget {
           ),
     );
 
-    // 2. Se o slot não estiver vazio, "envelopamos" o slot com o Tooltip customizado!
     if (!isEmpty) {
       slotContainer = Tooltip(
         preferBelow: false, 
         verticalOffset: 35,
-        // Quebra de linha para separar Título da Descrição
         message: "${slotName?.toUpperCase()}\n$slotDesc", 
         
-        // Estilização 100% Pixel Art
         textStyle:  TextStyle(
           fontFamily: 'pixelFont', 
           fontSize: 14,
@@ -555,7 +543,6 @@ class Hud extends StatelessWidget {
           borderRadius: BorderRadius.zero, 
         ),
         
-        // Configurações de tempo (300ms segurando o toque/mouse para aparecer)
         waitDuration: const Duration(milliseconds: 300), 
         showDuration: const Duration(seconds: 3),
         
@@ -563,7 +550,6 @@ class Hud extends StatelessWidget {
       );
     }
 
-    // 3. O GestureDetector finaliza abraçando tudo
     return GestureDetector(
       onTap: () {
         if (!isEmpty && isReady) {
@@ -574,83 +560,6 @@ class Hud extends StatelessWidget {
     );
   }
 
-  
-
-  // ==========================================================
-  //_buildItemSlot com sprites
-  // ==========================================================
-  /*
-  Widget _buildItemSlot(int index, ActiveItemData? itemData) {
-    bool isEmpty = itemData == null;
-    bool isReady = isEmpty || itemData.isReady;
-
-    String? slotSpritePath;
-    Color? slotColor;
-    if (!isEmpty) {
-      final attrs = Collectible.getAttributes(itemData.type);
-      
-      // IMPORTANTE: Assumindo que você mudou o seu getAttributes
-      // para retornar um 'sprite' (String) no lugar de um 'icon' (IconData)
-      slotSpritePath = attrs['sprite']; 
-      slotColor = attrs['color'];
-    }
-
-    return GestureDetector(
-      onTap: () {
-        if (!isEmpty && isReady) {
-          game.player.useActiveSlot(index);
-        }
-      },
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Pallete.cinzaEsc.withOpacity(0.8),
-          border: Border.all(
-            color: !isEmpty && isReady ? Pallete.amarelo : Pallete.cinzaCla, 
-            width: 2
-          ),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2))],
-        ),
-        child: isEmpty 
-          ? const SizedBox.shrink() 
-          : Stack(
-              alignment: Alignment.center,
-              children: [
-                // 1. O Ícone Pixel Art Oficial puxado do jogo!
-                if (slotSpritePath != null)
-                  PixelSprite(
-                    imagePath: slotSpritePath,
-                    color: slotColor ?? Pallete.branco,
-                    size: 32,
-                  ),
-                
-                // 2. A PELÍCULA DE COOLDOWN E A CARGA
-                if (!isReady) ...[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65), 
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  Text(
-                    "${itemData.currentCharge}/${itemData.maxCharge}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-      ),
-    );
-  }
-  */
-  
 }
 class PixelSprite extends StatelessWidget {
   final String imagePath;

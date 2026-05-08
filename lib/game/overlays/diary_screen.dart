@@ -144,6 +144,7 @@ class DiaryScreen extends StatelessWidget {
 
         return Tooltip(
           message: isDiscovered ? "${attrs['name'].toUpperCase()}\n$desc" : 'item_desco'.tr(),
+          preferBelow: false,
           textStyle: const TextStyle(fontSize: 14, color: Pallete.branco),
           decoration: BoxDecoration(color: Pallete.preto, border: Border.all(color: Pallete.amarelo)),
           child: Container(

@@ -257,6 +257,19 @@ class _LoadingScreenState extends State<LoadingScreen> {
     precacheImage(const AssetImage('assets/images/sprites/itens/virgo.png'), context);
     precacheImage(const AssetImage('assets/images/sprites/itens/wisp.png'), context);
     precacheImage(const AssetImage('assets/images/sprites/itens/zodiac.png'), context);
+    //peixes
+    precacheImage(const AssetImage('assets/images/sprites/itens/alga.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/pirarucu.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/espinhaPeixe.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/botaVelha.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/atum.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/xicara.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/lagosta.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/tetra.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/kelp.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/truta.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/pacu.png'), context);
+    precacheImage(const AssetImage('assets/images/sprites/itens/piranha.png'), context);
 
     
   }

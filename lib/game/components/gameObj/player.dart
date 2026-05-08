@@ -1944,7 +1944,7 @@ class Player extends PositionComponent
       hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
       size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
       image:isMachadoArremeco? 'sprites/projeteis/machadoArremeco.png' : img ,
-      dieTimer: (isBoomerang && isSaw)? aRange*3 : isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : isSaw ? aRange*2 : aRange,
+      dieTimer: (isBoomerang && isSaw)? aRange*3 : isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : (isSaw || isHeavyShot) ? aRange*2 : aRange,
       apagaTiros: hasAntimateria,
       isHoming: tempHoming ||isHoming || isHomingTemp,
       iniPosition: position.clone(),

@@ -167,7 +167,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   @override
   Future<void> onLoad() async {
-    corAtual = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.amarelo : Pallete.azulCla) : cor;
+    corAtual = cor == Pallete.preto ? (isEnemyProjectile ? Pallete.vermelho : goldShot ? Pallete.laranja : Pallete.amarelo) : cor;
 
     if (isWave) {
       _initialRadius = _currentRadius;
