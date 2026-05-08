@@ -218,7 +218,8 @@ class FishingOverlay extends PositionComponent {
       pond.exclamationSprite.render(
         canvas, 
         // Centraliza a imagem no eixo X subtraindo a metade da largura dela
-        position: Vector2(size.x / 2 - (pond.exclamationSprite.srcSize.x / 2), -24) 
+        position: Vector2(size.x / 2 - (pond.exclamationSprite.srcSize.x / 2), -24),
+        overridePaint: Paint()..color = Pallete.amarelo
       );
     }
     
@@ -249,12 +250,13 @@ class FishingOverlay extends PositionComponent {
 
         canvas.translate(posX, posY);
         canvas.scale(-1.0, 1.0);
-        pond.rodSprite.render(canvas, position: Vector2(-24, 0));
+        pond.rodSprite.render(canvas, position: Vector2(-24, 0),overridePaint: Paint()..color = Pallete.bege);
         canvas.restore();
       }else{
         pond.rodSprite.render(
           canvas, 
-          position: Vector2(pond.gameRef.player.position.x + 20,pond.gameRef.player.position.y) 
+          position: Vector2(pond.gameRef.player.position.x + 20,pond.gameRef.player.position.y),
+          overridePaint: Paint()..color = Pallete.bege 
         );
       }
 
