@@ -295,6 +295,8 @@ class Player extends PositionComponent
 
   bool parado = false;
 
+  double bossDmgBonus = 1;
+
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
@@ -2126,6 +2128,7 @@ class Player extends PositionComponent
     armaCor = Pallete.branco;
     classColor = Pallete.branco;
     classImage = '';
+    bossDmgBonus = 1;
 
     criaVisual(reset:true);
     visual.changeColor(Pallete.branco);

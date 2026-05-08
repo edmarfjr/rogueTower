@@ -753,6 +753,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     double dmg = damage;
     double critChance = rnd.nextDouble() * 100;
 
+    if(isBoss) dmg *= gameRef.player.bossDmgBonus;
+
     if (critChance <= gameRef.player.returnCritChance() && critico) {
       dmg *= gameRef.player.critDamage;
       isCrit = true;

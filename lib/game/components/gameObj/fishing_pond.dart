@@ -51,6 +51,8 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     exclamationSprite = await Sprite.load('sprites/gameObjs/exclamacao.png');
     rodSprite = await Sprite.load('sprites/doorIcons/pescaria.png');
 
+    priority = -1000;
+
     add(FishingOverlay(this));
   }
 
@@ -62,7 +64,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     double dist = position.distanceTo(player.position);
 
     // MUDANÇA: Verifica se o player está perto E se ainda tem peixes para pescar!
-    if (dist <= _interactRange && fishesLeft > 0) {
+    if (dist <= _interactRange) {
       if (!_isInfoVisible) {
         _isInfoVisible = true; // CORREÇÃO: Avisamos ao sistema que o botão já está visível
         gameRef.canInteractNotifier.value = true;
@@ -77,7 +79,16 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     }
     
     if (state == FishingState.casting) {
+      int segundoAnterior = _timer.ceil();
       _timer -= dt;
+
+      if (_timer.ceil() < segundoAnterior && _timer > 0) {
+        gameRef.world.add(FloatingText(
+          text: "...", 
+          position: absoluteCenter.clone()..add(Vector2(0, -16)),
+        ));
+      }
+      
       if (_timer <= 0) {
         state = FishingState.biting;
         _timer = 1.0; 
@@ -97,6 +108,14 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
   }
 
   void pescar() {
+    if (fishesLeft <= 0) {
+      game.world.add(FloatingText(
+                text: "sem mais iscas!",
+                position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.branco,
+              ));
+      return;
+    }
     if (state == FishingState.idle) {
       _jogarIsca();
       gameRef.player.parado = true;
@@ -117,6 +136,17 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
   void _escapou() {
     state = FishingState.cooldown;
     _timer = 2.0; 
+    fishesLeft--;
+    if (fishesLeft <= 0) {
+      game.world.add(FloatingText(
+                text: "sem mais iscas!",
+                position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.branco,
+              ));
+      _isInfoVisible = false;
+      gameRef.canInteractNotifier.value = false;
+      gameRef.onInteractAction = null;
+    }
   }
 
   void _pescarRecompensa() {
@@ -127,7 +157,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     // Se a pescaria acabou, tira o botão interativo da tela IMEDIATAMENTE
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
-                text: "sem mais iscas!",
+                text: "sem_iscas",
                 position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
                 color: Pallete.branco,
               ));
@@ -140,17 +170,16 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
     final item = Collectible(position: gameRef.player.absoluteCenter.clone() + Vector2(0,-16), type: loot);
     gameRef.world.add(item);
-    item.pop(Vector2(Random().nextDouble() * 40 - 20, 20), altura: -100);
+    double posx = 32;
+    if(gameRef.player.absoluteCenter.x < 0) posx = -32;
+    item.pop(Vector2(posx, 20), altura: -100);
   }
 
   CollectibleType _sortearLootDePesca() {
-    int rnd = Random().nextInt(100);
+    var rnd = Random();
+    var pool = retornaPescados();
     
-    if (rnd < 40) return CollectibleType.coinUm;          
-    if (rnd < 70) return CollectibleType.coin;          
-    if (rnd < 85) return CollectibleType.potion;        
-    if (rnd < 95) return CollectibleType.bombas;        
-    return CollectibleType.chest;                       
+    return pool[rnd.nextInt(pool.length)];                     
   }
 
   @override
@@ -171,9 +200,14 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
 class FishingOverlay extends PositionComponent {
   final FishingPond pond;
-
-  // Recebe o lago e copia o tamanho exato dele
+  double _time = 0;
   FishingOverlay(this.pond) : super(size: pond.size);
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _time += dt; 
+  }
 
   @override
   void render(Canvas canvas) {
@@ -190,13 +224,41 @@ class FishingOverlay extends PositionComponent {
     
     // A BOIA NA ÁGUA (Casting)
     if (pond.state == FishingState.casting) {
-      canvas.drawCircle(const Offset(32, 32), 2, Paint()..color = Pallete.branco ..isAntiAlias = false);
-      canvas.drawCircle(const Offset(32, 32), 2, Paint()..color = Pallete.preto ..isAntiAlias = false..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5);
-       pond.rodSprite.render(
-        canvas, 
-        position: Vector2(pond.gameRef.player.position.x + 24,pond.gameRef.player.position.y) 
+      double offsetX = 30;
+      double offsetY = 24 + (sin(_time * 3) * 2);
+      canvas.drawCircle( Offset(offsetX, offsetY), 2, Paint()..color = Pallete.branco ..isAntiAlias = false);
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(offsetX, offsetY), radius: 2), 
+        pi, 
+        pi, 
+        true, 
+        Paint()..color = Pallete.vermelho ..isAntiAlias = false,
       );
+      canvas.drawCircle( 
+      Offset(offsetX, offsetY), 
+      2, 
+      Paint()..color = Pallete.preto 
+            ..isAntiAlias = false..style = PaintingStyle.stroke 
+            ..strokeWidth = 0.5
+      );
+
+      if(pond.gameRef.player.absoluteCenter.x > 0){
+        canvas.save();
+        double posX = pond.gameRef.player.position.x ; 
+        double posY = pond.gameRef.player.position.y;
+
+        canvas.translate(posX, posY);
+        canvas.scale(-1.0, 1.0);
+        pond.rodSprite.render(canvas, position: Vector2(-24, 0));
+        canvas.restore();
+      }else{
+        pond.rodSprite.render(
+          canvas, 
+          position: Vector2(pond.gameRef.player.position.x + 20,pond.gameRef.player.position.y) 
+        );
+      }
+
+      
     }
   }
 }

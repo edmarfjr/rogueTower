@@ -58,6 +58,8 @@ enum CollectibleType {
   darkShop, doacaoSangue, slotMachine,cajadoQuebrado,pescaria,
   //pocoes
   damage, fireRate, moveSpeed, range, sorte, critChance, critDamage, dot, healthContainer,
+  //pescados
+  alga, pirarucu, espinhaPeixe, botaVelha, atum, xicara, lagosta, tetra, kelp, truta,
   //itens comuns
   keys, dash, sanduiche, bombas, piercing, fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, mine, bloodstone, bounce, spectral, cupon, 
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming, activeGift, activeBandage,
@@ -345,7 +347,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     // Grupo para facilitar remover tudo de uma vez
     _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
     
-    _infoGroup.priority = 1500;
+    _infoGroup.priority = priority + 1500;
 
     // 1. Descrição do Efeito
     //final textDesc = TextBoxComponent(
@@ -990,6 +992,26 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'rainbowShot'.tr(), 'desc': 'rainbowShotDesc'.tr(), 'icon': 'cajado', 'color': Pallete.rosa};
       case CollectibleType.masterOrb:
         return {'name': 'masterOrb'.tr(), 'desc': 'masterOrbDesc'.tr(), 'icon': 'masterOrb', 'color': Pallete.lilas};
+      case CollectibleType.alga:
+        return {'name': 'alga'.tr(), 'desc': 'algaDesc'.tr(), 'icon': 'alga', 'color': Pallete.verdeEsc};
+      case CollectibleType.pirarucu:
+        return {'name': 'pirarucu'.tr(), 'desc': 'pirarucuDesc'.tr(), 'icon': 'pirarucu', 'color': Pallete.lilas};
+      case CollectibleType.espinhaPeixe:
+        return {'name': 'espinhaPeixe'.tr(), 'desc': 'espinhaPeixeDesc'.tr(), 'icon': 'espinhaPeixe', 'color': Pallete.cinzaCla};
+      case CollectibleType.botaVelha:
+        return {'name': 'botaVelha'.tr(), 'desc': 'botaVelhaDesc'.tr(), 'icon': 'botaVelha', 'color': Pallete.marrom};
+      case CollectibleType.atum:
+        return {'name': 'atum'.tr(), 'desc': 'atumDesc'.tr(), 'icon': 'atum', 'color': Pallete.azulCla};
+      case CollectibleType.xicara:
+        return {'name': 'xicara'.tr(), 'desc': 'xicaraDesc'.tr(), 'icon': 'xicara', 'color': Pallete.laranja};
+      case CollectibleType.lagosta:
+        return {'name': 'lagosta'.tr(), 'desc': 'lagostaDesc'.tr(), 'icon': 'lagosta', 'color': Pallete.vermelho};
+      case CollectibleType.tetra:
+        return {'name': 'tetra'.tr(), 'desc': 'tetraDesc'.tr(), 'icon': 'tetra', 'color': Pallete.vermelho};
+      case CollectibleType.kelp:
+        return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'kelp', 'color': Pallete.verdeCla};
+      case CollectibleType.truta:
+        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'truta', 'color': Pallete.lilas};  
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }
@@ -1060,6 +1082,21 @@ List<CollectibleType> retornaPocoes(){
       CollectibleType.critDamage,
       CollectibleType.dot,
       CollectibleType.sorte,
+    ];
+  }
+
+List<CollectibleType> retornaPescados(){
+    return [
+      CollectibleType.alga,
+      CollectibleType.pirarucu,
+      CollectibleType.espinhaPeixe, 
+      CollectibleType.botaVelha, 
+      CollectibleType.atum,
+      CollectibleType.xicara,
+      CollectibleType.lagosta,
+      CollectibleType.tetra,
+      CollectibleType.kelp,
+      CollectibleType.truta,
     ];
   }
 
@@ -3455,7 +3492,67 @@ class CollectibleLogic {
           player.masterOrb = 1.5;
           text = "masterOrb";
           //color = Pallete.vermelho;
-          break;   
+          break;  
+
+        case CollectibleType.alga:
+          player.collectCoin(5);
+          text = "alga";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.pirarucu:
+          player.increaseFireRate(0.9);
+          text = "pirarucu";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.espinhaPeixe:
+          player.bossDmgBonus += 0.15;
+          text = "espinhaPeixe";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.botaVelha:
+          player.collectCoin(5);
+          text = "botaVelha";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.atum:
+          player.critDamage *= 1.1;
+          text = "atum";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.xicara:
+          player.collectCoin(30);
+          text = "xicara";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.lagosta:
+          player.increaseMovementSpeed(1.1);
+          text = "lagosta";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.tetra:
+          player.curaHp(2);
+          text = "tetra";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.kelp:
+          player.dashCooldown /= 1.1;
+          text = "kelp";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.truta:
+          player.increaseDamage(1.1);
+          text = "truta";
+          //color = Pallete.vermelho;
+          break;  
 
         default:
           text = "";
