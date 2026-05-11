@@ -29,6 +29,7 @@ class CharacterClass {
   final String bltImage;
   final double bltSize;
   final double bltSpeed;
+  final Color bltCor;
   final String weaponImage;
   final bool armaBalanca;
   final Color armaCor;
@@ -79,6 +80,7 @@ class CharacterClass {
     this.weaponImage='',
     this.armaBalanca = false,
     this.armaCor = Pallete.branco,
+    this.bltCor = Pallete.branco,
     this.armaAngOffset = 0,
   });
 
@@ -165,6 +167,7 @@ class CharacterRoster {
       bltImage: 'sprites/projeteis/fogo.png',
       weaponImage: 'sprites/projeteis/varinha.png',
       armaCor: Pallete.vermelho,
+      bltCor: Pallete.laranja,
       armaAngOffset: pi/4,
     ),
     CharacterClass(
@@ -238,7 +241,7 @@ class CharacterRoster {
       color: Pallete.lilas, 
       maxHp: 4,
       maxDash: 2,
-      speed: 75.0,
+      speed: 70.0,
       damage: 10.0,
       fireRate: 0.4,
       critChance: 5,

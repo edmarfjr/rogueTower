@@ -290,12 +290,16 @@ class Player extends PositionComponent
   String classImage = '';
   String armaImage = '';
   Color armaCor = Pallete.branco;
+  Color bltCor = Pallete.branco;
 
   double _colorTimer = 0;
 
   bool parado = false;
 
   double bossDmgBonus = 1;
+
+  final ValueNotifier<List<ActiveDrinkEffect>> drinksNotifier = ValueNotifier([]);
+  int get drunkennessLevel => drinksNotifier.value.length;
 
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
@@ -1000,6 +1004,8 @@ class Player extends PositionComponent
       bltSpeed = charClass.bltSpeed;
 
       armaBalanca = charClass.armaBalanca;
+
+      bltCor = charClass.bltCor;
 
 
       for (var itemType in charClass.startingItems) {
@@ -1842,12 +1848,14 @@ class Player extends PositionComponent
     double dmg = returnDamage();
     double aRange = attackRange;
 
-    if(isBebado){
-      double angOffset = Random().nextDouble() * 0.2;
-      double x = _tempDirection.x * cos(angOffset) - _tempDirection.y * sin(angOffset);
-      double y = _tempDirection.x * sin(angOffset) + _tempDirection.y * cos(angOffset);
-      _tempDirection.setValues(x, y);
-    }
+    double imprecisao = 0;
+    if (drunkennessLevel == 2) imprecisao = 0.1;
+    if (drunkennessLevel == 3) imprecisao = 0.3;
+
+    double angOffset = (Random().nextDouble() - 0.5) * imprecisao;
+    x = _tempDirection.x * cos(angOffset) - _tempDirection.y * sin(angOffset);
+    y = _tempDirection.x * sin(angOffset) + _tempDirection.y * cos(angOffset);
+    _tempDirection.setValues(x, y);
 
     lastAttackDirection.setFrom(_tempDirection);
 
@@ -1898,7 +1906,7 @@ class Player extends PositionComponent
     bool tempParalise = false;
     bool tempFear = false;
 
-    Color cor = Pallete.preto;
+    Color cor = bltCor;
     if(rainbowShot){
       int effectRoll = rnd.nextInt(8);
       switch(effectRoll){
@@ -2534,7 +2542,100 @@ class Player extends PositionComponent
     return items;
   }
 
+  void drinkAlcohol(CollectibleType type, String name, int duration) {
+  List<ActiveDrinkEffect> currentDrinks = List.from(drinksNotifier.value);
+
+  if (currentDrinks.length >= 3) {
+    _removeDrinkEffect(currentDrinks.first.type);
+    currentDrinks.removeAt(0);
+  }
+
+  currentDrinks.add(ActiveDrinkEffect(
+    type: type,
+    name: name,
+    roomsLeft: duration,
+  ));
+
+  _applyDrinkPower(type, isAdding: true);
+  
+  // Atualiza o Notifier para a HUD reagir
+  drinksNotifier.value = currentDrinks;
+}
+
+// Chame esta função sempre que o player mudar de sala (RoomManager)
+void onNewRoomDrinkUpdate() {
+  List<ActiveDrinkEffect> currentDrinks = List.from(drinksNotifier.value);
+  bool mudou = false;
+
+  for (int i = currentDrinks.length - 1; i >= 0; i--) {
+    currentDrinks[i].roomsLeft--;
+    mudou = true;
+    
+    if (currentDrinks[i].roomsLeft <= 0) {
+      _removeDrinkEffect(currentDrinks[i].type);
+      currentDrinks.removeAt(i);
+    }
+  }
+
+  if (mudou) drinksNotifier.value = currentDrinks;
+}
+
+void _applyDrinkPower(CollectibleType type, {required bool isAdding}) {
+  double mod = isAdding ? 1.0 : -1.0;
+  
+  switch (type) {
+    case CollectibleType.cerveja:
+      damage += (damageIni * 0.1 * mod); 
+      break;
+    case CollectibleType.champanhe:
+      familiarDmg += (damageIni * 0.1 * mod); 
+      break;
+    case CollectibleType.hidromel:
+      fireRate -= (0.1 * mod); 
+      break;
+    case CollectibleType.sake:
+      critChance += (5 * mod); 
+      break;
+    case CollectibleType.vodka:
+      critDamage += (critDamageIni * 0.1  * mod); 
+      break;
+    case CollectibleType.vinho:
+      dot += (dotIni * 0.2 * mod); 
+      break;
+    case CollectibleType.cachaca:
+      moveSpeed += (moveSpeedIni * 0.1 * mod); 
+      break;
+    case CollectibleType.massagem:
+      dashCooldown -= (0.5 * mod); 
+      break;
+    default:
+      break;
+  }
+}
+
+void _removeDrinkEffect(CollectibleType type) {
+  _applyDrinkPower(type, isAdding: false);
+}
+
   void setAcquiredItemsList(CollectibleType type, String name, String desc, String icon, Color color) {
+    final List<CollectibleType> consumiveis = [
+      CollectibleType.coin, CollectibleType.coinUm, CollectibleType.potion, CollectibleType.sanduiche,
+      CollectibleType.potionUm, CollectibleType.key, CollectibleType.keys, CollectibleType.bomba, 
+      CollectibleType.souls, CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
+      CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
+      CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
+      CollectibleType.healthContainer, CollectibleType.slotMachine, CollectibleType.artificialHp
+    ];
+
+    if (consumiveis.contains(type)) {
+      return; 
+    }
+
+    bool jaTem = items.any((item) => item.type == type);
+    if (jaTem) {
+      return; 
+    }
+
     items.add(AcquiredItemData(
       type: type, 
       name: name, 

@@ -173,7 +173,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeLicantropia));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.boloDinheiro));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.zodiacTaurus));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
@@ -210,6 +210,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
     if (gameRef.nextRoomReward == CollectibleType.pescaria){
       gameRef.world.add(FishingPond(position: Vector2(8, 0)));
+      _spawnDoors(roomNumber);
+      return;
+    }
+
+    if (gameRef.nextRoomReward == CollectibleType.bar){
+      _generateBarRoom(); 
       _spawnDoors(roomNumber);
       return;
     }
@@ -594,6 +600,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       possibleRewards.add(CollectibleType.doacaoSangue);
       possibleRewards.add(CollectibleType.slotMachine);
       possibleRewards.add(CollectibleType.pescaria);
+      possibleRewards.add(CollectibleType.bar);
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -803,6 +810,34 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       int preco = game.player.hasCupon ? 20 : 30;
       _generateItemAleatorio(Vector2(-96,0), preco); 
+  }
+
+  void _generateBarRoom(){
+
+    gameRef.world.add(Npc(
+        position: Vector2(8,-48), 
+        imagePath: 'sprites/npcs/barman.png', 
+        cor: Pallete.marrom,
+        dialogs: [
+          "vendedorLine1".tr(),
+          "vendedorLine2".tr(),
+        ],
+      ));
+
+    gameRef.world.add(ServiceNpc(
+        position: Vector2(100,-80), 
+        imagePath: 'sprites/npcs/dama.png', 
+        cor: Pallete.rosa,
+        
+      ));
+
+    List<CollectibleType> availableBebidas = retornaBebidas();
+      
+    availableBebidas.shuffle();
+
+    gameRef.world.add(Collectible(position: Vector2(-64,0), type: availableBebidas[0], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(0,0), type: availableBebidas[1], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(64,0), type: availableBebidas[2], custo:10));
   }
 
   void _generateAlquimistaRoom(){
@@ -1059,7 +1094,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop
     || gameRef.nextRoomReward == CollectibleType.alquimista || gameRef.nextRoomReward == CollectibleType.darkShop
-    || gameRef.nextRoomReward == CollectibleType.pescaria){
+    || gameRef.nextRoomReward == CollectibleType.pescaria || gameRef.nextRoomReward == CollectibleType.bar){
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();

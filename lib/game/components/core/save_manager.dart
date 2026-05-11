@@ -170,6 +170,7 @@ class SaveManager {
       'armaCor':game.player.armaCor.value,
       'classImage':game.player.classImage,
       'classColor':game.player.classColor.value,
+      'bltCor':game.player.bltCor.value,
       'bossDmgBonus':game.player.bossDmgBonus,
     };
 
@@ -367,6 +368,7 @@ class SaveManager {
     game.player.classImage = (runData['classImage'] ?? '');
     int? savedColorValueClass = runData['classColor'] as int?;
     int? savedColorValueArma = runData['armaCor'] as int?;
+    int? savedColorValueBlt = runData['bltCor'] as int?;
     game.player.bossDmgBonus = (runData['bossDmgBonus'] ?? 1.0).toDouble();
     
     game.player.armaAng = (runData['armaAng'] ?? 0).toDouble();
@@ -382,6 +384,12 @@ class SaveManager {
       game.player.armaCor = Color(savedColorValueArma); 
     } else {
       game.player.armaCor = Pallete.branco; 
+    }
+
+    if (savedColorValueBlt != null) {
+      game.player.bltCor = Color(savedColorValueBlt); 
+    } else {
+      game.player.bltCor = Pallete.branco; 
     }
     
    // print("Run (Nível ${game.currentLevelNotifier.value}) carregada com sucesso com todos os itens!");

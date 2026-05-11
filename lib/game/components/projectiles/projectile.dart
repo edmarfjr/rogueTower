@@ -215,10 +215,10 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         tamanho = tamanho * 2;
         corAtual = Pallete.lilas;
         rotaciona = true;
-      } else if (gameRef.selectedClass.name == 'PIROMANTE'){
+      }/* else if (gameRef.selectedClass.name == 'PIROMANTE'){
         corAtual = Pallete.laranja;
         tamanho = tamanho * 2;
-      }else if(isMachadoArremeco){
+      }*/else if(isMachadoArremeco){
         tamanho = tamanho * 2;
         corAtual = Pallete.lilas;
         rotaciona = true;

@@ -241,6 +241,37 @@ class Hud extends StatelessWidget {
                       );
                     },
                   ),
+
+                  const SizedBox(height: 12),
+
+                  // --- SLOTS DE EMBRIAGUEZ / BEBIDAS ---
+                  
+                  ValueListenableBuilder<List<ActiveDrinkEffect>>(
+                    valueListenable: game.player.drinksNotifier,
+                    builder: (context, activeDrinks, child) {
+                      
+                      if (activeDrinks.isEmpty) {
+                        return const SizedBox.shrink(); 
+                      }
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          Row(
+                            children: List.generate(3, (index) {
+                              bool hasDrink = index < activeDrinks.length;
+                              ActiveDrinkEffect? drink = hasDrink ? activeDrinks[index] : null;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 6.0),
+                                child: _buildDrinkSlot(drink),
+                              );
+                            }),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -587,3 +618,59 @@ class PixelSprite extends StatelessWidget {
     );
   }
 }
+
+Widget _buildDrinkSlot(ActiveDrinkEffect? drink) {
+    bool isEmpty = drink == null;
+    
+    String iconPath = 'sprites/itens/garrafaVazia.png'; // Crie um ícone de silhueta
+    Color color = Pallete.cinzaEsc;
+    String roomsText = "";
+
+    if (!isEmpty) {
+      final attrs = Collectible.getAttributes(drink.type);
+      iconPath = 'sprites/itens/${attrs['icon']}.png';
+      color = attrs['color'];
+      roomsText = drink.roomsLeft.toString();
+    }
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Pallete.preto.withOpacity(0.4),
+        border: Border.all(
+          color: isEmpty ? Colors.white10 : color.withOpacity(0.5),
+          width: 2,
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Ícone da Bebida
+          PixelSprite(
+            imagePath: iconPath,
+            color: color,
+            size: 28,
+          ),
+          
+          // Contador de Salas (Apenas se não estiver vazio)
+          if (!isEmpty)
+            Positioned(
+              bottom: 0,
+              right: 2,
+              child: Text(
+                roomsText,
+                style: const TextStyle(
+                  fontFamily: 'pixelFont',
+                  fontSize: 14,
+                  color: Pallete.branco,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Pallete.preto, blurRadius: 2)],
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }

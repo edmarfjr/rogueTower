@@ -224,6 +224,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         nome = 'pescaria';
         descr = 'pescariaDesc';
         break;
+      case CollectibleType.bar: 
+        iconData = 'sprites/itens/vinho.png'; 
+        cor = Pallete.marrom;
+        nome = 'bar';
+        descr = 'barDesc';
+        break;
       default: iconData = 'sprites/doorIcons/hpCheio';
     }
     
@@ -397,6 +403,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
             Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(120, 100)),
             considerViewport: false,
           );
+          gameRef.player.onNewRoomDrinkUpdate();
           if(gameRef.player.hasCupon && gameRef.nextRoomReward == CollectibleType.shop){
             gameRef.player.hasCupon = false;
 

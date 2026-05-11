@@ -9,6 +9,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:towerrogue/game/overlays/loading_screen.dart';
+import 'package:towerrogue/game/overlays/service_menu.dart';
 import 'game/tower_game.dart';
 import 'game/overlays/hud.dart';
 import 'game/overlays/main_menu.dart';
@@ -77,6 +78,7 @@ class _GameEntryState extends State<GameEntry> {
             'MainMenu': (context, game) => MainMenu(game: game),
             'PauseMenu': (context, game) => PauseMenu(game: game),
             'HUD': (context, game) => Hud(game: game),
+            'ServiceMenu': (context, TowerGame game) => ServiceMenu(game: game),
             'DialogOverlay': (context, game) => DialogOverlay(game: game),
             'GameOver': (context, game) => GameOver(game: game), 
             'VictoryMenu': (context, game) => VictoryMenu(game: game),

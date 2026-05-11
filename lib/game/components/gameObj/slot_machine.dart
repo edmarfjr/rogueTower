@@ -63,6 +63,12 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
         if(gameRef.canInteractNotifier.value) return;
         _showButton();
         _showText();
+      } else {
+        // CORREÇÃO: Se o item sumiu e limpou a ação, a máquina pega o botão de volta imediatamente!
+        if (gameRef.onInteractAction == null) {
+          gameRef.canInteractNotifier.value = true;
+          gameRef.onInteractAction = _sort;
+        }
       }
     } else {
       if (_isInfoVisible) {

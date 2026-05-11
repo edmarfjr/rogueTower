@@ -150,13 +150,13 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     switch(type){
       case FamiliarType.decoy:
         icon = 'sprites/familiares/decoy.png';
-        cor = Pallete.cinzaCla.withOpacity(0.7);
+        cor = Pallete.cinzaCla;
       case FamiliarType.block:
         icon = 'sprites/familiares/wisp.png';
-        cor = Pallete.azulCla.withOpacity(0.7);
+        cor = Pallete.azulCla;
       case FamiliarType.atira:
         icon = 'sprites/familiares/fantasma.png';
-        cor = Pallete.vermelho.withOpacity(0.7);
+        cor = Pallete.vermelho;
         dmg = player.damage;
         followDistance = 16;
         offsetY = -16;
@@ -164,18 +164,18 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         fireRate = 0.8;
       case FamiliarType.fly:
         icon = 'sprites/familiares/fada.png';
-        cor = Pallete.amarelo.withOpacity(0.7);
+        cor = Pallete.amarelo;
         detectRadius = 64;
         speed = 2;
         hbSize = Vector2(6,6);
         dmg = player.damage * 3 ;
       case FamiliarType.turret:
         icon = 'sprites/familiares/turret.png';
-        cor = Pallete.vermelho.withOpacity(0.7);
+        cor = Pallete.vermelho;
         dmg = player.damage ;
       case FamiliarType.turretRotate:
         icon = 'sprites/familiares/turret2.png';
-        cor = Pallete.azulCla.withOpacity(0.7);
+        cor = Pallete.azulCla;
         dmg = player.damage;
         fireRate = player.fireRate/2;
         hasAntimateria = player.hasAntimateria;
@@ -188,24 +188,24 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.freeze:
         detectRadius = 64;
         icon = 'sprites/familiares/espirito.png';
-        cor = Pallete.azulCla.withOpacity(0.7);
+        cor = Pallete.azulCla;
       case FamiliarType.glitch:
         speed = 75;
         icon = 'sprites/familiares/virus.png';
-        cor = Pallete.azulCla.withOpacity(0.7);
+        cor = Pallete.azulCla;
       case FamiliarType.dmgBuff:
         speed = 40;
         detectRadius = 64;
         icon = 'sprites/familiares/satelite.png';
-        cor = Pallete.vermelho.withOpacity(0.7);
+        cor = Pallete.vermelho;
       case FamiliarType.circProt:
         detectRadius = 24;
         icon = 'sprites/familiares/circuloProt.png';
-        cor = Pallete.branco.withOpacity(0.7);
+        cor = Pallete.branco;
         followDistance = 0;
       case FamiliarType.finger:
         icon = 'sprites/familiares/dedo.png';
-        cor = Pallete.bege.withOpacity(0.7);
+        cor = Pallete.bege;
         dmg = player.damage/10;
         fireRate = 0.6;
         hbSize = Vector2(8,16); 
@@ -214,25 +214,25 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
       case FamiliarType.bouncer:
         speed = 75;
         icon = 'sprites/familiares/tornado.png';
-        cor = Pallete.branco.withOpacity(0.7);
+        cor = Pallete.branco;
         dmg = player.damage * 2 ;
       case FamiliarType.eye:
         icon = 'sprites/familiares/olho.png';
         radius = 24;
         speed = 2;
-        cor = Pallete.rosa.withOpacity(0.7);
+        cor = Pallete.rosa;
         fireRate = 0.5;
         dmg = player.damage / 2 ;
       case FamiliarType.prisma:
         icon = 'sprites/familiares/prisma.png';
         radius = 32;
         speed = 2;
-        cor = Pallete.branco.withOpacity(0.7);
+        cor = Pallete.branco;
       case FamiliarType.refletor:
         icon = 'sprites/familiares/espelho.png';
         radius = 32;
         speed = 2;
-        cor = Pallete.cinzaCla.withOpacity(0.7);
+        cor = Pallete.cinzaCla;
       case FamiliarType.dummy:
         followDistance = 32;
         icon = 'sprites/familiares/dummy.png';
@@ -260,7 +260,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         icon = player.visual.imagePath;
         detectRadius = 16*9;
         speed = 75;
-        cor = Pallete.branco.withOpacity(0.7);
+        cor = Pallete.branco;
 
         final Vector2 startPos = gameRef.player.absoluteCenter;
         final Vector2 endPos = absoluteCenter;
@@ -279,17 +279,17 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
         speed = 75;
         moveDur = 0.5;
         hbSize = Vector2(10,10); 
-        cor = Pallete.azulCla.withOpacity(0.7);
+        cor = Pallete.azulCla;
       case FamiliarType.lanca:
         icon = 'sprites/familiares/lanca.png';
-        cor = Pallete.verdeEsc.withOpacity(0.7);
+        cor = Pallete.verdeEsc;
         dmg = player.damage * 2;
         fireRate = 0.6;
         angleOffset = pi/4;
         hbSize = Vector2(6,22); 
       //default:
       //  icon = MdiIcons.fire;
-      //  cor = Pallete.branco.withOpacity(0.7);
+      //  cor = Pallete.branco;
     }
     
     _currentAngle = angleOffset;
@@ -300,7 +300,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
     if(!noVisual){
       visual=GameSprite(
         imagePath: icon,
-        color: cor, 
+        color: cor.withOpacity(0.5), 
         size: size,
         anchor: Anchor.center,
         position: size / 2,
@@ -684,7 +684,7 @@ class Familiar extends PositionComponent with HasGameRef<TowerGame>, CollisionCa
 
       // --- RENDERIZAÇÃO DA CORRENTE DINÂMICA (Segmentada) ---
       final paintChain = Paint()
-        ..color = Pallete.branco.withOpacity(0.7) // Uma cor mais clara para o reflexo do metal
+        ..color = Pallete.branco // Uma cor mais clara para o reflexo do metal
         //..style = PaintingStyle.fill;
         ..style = PaintingStyle.stroke
         ..isAntiAlias = false

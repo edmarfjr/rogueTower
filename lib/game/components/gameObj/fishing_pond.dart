@@ -3,6 +3,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/tower_game.dart';
@@ -14,12 +15,15 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
   FishingState state = FishingState.idle;
   
   double _timer = 0;
+  final double tmp = 1.0;
 
   bool _isInfoVisible = false;
   
-  final double _interactRange = 36.0; 
+  final double _interactRange = 40.0; 
   
-  int fishesLeft = 3; 
+  int fishesLeft = 0; 
+  TextComponent? baitText;
+
   
   late Sprite exclamationSprite;
   late Sprite rodSprite;
@@ -46,6 +50,16 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     exclamationSprite = await Sprite.load('sprites/gameObjs/exclamacao.png');
     rodSprite = await Sprite.load('sprites/doorIcons/pescaria.png');
 
+    fishesLeft = Random().nextInt(3) + 2 ;
+
+    baitText = TextComponent(
+      text: "iscas".tr() + fishesLeft.toString(),
+      position: Vector2((size.x/2),-size.y/2),
+      anchor: Anchor.center,
+      textRenderer: Pallete.textoPadrao
+    );
+    add(baitText!);
+      
     priority = -1000;
 
     add(FishingOverlay(this));
@@ -60,9 +74,16 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
     if (dist <= _interactRange) {
       if (!_isInfoVisible) {
+        if(gameRef.canInteractNotifier.value) return;
         _isInfoVisible = true; 
         gameRef.canInteractNotifier.value = true;
         gameRef.onInteractAction = pescar;
+      }else {
+        // CORREÇÃO: Se o item sumiu e limpou a ação, a máquina pega o botão de volta imediatamente!
+        if (gameRef.onInteractAction == null) {
+          gameRef.canInteractNotifier.value = true;
+          gameRef.onInteractAction = pescar;
+        }
       }
     } else {
       if (_isInfoVisible) {
@@ -85,7 +106,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
       
       if (_timer <= 0) {
         state = FishingState.biting;
-        _timer = 1.0; 
+        _timer = tmp; 
       }
     } 
     else if (state == FishingState.biting) {
@@ -104,7 +125,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
   void pescar() {
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
-                text: "sem mais iscas!",
+                text: "sem_iscas".tr(),
                 position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
                 color: Pallete.branco,
               ));
@@ -129,11 +150,12 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
 
   void _escapou() {
     state = FishingState.cooldown;
-    _timer = 1.0; 
+    _timer = 0.0; 
     fishesLeft--;
+    baitText?.text = "iscas".tr() + fishesLeft.toString();
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
-                text: "sem mais iscas!",
+                text: "sem_iscas".tr(),
                 position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
                 color: Pallete.branco,
               ));
@@ -144,10 +166,11 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     state = FishingState.cooldown;
     _timer = 1.0;
     fishesLeft--;
+    baitText?.text = "iscas".tr() + fishesLeft.toString();
 
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
-                text: "sem_iscas",
+                text: "sem_iscas".tr(),
                 position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
                 color: Pallete.branco,
               ));
@@ -215,6 +238,8 @@ class FishingOverlay extends PositionComponent {
             ..isAntiAlias = false..style = PaintingStyle.stroke 
             ..strokeWidth = 0.5
       );
+
+      canvas.drawLine(Offset(offsetX-2, offsetY), Offset(offsetX+2, offsetY), Paint()..color = Pallete.preto ..isAntiAlias = false);
 
       if(pond.gameRef.player.absoluteCenter.x > 0){
         canvas.save();

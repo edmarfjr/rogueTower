@@ -55,11 +55,13 @@ bool isItemAtivo(CollectibleType type) {
 enum CollectibleType {
   //tipos de porta e itens simples
   coin, coinUm, souls, potion, potionUm, artificialHp,key, shield, shop, boss, nextLevel, chest, bank, rareChest, bomba, alquimista, desafio, 
-  darkShop, doacaoSangue, slotMachine,cajadoQuebrado,pescaria,
+  darkShop, doacaoSangue, slotMachine, cajadoQuebrado, pescaria, bar,
   //pocoes
   damage, fireRate, moveSpeed, range, sorte, critChance, critDamage, dot, healthContainer,
   //pescados
   alga, pirarucu, espinhaPeixe, botaVelha, atum, xicara, lagosta, tetra, kelp, truta,
+  //bebidas
+  cerveja,champanhe,hidromel,sake,vodka,vinho,cachaca,massagem,
   //itens comuns
   keys, dash, sanduiche, bombas, piercing, fogo,veneno, sangramento, druidScroll, dotBook, chaveNegra, mine, bloodstone, bounce, spectral, cupon, 
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming, activeGift, activeBandage,
@@ -69,7 +71,7 @@ enum CollectibleType {
   //itens raros
   activeRerollItem, goldDmg, activeUnicornUnico, activeTurretUnico, activeD10, orbitalShield, itemExtraBoss, activeSlot, activeFreezeBomb, 
   activeBltDetonator, activeGoldenrazor, activeGlassStaff, activeBuracoNegro, cardinalShot, activeLoja, activeFear, goldShot, familiarFinger, 
-  familiarRefletor, berserk, audacious, steroids, cafe, freeze, magicShield, alcool, concentration, soda, defBurst, kinetic, heavyShot, decoy, 
+  familiarRefletor, berserk, audacious, steroids, cafe, freeze, magicShield, concentration, soda, defBurst, kinetic, heavyShot, decoy, 
   magicMush, activeMagicKeyChain, molotov, activeTurret, flail, glifoEquilibrio, bltFireHazard, trofelCampeao, familiarLanca, familiarDmgBns, 
   activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, activeSacrifFamiliar, masterOrb, voo, activeJarroFadas, retaliar, 
   familiarFreeze, activeJarroDeVida, evasao, activeConvBruta, familiarBlock, revive,
@@ -494,7 +496,9 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       CollectibleType.souls,CollectibleType.bombas, CollectibleType.chest, CollectibleType.rareChest, 
       CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
       CollectibleType.shop, CollectibleType.boss, CollectibleType.shield, CollectibleType.doacaoSangue,
-      CollectibleType.healthContainer,CollectibleType.slotMachine,CollectibleType.artificialHp
+      CollectibleType.healthContainer,CollectibleType.slotMachine,CollectibleType.artificialHp,
+      CollectibleType.cerveja, CollectibleType.champanhe, CollectibleType.hidromel, CollectibleType.sake, CollectibleType.vodka,
+      CollectibleType.vinho, CollectibleType.cachaca, CollectibleType.massagem
     ];
 
     if (!consumiveis.contains(type)) {
@@ -655,8 +659,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': 'seringa', 'color': Pallete.vermelho};
       case CollectibleType.cafe:
         return {'name': 'cafe'.tr(), 'desc': 'cafeDesc'.tr(), 'icon': 'cafe', 'color': Pallete.marrom};
-      case CollectibleType.alcool:
-        return {'name': 'alcool'.tr(), 'desc': 'alcoolDesc'.tr(), 'icon': 'vinho', 'color': Pallete.lilas};
+     // case CollectibleType.alcool:
+      //  return {'name': 'alcool'.tr(), 'desc': 'alcoolDesc'.tr(), 'icon': 'vinho', 'color': Pallete.lilas};
       case CollectibleType.freeze:
         return {'name': 'freeze'.tr(), 'desc': 'freezeDesc'.tr(), 'icon': 'neve', 'color': Pallete.azulCla};
       case CollectibleType.magicShield:
@@ -1016,7 +1020,23 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.kelp:
         return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'kelp', 'color': Pallete.verdeCla};
       case CollectibleType.truta:
-        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'pacu', 'color': Pallete.lilas};  
+        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'pacu', 'color': Pallete.lilas};
+      case CollectibleType.cerveja:
+        return {'name': 'cerveja'.tr(), 'desc': 'cervejaDesc'.tr(), 'icon': 'latinha', 'color': Pallete.marrom};
+      case CollectibleType.champanhe:
+        return {'name': 'champanhe'.tr(), 'desc': 'champanheDesc'.tr(), 'icon': 'champanhe', 'color': Pallete.verdeEsc};
+      case CollectibleType.hidromel:
+        return {'name': 'hidromel'.tr(), 'desc': 'hidromelDesc'.tr(), 'icon': 'vinho', 'color': Pallete.laranja};
+      case CollectibleType.sake:
+        return {'name': 'sake'.tr(), 'desc': 'sakeDesc'.tr(), 'icon': 'vinho', 'color': Pallete.verdeCla};
+      case CollectibleType.vodka:
+        return {'name': 'vodka'.tr(), 'desc': 'vodkaDesc'.tr(), 'icon': 'vinho', 'color': Pallete.cinzaCla};
+      case CollectibleType.vinho:
+        return {'name': 'vinho'.tr(), 'desc': 'vinhoDesc'.tr(), 'icon': 'vinho', 'color': Pallete.vinho};
+      case CollectibleType.cachaca:
+        return {'name': 'cachaca'.tr(), 'desc': 'cachacaDesc'.tr(), 'icon': 'garrafa', 'color': Pallete.marrom}; 
+      case CollectibleType.massagem:
+        return {'name': 'massagem'.tr(), 'desc': 'massagemDesc'.tr(), 'icon': 'relaxado', 'color': Pallete.verdeCla};   
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }
@@ -1102,6 +1122,18 @@ List<CollectibleType> retornaPescados(){
       CollectibleType.tetra,
       CollectibleType.kelp,
       CollectibleType.truta,
+    ];
+  }
+
+List<CollectibleType> retornaBebidas(){
+    return [
+      CollectibleType.cerveja,
+      CollectibleType.champanhe,
+      CollectibleType.hidromel, 
+      CollectibleType.sake, 
+      CollectibleType.vodka,
+      CollectibleType.vinho,
+      CollectibleType.cachaca,
     ];
   }
 
@@ -1198,7 +1230,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.cafe,
       CollectibleType.freeze,
       CollectibleType.magicShield,
-      CollectibleType.alcool,
+   //  CollectibleType.alcool,
       CollectibleType.concentration,
       CollectibleType.soda,
       CollectibleType.defBurst,
@@ -1470,12 +1502,12 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break;
 
-        case CollectibleType.alcool:
+     /*   case CollectibleType.alcool:
           player.isBebado = true;
           text = "+ 33% Damage, shots don't go straight";
           //color = Pallete.vermelho;
           break;
-
+*/
         case CollectibleType.steroids:
           player.damage *= 1.4;
           player.maxHealth -=2;
@@ -3559,10 +3591,76 @@ class CollectibleLogic {
           //color = Pallete.vermelho;
           break;  
 
+        case CollectibleType.cerveja:
+          player.drinkAlcohol(type, "cerveja", 6);
+          text = "cerveja";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.cerveja:
+          player.drinkAlcohol(type, "cerveja", 6);
+          text = "cerveja";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.champanhe:
+          player.drinkAlcohol(type, "champanhe", 6);
+          text = "champanhe";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.hidromel:
+          player.drinkAlcohol(type, "hidromel", 6);
+          text = "hidromel";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.sake:
+          player.drinkAlcohol(type, "sake", 6);
+          text = "sake";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.vodka:
+          player.drinkAlcohol(type, "vodka", 6);
+          text = "vodka";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.vinho:
+          player.drinkAlcohol(type, "vinho", 6);
+          text = "vinho";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.cachaca:
+          player.drinkAlcohol(type, "cachaca", 6);
+          text = "cachaca";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.massagem:
+          player.drinkAlcohol(type, "massagem", 6);
+          text = "massagem";
+          //color = Pallete.vermelho;
+          break; 
+
         default:
           text = "";
           break;
        }
        return {'text': text, 'color': Pallete.branco, 'sucesso': true};
    }
+}
+
+class ActiveDrinkEffect {
+  final CollectibleType type;
+  final String name;
+  int roomsLeft; // Duração em salas
+
+  ActiveDrinkEffect({
+    required this.type,
+    required this.name,
+    required this.roomsLeft,
+  });
 }
