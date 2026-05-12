@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/tower_game.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart'; // Para acessar os tipos de itens
@@ -22,15 +23,15 @@ class ServiceMenu extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              "DAMA",
-              style: TextStyle(fontFamily: 'pixelFont', color: Pallete.branco, fontSize: 24),
+             Text(
+              "dama".tr(),
+              style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.branco, fontSize: 24),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "Deseja um serviço especial por 20 moedas?\n(Dura 5 salas)",
+            Text(
+              "servicoMassage".tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'pixelFont', color: Pallete.branco, fontSize: 16),
+              style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.branco, fontSize: 16),
             ),
             const SizedBox(height: 24),
             Row(
@@ -38,7 +39,7 @@ class ServiceMenu extends StatelessWidget {
               children: [
                 // BOTAO NAO
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Pallete.branco),
+                 // style: ElevatedButton.styleFrom(backgroundColor: Pallete.branco),
                   onPressed: () {
                     // Apenas fecha o menu e volta para o jogo
                     game.overlays.remove('ServiceMenu');
@@ -49,7 +50,7 @@ class ServiceMenu extends StatelessWidget {
                 
                 // BOTAO SIM
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Pallete.branco),
+                  //style: ElevatedButton.styleFrom(backgroundColor: Pallete.branco),
                   onPressed: () {
                     _comprarServico();
                   },
@@ -71,7 +72,7 @@ class ServiceMenu extends StatelessWidget {
       player.collectCoin(-20);
       
       // 2. Aplica o Serviço (Aqui usamos a mecânica de bebida que criamos!)
-      player.drinkAlcohol(CollectibleType.massagem, "Massage,", 6);
+      player.receberMassagem(6);
 
       // 3. Fecha o menu e retoma o jogo
       game.overlays.remove('ServiceMenu');

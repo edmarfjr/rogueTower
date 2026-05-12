@@ -234,7 +234,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
         text: "\$ $custo",
         textRenderer: Pallete.textoAmarelo,
         anchor: Anchor.topCenter,
-        position: Vector2(size.x / 2 + 4, size.y + 5),
+        position: Vector2(size.x / 2, size.y + 5),
       ));
     }
 
@@ -1034,7 +1034,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.vinho:
         return {'name': 'vinho'.tr(), 'desc': 'vinhoDesc'.tr(), 'icon': 'vinho', 'color': Pallete.vinho};
       case CollectibleType.cachaca:
-        return {'name': 'cachaca'.tr(), 'desc': 'cachacaDesc'.tr(), 'icon': 'garrafa', 'color': Pallete.marrom}; 
+        return {'name': 'cachaca'.tr(), 'desc': 'cachacaDesc'.tr(), 'icon': 'garrafa', 'color': Pallete.cinzaCla}; 
       case CollectibleType.massagem:
         return {'name': 'massagem'.tr(), 'desc': 'massagemDesc'.tr(), 'icon': 'relaxado', 'color': Pallete.verdeCla};   
       default:

@@ -301,6 +301,8 @@ class Player extends PositionComponent
   final ValueNotifier<List<ActiveDrinkEffect>> drinksNotifier = ValueNotifier([]);
   int get drunkennessLevel => drinksNotifier.value.length;
 
+  final ValueNotifier<int> massagemBuffNotifier = ValueNotifier(0);
+
   //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
@@ -1313,8 +1315,14 @@ class Player extends PositionComponent
 
     AudioManager.playSfx('dash.mp3');
 
+    double cooldownReal = dashCooldown;
+
+    if (massagemBuffNotifier.value > 0) {
+      cooldownReal = dashCooldown * 0.75; 
+    }
+
     _dashTimer = dashDuration;
-    _dashCooldownTimer = dashCooldown;
+    _dashCooldownTimer = cooldownReal;
 
     // Normalização sem gerar lixo
     _dashDirection.setFrom(velocityDash);
@@ -2578,7 +2586,29 @@ void onNewRoomDrinkUpdate() {
   }
 
   if (mudou) drinksNotifier.value = currentDrinks;
+  //massagem tbm
+  if (massagemBuffNotifier.value > 0) {
+      massagemBuffNotifier.value--;
+      
+      if (massagemBuffNotifier.value <= 0) {
+        gameRef.world.add(FloatingText(
+          text: "Tensão voltou...",
+          position: position.clone() + Vector2(0, -30),
+          color: Pallete.cinzaCla,
+        ));
+      }
+    }
 }
+
+void receberMassagem(int salasDeDuracao) {
+    massagemBuffNotifier.value = salasDeDuracao;
+    
+    gameRef.world.add(FloatingText(
+      text: "Relaxado!",
+      position: position.clone() + Vector2(0, -30),
+      color: Pallete.verdeCla,
+    ));
+  }
 
 void _applyDrinkPower(CollectibleType type, {required bool isAdding}) {
   double mod = isAdding ? 1.0 : -1.0;
@@ -2604,9 +2634,6 @@ void _applyDrinkPower(CollectibleType type, {required bool isAdding}) {
       break;
     case CollectibleType.cachaca:
       moveSpeed += (moveSpeedIni * 0.1 * mod); 
-      break;
-    case CollectibleType.massagem:
-      dashCooldown -= (0.5 * mod); 
       break;
     default:
       break;

@@ -47,7 +47,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   int get bossRoom => gameRef.bossRoom;
 
-  final double _minTimeBeforeClear = 0.5; // Tempo mínimo para evitar clear instantâneo
+  final double _minTimeBeforeClear = 0.1; // Tempo mínimo para evitar clear instantâneo
 
   final List<EnemyFactoryFunction> _enemyRoster1 = [
     (pos,phase) => EnemyFactory.createRat(pos,phase:phase), 
@@ -824,20 +824,26 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         ],
       ));
 
-    gameRef.world.add(ServiceNpc(
-        position: Vector2(100,-80), 
+    final int rnd = Random().nextInt(100);
+
+    if (rnd < 20){
+      gameRef.world.add(ServiceNpc(
+        position: Vector2(112,80), 
         imagePath: 'sprites/npcs/dama.png', 
         cor: Pallete.rosa,
         
       ));
+    }
 
     List<CollectibleType> availableBebidas = retornaBebidas();
       
     availableBebidas.shuffle();
 
-    gameRef.world.add(Collectible(position: Vector2(-64,0), type: availableBebidas[0], custo:10));
-    gameRef.world.add(Collectible(position: Vector2(0,0), type: availableBebidas[1], custo:10));
-    gameRef.world.add(Collectible(position: Vector2(64,0), type: availableBebidas[2], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(-88,0), type: availableBebidas[0], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(-40,0), type: availableBebidas[1], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(8,0), type: availableBebidas[2], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(56,0), type: availableBebidas[3], custo:10));
+    gameRef.world.add(Collectible(position: Vector2(104,0), type: availableBebidas[4], custo:10));
   }
 
   void _generateAlquimistaRoom(){

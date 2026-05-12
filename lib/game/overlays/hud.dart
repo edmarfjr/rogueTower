@@ -247,12 +247,13 @@ class Hud extends StatelessWidget {
                   // --- SLOTS DE EMBRIAGUEZ / BEBIDAS ---
                   
                   ValueListenableBuilder<List<ActiveDrinkEffect>>(
-                    valueListenable: game.player.drinksNotifier,
+                    valueListenable: game.player.drinksNotifier, // Se der erro aqui na sua IDE, significa que a variável não existe no Player!
                     builder: (context, activeDrinks, child) {
                       
                       if (activeDrinks.isEmpty) {
                         return const SizedBox.shrink(); 
                       }
+                      
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -272,9 +273,59 @@ class Hud extends StatelessWidget {
                       );
                     },
                   ),
+
+                  // --- BUFF DA MASSAGEM ---
+                  ValueListenableBuilder<int>(
+                    valueListenable: game.player.massagemBuffNotifier, 
+                    builder: (context, salasRestantes, child) {
+                      
+                      if (salasRestantes <= 0) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Pallete.preto.withOpacity(0.4),
+                            border: Border.all(color: Pallete.rosa.withOpacity(0.5), width: 2),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              const PixelSprite(
+                                imagePath: 'sprites/itens/relaxado.png', 
+                                color: Pallete.verdeCla,
+                                size: 28,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 2,
+                                child: Text(
+                                  salasRestantes.toString(),
+                                  style: const TextStyle(
+                                    fontFamily: 'pixelFont',
+                                    fontSize: 14,
+                                    color: Pallete.branco,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [Shadow(color: Pallete.preto, blurRadius: 2)],
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
+
+            
         
             // ---------------------------------------------
             // 2. CANTO SUPERIOR DIREITO: PAUSE

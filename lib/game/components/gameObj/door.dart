@@ -225,7 +225,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
         descr = 'pescariaDesc';
         break;
       case CollectibleType.bar: 
-        iconData = 'sprites/itens/vinho.png'; 
+        iconData = 'sprites/doorIcons/bar.png'; 
         cor = Pallete.marrom;
         nome = 'bar';
         descr = 'barDesc';
