@@ -878,7 +878,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
           "alquimistaLine3".tr(),
         ],
       ));
-      
+      gameRef.world.add(Obj(
+        position: Vector2(8,-40), 
+        imagePath: 'sprites/gameObjs/lab.png', 
+        cor: Pallete.marrom,
+        size: Vector2(56, 30)
+      ));
+
       bool isBomba1 = Random().nextBool();
       bool isBomba2 = Random().nextBool();
       bool isBomba3 = Random().nextBool();
