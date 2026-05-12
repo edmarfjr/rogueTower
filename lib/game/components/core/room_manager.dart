@@ -6,6 +6,7 @@ import 'package:towerrogue/game/components/enemies/enemy_boss.dart';
 import 'package:towerrogue/game/components/gameObj/blood_machine.dart';
 import 'package:towerrogue/game/components/gameObj/fishing_pond.dart';
 import 'package:towerrogue/game/components/gameObj/npc.dart';
+import 'package:towerrogue/game/components/gameObj/obj.dart';
 import 'package:towerrogue/game/components/gameObj/secret_door.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:flame/components.dart';
@@ -221,6 +222,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     }
 
     if (gameRef.nextRoomReward == CollectibleType.darkShop){
+      gameRef.world.add(Obj(
+        position: Vector2(8,-88), 
+        imagePath: 'sprites/gameObjs/loja.png', 
+        cor: Pallete.lilas,
+      ));
+
       gameRef.world.add(Npc(
         position: Vector2(8,-48), 
         imagePath: 'sprites/npcs/diabo.png', 
@@ -235,7 +242,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       final CollectibleType lootType = possibleRewards[0];
 
       gameRef.itensEpicosPoolCurrent.remove(lootType);
-      gameRef.world.add(Collectible(position: Vector2(0,0), type: lootType, custoVida: true));
+      gameRef.world.add(Collectible(position: Vector2(8,0), type: lootType, custoVida: true));
       _spawnDoors(roomNumber);
       return;
     } 
@@ -770,6 +777,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _generateShopRoom(){
 
+    gameRef.world.add(Obj(
+        position: Vector2(8,-88), 
+        imagePath: 'sprites/gameObjs/loja.png', 
+        cor: Pallete.lilas,
+      ));
+
     gameRef.world.add(Npc(
         position: Vector2(8,-48), 
         imagePath: 'sprites/npcs/vendedor.png', 
@@ -781,47 +794,55 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(96, 0),
+        position: Vector2(104, 0),
         type: CollectibleType.potion,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(48, 0),
+        position: Vector2(56, 0),
         type: CollectibleType.shield,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
       gameRef.world.add(Collectible(
-        position: Vector2(0, 0),
+        position: Vector2(8, 0),
         type: CollectibleType.bomba,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
     gameRef.world.add(Collectible(
-        position: Vector2(-48, 0),
+        position: Vector2(-40, 0),
         type: CollectibleType.key,
         naoEsgota: true,
         custo : game.player.hasCupon ? 10 : 15
       ));
 
       int preco = game.player.hasCupon ? 20 : 30;
-      _generateItemAleatorio(Vector2(-96,0), preco); 
+      _generateItemAleatorio(Vector2(-88,0), preco); 
   }
 
   void _generateBarRoom(){
+    
 
     gameRef.world.add(Npc(
-        position: Vector2(8,-48), 
+        position: Vector2(8,-56), 
         imagePath: 'sprites/npcs/barman.png', 
-        cor: Pallete.marrom,
+        cor: Pallete.lilas,
         dialogs: [
-          "vendedorLine1".tr(),
-          "vendedorLine2".tr(),
+          "barmanLine1".tr(),
+          "barmanLine2".tr(),
         ],
+      ));
+
+      gameRef.world.add(Obj(
+        position: Vector2(8,-40), 
+        imagePath: 'sprites/gameObjs/balcao.png', 
+        cor: Pallete.marrom,
+        size: Vector2(56, 30)
       ));
 
     final int rnd = Random().nextInt(100);
@@ -870,9 +891,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType pot2 = availablePotions.length > 1 ? availablePotions[1] : CollectibleType.potion;
       CollectibleType pot3 = availablePotions.length > 2 ? availablePotions[2] : CollectibleType.potion;
 
-      gameRef.world.add(Collectible(position: Vector2(-64,0), type: pot1, custoKeys: isBomba1?0:2, custoBombs: isBomba1?2:0));
-      gameRef.world.add(Collectible(position: Vector2(0,0), type: pot2, custoKeys: isBomba2?0:2, custoBombs: isBomba2?2:0));
-      gameRef.world.add(Collectible(position: Vector2(64,0), type: pot3, custoKeys: isBomba3?0:2, custoBombs: isBomba3?2:0));
+      gameRef.world.add(Collectible(position: Vector2(-56,0), type: pot1, custoKeys: isBomba1?0:2, custoBombs: isBomba1?2:0));
+      gameRef.world.add(Collectible(position: Vector2(8,0), type: pot2, custoKeys: isBomba2?0:2, custoBombs: isBomba2?2:0));
+      gameRef.world.add(Collectible(position: Vector2(72,0), type: pot3, custoKeys: isBomba3?0:2, custoBombs: isBomba3?2:0));
   }
 
   void _generateZeroRoom(){

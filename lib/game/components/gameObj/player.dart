@@ -17,6 +17,7 @@ import 'package:towerrogue/game/components/gameObj/familiar.dart';
 import 'package:towerrogue/game/components/gameObj/door.dart';
 import 'package:towerrogue/game/components/gameObj/fishing_pond.dart';
 import 'package:towerrogue/game/components/gameObj/npc.dart';
+import 'package:towerrogue/game/components/gameObj/obj.dart';
 import 'package:towerrogue/game/components/gameObj/slot_machine.dart';
 import 'package:towerrogue/game/components/gameObj/unlockable_item.dart';
 import 'package:towerrogue/game/components/projectiles/bomb.dart';
@@ -2166,7 +2167,8 @@ class Player extends PositionComponent
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if (other is Wall || other is Door || other is UnlockableItem || other is Npc || other is Chest
-    || other is BankAtm || other is BloodMachine || other is SlotMachine || other is FishingPond) {
+    || other is BankAtm || other is BloodMachine || other is SlotMachine || other is FishingPond
+    || other is Obj) {
       _handleWallCollision(intersectionPoints, other);
       if(other is Wall && zodiacLeo){
         other.die();
