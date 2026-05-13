@@ -881,8 +881,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       gameRef.world.add(Obj(
         position: Vector2(8,-40), 
         imagePath: 'sprites/gameObjs/lab.png', 
-        cor: Pallete.marrom,
-        size: Vector2(56, 30)
+        cor: Pallete.lilas,
+        size: Vector2(64, 40)
       ));
 
       bool isBomba1 = Random().nextBool();
@@ -1103,6 +1103,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
         position: Vector2(8,32), 
         imagePath: 'sprites/npcs/placa.png', 
         cor: Pallete.bege,
+        anim:false,
         dialogs: [
           txt,
         ],

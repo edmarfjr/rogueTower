@@ -109,12 +109,10 @@ class GameOver extends StatelessWidget {
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        game.player.healthNotifier.value = (game.player.maxHealth/2).toInt(); 
-                        game.player.setInvencibility(4);
-                        game.overlays.remove('GameOver'); 
-                        game.resumeEngine(); 
-                      });
+                      game.player.healthNotifier.value = (game.player.maxHealth/2).toInt(); 
+                      game.player.setInvencibility(4);
+                      game.overlays.remove('GameOver'); 
+                      game.resumeEngine(); 
                     }
                   );
                 }

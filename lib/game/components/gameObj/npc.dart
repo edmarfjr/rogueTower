@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/collisions.dart';
@@ -13,6 +14,11 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
   late GameSprite visual;
   Color cor;
 
+  double _breathTimer = 0;
+  final double _breathSpeed = 3.0; 
+  final double _breathAmplitude = 0.05;
+  final bool anim;
+
   late ShadowComponent _shadow;
   
   // Controle interno para saber se já ativamos o botão
@@ -23,6 +29,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     required this.imagePath,
     required this.dialogs,
     this.cor = Pallete.branco,
+    this.anim = true
   }) : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
@@ -32,7 +39,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
       size: size,
       color: cor,
       anchor: Anchor.center,
-      position: size / 2
+      position: Vector2(size.x / 2, size.y)
     );
     add(visual);
 
@@ -51,6 +58,8 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
   @override
   void update(double dt) {
     super.update(dt);
+
+    if(anim)_animateMovement(dt);
     
     double distance = position.distanceTo(gameRef.player.position);
 
@@ -97,15 +106,44 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     // 4. Pausa o jogo para eles conversarem em paz
     gameRef.pauseEngine(); 
   }
+
+  void _animateMovement(double dt) {
+    double currentScaleX = 1.0;
+    double currentScaleY = 1.0;
+    double currentAngle = 0.0;
+
+     _breathTimer += dt * _breathSpeed;
+
+    // A matemática da respiração: uma onda constante e suave
+    double breathWave = sin(_breathTimer);
+    
+    // Incha o X e o Y para simular os pulmões enchendo e esvaziando
+    currentScaleX = 1.0 + (breathWave * _breathAmplitude); 
+    currentScaleY = 1.0 + (breathWave * (_breathAmplitude * 0.5)); 
+
+    visual.scale.setValues(currentScaleX, currentScaleY);
+    visual.angle = currentAngle; 
+
+  }
 }
 
 class ServiceNpc extends PositionComponent with HasGameRef<TowerGame> {
   final String imagePath;
   bool _isInfoVisible = false;
-   Color cor;
+  Color cor;
+  late GameSprite visual;
 
-  ServiceNpc({required Vector2 position, required this.imagePath,this.cor = Pallete.branco,}) 
-    : super(position: position, size: Vector2.all(16), anchor: Anchor.center);
+  double _breathTimer = 0;
+  final double _breathSpeed = 3.0; 
+  final double _breathAmplitude = 0.05;
+  final bool anim;
+
+  ServiceNpc({
+    required Vector2 position, 
+    required this.imagePath,
+    this.cor = Pallete.branco,
+    this.anim = true
+  }): super(position: position, size: Vector2.all(16), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -117,18 +155,21 @@ class ServiceNpc extends PositionComponent with HasGameRef<TowerGame> {
     ));
 
     // Desenha o NPC
-    add(GameSprite(
+    visual = GameSprite(
       imagePath: imagePath,
-      color: cor,
       size: size,
-      anchor: Anchor.center,
-      position: size / 2,
-    ));
+      color: cor,
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, size.y)
+    );
+    add(visual);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
+
+    if(anim)_animateMovement(dt);
 
     final player = gameRef.player;
     double dist = position.distanceTo(player.position);
@@ -155,6 +196,25 @@ class ServiceNpc extends PositionComponent with HasGameRef<TowerGame> {
         gameRef.onInteractAction = null;
       }
     }
+  }
+
+  void _animateMovement(double dt) {
+    double currentScaleX = 1.0;
+    double currentScaleY = 1.0;
+    double currentAngle = 0.0;
+
+     _breathTimer += dt * _breathSpeed;
+
+    // A matemática da respiração: uma onda constante e suave
+    double breathWave = sin(_breathTimer);
+    
+    // Incha o X e o Y para simular os pulmões enchendo e esvaziando
+    currentScaleX = 1.0 + (breathWave * _breathAmplitude); 
+    currentScaleY = 1.0 + (breathWave * (_breathAmplitude * 0.5)); 
+
+    visual.scale.setValues(currentScaleX, currentScaleY);
+    visual.angle = currentAngle; 
+
   }
 
   void _abrirMenuDeServico() {

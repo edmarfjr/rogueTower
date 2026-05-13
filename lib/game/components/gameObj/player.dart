@@ -243,6 +243,10 @@ class Player extends PositionComponent
   final double _bounceSpeed = 15.0;     
   final double _bounceAmplitude = 0.15; 
   bool animContrario = false;
+  double _breathTimer = 0;
+  final double _breathSpeed = 3.0; 
+  final double _breathAmplitude = 0.05; 
+
 
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
@@ -397,8 +401,8 @@ class Player extends PositionComponent
       imagePath: image,
       size: size + Vector2(4,4),
       color: color, 
-      anchor: Anchor.center,
-      position: size / 2 + vooOffset
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, size.y)+ vooOffset//size / 2 + vooOffset
     );
     add(visual);
     
@@ -1119,6 +1123,7 @@ class Player extends PositionComponent
     }
     if (anim) {
       _walkTimer += dt * bSpeed;
+      _breathTimer = 0;
 
       double wave = sin(_walkTimer);
       currentScaleY = 1.0 + (wave * _bounceAmplitude); 
@@ -1127,13 +1132,21 @@ class Player extends PositionComponent
       
     } else {
       _walkTimer = 0;
+      _breathTimer += dt * _breathSpeed;
+
+      // A matemática da respiração: uma onda constante e suave
+      double breathWave = sin(_breathTimer);
+      
+      // Incha o X e o Y para simular os pulmões enchendo e esvaziando
+      currentScaleX = 1.0 + (breathWave * _breathAmplitude); 
+      currentScaleY = 1.0 + (breathWave * (_breathAmplitude * 0.5)); 
+
       if(voo){
         if(facingDirection > 0){
           currentAngle = pi/8;
         }else{
           currentAngle = -pi/8;
         }
-        
       }
     }
 
@@ -1329,7 +1342,7 @@ class Player extends PositionComponent
     _dashDirection.setFrom(velocityDash);
     _dashDirection.normalize();
   
-    _isInvincible = true; 
+    //_isInvincible = true; 
   }
 
   void _handleDustEffect(double dt){
@@ -1428,6 +1441,13 @@ class Player extends PositionComponent
 */
   void takeDamage(int amount,{bool roubaMoeda = false,bool pulaEscudo = false}) {
     final rng = Random();
+
+    if(_isInvincible || isDashing) return;
+
+    if(evasao){
+      if(rng.nextDouble() <= 0.2) return;
+    }
+
     final currentItems = List<ActiveItemData?>.from(activeItems.value);
     if (currentItems[0] != null && currentItems[0]!.type == CollectibleType.activeGlassStaff){
       _quebrarItemDeVidro();
@@ -1438,11 +1458,6 @@ class Player extends PositionComponent
       return;
     }
 
-    if(_isInvincible || isDashing) return;
-
-    if(evasao){
-      if(rng.nextDouble() <= 0.2) return;
-    }
     gameRef.shakeCamera(intensity: 4.0, duration: 0.15);
     gameRef.triggerHitStop(0.05);
     if(explodeHit){
@@ -1536,9 +1551,9 @@ class Player extends PositionComponent
       _invincibilityTimer -= dt;
       
       if (_invincibilityTimer % 0.2 < 0.1) {
-         visual.changeColor(Pallete.vermelho.withOpacity(0.5));
+         visual.changeColor(Pallete.vermelho);
       } else {
-         visual.changeColor(currentColor);
+         visual.changeColor(Pallete.branco);
       }
 
       if (_invincibilityTimer <= 0) {

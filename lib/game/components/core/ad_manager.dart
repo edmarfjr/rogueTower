@@ -46,7 +46,10 @@ class AdManager {
     );
   }
 
-  static void showRewardedAd({required Function() onRewardEarned}) {
+  static void showRewardedAd({
+    required Function() onRewardEarned, 
+    Function()? onAdClosedUnrewarded, // Adicionado para lidar com quem pula o anúncio
+  }) {
     // Se for Web, simula que o cara assistiu o vídeo para você conseguir testar o jogo!
     if (kIsWeb) {
       //print('🎉 Simulando anúncio assistido na Web. Entregando recompensa livre!');
@@ -56,28 +59,46 @@ class AdManager {
 
     if (_rewardedAd == null) {
       //print('⚠️ Aviso: Tentou mostrar anúncio, mas não estava carregado ainda.');
+      // Como não tem anúncio, tratamos como se ele não tivesse ganhado a recompensa
+      if (onAdClosedUnrewarded != null) onAdClosedUnrewarded();
       return;
     }
 
+    // A NOSSA VARIÁVEL DE CONTROLE!
+    bool ganhouRecompensa = false;
+
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) => print('Anúncio em tela cheia abriu.'),
+      
+      // O JOGADOR APERTOU NO 'X' PARA FECHAR O ANÚNCIO:
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         //print('Anúncio fechado pelo jogador.');
         ad.dispose();
         loadRewardedAd(); 
+        
+        // AGORA SIM nós checamos a variável e despausamos/revivemos o jogo!
+        if (ganhouRecompensa) {
+          onRewardEarned();
+        } else {
+          // O jogador pulou o vídeo no meio e fechou. Não ganha nada!
+          if (onAdClosedUnrewarded != null) onAdClosedUnrewarded();
+        }
       },
+      
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
        // print('Falha ao mostrar o anúncio em tela cheia: $error');
         ad.dispose();
         loadRewardedAd();
+        if (onAdClosedUnrewarded != null) onAdClosedUnrewarded();
       },
     );
 
     _rewardedAd!.setImmersiveMode(true);
     _rewardedAd!.show(
       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-        //print('🎉 O Jogador assistiu tudo! Entregando recompensa...');
-        onRewardEarned(); 
+        //print('🎉 O Jogador assistiu tudo! Marcando a variável...');
+        // O VÍDEO ACABOU. Marcamos a variável, mas não mexemos no jogo ainda!
+        ganhouRecompensa = true; 
       },
     );
     _rewardedAd = null; 
