@@ -10,42 +10,80 @@ class MainMenu extends StatelessWidget {
 
   const MainMenu({super.key, required this.game});
 
+  // --- NOVA FUNÇÃO DE DIÁLOGO DE CONFIRMAÇÃO ---
+  Future<void> _confirmarNovoJogo(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Obriga o jogador a escolher uma opção
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Pallete.preto,
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Pallete.branco, width: 2),
+            borderRadius: BorderRadius.zero, // Mantém o estilo pixelado/quadrado
+          ),
+          title: Text(
+            'play'.tr().toUpperCase(), // "NOVO JOGO"
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Pallete.branco, fontWeight: FontWeight.bold, fontSize: 30),
+          ),
+          content: Text(
+            'confirm_new_game_message'.tr(), // "Isso apagará seu jogo salvo. Continuar?"
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Pallete.branco, fontSize: 20),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Fecha sem fazer nada
+              child: Text(
+                'no'.tr().toUpperCase(),
+                style: const TextStyle(color: Pallete.amarelo, fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await SaveManager.clearSavedRun(); // Apaga o save
+                if (context.mounted) {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                  game.overlays.add('CharacterSelectionMenu'); // Inicia o jogo
+                }
+              },
+              child: Text(
+                'yes'.tr().toUpperCase(),
+                style: const TextStyle(color: Pallete.amarelo, fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Cor de fallback caso a imagem demore 1 milissegundo pra carregar
-      
-      // ==========================================
-      // A MÁGICA DO FUNDO GIGANTE: Usando STACK!
-      // ==========================================
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. CAMADA BASE: A Imagem de Fundo
           Positioned.fill(
             child: Image.asset(
               'assets/images/sprites/mainMenu.png',
-              fit: BoxFit.cover, // Estica para cobrir toda a tela
-              filterQuality: FilterQuality.none, // Mantém o pixel art nítido
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.none,
             ),
           ),
-          
-          // 2. CAMADA DO MEIO: Filtro Escuro (Opcional)
-          // É uma boa prática colocar uma leve película escura sobre a arte
-          // para garantir que o texto branco dos botões fique legível.
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.3), // 30% de escuridão
+              color: Colors.black.withOpacity(0.3),
             ),
           ),
-
-          // 3. CAMADA DO TOPO: O seu Menu (Título e Botões)
           Positioned.fill(
-            child: SafeArea( // Protege o título da câmera frontal/notch do celular
+            child: SafeArea(
               child: Column(
                 children: [
-                  // --- TÍTULO (Empurrado para o topo) ---
                   const Padding(
-                    padding: EdgeInsets.only(top: 40.0), // Ajuste este valor para descer/subir mais o título
+                    padding: EdgeInsets.only(top: 40.0),
                     child: Text(
                       'ROGUE TOWER',
                       style: TextStyle(
@@ -53,18 +91,12 @@ class MainMenu extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Pallete.branco,
                         letterSpacing: 4,
-                        shadows: [Shadow(blurRadius: 10, color: Colors.black)], 
+                        shadows: [Shadow(blurRadius: 10, color: Colors.black)],
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-
-                  // ========================================================
-                  // A MÁGICA: O Spacer é a "mola" que separa o Topo do Fundo
-                  // ========================================================
                   const Spacer(),
-
-                  // --- BOTÕES (Empurrados para o fundo) ---
                   FutureBuilder<bool>(
                     future: SaveManager.hasSavedRun(),
                     builder: (context, snapshot) {
@@ -78,21 +110,25 @@ class MainMenu extends StatelessWidget {
                               text: 'continue'.tr(),
                               onPressed: () async {
                                 AdManager.loadRewardedAd();
-                                game.continueGame(); 
+                                game.continueGame();
                               },
                             ),
                             const SizedBox(height: 15),
                           ],
 
+                          // --- BOTÃO PLAY ALTERADO ---
                           _buildMenuButton(
                             context,
-                            text: 'play'.tr(), 
+                            text: 'play'.tr(),
                             onPressed: () async {
                               AdManager.loadRewardedAd();
                               if (hasSave) {
-                                await SaveManager.clearSavedRun(); 
+                                // Se tem save, abre o diálogo de confirmação
+                                _confirmarNovoJogo(context);
+                              } else {
+                                // Se não tem save, vai direto para seleção
+                                game.overlays.add('CharacterSelectionMenu');
                               }
-                              game.overlays.add('CharacterSelectionMenu');
                             },
                           ),
                           const SizedBox(height: 15),
@@ -113,9 +149,7 @@ class MainMenu extends StatelessWidget {
                       );
                     },
                   ),
-                  
-                  // Margem inferior para os botões não colarem no rodapé da tela
-                  const SizedBox(height: 50), 
+                  const SizedBox(height: 50),
                 ],
               ),
             ),
@@ -125,7 +159,6 @@ class MainMenu extends StatelessWidget {
     );
   }
 
-  // --- FUNÇÃO AUXILIAR DOS BOTÕES CONTINUA IGUAL ---
   Widget _buildMenuButton(
     BuildContext context, {
     required String text,
@@ -138,7 +171,7 @@ class MainMenu extends StatelessWidget {
       width: 200,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor, // Deixa o fundo transparente para mostrar a arte por trás
+          backgroundColor: bgColor,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,

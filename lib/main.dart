@@ -37,12 +37,14 @@ Future<void> main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-        fontFamily: 'pixelFont', // O MESMO NOME do "family" no pubspec!
-        // (Você pode definir outras cores base do tema aqui se quiser)
+        fontFamily: 'pixelFont', 
       ),
-    home: const CrtOverlayWidget(
-      child: GameEntry(),
-    ),
+    builder: (context, child) {
+      return CrtOverlayWidget(
+        child: child!,
+      );
+    },
+    home: const GameEntry(), 
   ));
 }
 
