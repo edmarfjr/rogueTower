@@ -172,6 +172,7 @@ class Player extends PositionComponent
   bool isLaser = false;
   bool isWave = false;
   bool isBomber = false;
+  bool isZumbi = false;
   bool isSaw = false;
   bool explodeHit = false;
   bool restock = false;
@@ -243,6 +244,7 @@ class Player extends PositionComponent
   final double _bounceSpeed = 15.0;     
   final double _bounceAmplitude = 0.15; 
   bool animContrario = false;
+  bool animRespira = true;
   double _breathTimer = 0;
   final double _breathSpeed = 3.0; 
   final double _breathAmplitude = 0.05; 
@@ -1001,6 +1003,8 @@ class Player extends PositionComponent
 
       isShotgun = charClass.isShotgun;
       isBomber = charClass.isBomber;
+      isZumbi = charClass.isZumbi;
+      animRespira = charClass.animRespira;
 
       noDamage = charClass.noDamage;
 
@@ -1130,7 +1134,7 @@ class Player extends PositionComponent
       currentScaleX = 1.0 - (wave * _bounceAmplitude * 0.5); 
       currentAngle = cos(_walkTimer) * 0.1; 
       
-    } else {
+    } else if(animRespira) {
       _walkTimer = 0;
       _breathTimer += dt * _breathSpeed;
 
@@ -1418,7 +1422,6 @@ class Player extends PositionComponent
 
     if (_dashTimer <= 0) {
       isDashing = false;
-      _isInvincible = false; 
     }
   }
 
@@ -2430,7 +2433,8 @@ class Player extends PositionComponent
     //_rangeIndicator.radius = attackRange;
   }
 
-  void increaseHp(int val){ 
+  void increaseHp(int val){
+    if(isZumbi)return; 
     maxHealth+=val; 
     healthNotifier.value+=val; 
   }

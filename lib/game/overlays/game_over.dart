@@ -1,5 +1,6 @@
 import 'package:towerrogue/game/components/core/ad_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
@@ -113,6 +114,7 @@ class GameOver extends StatelessWidget {
                       game.player.setInvencibility(4);
                       game.overlays.remove('GameOver'); 
                       game.resumeEngine(); 
+                      AudioManager.resumeBgm();
                     }
                   );
                 }

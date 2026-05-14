@@ -90,7 +90,22 @@ class PauseMenu extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+
+                Text(
+                  "${'tempo'.tr()} ${game.formattedRunTime}",
+                  style: const TextStyle(
+                    fontFamily: 'pixelFont',
+                    color: Pallete.branco, // Combina com o estilo do seu jogo
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    shadows: [Shadow(color: Pallete.preto, blurRadius: 4)],
+                    decoration: TextDecoration.none,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                
+                const SizedBox(height: 10),
 
                 // -----------------------------------------
                 // CARROSSEL DE ITENS ADQUIRIDOS

@@ -9,7 +9,7 @@ class ShadowComponent extends PositionComponent {
     
     // Fica ancorada exatamente no meio da base do "Pai" (Jogador/Inimigo/Baú)
     anchor = Anchor.center;
-    position = Vector2(parentSize.x / 2, parentSize.y); 
+    position = Vector2(parentSize.x / 2, parentSize.y - size.y/2); 
     
     // Priority negativa garante que a sombra fique SEMPRE atrás do personagem
     priority = -500; 

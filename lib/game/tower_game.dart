@@ -126,6 +126,20 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   List<String> bestiaryKills = [];
 
+  //timer da run
+  double runTime = 0.0;
+
+  String get formattedRunTime {
+    int minutes = (runTime / 60).floor();
+    int seconds = (runTime % 60).floor();
+    
+    // padLeft garante que sempre terá 2 casas (ex: "05" em vez de "5")
+    String m = minutes.toString().padLeft(2, '0');
+    String s = seconds.toString().padLeft(2, '0');
+    
+    return '$m:$s';
+  }
+
   @override
   Color backgroundColor() => Pallete.preto;
 
@@ -623,6 +637,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     }
     super.update(dt); 
 
+    runTime += dt;
+
     if (_shakeTimer > 0) {
       
       // A MÁGICA: No exato milissegundo antes de começar a tremer,
@@ -921,7 +937,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   void onGameOver() {
     SaveManager.clearSavedRun();
-    AudioManager.stopBgm();
+    AudioManager.pauseBgm();
     pauseEngine(); 
     overlays.add('GameOver'); 
   }
@@ -950,6 +966,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     keysNotifier.value = 0;
     challengeHitsNotifier.value = -1;
     nextRoomReward = CollectibleType.nextLevel;
+    runTime = 0.0;
 
     // Limpa tudo
     world.removeAll(world.children.where((c) => c != player && c != arenaBorder));

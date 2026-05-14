@@ -142,6 +142,10 @@ class EnemyBoss extends Enemy {
       String clasId = '';
       String clasNome = '';
       switch (gameRef.currentLevel) {
+        case 3:
+          clasId = 'zumbi';
+          clasNome = 'zumbi'.tr();
+          break;
         case 5:
           clasId = 'arqueiro';
           clasNome = 'arqueiro'.tr();
@@ -154,6 +158,10 @@ class EnemyBoss extends Enemy {
           if(!gameRef.usouBomba){
             clasId = 'bomberman';
             clasNome = 'bomberman'.tr();
+          }
+          if(gameRef.player.canBounce){
+            clasId = 'princess';
+            clasNome = 'princess'.tr();
           }
           break;
         default:

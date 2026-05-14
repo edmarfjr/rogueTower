@@ -869,7 +869,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void _generateAlquimistaRoom(){
       gameRef.world.add(Npc(
-        position: Vector2(8,-48), 
+        position: Vector2(8,-56), 
         imagePath: 'sprites/npcs/alquimista.png', 
         cor: Pallete.laranja,
         dialogs: [
@@ -1268,7 +1268,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     ];
 
     for (var dir in directions) {
-      createExplosionEffect(gameRef.world, dir, Pallete.lilas, count: 10);
+      createExplosionEffect(gameRef.world, dir, Pallete.branco, count: 10);
     }
   }
 }

@@ -4,7 +4,7 @@ import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 
 // Função auxiliar para criar explosões
-void createExplosionEffect(World world, Vector2 position, Color color, {int count = 10, double lifespan = 0.6, double velocity = 200}) {
+void createExplosionEffect(World world, Vector2 position, Color color, {int count = 10, double lifespan = 1, double velocity = 160}) {
   final rng = Random();
 
   // OTIMIZAÇÃO: Cria o Paint uma única vez fora do loop

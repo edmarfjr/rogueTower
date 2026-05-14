@@ -781,6 +781,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
   }
 
   void _handleBounce(PositionComponent obstacle, Vector2 hitPos) {
+    damage = damage/2;
     Vector2 relativePos = position - obstacle.position;
     
     if (relativePos.x.abs() > relativePos.y.abs()) {
@@ -790,8 +791,33 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
 
     if(obstacle is Enemy){
-      direction.x = Random().nextDouble()*2 -1;
-      direction.y = Random().nextDouble()*2 -1;
+      final outrosInimigos = gameRef.world.children
+          .whereType<Enemy>()
+          .where((enemy) => enemy != obstacle && enemy.hp > 0); 
+
+      if (outrosInimigos.isNotEmpty) {
+        Enemy? inimigoMaisProximo;
+        double menorDistancia = double.infinity;
+
+        // Escaneia quem está mais perto
+        for (final inimigo in outrosInimigos) {
+          double distancia = position.distanceTo(inimigo.position);
+          
+          if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+            inimigoMaisProximo = inimigo;
+          }
+        }
+
+        // Se encontrou, aponta o vetor diretamente para o centro dele!
+        if (inimigoMaisProximo != null) {
+           direction = (inimigoMaisProximo.absoluteCenter - position);
+        }
+      } else {
+        // Fallback: É o último inimigo vivo. Mantém o quique aleatório.
+        direction.x = Random().nextDouble() * 2 - 1;
+        direction.y = Random().nextDouble() * 2 - 1;
+      }
     }
 
     direction.normalize();

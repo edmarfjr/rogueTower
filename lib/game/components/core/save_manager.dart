@@ -29,6 +29,8 @@ class SaveManager {
       'room': game.currentRoomNotifier.value,
       'salasLimpas': game.salasLimpas.toList(),
 
+      'runTime':game.runTime,
+
       'coins': game.coinsNotifier.value,
       'keys': game.keysNotifier.value,
       'souls': game.progress.soulsNotifier.value,
@@ -45,6 +47,11 @@ class SaveManager {
       'bombs': game.player.bombNotifier.value,
       'dash': game.player.dashNotifier.value,
       'playerClassId': game.selectedClass.id,
+
+      'isBomber':game.player.isBomber,
+      'isZumbi':game.player.isZumbi,
+
+      'animRespira':game.player.animRespira,
 
       // --- INVENTÁRIO DE ARTEFATOS ---
       'acquiredItems': serializedItems,
@@ -170,6 +177,7 @@ class SaveManager {
       'armaCor':game.player.armaCor.value,
       'classImage':game.player.classImage,
       'classColor':game.player.classColor.value,
+      'bltImage':game.player.bltImage,
       'bltCor':game.player.bltCor.value,
       'bossDmgBonus':game.player.bossDmgBonus,
     };
@@ -197,6 +205,8 @@ class SaveManager {
     } else {
       game.salasLimpas = {}; 
     }
+
+    game.runTime = runData['runTime'] ?? 0.0;
 
     game.usouBomba = runData['usouBomba'] ?? false;
     game.difficultyMultiplier = runData['difficultyMultiplier'] ?? 1.0;
@@ -268,6 +278,9 @@ class SaveManager {
     game.player.unicornTmr = 0;
 
     // --- CARREGA FLAGS E POWER-UPS ---
+    game.player.isBomber = runData['isBomber'] ?? false;
+    game.player.isZumbi = runData['isZumbi'] ?? false;
+    game.player.animRespira = runData['animRespira'] ?? true;
     game.player.isBerserk = runData['isBerserk'] ?? false;
     game.player.isAudaz = runData['isAudaz'] ?? false;
     game.player.isFreeze = runData['isFreeze'] ?? false;
@@ -366,6 +379,7 @@ class SaveManager {
     game.player.rainbowShot = runData['rainbowShot'] ?? false;
     game.player.masterOrb = (runData['masterOrb'] ?? 1.0).toDouble();
     game.player.classImage = (runData['classImage'] ?? '');
+    game.player.bltImage = (runData['bltImage'] ?? '');
     int? savedColorValueClass = runData['classColor'] as int?;
     int? savedColorValueArma = runData['armaCor'] as int?;
     int? savedColorValueBlt = runData['bltCor'] as int?;

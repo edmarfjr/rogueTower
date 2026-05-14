@@ -444,7 +444,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
     }
     if (custoVida) {
-      if (player.maxHealth < 6) {
+      if (player.maxHealth <= 6) {
         game.world.add(FloatingText(text: "noHp".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
         return;
       }

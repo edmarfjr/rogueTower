@@ -41,6 +41,8 @@ class CharacterClass {
   final int startingKeys;
   final int startingShield;
   final bool isBomber;
+  final bool isZumbi;
+  final bool animRespira;
 
   final bool isUnlockedByDefault;
   final String unlockConditionText;
@@ -73,7 +75,9 @@ class CharacterClass {
     this.startingItems = const [],
     this.itemsExcluidos = const [],
     this.isBomber = false,
+    this.isZumbi = false,
     this.noDamage = false,
+    this.animRespira = true,
     this.bltImage = 'sprites/projeteis/blt.png',
     this.bltSize = 6.0,
     this.bltSpeed = 300,
@@ -171,6 +175,51 @@ class CharacterRoster {
       armaAngOffset: pi/4,
     ),
     CharacterClass(
+      id: "zumbi",
+      name: "zumbi".tr(),
+      description: "zumbiDesc".tr(),
+      color: Pallete.verdeEsc, 
+      maxHp: 0,
+      maxDash: 2,
+      speed: 75.0,
+      damage: 30.0,
+      fireRate: 0.5,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      startingShield: 3,
+      isZumbi:true,
+      animRespira: false,
+      itemsExcluidos: [
+        CollectibleType.activeBandage,
+      ],
+      isUnlockedByDefault: false,
+      unlockConditionText: "zumbiCond".tr(),
+    ),
+    CharacterClass(
+      id: "princess",
+      name: "princess".tr(),
+      description: "princessDesc".tr(),
+      color: Pallete.marrom, 
+      maxHp: 4,
+      maxDash: 2,
+      speed: 75.0,
+      damage: 10.0,
+      fireRate: 0.5,
+      critChance: 5,
+      critDamage: 1.5,
+      dashCooldown: 2.5,
+      attackRange: 0.7,
+      startingItems: [
+        CollectibleType.bounce
+      ],
+      bltImage: 'sprites/projeteis/chackran.png',
+      bltCor: Pallete.lilas,
+      isUnlockedByDefault: false,
+      unlockConditionText: "princessCond".tr(),
+    ),
+    CharacterClass(
       id: 'ninja',
       name: "ninja".tr(),
       description: "ninjaDesc".tr(),
@@ -225,6 +274,7 @@ class CharacterRoster {
       critDamage: 1.5,
       dashCooldown: 2.0, 
       attackRange: 0.4,
+      animRespira: false,
       isShotgun: true,
       isUnlockedByDefault: false,
       weaponImage: 'sprites/projeteis/escopeta.png',
@@ -373,7 +423,6 @@ class CharacterRoster {
       isUnlockedByDefault: false,
       unlockConditionText: "samuelaCond".tr(),
     ),
-    
   ];
 
   static CharacterClass getClassById(String? id) {
