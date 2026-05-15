@@ -117,6 +117,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   VoidCallback? onInteractAction;
 
   bool isGodMode = false;
+  
 
   // Guarda o NPC que está perto o suficiente para interagir
   Npc? npcNear; 

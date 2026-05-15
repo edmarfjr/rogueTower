@@ -56,6 +56,7 @@ class I18n {
       'noKeys' : 'Sem chaves o suficiente!',
       'noBombs' : 'Sem bombas o suficiente!',
       'noHp' : 'Sem Vida o suficiente!',
+      'doar_sangue':'DOAR SANGUE\n(-1 HP)',
       'noFamiliar' : 'Sem Familiares!',
       'nada':'NADA!',
       'agiotaMsg':'ACHOU QUE IA FUGIR!?',
@@ -179,7 +180,7 @@ class I18n {
       'spectral': 'Tiro Espectral',
       'spectralDesc': 'Seus tiros podem atravessar paredes e obstáculos',
       'bounce': 'Tiro Elastico',
-      'bounceDesc': 'Seus tiros quica em paredes e obstáculos',
+      'bounceDesc': 'Seus tiros quica em inimigos e obstáculos',
       'defBurst':'Explosão Defensiva',
       'defBurstDesc':'Quando você recebe perde um escudo, destroi disparos inimigos',
       'kinetic':'Energia Cinética',
@@ -488,7 +489,7 @@ class I18n {
 'lagostaDesc':'Aumenta velocidade de movimento em 10%',
 'tetra':'Tilápia',
 'tetraDesc':'Cura um coração',
-'kelp':'Alga Kelp',
+'kelp':'vitória-régia',
 'kelpDesc':'Aumenta recuperação de estamina em 10%',
 'truta':'Pacú',
 'trutaDesc':'Aumenta dano em 10%',
@@ -514,6 +515,7 @@ class I18n {
 'barDesc':'Compre uma bebida',
 "dama":"DAMA",
 "servicoMassage":"Deseja um serviço especial por 20 moedas?\n(Dura 5 salas)",
+'relaxado':'Relaxado!',
       'cowboy':'PISTOLEIRO',
       'cowboyDesc':'um atirador equilibrado',
       'guerreiro':'GUERREIRO',
@@ -804,6 +806,7 @@ class I18n {
       'noKeys': 'Pas assez de clés !',
       'noBombs': 'Pas assez de bombes !',
       'noHp': 'Pas assez de vie !',
+      'doar_sangue':'DONNER DU SANG\n(-1 PV)',
       'noFamiliar': 'Aucun familier !',
       'nada': 'RIEN !',
       'agiotaMsg': 'TU PENSAIS T’ÉCHAPPER !?',
@@ -927,7 +930,7 @@ class I18n {
       'spectral': 'Tir Spectral',
       'spectralDesc': 'vos tirs traversent murs et obstacles',
       'bounce': 'Tir Rebondissant',
-      'bounceDesc': 'vos tirs rebondissent sur murs et obstacles',
+      'bounceDesc': 'vos tirs rebondissent sur ennemis et obstacles',
       'defBurst': 'Explosion Défensive',
       'defBurstDesc': 'lorsque vous perdez un bouclier, détruit les tirs ennemis',
       'kinetic': 'Énergie Cinétique',
@@ -1236,7 +1239,7 @@ class I18n {
 'lagostaDesc':'Augmente la vitesse de déplacement de 10%',
 'tetra':'Tilapia',
 'tetraDesc':'Soigne un cœur',
-'kelp':'Algue Kelp',
+'kelp':'victoria d’Amazonie',
 'kelpDesc':'Augmente la récupération d’endurance de 10%',
 'truta':'Pacu',
 'trutaDesc':'Augmente les dégâts de 10%',
@@ -1260,6 +1263,7 @@ class I18n {
 'barDesc':'Achetez une boisson',
 "dama":"DAME",
 "servicoMassage":"Souhaitez-vous un service spécial pour 20 pièces ?\n(Dure 5 salles)",
+'relaxado':'Détendu !',
       'sem_iscas':'Plus d’appâts !',
       'iscas':'Appâts: ',
       'cowboy': 'PISTOLERO',
@@ -1552,6 +1556,7 @@ class I18n {
       "noKeys": "Not enough keys!",
       "noBombs": "Not enough bombs!",
       "noHp": "Not enough health!",
+      'doar_sangue':'DONATE BLOOD\n(-1 HP)',
       "noFamiliar": "No familiars!",
       "nada": "NOTHING!",
       'agiotaMsg':'THOUGHT YOU WERE GOING TO ESCAPE!?',
@@ -1675,7 +1680,7 @@ class I18n {
       'spectral': 'Spectral Shot',
       'spectralDesc': 'Your shots can pass through walls and obstacles',
       'bounce': 'Bouncy Shot',
-      'bounceDesc': 'Your shots bounce off walls and obstacles',
+      'bounceDesc': 'Your shots bounce off enemies and obstacles',
       'defBurst': 'Defensive Burst',
       'defBurstDesc': 'When you lose a shield, destroys enemy projectiles',
       'kinetic': 'Kinetic Energy',
@@ -1984,7 +1989,7 @@ class I18n {
 'lagostaDesc':'Increases movement speed by 10%',
 'tetra':'Tilapia',
 'tetraDesc':'Heals one heart',
-'kelp':'Kelp Seaweed',
+'kelp':'water lily',
 'kelpDesc':'Increases stamina recovery by 10%',
 'truta':'Pacu',
 'trutaDesc':'Increases damage by 10%',
@@ -2010,6 +2015,7 @@ class I18n {
 'barDesc':'Buy a drink',
 "dama":"LADY",
 "servicoMassage":"Would you like a special service for 20 coins?\n(Lasts 5 rooms)",
+'relaxado':'Relaxed!',
       "cowboy": "GUNSLINGER",
       "cowboyDesc": "A balanced shooter",
       "guerreiro": "WARRIOR",
@@ -2252,9 +2258,9 @@ class I18n {
       'continue': 'Continuar',
       'main_menu': 'Menú Principal',
       'play': 'Nuevo Juego',
-      'confirm_new_game_message':'Voulez-vous continuer ? \n(La dernière partie sauvegardée sera supprimée)',
-      'no':'Non',
-      'yes':'Oui',
+      'confirm_new_game_message':'¿Desea continuar? \n(La última partida guardada será eliminada)',
+      'no':'No',
+      'yes':'Sí',
       'settings': 'Ajustes', 
       'tempo':'TIEMPO:',
       'language': 'Idioma', 
@@ -2286,6 +2292,7 @@ class I18n {
       "noKeys": "¡No tienes suficientes llaves!",
       "noBombs": "¡No tienes suficientes bombas!",
       "noHp": "¡No tienes suficiente vida!",
+      'doar_sangue':'DONAR SANGRE\n(-1 HP)',
       'noFamiliar' : '¡No tienes familiares!',
       'nada':'¡NADA!',
       'agiotaMsg':'¿¡PENSASTE QUE IBAS A ESCAPAR!?',
@@ -2382,7 +2389,7 @@ class I18n {
 			'spectral': 'Disparo Espectral',
 			'spectralDesc': 'Tus disparos atraviesan paredes y obstáculos',
 			'bounce': 'Disparo Rebote',
-			'bounceDesc': 'Tus disparos rebotan en paredes y obstáculos',
+			'bounceDesc': 'Tus disparos rebotan en enemigos y obstáculos',
 			'defBurst': 'Explosión Defensiva',
 			'defBurstDesc': 'Cuando pierdes un escudo, destruye proyectiles enemigos',
 			'kinetic': 'Energía Cinética',
@@ -2693,7 +2700,7 @@ class I18n {
 'lagostaDesc':'Aumenta la velocidad de movimiento en 10%',
 'tetra':'Tilapia',
 'tetraDesc':'Cura un corazón',
-'kelp':'Alga Kelp',
+'kelp':'victoria amazónica',
 'kelpDesc':'Aumenta la recuperación de resistencia en 10%',
 'truta':'Pacú',
 'trutaDesc':'Aumenta el daño en 10%',
@@ -2717,6 +2724,7 @@ class I18n {
 'barDesc':'Compra una bebida',
 "dama":"DAMA",
 "servicoMassage":"¿Desea un servicio especial por 20 monedas?\n(Dura 5 salas)",
+'relaxado':'¡Relajado!',
 'sem_iscas':'¡no quedan cebos!',
 'iscas':'Cebos: ',
       'cowboy':'PISTOLERO',
@@ -2957,14 +2965,11 @@ class I18n {
     }
   };
 
-  // Função mágica que busca a palavra. Se não achar, retorna a própria chave.
   static String tr(String key) {
     return _strings[currentLanguage]?[key] ?? key;
   }
 }
 
-// (Opcional) Uma Extension para deixar o código super limpo:
-// Isso permite você escrever 'paused'.tr() no seu código!
 extension TranslationExtension on String {
   String tr() {
     return I18n.tr(this);

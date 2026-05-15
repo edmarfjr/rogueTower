@@ -27,6 +27,9 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
   TextComponent? _nameText;
   TextComponent? _descText;
 
+  String _chaveName = '';
+  String _chaveDesc = '';
+
   UnlockableItem({
     required Vector2 position,
     required this.id,
@@ -69,13 +72,23 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     priority = position.y.toInt();
   }
 
+   void _atualizarTextosDoItem() {
+    // Se o texto estiver na tela, atualiza ele rodando o .tr() novamente!
+    if (_nameText != null) {
+      _nameText!.text = _chaveName.tr().toUpperCase();
+    }
+    if (_descText != null) {
+      _descText!.text = _chaveDesc.tr().toLowerCase();
+    }
+  }
+
   void _showItemInfo() {
     final attrs = Collectible.getAttributes(type); 
-    String itemName = attrs['name'] ?? "Unknown Item";
-    String itemDesc = attrs['desc'] ?? "Unknown Description";
+    _chaveName = attrs['name'] as String;
+    _chaveDesc = attrs['desc'] as String;
 
     _nameText = TextComponent(
-      text: itemName.toUpperCase(),
+      text: _chaveName.tr().toUpperCase(),
       textRenderer: Pallete.textoDanoCritico,
       anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, -12), 
@@ -83,15 +96,18 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
     add(_nameText!);
 
     _descText = TextComponent(
-      text: itemDesc,
+      text: _chaveDesc.tr().toLowerCase(),
       textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, -5), 
     );
     add(_descText!);
+
+    gameRef.progress.languageNotifier.addListener(_atualizarTextosDoItem);
   }
 
   void _hideItemInfo() {
+    gameRef.progress.languageNotifier.removeListener(_atualizarTextosDoItem);
     if (_nameText != null && _nameText!.parent != null) {
       remove(_nameText!);
       _nameText = null;
@@ -176,6 +192,13 @@ class UnlockableItem extends PositionComponent with HasGameRef<TowerGame> {
       //removeFromParent();
     }
     
+  }
+
+  @override
+  void onRemove() {
+    // Garantia de segurança máxima: se a sala for reiniciada ou o item destruído
+    gameRef.progress.languageNotifier.removeListener(_atualizarTextosDoItem);
+    super.onRemove();
   }
 
   Future<void> _handleUnlock() async {

@@ -1186,7 +1186,7 @@ class JumpAttackBehavior extends AttackBehavior {
   Vector2 _startPos = Vector2.zero();
   Vector2 _targetPos = Vector2.zero();
 
-  CircleComponent? _shadow;
+  //CircleComponent? _shadow;
 
   JumpAttackBehavior({
     this.jumpRange = 250,

@@ -169,12 +169,12 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //teste de inimigos
       if(!gameRef.killDummy)gameRef.world.add(EnemyFactory.createDummy(Vector2(50, -150)));
       //gameRef.world.add(EnemyFactory.createEye(Vector2(0, -150)));
-      //gameRef.world.add(EnemyFactory.createFungi(Vector2(50, -100), champType: 7));
+      //gameRef.world.add(EnemyFactory.createRabbit(Vector2(50, -100), champType: 2));
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.boloDinheiro));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.potionUm));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.zodiacTaurus));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
@@ -829,7 +829,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
 
     gameRef.world.add(Npc(
-        position: Vector2(8,-56), 
+        position: Vector2(8,-64), 
         imagePath: 'sprites/npcs/barman.png', 
         cor: Pallete.lilas,
         dialogs: [

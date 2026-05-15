@@ -1715,10 +1715,10 @@ class Player extends PositionComponent
       }
       
       if(armaBalanca){
-        if(armaAngOffset==-pi/4){
+        if(armaAngOffset==-pi/2){
           armaAngOffset = pi/2;
         }else{
-          armaAngOffset = -pi/4;
+          armaAngOffset = -pi/2;
         }
       }
     }else{
@@ -2625,7 +2625,7 @@ void receberMassagem(int salasDeDuracao) {
     massagemBuffNotifier.value = salasDeDuracao;
     
     gameRef.world.add(FloatingText(
-      text: "Relaxado!",
+      text: "relaxado".tr(),
       position: position.clone() + Vector2(0, -30),
       color: Pallete.verdeCla,
     ));

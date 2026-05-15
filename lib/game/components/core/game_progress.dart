@@ -185,8 +185,8 @@ class GameProgress {
   }
 
   Future<void> changeLanguage(String lang) async {
-    languageNotifier.value = lang;
     I18n.currentLanguage = lang; 
+    languageNotifier.value = lang;
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_langKey, lang); 

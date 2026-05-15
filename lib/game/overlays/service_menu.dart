@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/tower_game.dart';
-import 'package:towerrogue/game/components/gameObj/collectible.dart'; // Para acessar os tipos de itens
+//import 'package:towerrogue/game/components/gameObj/collectible.dart'; 
 
 class ServiceMenu extends StatelessWidget {
   final TowerGame game;
@@ -41,11 +41,10 @@ class ServiceMenu extends StatelessWidget {
                 ElevatedButton(
                  // style: ElevatedButton.styleFrom(backgroundColor: Pallete.branco),
                   onPressed: () {
-                    // Apenas fecha o menu e volta para o jogo
                     game.overlays.remove('ServiceMenu');
-                    game.resumeEngine(); // Despausa o jogo se você pausou
+                    game.resumeEngine();
                   },
-                  child: const Text("NÃO", style: TextStyle(fontFamily: 'pixelFont', color: Pallete.preto)),
+                  child:  Text("no".tr(), style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.preto)),
                 ),
                 
                 // BOTAO SIM
@@ -54,7 +53,7 @@ class ServiceMenu extends StatelessWidget {
                   onPressed: () {
                     _comprarServico();
                   },
-                  child: const Text("SIM (20\$)", style: TextStyle(fontFamily: 'pixelFont', color: Pallete.preto)),
+                  child:  Text("${"yes".tr()} (20\$)", style: const TextStyle(fontFamily: 'pixelFont', color: Pallete.preto)),
                 ),
               ],
             )
@@ -68,18 +67,12 @@ class ServiceMenu extends StatelessWidget {
     final player = game.player;
 
     if (game.coinsNotifier.value >= 20) {
-      // 1. Cobra o valor
       player.collectCoin(-20);
       
-      // 2. Aplica o Serviço (Aqui usamos a mecânica de bebida que criamos!)
       player.receberMassagem(6);
 
-      // 3. Fecha o menu e retoma o jogo
       game.overlays.remove('ServiceMenu');
       game.resumeEngine();
-    } else {
-      // Opcional: Feedback se não tiver dinheiro
-      // (O menu não fecha, o jogador precisa clicar no NÃO)
-    }
+    } 
   }
 }

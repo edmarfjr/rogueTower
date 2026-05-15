@@ -77,7 +77,7 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
 
   void _showText() {
     _nameText = TextComponent(
-      text: "DOAR SANGUE\n(-1 HP)",
+      text: "doar_sangue".tr(),
       textRenderer: Pallete.textoPadrao,
       anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, -5), 

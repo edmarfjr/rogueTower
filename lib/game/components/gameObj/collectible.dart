@@ -185,12 +185,16 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   bool isBouncing = false;
   double _groundY = 0.0;
 
-  // Controle de Interface
   bool _isInfoVisible = false;
-  final double _pickupRange = 16.0; // Distância para aparecer o botão
-  late Component _infoGroup; // Grupo que contém texto e botão
-  InteractButton? _currentButton;
+  final double _pickupRange = 16.0;
+  late Component _infoGroup;
   GameSprite? visual;
+
+  TextComponent? _textName;
+  TextBoxComponent? _textDesc;
+  
+  String _chaveName = '';
+  String _chaveDesc = '';
 
   Collectible({
   required Vector2 position, 
@@ -337,44 +341,37 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     isBouncing = true;
   }
 
+  void _atualizarTextosDoItem() {
+    // Se o texto estiver na tela, atualiza ele rodando o .tr() novamente!
+    if (_textName != null) {
+      _textName!.text = _chaveName.tr().toUpperCase();
+    }
+    if (_textDesc != null) {
+      _textDesc!.text = _chaveDesc.tr().toLowerCase();
+    }
+  }
+
   void _showInfo() {
     if(gameRef.canInteractNotifier.value && gameRef.interactIsItem.value) return;
     gameRef.interactIsItem.value = true;
     _isInfoVisible = true;
     
     final attrs = Collectible.getAttributes(type);
-    String name = attrs['name'] as String;
-    String desc = attrs['desc'] as String;
+    _chaveName = attrs['name'] as String;
+    _chaveDesc = attrs['desc'] as String;
 
     // Grupo para facilitar remover tudo de uma vez
     _infoGroup = PositionComponent(position: Vector2(size.x / 2, -10), anchor: Anchor.bottomCenter);
     
     _infoGroup.priority = priority + 1500;
 
-    // 1. Descrição do Efeito
-    //final textDesc = TextBoxComponent(
-    //  text: desc.toLowerCase(),
-    //  textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
-     // anchor: Anchor.bottomCenter,
-    //  align: Anchor.center,
-    //  position: Vector2(0, 10),
-    //  scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
-      
-    //  boxConfig: const TextBoxConfig(
-    //    maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
-    //    timePerChar: 0.0, 
-    //  ),
-    //);
-
-    final textDesc = TextBoxComponent(
-      text: desc.toLowerCase(),
-      textRenderer: Pallete.textoDescricaoGigante, // Usa nosso super estilo
-      
+    _textDesc = TextBoxComponent(
+      text: _chaveDesc.tr().toLowerCase(), 
+      textRenderer: Pallete.textoDescricaoGigante, 
       anchor: Anchor.bottomCenter,
       align: Anchor.center,
       position: Vector2(0, 10),
       scale: Vector2.all(0.25), 
-      
       boxConfig: const TextBoxConfig(
         maxWidth: 600.0, 
         timePerChar: 0.00, 
@@ -382,11 +379,11 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     );
 
     double espacoEntreTextos = 1.0;
-    double posicaoYDoTitulo = (textDesc.position.y - textDesc.size.y - espacoEntreTextos)/4;
+    double posicaoYDoTitulo = (_textDesc!.position.y - _textDesc!.size.y - espacoEntreTextos)/4;
 
     // 2. Nome do Item
-    final textName = TextComponent(
-      text: name.toUpperCase(),
+    _textName = TextComponent(
+      text: _chaveName.tr().toUpperCase(),
       textRenderer: Pallete.textoDanoCritico,
       anchor: Anchor.bottomCenter,
       position: Vector2(0, posicaoYDoTitulo + 8),
@@ -399,14 +396,17 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     };
 
     gameRef.canInteractNotifier.value = true;
-    _infoGroup.add(textName);
-    _infoGroup.add(textDesc);
+    _infoGroup.add(_textName!);
+    _infoGroup.add(_textDesc!);
     
-
     add(_infoGroup);
+
+    gameRef.progress.languageNotifier.addListener(_atualizarTextosDoItem);
   }
 
   void _hideInfo() {
+    gameRef.progress.languageNotifier.removeListener(_atualizarTextosDoItem);
+    
     _isInfoVisible = false;
     if (contains(_infoGroup)) {
       remove(_infoGroup);
@@ -414,6 +414,13 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     gameRef.canInteractNotifier.value = false;
     gameRef.interactIsItem.value = false;
     gameRef.onInteractAction = null;
+  }
+
+  @override
+  void onRemove() {
+    // Garantia de segurança máxima: se a sala for reiniciada ou o item destruído
+    gameRef.progress.languageNotifier.removeListener(_atualizarTextosDoItem);
+    super.onRemove();
   }
 
   void _collectItem() async {
@@ -1018,7 +1025,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.tetra:
         return {'name': 'tetra'.tr(), 'desc': 'tetraDesc'.tr(), 'icon': 'tilapia', 'color': Pallete.azulCla};
       case CollectibleType.kelp:
-        return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'kelp', 'color': Pallete.verdeCla};
+        return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'vitoriaReg', 'color': Pallete.verdeCla};
       case CollectibleType.truta:
         return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'pacu', 'color': Pallete.lilas};
       case CollectibleType.cerveja:
@@ -1372,6 +1379,33 @@ class CollectibleLogic {
         case CollectibleType.potion:
           if (player.healthNotifier.value < player.maxHealth) {
             player.curaHp(2);
+            text = "${"Curado".tr()}!";
+            //color = Pallete.vermelho; 
+          } else {
+            if (player.activeItems.value[0]!.type == CollectibleType.activeJarroDeVida && player.vidasNoJarro < 4) {
+              player.vidasNoJarro++; // Guarda a vida no jarro
+      
+              game.world.add(FloatingText(
+                text: "${player.vidasNoJarro}/4",
+                position: player.absoluteCenter.clone() + Vector2(0, -30),
+                color: Pallete.vermelho,
+              ));
+        
+            }else{
+              return {
+                'text': "${"hpCheio".tr()}!", 
+                'color': Pallete.branco, 
+                'sucesso': false
+              };
+            }
+          
+            //color = Pallete.cinzaCla;
+          }
+          break;
+
+        case CollectibleType.potionUm:
+          if (player.healthNotifier.value < player.maxHealth) {
+            player.curaHp(1);
             text = "${"Curado".tr()}!";
             //color = Pallete.vermelho; 
           } else {

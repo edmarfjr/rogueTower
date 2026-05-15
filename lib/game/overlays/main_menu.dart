@@ -85,7 +85,7 @@ class MainMenu extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 40.0),
                     child: Text(
-                      'ROGUE TOWER',
+                      'TOWER OF THE LOST',
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,

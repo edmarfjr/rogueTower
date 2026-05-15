@@ -1,12 +1,13 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import '../../tower_game.dart';
+
 
 class Npc extends PositionComponent with HasGameRef<TowerGame> {
   final String imagePath;
@@ -38,7 +39,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
       imagePath: imagePath,
       size: size,
       color: cor,
-      anchor: Anchor.center,
+      anchor: Anchor.bottomCenter,
       position: Vector2(size.x / 2, size.y)
     );
     add(visual);
@@ -54,6 +55,7 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
     add(_shadow);
     priority = position.y.toInt();
   }
+  
 
   @override
   void update(double dt) {
@@ -94,16 +96,12 @@ class Npc extends PositionComponent with HasGameRef<TowerGame> {
   void iniciarDialogo() {
     if (dialogs.isEmpty) return;
     
-    // 1. Esconde o botão de exclamação para limpar a tela durante o papo
     gameRef.canInteractNotifier.value = false;
     
-    // 2. Prepara os textos
-    gameRef.activeDialogs = List.from(dialogs);
+    gameRef.activeDialogs = dialogs.map((chave) => chave.tr()).toList();
     
-    // 3. Abre a caixa de diálogo (o overlay que criamos antes)
     gameRef.overlays.add('DialogOverlay'); 
     
-    // 4. Pausa o jogo para eles conversarem em paz
     gameRef.pauseEngine(); 
   }
 

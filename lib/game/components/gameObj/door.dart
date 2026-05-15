@@ -30,6 +30,12 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
   GameSprite? _bitesIcon;
   GameSprite? rewardIcon;
 
+  TextComponent? _textName;
+  TextBoxComponent? _textDesc;
+  
+  String _chaveName = '';
+  String _chaveDesc = '';
+
   InteractButton? _currentButton;
 
   Door({
@@ -109,126 +115,183 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     }
   }
 
+  void _criarTextosDaPorta() {
+    
+    _textDesc = TextBoxComponent(
+      text: _chaveDesc.tr().toLowerCase(),
+      textRenderer: Pallete.textoDescricaoGigante,
+      anchor: Anchor.bottomCenter,
+      align: Anchor.center,
+      position: Vector2(size.x / 2, -16),
+      scale: Vector2.all(0.25), 
+      boxConfig: const TextBoxConfig(
+        maxWidth: 600.0, 
+        timePerChar: 0.0, 
+      ),
+    );
+
+    _textDesc!.textRenderer.format(_textDesc!.text);
+
+    double espacoEntreTextos = 1.0;
+    double posicaoYDoTitulo = (_textDesc!.position.y - _textDesc!.size.y - espacoEntreTextos) / 4;
+
+    _textName = TextComponent(
+      text: _chaveName.tr().toUpperCase(),
+      textRenderer: Pallete.textoDanoCritico,
+      anchor: Anchor.bottomCenter,
+      position: Vector2(size.x / 2, posicaoYDoTitulo - 8),
+    );
+
+    add(_textName!);
+    add(_textDesc!);
+  }
+
+  void _atualizarTextosDoItem() {
+    // Só faz o recálculo se a porta estiver aberta e as chaves já existirem
+    //if (!isOpen || _chaveName.isEmpty) return;
+
+    // Remove os textos velhos da tela (se existirem)
+    if (_textName != null) _textName!.removeFromParent();
+    if (_textDesc != null) _textDesc!.removeFromParent();
+
+    // Cria os textos novos com o tamanho e posições recalculadas!
+    _criarTextosDaPorta();
+  }
+
+  @override
+  void onRemove() {
+    // Garantia de segurança máxima: se a sala for reiniciada ou o item destruído
+    gameRef.progress.languageNotifier.removeListener(_atualizarTextosDoItem);
+    super.onRemove();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    // Quando o objeto nasce, ele "sintoniza" no rádio de idiomas
+    gameRef.progress.languageNotifier.addListener(_atualizarTextosDoItem);
+  }
+
   void _addRewardIcon() {
     String iconData;
     Color cor = Pallete.branco;
-    String nome = '';
-    String descr = '';
+    _chaveName = '';
+    _chaveDesc = '';
     
     switch (rewardType) {
       case CollectibleType.potion: 
         iconData = 'sprites/doorIcons/hpCheio.png'; 
         cor = Pallete.vermelho;
-        nome = 'cura';
-        descr = 'curaDesc';
+        _chaveName = 'cura';
+        _chaveDesc = 'curaDesc';
         break;
       case CollectibleType.coin: 
         iconData = 'sprites/doorIcons/coins.png'; 
         cor = Pallete.amarelo;
-        nome = 'moeda';
-        descr = 'moedaDesc';
+        _chaveName = 'moeda';
+        _chaveDesc = 'moedaDesc';
         break;
       case CollectibleType.key: 
         iconData = 'sprites/doorIcons/key.png'; 
         cor = Pallete.laranja;
-        nome = 'chave';
-        descr = 'chaveDesc';
+        _chaveName = 'chave';
+        _chaveDesc = 'chaveDesc';
         break;
       case CollectibleType.bomba: 
         iconData = 'sprites/doorIcons/bomb.png';
         cor = Pallete.lilas;
-        nome = 'bomba';
-        descr = 'bombaDesc';
+        _chaveName = 'bomba';
+        _chaveDesc = 'bombaDesc';
         break;
       case CollectibleType.chest: 
         iconData = 'sprites/doorIcons/bau.png'; 
         cor = Pallete.marrom;
-        nome = 'bau';
-        descr = 'bauDesc';
+        _chaveName = 'bau';
+        _chaveDesc = 'bauDesc';
         break;
       case CollectibleType.rareChest: 
         iconData = 'sprites/doorIcons/bauTrancado.png'; 
         cor = Pallete.laranja;
-        nome = 'bauRaro';
-        descr = 'bauRaroDesc';
+        _chaveName = 'bauRaro';
+        _chaveDesc = 'bauRaroDesc';
         break;
       case CollectibleType.shop: 
         iconData = 'sprites/doorIcons/loja.png'; 
         cor = Pallete.marrom;
-        nome = 'shop';
-        descr = 'shopDesc';
+        _chaveName = 'shop';
+        _chaveDesc = 'shopDesc';
         break;
       case CollectibleType.shield: 
         iconData = 'sprites/doorIcons/escudo.png'; 
         cor = Pallete.cinzaCla;
-        nome = 'escudo';
-        descr = 'escudoDesc';
+        _chaveName = 'escudo';
+        _chaveDesc = 'escudoDesc';
         break;
       case CollectibleType.boss: 
         iconData = 'sprites/doorIcons/boss.png'; 
         cor = Pallete.vermelho;
-        nome = 'boss';
-        descr = 'bossDesc';
+        _chaveName = 'boss';
+        _chaveDesc = 'bossDesc';
         break;
       case CollectibleType.healthContainer: 
         iconData = 'sprites/doorIcons/hpVazio.png'; 
         cor = Pallete.vermelho;
-        nome = 'conteinerVida';
-        descr = 'conteinerVidaDesc';
+        _chaveName = 'conteinerVida';
+        _chaveDesc = 'conteinerVidaDesc';
         break;
       case CollectibleType.nextLevel: 
         iconData = 'sprites/doorIcons/nextLevel.png'; 
         cor = Pallete.branco;
-        nome = 'proxLevel';
-        descr = 'proxLevelDesc';
+        _chaveName = 'proxLevel';
+        _chaveDesc = 'proxLevelDesc';
         break;
       case CollectibleType.bank: 
         iconData = 'sprites/doorIcons/bank.png'; 
         cor = Pallete.laranja;
-        nome = 'bank';
-        descr = 'bankDesc';
+        _chaveName = 'bank';
+        _chaveDesc = 'bankDesc';
         break;
       case CollectibleType.alquimista: 
         iconData = 'sprites/doorIcons/alquimista.png'; 
         cor = Pallete.azulCla;
-        nome = 'alquimista';
-        descr = 'alquimistaDesc';
+        _chaveName = 'alquimista';
+        _chaveDesc = 'alquimistaDesc';
         break;
       case CollectibleType.desafio: 
         iconData = 'sprites/doorIcons/desafio.png'; 
         cor = Pallete.vermelho;
-        nome = 'desafio';
-        descr = 'desafioDesc';
+        _chaveName = 'desafio';
+        _chaveDesc = 'desafioDesc';
         break;
       case CollectibleType.darkShop: 
         iconData = 'sprites/doorIcons/lojaEvil.png'; 
         cor = Pallete.vermelho;
-        nome = 'darkShop';
-        descr = 'darkShopDesc';
+        _chaveName = 'darkShop';
+        _chaveDesc = 'darkShopDesc';
         break;
       case CollectibleType.doacaoSangue: 
         iconData = 'sprites/doorIcons/blood.png'; 
         cor = Pallete.vermelho;
-        nome = 'doaSangue';
-        descr = 'doaSangueDesc';
+        _chaveName = 'doaSangue';
+        _chaveDesc = 'doaSangueDesc';
         break;
       case CollectibleType.slotMachine: 
         iconData = 'sprites/doorIcons/slot.png'; 
         cor = Pallete.laranja;
-        nome = 'slot';
-        descr = 'slotDesc';
+        _chaveName = 'slot';
+        _chaveDesc = 'slotDesc';
         break;
       case CollectibleType.pescaria: 
         iconData = 'sprites/doorIcons/pescaria.png'; 
         cor = Pallete.azulCla;
-        nome = 'pescaria';
-        descr = 'pescariaDesc';
+        _chaveName = 'pescaria';
+        _chaveDesc = 'pescariaDesc';
         break;
       case CollectibleType.bar: 
         iconData = 'sprites/doorIcons/bar.png'; 
         cor = Pallete.marrom;
-        nome = 'bar';
-        descr = 'barDesc';
+        _chaveName = 'bar';
+        _chaveDesc = 'barDesc';
         break;
       default: iconData = 'sprites/doorIcons/hpCheio';
     }
@@ -242,33 +305,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
     );
     add(rewardIcon!);
 
-    final textDesc = TextBoxComponent(
-      text: descr.tr().toLowerCase(),
-      textRenderer: Pallete.textoDescricaoGigante, // 1. Usa a fonte gigante
-      anchor: Anchor.bottomCenter,
-      align: Anchor.center,
-      position: Vector2(size.x / 2, -16),
-      scale: Vector2.all(0.25), // 2. Encolhe TUDO para o tamanho normal
-      
-      boxConfig: const TextBoxConfig(
-        maxWidth: 600.0, // 3. A caixa agora precisa ser 4x maior (250 * 4 = 1000)
-        timePerChar: 0.0, 
-      ),
-    );
-
-    double espacoEntreTextos = 1.0;
-    double posicaoYDoTitulo = (textDesc.position.y - textDesc.size.y - espacoEntreTextos)/4;
-
-    // 2. Nome do Item
-    final textName = TextComponent(
-      text: nome.tr().toUpperCase(),
-      textRenderer: Pallete.textoDanoCritico,
-      anchor: Anchor.bottomCenter,
-      position: Vector2(size.x / 2, posicaoYDoTitulo - 8),
-    );
-
-    add(textName);
-    add(textDesc);
+    _criarTextosDaPorta();
   }
 
   
@@ -353,7 +390,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
           }
         }
       } else if(bloqueada){
-        // ... (Sua lógica da bomba se mantém igual) ...
         gameRef.world.add(FloatingText(
             text: 'bloqueado'.tr(),
             position: position.clone(), 
@@ -361,9 +397,6 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
             fontSize: 12,
           ));
       } else {
-        // ==========================================
-        // O JOGADOR VAI ENTRAR NA PORTA
-        // ==========================================
         if(bites){
           gameRef.world.add(FloatingText(
               text: 'ai'.tr(),

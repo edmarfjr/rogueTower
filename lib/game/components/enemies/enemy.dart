@@ -586,7 +586,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       // Cria uma pulsação matemática suave que vai de 0.9 a 1.1x do tamanho
       double pulse = sin(_auraTimer) * 0.1 + 1.0; 
       double baseRadius = size.x / 2;
-      final center = Offset(size.x / 2, size.y / 2);
+
+      final center = Offset(visual!.position.x, visual!.position.y);
 
       canvas.drawCircle(center, baseRadius * pulse, championAuraPaint);
 
