@@ -129,7 +129,6 @@ bool isItemRecarregavel(CollectibleType type) {
   return recarregaveis.contains(type);
 }
 
-// 2. NOVA FUNÇÃO: Coloque aqui os ENUMs dos itens que carregam por tempo
 bool isItemRecarregavelTempo(CollectibleType type) {
   const recarregaveisTempo = [
     CollectibleType.activeGlassStaff,

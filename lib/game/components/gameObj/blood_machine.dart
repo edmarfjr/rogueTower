@@ -75,7 +75,22 @@ class BloodMachine extends PositionComponent with HasGameRef<TowerGame> {
     }
   }
 
+  @override
+  void onRemove() {
+    // Garantia de segurança máxima: se a sala for reiniciada ou o item destruído
+    gameRef.progress.languageNotifier.removeListener(_showText);
+    super.onRemove();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    // Quando o objeto nasce, ele "sintoniza" no rádio de idiomas
+    gameRef.progress.languageNotifier.addListener(_showText);
+  }
+
   void _showText() {
+    _hideText();
     _nameText = TextComponent(
       text: "doar_sangue".tr(),
       textRenderer: Pallete.textoPadrao,

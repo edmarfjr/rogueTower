@@ -246,18 +246,14 @@ class Player extends PositionComponent
   bool animContrario = false;
   bool animRespira = true;
   double _breathTimer = 0;
-  final double _breathSpeed = 3.0; 
-  final double _breathAmplitude = 0.05; 
-
+  final double _breathSpeed = 4.0; 
+  final double _breathAmplitude = 0.04; 
 
   double _dustSpawnTimer = 0;
   double _ghostTimer = 0;
 
-  //Familiar? activeDecoy;
   List<Familiar> familiars = [];
 
-  // --- CACHES DE RENDERIZAÇÃO E COMPONENTES ---
-  //late GameIcon visual;
   late GameSprite visual;
   late ShadowComponent _shadow;
   late RectangleHitbox _hitbox;
@@ -310,7 +306,6 @@ class Player extends PositionComponent
 
   final ValueNotifier<int> massagemBuffNotifier = ValueNotifier(0);
 
-  //int cargaItem = 5;
   int cargaItem(CollectibleType type) {
     if (type == CollectibleType.activePoisonBomb) return 2; 
     if (type == CollectibleType.activeLicantropia) return 6;    
@@ -1576,11 +1571,17 @@ class Player extends PositionComponent
       revive --;
       reviveText?.text = revive.toString();
 
-      if(maxHealth > 2){
+      if(isZumbi){
+        increaseShield();
+      }else{
+        if(maxHealth > 2){
         curaHp((maxHealth/2).ceil());
       }else{
         curaHp(maxHealth);
       }
+      }
+
+      
       
     }else{
       if (reviveText != null) {

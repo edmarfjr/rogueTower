@@ -28,6 +28,7 @@ class SaveManager {
       'level': game.currentLevelNotifier.value,
       'room': game.currentRoomNotifier.value,
       'salasLimpas': game.salasLimpas.toList(),
+      'reward':game.nextRoomReward,
 
       'runTime':game.runTime,
 
@@ -205,6 +206,7 @@ class SaveManager {
     } else {
       game.salasLimpas = {}; 
     }
+    game.nextRoomReward = runData['reward'] ?? CollectibleType.nextLevel;
 
     game.runTime = runData['runTime'] ?? 0.0;
 

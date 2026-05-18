@@ -94,7 +94,7 @@ class GameOver extends StatelessWidget {
                 child: Text('voltar_menu'.tr(), style:const  TextStyle(fontSize: 18, color: Pallete.branco)),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              if(!game.reviveuAdd) ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Pallete.preto,
                   minimumSize: const Size(200, 50),
@@ -110,7 +110,12 @@ class GameOver extends StatelessWidget {
                 onPressed: () {
                   AdManager.showRewardedAd(
                     onRewardEarned: () {
-                      game.player.healthNotifier.value = (game.player.maxHealth/2).toInt(); 
+                      if(game.player.isZumbi){
+                        game.player.increaseShield();
+                      }else{
+                        game.player.healthNotifier.value = (game.player.maxHealth/2).toInt(); 
+                      }
+                      game.reviveuAdd = true;
                       game.player.setInvencibility(4);
                       game.overlays.remove('GameOver'); 
                       game.resumeEngine(); 

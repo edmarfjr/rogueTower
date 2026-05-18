@@ -130,6 +130,8 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
   //timer da run
   double runTime = 0.0;
 
+  bool reviveuAdd = false;
+
   String get formattedRunTime {
     int minutes = (runTime / 60).floor();
     int seconds = (runTime % 60).floor();

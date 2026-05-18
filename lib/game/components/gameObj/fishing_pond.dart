@@ -143,6 +143,24 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     }
   }
 
+  @override
+  void onRemove() {
+    // Garantia de segurança máxima: se a sala for reiniciada ou o item destruído
+    gameRef.progress.languageNotifier.removeListener(atualizaIscasText);
+    super.onRemove();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    // Quando o objeto nasce, ele "sintoniza" no rádio de idiomas
+    gameRef.progress.languageNotifier.addListener(atualizaIscasText);
+  }
+
+  void atualizaIscasText(){
+    baitText?.text = "iscas".tr() + fishesLeft.toString();
+  }
+
   void _jogarIsca() {
     state = FishingState.casting;
     _timer = Random().nextDouble() * 3 + 2; 
@@ -152,7 +170,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     state = FishingState.cooldown;
     _timer = 0.0; 
     fishesLeft--;
-    baitText?.text = "iscas".tr() + fishesLeft.toString();
+    atualizaIscasText();
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
                 text: "sem_iscas".tr(),
@@ -166,14 +184,14 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     state = FishingState.cooldown;
     _timer = 1.0;
     fishesLeft--;
-    baitText?.text = "iscas".tr() + fishesLeft.toString();
+    
 
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
-                text: "sem_iscas".tr(),
-                position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
-                color: Pallete.branco,
-              ));
+        text: "sem_iscas".tr(),
+        position: gameRef.player.absoluteCenter.clone() + Vector2(0, -30),
+        color: Pallete.branco,
+      ));
     }
 
     CollectibleType loot = _sortearLootDePesca();
