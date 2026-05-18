@@ -1,6 +1,5 @@
 import 'package:towerrogue/game/components/gameObj/player.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/overlays/hud.dart';
 import '../tower_game.dart';
 import '../components/core/pallete.dart';
@@ -65,27 +64,27 @@ class PauseMenu extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildStatRow(Icons.favorite, 'health'.tr(), '$hp / $maxHp', Pallete.branco),
+                      _buildStatRow('health'.tr(), '$hp / $maxHp'),
                       const SizedBox(height: 8),
-                      _buildStatRow(MdiIcons.sword, 'dmg'.tr(), '$dmg%', Pallete.branco),
+                      _buildStatRow('dmg'.tr(), '$dmg%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(MdiIcons.fire, 'dot'.tr(), '$dot%', Pallete.branco),
+                      _buildStatRow('dot'.tr(), '$dot%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(MdiIcons.sword, 'fire_rate'.tr(), '$fireRate%', Pallete.branco),
+                      _buildStatRow('fire_rate'.tr(), '$fireRate%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(Icons.whatshot, 'range'.tr(), '$range%', Pallete.branco),
+                      _buildStatRow('range'.tr(), '$range%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(Icons.whatshot, 'critChance'.tr(), '$critChance%', Pallete.branco),
+                      _buildStatRow('critChance'.tr(), '$critChance%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(Icons.whatshot, 'sorte'.tr(), '$sorte', Pallete.branco),
+                      _buildStatRow('sorte'.tr(), '$sorte'),
                       const SizedBox(height: 8),
-                      _buildStatRow(Icons.whatshot, 'critDmg'.tr(), '$critDmg%', Pallete.branco),
+                      _buildStatRow('critDmg'.tr(), '$critDmg%'),
                       const SizedBox(height: 8),
-                      _buildStatRow(Icons.whatshot, 'moveSpeed'.tr(), '$speed%', Pallete.branco),
+                      _buildStatRow('moveSpeed'.tr(), '$speed%'),
                       
                       const Divider(color: Pallete.cinzaCla, height: 20, thickness: 1),
                       
-                      _buildStatRow(Icons.map, 'location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room', Pallete.branco),
+                      _buildStatRow('location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room'),
                     ],
                   ),
                 ),
@@ -195,7 +194,7 @@ class PauseMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildStatRow(IconData icon, String label, String value, Color iconColor) {
+  Widget _buildStatRow( String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

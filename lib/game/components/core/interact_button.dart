@@ -4,7 +4,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandler {
   final VoidCallback onTrigger;
@@ -40,7 +39,7 @@ class InteractButton extends PositionComponent with TapCallbacks, KeyboardHandle
     ));
 
     add(GameIcon(
-      icon: MdiIcons.exclamationThick, 
+      icon: Icons.favorite_border, 
       color: Pallete.amarelo, 
       size: size / 2,
       anchor: Anchor.center, 
