@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_progress.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
-import 'package:towerrogue/game/components/core/interact_button.dart';
 import 'package:towerrogue/game/components/effects/explosion_effect.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/effects/unlock_notification.dart';
@@ -474,9 +473,13 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       List<CollectibleType> pool = [];
 
       if(custo > 0){
-        if (rngPool <= 0.2) pool = retornaItensRaros(player);
-        else if(rngPool <= 0.6) pool = retornaItensComuns(player);
-        else pool = retornaPocoes();
+        if (rngPool <= 0.2) {
+          pool = retornaItensRaros(player);
+        }else if(rngPool <= 0.6){ 
+          pool = retornaItensComuns(player);
+        }else {
+          pool = retornaPocoes();
+        }
       } else if(custoKeys > 0 || custoBombs > 0){
         pool = retornaPocoes();
       } else if(custoVida){
@@ -3622,12 +3625,6 @@ class CollectibleLogic {
           text = "truta";
           //color = Pallete.vermelho;
           break;  
-
-        case CollectibleType.cerveja:
-          player.drinkAlcohol(type, "cerveja", 6);
-          text = "cerveja";
-          //color = Pallete.vermelho;
-          break; 
 
         case CollectibleType.cerveja:
           player.drinkAlcohol(type, "cerveja", 6);

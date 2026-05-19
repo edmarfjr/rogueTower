@@ -176,7 +176,7 @@ class PauseMenu extends StatelessWidget {
 
                 IconButton(
                   icon: const PixelSprite(
-                    imagePath: 'sprites/inimigos/bug.png',
+                    imagePath: 'sprites/hud/bug.png',
                     color: Pallete.marrom,
                     size: 32,
                   ),

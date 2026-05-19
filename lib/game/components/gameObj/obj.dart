@@ -3,7 +3,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/pallete.dart';
-import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import '../../tower_game.dart';
 
 class Obj extends PositionComponent with HasGameRef<TowerGame> {

@@ -1225,10 +1225,10 @@ class JumpAttackBehavior extends AttackBehavior {
         enemy.scale = Vector2.all(1.0 + (heightFactor * 0.5));
       }
 
-      if (enemy.shadow != null) {
-        enemy.shadow.scale = Vector2.all(1.0 - (arc * 0.6)); 
+      
+      enemy.shadow.scale = Vector2.all(1.0 - (arc * 0.6)); 
         //enemy.shadow.paint.color = Pallete.cinzaEsc;
-      }
+      
 
       if (progress >= 1.0) {
         _land();

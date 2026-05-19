@@ -906,6 +906,10 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         if(rng.nextInt(100) > 33) shouldDrop = false; 
       }
 
+      if(championType == 9){
+        if(rng.nextInt(100) > 50) shouldDrop = false; 
+      }
+
       CollectibleType itemEquilibrio = CollectibleType.potion;
       bool itemEq = false;
 

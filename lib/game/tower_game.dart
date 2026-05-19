@@ -23,7 +23,6 @@ import 'package:towerrogue/game/components/projectiles/laser_beam.dart';
 import 'package:towerrogue/game/components/projectiles/orbital_shield.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
 import 'package:towerrogue/game/components/projectiles/projectile.dart';
-import 'package:towerrogue/game/overlays/crt_overlay_widget.dart';
 import 'components/gameObj/collectible.dart';
 import 'components/core/pallete.dart';
 import 'components/gameObj/arena_border.dart';

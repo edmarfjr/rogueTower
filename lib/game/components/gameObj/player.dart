@@ -265,7 +265,7 @@ class Player extends PositionComponent
   double _auraPulseTimer = 0.0;
 
   MagicShieldEffect? _shieldVisual;
-  final Paint _dashBgPaint = Paint()..color = Pallete.preto.withOpacity(0.5);
+  final Paint _dashBgPaint = Paint()..color = Pallete.preto.withValues(alpha: 0.5);
   final Paint _dashFgPaint = Paint()..color = Pallete.verdeCla;
 
   //lista de itens
@@ -378,9 +378,9 @@ class Player extends PositionComponent
       if(_dodgeAura != null){
         _dodgeAura!.removeFromParent();
       }
-      if(_shadow != null){
-        _shadow.removeFromParent();
-      }
+      
+      _shadow.removeFromParent();
+      
       if(arma != null){
         arma!.removeFromParent();
       }
@@ -505,7 +505,7 @@ class Player extends PositionComponent
       damage = damageIni;
     }
 
-    if (visual != null && isUnicorn) {
+    if (isUnicorn) {
         _colorTimer += dt;
         
         if (_colorTimer >= 0.3) {
@@ -531,7 +531,7 @@ class Player extends PositionComponent
           final rng = Random();
           Color cor = cores[rng.nextInt(cores.length)];
 
-          visual!.changeColor(cor);
+          visual.changeColor(cor);
         }
       }
 
@@ -602,7 +602,7 @@ class Player extends PositionComponent
 
         // Pinta a aura com a cor da classe atual (ou usa um Azul/Ciano genérico)
         Color auraColor =  Pallete.branco;
-        _dodgeAura!.paint.color = auraColor.withOpacity(0.8);
+        _dodgeAura!.paint.color = auraColor.withValues(alpha: 0.8);
         
       } else {
         // Se não está no dash, a aura fica invisível
@@ -1362,7 +1362,7 @@ class Player extends PositionComponent
       gameRef.world.add(
         GhostParticle(
           imagePath: visual.imagePath,
-          color: currentColor.withOpacity(0.3),
+          color: currentColor.withValues(alpha: 0.3),
           position: position.clone(), 
           size: size,
           anchor: anchor,
@@ -2499,7 +2499,7 @@ class Player extends PositionComponent
 
   void slotMachine(int custo,{bool isPortatil = false}){
     gameRef.world.add(FloatingText(
-      text: "-${custo}\$",
+      text: "-$custo\$",
       position: position.clone() + Vector2(0, -30),
       paint:Pallete.textoPadrao
     ));
@@ -2537,7 +2537,7 @@ class Player extends PositionComponent
       return;
     }
 
-    String ResultTxt = 'nada';
+    String resultTxt = 'nada';
     if (temItem){
       final newItem = Collectible(
         position:isPortatil ? position.clone() + Vector2(0, 10) : Vector2(0, 10), 
@@ -2556,13 +2556,13 @@ class Player extends PositionComponent
         attrs['color'] as Color,
       );
 
-      ResultTxt = "${attrs['name']}" ;
+      resultTxt = "${attrs['name']}" ;
           
       newItem.pop(Vector2(0, 20));
     }
 
     gameRef.world.add(FloatingText(
-        text: ResultTxt.tr(),
+        text: resultTxt.tr(),
         position: position.clone() + Vector2(0, -30),
         color: Pallete.laranja,
       ));

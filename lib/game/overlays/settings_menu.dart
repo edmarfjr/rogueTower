@@ -1,6 +1,4 @@
 import 'package:towerrogue/game/components/core/game_progress.dart';
-import 'package:towerrogue/game/overlays/hud.dart';
-
 import '../components/core/audio_manager.dart';
 import '../components/core/i18n.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +37,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
       valueListenable: widget.game.progress.languageNotifier,
       builder: (context, currentLang, child) {
         return Scaffold(
-          backgroundColor: Colors.black.withOpacity(0.7),
+          backgroundColor: Colors.black.withValues(alpha: 0.7),
           body: Center(
             child: Container(
               width: 340, // Deixei um pouco mais largo para acomodar os sliders
@@ -141,7 +139,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
                           ),
                         ),
                         value: crtOn,
-                        activeColor: Pallete.branco, 
+                        activeThumbColor: Pallete.branco, 
                         inactiveThumbColor: Pallete.cinzaEsc,
                         inactiveTrackColor: Colors.black54,
                         onChanged: (bool newValue) {
