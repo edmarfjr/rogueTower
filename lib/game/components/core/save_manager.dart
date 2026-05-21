@@ -181,6 +181,7 @@ class SaveManager {
       'bltImage':game.player.bltImage,
       'bltCor':game.player.bltCor.value,
       'bossDmgBonus':game.player.bossDmgBonus,
+      'isSparkOrb':game.player.isSparkOrb,
     };
 
     String jsonString = jsonEncode(runData);
@@ -386,9 +387,9 @@ class SaveManager {
     int? savedColorValueArma = runData['armaCor'] as int?;
     int? savedColorValueBlt = runData['bltCor'] as int?;
     game.player.bossDmgBonus = (runData['bossDmgBonus'] ?? 1.0).toDouble();
-    
     game.player.armaAng = (runData['armaAng'] ?? 0).toDouble();
     game.player.armaImage = (runData['armaImage'] ?? '');
+    game.player.isSparkOrb = runData['isSparkOrb'] ?? false;
 
     if (savedColorValueClass != null) {
       game.player.classColor = Color(savedColorValueClass); 

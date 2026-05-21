@@ -1,3 +1,4 @@
+import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/effects/floating_text.dart';
@@ -416,6 +417,7 @@ class Door extends PositionComponent with HasGameRef<TowerGame>, CollisionCallba
             return; 
         }
         _isEntering = true; 
+        AudioManager.playSfx('door_open.mp3');
         
         // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
         gameRef.camera.setBounds(

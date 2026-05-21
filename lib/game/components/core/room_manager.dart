@@ -174,8 +174,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       //gameRef.world.add(Chest(position: Vector2(0, 0)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.potionUm));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.zodiacTaurus));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeDarkLamp));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.damage));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
       //gameRef.world.add(Collectible(position: Vector2(0,64), type: CollectibleType.familiarBlock));
@@ -1266,7 +1266,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       Vector2(0, 20), Vector2(0, -20), Vector2(20, 20),
       Vector2(20, -20), Vector2(-20, -20), Vector2(-20, 20),
     ];
-
+    AudioManager.playSfx('powerUp.mp3');
     for (var dir in directions) {
       createExplosionEffect(gameRef.world, dir, Pallete.branco, count: 10);
     }

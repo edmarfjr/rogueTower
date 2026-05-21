@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:towerrogue/game/components/gameObj/familiar.dart';
@@ -11,6 +12,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:towerrogue/game/components/projectiles/poison_puddle.dart';
+import 'package:towerrogue/game/components/projectiles/time_bomb_effect.dart';
 //import '../core/game_icon.dart';
 import '../enemies/enemy.dart'; 
 import '../core/pallete.dart';
@@ -110,6 +112,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
 
   bool rotaciona = false;
 
+  final bool isSparkOrb;
+  double sparkOrbTimer = 0.0;
+  final double sparkOrbInterval = 0.5;
+
+  final bool isBombaRelogio ;
+
   Projectile({
     required Vector2 position, 
     required this.direction,
@@ -158,6 +166,8 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     this.isFear = false,
     this.isCharm = false,
     this.refratado = false,
+    this.isSparkOrb = false,
+    this.isBombaRelogio = false,
     Vector2? iniPosition,
   }): hbSize = hbSize ?? Vector2.all(16.0),
       _currentRadius = (hbSize?.x ?? 16) / 2, // Raio inicial baseado no tamanho
@@ -282,6 +292,14 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       visualAngle += 15 * dt; 
       _updateRotation();
     }
+
+    if(isSparkOrb){
+      sparkOrbTimer += dt;
+      if(sparkOrbTimer >= sparkOrbInterval){
+        sparkOrbTimer = 0;
+        _gerarFaiscasEletricas(position.clone(), damage, alcance: 48.0, quantidadeMaxFaiscas: 2, quantidadeMinFaiscas: 1);
+      }
+    } 
 
     if(fireHazzard) _createHazard(dt, isFire: true, tmp: 1/speed);
 
@@ -538,9 +556,9 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     }
   }
 
-  void _gerarFaiscasEletricas(Vector2 pontoDeImpacto, double danoOriginal) {
-    int quantidadeFaiscas = Random().nextInt(2) + 2; 
-    double alcanceDaFaisca = 62.0; // Distância máxima que a faísca solta consegue pular
+  void _gerarFaiscasEletricas(Vector2 pontoDeImpacto, double danoOriginal,{double alcance = 62.0, int quantidadeMaxFaiscas = 4, int quantidadeMinFaiscas = 2}) {
+    int quantidadeFaiscas = Random().nextInt(quantidadeMaxFaiscas - quantidadeMinFaiscas) + quantidadeMinFaiscas;
+    double alcanceDaFaisca = alcance; // Distância máxima que a faísca solta consegue pular
 
     // 1. Escaneia quem está perto o suficiente para tomar um choque
     List<Enemy> inimigosProximos = [];
@@ -719,10 +737,12 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
     // 2. COLISÃO COM INIMIGOS / PLAYER
     if (isEnemyProjectile) {
       if (other is Player) {
+        if (other.isBodySlamming) return;
         createExplosionEffect(gameRef.world, hitPos, Pallete.vermelho, count: 10);
         
         final rnd = Random();
         if(rnd.nextInt(100) < 50 && other.refletirChance){
+          AudioManager.playSfx('block.mp3');
           isStun = true;
           refletir(pos:hitPos);
           return; 
@@ -741,6 +761,21 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
       if (other is Enemy && !other.isInvencivel && !other.isIntangivel && !other.isCharmed) {
         createExplosionEffect(gameRef.world, hitPos, other.originalColor, count: 10);
         _hitTargets.add(other); 
+
+        if(isBombaRelogio){
+          bool jaTemBomba = other.children.whereType<TimeBombEffect>().isNotEmpty;
+    
+        if (!jaTemBomba) {
+            other.add(TimeBombEffect(
+              target: other,
+              dano: damage, 
+              canSpread: true,
+            ));
+          }
+          
+          removeFromParent();
+        }
+
         other.setKnockBack(other,force:knockbackForce);
         other.takeDamage(danoAtual, critico: critico);
         if(isStun)other.setConfuse();
@@ -752,7 +787,7 @@ class Projectile extends PositionComponent with HasGameRef<TowerGame>, Collision
         if(isFear)other.setFear();
         if(isCharm)other.setCharm();
         if(isSpark)_gerarFaiscasEletricas(hitPos, damage/2);
-        
+
         if ((isPiercing || isBoomerang || isWave) && _homingTarget == other) {
           _homingTarget = null;
         }

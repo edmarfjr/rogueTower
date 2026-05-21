@@ -65,14 +65,15 @@ enum CollectibleType {
   pocaVeneno, rastroFogo, activeHeal, activePoisonBomb, activeBattery, battery, activeArtHp, activeMagicKey, activeHoming, activeGift, activeBandage,
   activeMidas, boloDinheiro, restock, primeiroInimigoPocaVeneno, activeCircularShots, keysToBombs, activeRandPillUnico, familiarDummy, activeBloodBag, 
   activeDullRazor, activeBoxSpider, machadoArremeco, bloquel, activeWoodenCoin, activeTurretRotate, activeDiarreiaExplosiva, jumpersCable, gravitacao, 
-  bumerangue, saw, familiarBouncer, familiarPrisma, activeBombardeioUnico, defensiveFairys, foice, familiarAtira,
+  bumerangue, saw, familiarBouncer, familiarPrisma, activeBombardeioUnico, defensiveFairys, foice, familiarAtira, activeRepulsao, activeBookFamiliar,
+  activeCorrente, activeSharpKey, activeDarkLamp,
   //itens raros
   activeRerollItem, goldDmg, activeUnicornUnico, activeTurretUnico, activeD10, orbitalShield, itemExtraBoss, activeSlot, activeFreezeBomb, 
   activeBltDetonator, activeGoldenrazor, activeGlassStaff, activeBuracoNegro, cardinalShot, activeLoja, activeFear, goldShot, familiarFinger, 
   familiarRefletor, berserk, audacious, steroids, cafe, freeze, magicShield, concentration, soda, defBurst, kinetic, heavyShot, decoy, 
   magicMush, activeMagicKeyChain, molotov, activeTurret, flail, glifoEquilibrio, bltFireHazard, trofelCampeao, familiarLanca, familiarDmgBns, 
   activeRestart, activeCleaver, bombaBuracoNegro, activeKamikaze, retribuicao, activeSacrifFamiliar, masterOrb, voo, activeJarroFadas, retaliar, 
-  familiarFreeze, activeJarroDeVida, evasao, activeConvBruta, familiarBlock, revive,
+  familiarFreeze, activeJarroDeVida, evasao, activeConvBruta, familiarBlock, revive, activeBodySlam, activeBombaRelogio, activeMoedaTorta,
   //itens epicos
   antimateria, homing, conqCrown, tornado, tripleShot, activeLicantropia, regenShield, activeD6, splitShot,
   confuseCrit, pregos, bombDecoy,activeHeartConverter, activeDivineShield, activeRitualDagger, activeMagicMirror, charmOnCrit, 
@@ -80,8 +81,8 @@ enum CollectibleType {
   familiarGlitch, familiarDmgBuff, familiarCircProt, glitterBomb, clusterShot, familiarEye, adrenalina, eutanasia, goldHeart, activeRandPill,
   portalBoss, noveVidas, activePacmen, hurtPac, zodiacAquarius, zodiacAries, zodiacCancer, zodiacCapricorn, zodiacGemini, zodiacLeo, zodiacLibra,
   zodiacPisces, zodiacSargittarius, zodiacScorpio, zodiacTaurus, zodiacVirgo, zodiac, activeScroll, familiarMastery, activeGoldenBox,
-  activePa, activeBoxOfFriends, activeDupliItem, activeSuperLaser, activeNuke, bltBuracoNegro,
-  bltSparks, paralisia, devilInside, rainbowShot,
+  activePa, activeBoxOfFriends, activeDupliItem, activeSuperLaser, activeNuke, bltBuracoNegro,sparkOrb,bltSparks, paralisia, devilInside, rainbowShot,
+  
 }
 
 
@@ -123,6 +124,11 @@ bool isItemRecarregavel(CollectibleType type) {
     CollectibleType.activeCleaver,
     CollectibleType.activeKamikaze,
     CollectibleType.activeWoodenCoin,
+    CollectibleType.activeBombaRelogio,
+    CollectibleType.activeMoedaTorta,
+    CollectibleType.activeBookFamiliar,
+    CollectibleType.activeSharpKey,
+    CollectibleType.activeDarkLamp,
   ];
   return recarregaveis.contains(type);
 }
@@ -132,6 +138,9 @@ bool isItemRecarregavelTempo(CollectibleType type) {
     CollectibleType.activeGlassStaff,
     CollectibleType.activeBltDetonator,
     CollectibleType.activeCircularShots,
+    CollectibleType.activeBodySlam,
+    CollectibleType.activeRepulsao,
+    CollectibleType.activeCorrente,
   ];
   return recarregaveisTempo.contains(type);
 }
@@ -540,6 +549,24 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       
       // Como tem return aqui, chamamos o unlock antes de sair
       _tentaDesbloquearClasse(game);
+
+      if (type == CollectibleType.activeSharpKey) { // Substitua pelo nome real do seu item
+      
+      // 1. Dá as 5 chaves instantaneamente
+      gameRef.keysNotifier.value += 5;
+
+      // 2. Feedback Visual: Mostra para o jogador que ele ganhou algo!
+      gameRef.world.add(FloatingText(
+        text: '+5 ${'keys'.tr()}!',
+        position: absoluteCenter, 
+        color: Pallete.laranja, // Laranja combina bem com chaves!
+        fontSize: 14,
+      ));
+
+      // 3. Feedback Sonoro (opcional, mas recomendado)
+      // AudioManager.playSfx('collect.mp3'); 
+    }
+
       return; 
     }
     
@@ -1044,7 +1071,25 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       case CollectibleType.cachaca:
         return {'name': 'cachaca'.tr(), 'desc': 'cachacaDesc'.tr(), 'icon': 'garrafa', 'color': Pallete.cinzaCla}; 
       case CollectibleType.massagem:
-        return {'name': 'massagem'.tr(), 'desc': 'massagemDesc'.tr(), 'icon': 'relaxado', 'color': Pallete.verdeCla};   
+        return {'name': 'massagem'.tr(), 'desc': 'massagemDesc'.tr(), 'icon': 'relaxado', 'color': Pallete.verdeCla}; 
+      case CollectibleType.activeBodySlam:
+        return {'name': 'activeBodySlam'.tr(), 'desc': 'activeBodySlamDesc'.tr(), 'icon': 'bodySlam', 'color': Pallete.vermelho};    
+      case CollectibleType.activeRepulsao:
+        return {'name': 'activeRepulsao'.tr(), 'desc': 'activeRepulsaoDesc'.tr(), 'icon': 'repulsao', 'color': Pallete.cinzaCla};    
+      case CollectibleType.sparkOrb:
+        return {'name': 'sparkOrb'.tr(), 'desc': 'sparkOrbDesc'.tr(), 'icon': 'sparkOrb', 'color': Pallete.azulCla}; 
+      case CollectibleType.activeBombaRelogio:
+        return {'name': 'activeBombaRelogio'.tr(), 'desc': 'activeBombaRelogioDesc'.tr(), 'icon': 'bombaRelogio', 'color': Pallete.vermelho};  
+      case CollectibleType.activeMoedaTorta:
+        return {'name': 'activeMoedaTorta'.tr(), 'desc': 'activeMoedaTortaDesc'.tr(), 'icon': 'moedaTorta', 'color': Pallete.laranja};      
+      case CollectibleType.activeBookFamiliar:
+        return {'name': 'activeBookFamiliar'.tr(), 'desc': 'activeBookFamiliarDesc'.tr(), 'icon': 'book', 'color': Pallete.verdeEsc};      
+      case CollectibleType.activeCorrente:
+        return {'name': 'activeCorrente'.tr(), 'desc': 'activeCorrenteDesc'.tr(), 'icon': 'corrente', 'color': Pallete.cinzaCla};      
+      case CollectibleType.activeSharpKey:
+        return {'name': 'activeSharpKey'.tr(), 'desc': 'activeSharpKeyDesc'.tr(), 'icon': 'sharpKey', 'color': Pallete.laranja};      
+     case CollectibleType.activeDarkLamp:
+        return {'name': 'activeDarkLamp'.tr(), 'desc': 'activeDarkLampDesc'.tr(), 'icon': 'lamp', 'color': Pallete.cinzaEsc};      
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }
@@ -1147,16 +1192,6 @@ List<CollectibleType> retornaBebidas(){
 
 List<CollectibleType> retornaItensComuns(player) {
     List<CollectibleType> itens = [
-      // Atributos base e cura (do seu exemplo original)
-      CollectibleType.damage,
-      CollectibleType.fireRate,
-      CollectibleType.moveSpeed, 
-      CollectibleType.range,
-      CollectibleType.keys,
-      CollectibleType.dash,
-      CollectibleType.sanduiche,
-      
-      // Itens Comuns
       CollectibleType.bombas,
       CollectibleType.piercing,
       CollectibleType.fogo,
@@ -1205,6 +1240,11 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.defensiveFairys,
       CollectibleType.foice,
       CollectibleType.familiarAtira,
+      CollectibleType.activeRepulsao,
+      CollectibleType.activeBookFamiliar,
+      CollectibleType.activeCorrente,
+      CollectibleType.activeSharpKey,
+      CollectibleType.activeDarkLamp,
     ];
     
     return _filtrarPool(itens, player);
@@ -1238,7 +1278,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.cafe,
       CollectibleType.freeze,
       CollectibleType.magicShield,
-   //  CollectibleType.alcool,
+      CollectibleType.activeBombaRelogio,
       CollectibleType.concentration,
       CollectibleType.soda,
       CollectibleType.defBurst,
@@ -1271,6 +1311,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.activeConvBruta,
       CollectibleType.familiarBlock,
       CollectibleType.revive,
+      CollectibleType.activeMoedaTorta,
     ];
 
     return _filtrarPool(itens, player);
@@ -1346,6 +1387,7 @@ List<CollectibleType> retornaItensComuns(player) {
       CollectibleType.paralisia,
       CollectibleType.devilInside,
       CollectibleType.rainbowShot,
+      CollectibleType.sparkOrb,
     ];
 
     return _filtrarPool(itens, player);
@@ -3673,6 +3715,136 @@ class CollectibleLogic {
           text = "massagem";
           //color = Pallete.vermelho;
           break; 
+
+        case CollectibleType.activeBodySlam:
+          player.ativarBodySlam();
+          text = "activeBodySlam";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeRepulsao:
+          game.world.add(Explosion(position: player.position, damagesPlayer:false, damage:0, radius:72, owner: player, knockbackForce: 500.0));
+          text = "activeRepulsao";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.sparkOrb:
+          player.isSparkOrb = true;
+          text = "sparkOrb";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeBombaRelogio:
+          player.usarItemBombaRelogio();
+          text = "activeBombaRelogio";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeMoedaTorta:
+          final itensNoChao = game.world.children.whereType<Collectible>().toList();
+
+          final naoRolar = [
+            CollectibleType.chest, CollectibleType.rareChest, 
+            CollectibleType.bank, CollectibleType.alquimista, CollectibleType.nextLevel, 
+            CollectibleType.shop, CollectibleType.boss,
+            CollectibleType.darkShop, CollectibleType.desafio
+          ];
+
+          if(itensNoChao.isEmpty){
+            return {
+                'text': "Nada para duplicar!".tr(), 
+                'color': Pallete.branco, 
+                'sucesso': false
+              };
+          }
+          int rnd = Random().nextInt(100);
+          if(rnd < 30){
+            for (var item in itensNoChao) {
+              if (!naoRolar.contains(item.type)){
+
+                Vector2 pos = item.position.clone();
+                item.removeFromParent();
+                game.world.add(Collectible(position: pos, type: CollectibleType.coinUm));
+                
+                createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+              }
+            }
+          }else{
+            for (var item in itensNoChao) {
+              if (!naoRolar.contains(item.type)){
+
+                CollectibleType novoItem = item.type;
+                  
+                Vector2 pos = item.position.clone() + Vector2(Random().nextDouble()*20-40,Random().nextDouble()*20-40);
+                
+                game.world.add(Collectible(position: pos, type: novoItem));
+                
+                createExplosionEffect(game.world, pos, Pallete.lilas, count: 15);
+              }
+            }
+          }
+          
+
+          text = "Duplicado";
+          //color = Pallete.vermelho;
+          break;
+
+        case CollectibleType.activeBookFamiliar:
+          final familiares = [
+            FamiliarType.decoy,
+            FamiliarType.block,
+            FamiliarType.atira,
+            FamiliarType.fly,
+            FamiliarType.turret,
+            FamiliarType.freeze,
+            FamiliarType.glitch,
+            FamiliarType.dmgBuff,
+            FamiliarType.circProt,
+            FamiliarType.finger,
+            FamiliarType.bouncer,
+            FamiliarType.eye,
+            FamiliarType.prisma,
+            FamiliarType.refletor,
+            FamiliarType.dummy,
+            FamiliarType.gemini,
+            FamiliarType.aranha,
+            FamiliarType.turretRotate,
+            FamiliarType.lanca,
+          ];
+
+          familiares.shuffle();
+
+            final f = Familiar(position: player.position.clone(),
+                                  type: familiares[0], 
+                                  player: player,
+                                  retorna: false,
+                                  );
+            player.familiars.add(f);
+            game.world.add(f);
+         // }
+          text = "activeBookFamiliar";
+          break;
+
+        case CollectibleType.activeCorrente:
+          game.world.add(Explosion(position: player.position, damagesPlayer:false, damage:0, radius:72, owner: player, knockbackForce: 50, isParalise: true));
+          text = "activeCorrente";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeSharpKey:
+          player.usarSharpKey();
+          text = "activeCorrente";
+          //color = Pallete.vermelho;
+          break; 
+
+        case CollectibleType.activeDarkLamp:
+          player.increaseHp(-2);
+          var itens = retornaItensRaros(player);
+          itens.shuffle();
+          game.world.add(Collectible(position: player.position.clone() + Vector2(0, -16), type:itens[0]));
+          text = "activeDarkLamp";
+          //color = Pallete.vermelho;
+          break;
 
         default:
           text = "";

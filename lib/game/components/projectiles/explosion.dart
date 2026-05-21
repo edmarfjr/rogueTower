@@ -27,6 +27,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
   final bool isCharm;
   final bool isGlitter;
   final bool isFear;
+  final bool isParalise;
+  final double knockbackForce;
 
   double _timer = 0;
   final double _duration = 0.4;
@@ -35,6 +37,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     required Vector2 position,
     this.radius = 60,
     this.damage = 1,
+    this.knockbackForce = 300.0,
     this.damagesPlayer = true,
     this.apagaTiros = false,
     this.owner,
@@ -43,6 +46,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     this.isCharm = false,
     this.isGlitter = false,
     this.isFear = false,
+    this.isParalise = false,
     Color? cor,
     Color? corBorda,
   }) : cor = cor ?? Pallete.laranja,
@@ -77,6 +81,8 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
             }
             if(isFear){
               e.setFear();
+            }if(isParalise){
+              e.setParalise();
             }else{
               if(isGlitter){
                 int rnd = Random().nextInt(6);
@@ -108,6 +114,7 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
                     item.pop(Vector2(direcaoX, 0), altura:altura);
                 }
               }
+              setKnockBack(e);
               e.takeDamage(damage,critico: false); 
             }
          }
@@ -187,5 +194,13 @@ class Explosion extends PositionComponent with HasGameRef<TowerGame> {
     canvas.drawCircle(Offset.zero, currentRadius, paintBorder);
     canvas.drawCircle(Offset.zero, currentRadius-2, paintBorder);
     canvas.drawCircle(Offset.zero, currentRadius-4, paintBorder);
+  }
+
+  void setKnockBack(other) {
+    Vector2 knockbackDir = (position - other.position).normalized();
+          
+    double forcaDoEmpurrao = knockbackForce; 
+  
+    if(other is Enemy)other.knockbackVelocity.setFrom(-knockbackDir * forcaDoEmpurrao);
   }
 }

@@ -17,7 +17,6 @@ class ElectricSpark extends Component {
     _generateLightning();
   }
 
-  // Define uma prioridade alta para desenhar por cima dos tiros e inimigos
   @override
   int get priority => 80;
 
@@ -60,20 +59,16 @@ class ElectricSpark extends Component {
 
   @override
   void render(Canvas canvas) {
-    // 1. O Brilho Externo (Glow)
     final glowPaint = Paint()
-      ..color = Pallete.azulCla.withOpacity(0.6) // Ciano Elétrico
-      ..strokeWidth = 4.0
+      ..color = Pallete.azulCla.withOpacity(0.6) 
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      // BlendMode.plus soma a cor com o fundo, criando um efeito de luz real
-      // que vai combinar perfeitamente com o seu shader CRT!
       ..blendMode = BlendMode.plus; 
 
-    // 2. O Núcleo do Raio (Branco Puro)
     final corePaint = Paint()
       ..color = Pallete.branco
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 

@@ -389,6 +389,13 @@ class CharacterRoster {
         CollectibleType.laser,
         CollectibleType.homing,
         CollectibleType.activeHoming,
+        CollectibleType.bumerangue,
+        CollectibleType.saw,
+        CollectibleType.wave,
+        CollectibleType.activeGlassStaff,
+        CollectibleType.sparkOrb,
+        CollectibleType.rainbowShot,
+        
       ],
       isUnlockedByDefault: false,
       unlockConditionText: "bombermanCond".tr(),
@@ -421,7 +428,8 @@ class CharacterRoster {
         CollectibleType.bumerangue,
         CollectibleType.saw,
         CollectibleType.wave,
-        CollectibleType.activeGlassStaff
+        CollectibleType.activeGlassStaff,
+        CollectibleType.sparkOrb,
       ],
       isUnlockedByDefault: false,
       unlockConditionText: "samuelaCond".tr(),

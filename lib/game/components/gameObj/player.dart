@@ -301,6 +301,15 @@ class Player extends PositionComponent
 
   double bossDmgBonus = 1;
 
+  bool isBodySlamming = false;
+  double _bodySlamTimer = 0;
+  final double _bodySlamDuration = 0.4; 
+  Vector2 _bodySlamDir = Vector2.zero();
+  final double _danoDoBodySlam = 15.0;
+  final double _raioDoBodySlam = 48.0; 
+
+  bool isSparkOrb = false;
+
   final ValueNotifier<List<ActiveDrinkEffect>> drinksNotifier = ValueNotifier([]);
   int get drunkennessLevel => drinksNotifier.value.length;
 
@@ -343,14 +352,17 @@ class Player extends PositionComponent
     if (type == CollectibleType.activeKamikaze) return 0;
     if (type == CollectibleType.activeWoodenCoin) return 1;
     if (type == CollectibleType.cajadoQuebrado) return 5;
+    if (type == CollectibleType.activeBombaRelogio) return 1;
+    if (type == CollectibleType.activeSharpKey) return 0;
+    if (type == CollectibleType.activeDarkLamp) return 0;
     
     return 5; 
   }
 
   double tempoItem(CollectibleType type) {
     // Retorna os segundos necessários para cada item de tempo
-    // if (type == CollectibleType.activeLaserTempo) return 8.0; 
-    
+    if (type == CollectibleType.activeBodySlam) return 10.0; 
+    if (type == CollectibleType.activeCorrente) return 10.0; 
     return 5.0; // Padrão: 5 segundos
   }
 
@@ -611,6 +623,37 @@ class Player extends PositionComponent
       }
     }
     _animateMovement(dt);
+    if (isBodySlamming) {
+      _bodySlamTimer += dt;
+      double progress = _bodySlamTimer / _bodySlamDuration;
+
+      // 1. Move o personagem brutalmente para a direção do pulo (velocidade 3x maior)
+      position += _bodySlamDir * (moveSpeed * 3.0) * dt; 
+
+      // 2. A Mágica Visual: O pulo em si!
+      // Usamos sin() que vai de 0 a 1 e volta a 0, criando um arco perfeito.
+      double alturaDoPulo = sin(progress * pi) * 32.0; // Sobe até 24 pixels
+      
+      // Levanta o corpo mantendo a sombra no chão
+      visual.position.y = (size.y) - alturaDoPulo;
+
+      if(itemUsadoIcon!=null){
+        itemUsadoIcon!.position.y = visual.position.y - 32; // Mantém o ícone junto do corpo
+      }
+
+      if(arma != null){
+       arma!.position = absoluteCenter - Vector2(0, alturaDoPulo);
+      }
+
+      // 3. Verifica se aterrissou
+      if (progress >= 1.0) {
+        visual.position.y = size.y; // Reseta a posição Y do corpo
+        arma!.position.y = visual.position.y - 8; // Mantém a arma junto do corpo
+        _aterrissarBodySlam();
+      }
+      
+      return; // SAI DO UPDATE: Impede de andar, respirar ou atirar enquanto voa!
+    }
     if(!isUnicorn && !isBomber && !isPac)_handleAutoAttack(dt);
     _handleInvincibility(dt);
     _keepInBounds(); 
@@ -651,6 +694,31 @@ class Player extends PositionComponent
       }
     }
 
+  }
+
+  void ativarBodySlam() {
+    if (isBodySlamming) return; // Evita usar duas vezes seguidas no ar
+
+    isBodySlamming = true;
+    _bodySlamTimer = 0;
+
+    // Descobre para onde pular: tenta a direção do movimento, senão a da mira, senão pra frente
+    if (!velocity.isZero()) {
+      _bodySlamDir = velocity.normalized();
+    } else if (!velocityDash.isZero()) {
+      _bodySlamDir = velocityDash.normalized();
+    } else {
+      _bodySlamDir = Vector2(visual.scale.x.sign, 0); 
+    }
+    
+    // Toca um sonzinho de impulso se quiser
+    // AudioManager.playSfx('dash.mp3'); 
+  }
+
+  void _aterrissarBodySlam() {
+    gameRef.world.add(Explosion(position: position, damagesPlayer:false, damage:damage*2, radius:_raioDoBodySlam, owner: this, isStun:true));
+    isBodySlamming = false;
+    setInvencibility(0.3);
   }
 
   void ativaLicantropia(){
@@ -1969,16 +2037,29 @@ class Player extends PositionComponent
         case 7:
           break;
       }
-
     }
+
+    double sizeAux = 1;
+
+    if(isSparkOrb){
+      sizeAux = 1.5;    
+      cor = Pallete.azulCla;
+      aRange *= 4;
+      speed /= 5;
+    }
+
+    if(superShot){
+      sizeAux = 5;    
+    }
+
     gameRef.world.add(Projectile(
       owner: this,
       position: position.clone() + dir * 8, 
       direction: dir, 
       damage: retribuicao? dmg : noDamage? 0.0 : dmg, 
       speed: isOrbitalShot ? 4.0 : isHeavyShot ? speed/2 : isWave ? speed * 0.75 : isSaw ? speed/10 : speed,
-      hbSize: superShot? Vector2.all(bltSize* 5) : Vector2.all(bltSize),
-      size: superShot? Vector2.all(16 * 5) : Vector2.all(16),
+      hbSize: Vector2.all(bltSize* sizeAux),
+      size: Vector2.all(16 * sizeAux),
       image:isMachadoArremeco? 'sprites/projeteis/machadoArremeco.png' : img ,
       dieTimer: (isBoomerang && isSaw)? aRange*3 : isBoomerang ? aRange*1.5 : isOrbitalShot ? 2 : (isSaw || isHeavyShot) ? aRange*2 : aRange,
       apagaTiros: hasAntimateria,
@@ -2009,8 +2090,98 @@ class Player extends PositionComponent
       isPoison:tempPoison || isPoison,
       isBurn: tempBurn || isBurn,
       isCharm: tempCharm,
+      isSparkOrb: isSparkOrb,
       cor:cor,
     ));
+  }
+
+  void usarItemBombaRelogio() {
+    // 1. Pega todos os inimigos vivos
+    final inimigos = gameRef.world.children
+        .whereType<Enemy>()
+        .where((e) => e.hp > 0);
+
+    if (inimigos.isEmpty) return; // Não gasta o item se não tiver ninguém na sala!
+
+    // 2. Acha o inimigo mais próximo
+    Enemy? alvo;
+    double menorDistancia = double.infinity;
+
+    for (final inimigo in inimigos) {
+      double dist = absoluteCenter.distanceTo(inimigo.absoluteCenter);
+      if (dist < menorDistancia) {
+        menorDistancia = dist;
+        alvo = inimigo;
+      }
+    }
+
+    // 3. Atira o projétil
+    if (alvo != null) {
+      Vector2 direcaoTiro = (alvo.absoluteCenter - absoluteCenter).normalized();
+      
+      gameRef.world.add(Projectile(
+      owner: this,
+      position: position.clone() + direcaoTiro * 8, 
+      direction: direcaoTiro, 
+      damage: damage * 3, 
+      speed: bltSpeed,
+      hbSize: Vector2.all(16),
+      size: Vector2.all(16),
+      image:'sprites/projeteis/bombaRelogio.png',
+      dieTimer: 1,
+      isBombaRelogio: true,
+      cor:Pallete.vermelho,
+    ));
+    }
+  }
+
+  void usarSharpKey() {
+    // 1. Pega todos os inimigos vivos
+    final inimigos = gameRef.world.children
+        .whereType<Enemy>()
+        .where((e) => e.hp > 0);
+
+    if (inimigos.isEmpty) {
+      gameRef.world.add(FloatingText(
+        text: "noKeys".tr(),
+        position: position.clone(), 
+        color: Pallete.branco,
+        fontSize: 12,
+      ));
+      return;
+    } // Não gasta o item se não tiver ninguém na sala!
+
+    // 2. Acha o inimigo mais próximo
+    Enemy? alvo;
+    double menorDistancia = double.infinity;
+
+    for (final inimigo in inimigos) {
+      double dist = absoluteCenter.distanceTo(inimigo.absoluteCenter);
+      if (dist < menorDistancia) {
+        menorDistancia = dist;
+        alvo = inimigo;
+      }
+    }
+
+    // 3. Atira o projétil
+    if (alvo != null) {
+      if(gameRef.keysNotifier.value <= 0) return;
+      gameRef.keysNotifier.value =-1;
+      Vector2 direcaoTiro = (alvo.absoluteCenter - absoluteCenter).normalized();
+      
+      gameRef.world.add(Projectile(
+      owner: this,
+      position: position.clone() + direcaoTiro * 8, 
+      direction: direcaoTiro, 
+      damage: damage * 5, 
+      speed: bltSpeed,
+      hbSize: Vector2.all(16),
+      size: Vector2.all(16),
+      image:'sprites/projeteis/sharpKey.png',
+      dieTimer: 1,
+      cor:Pallete.laranja,
+    ));
+    }
   }
 
   void criaBomba({bool semCusto = false}){
@@ -2030,7 +2201,7 @@ class Player extends PositionComponent
       ));
     } else {
       gameRef.world.add(FloatingText(
-        text: "Sem Bombas",
+        text: "noBombs".tr(),
         position: position.clone(), 
         color: Pallete.branco,
         fontSize: 12,
@@ -2165,6 +2336,7 @@ class Player extends PositionComponent
     classColor = Pallete.branco;
     classImage = '';
     bossDmgBonus = 1;
+    isSparkOrb = false;
 
     criaVisual(reset:true);
     visual.changeColor(Pallete.branco);
@@ -2194,7 +2366,7 @@ class Player extends PositionComponent
       }
     }
     if (other is Enemy && !other.isIntangivel  && !other.isCharmed && other.hp>0 &&
-     !(isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax)) {
+     !(isUnicorn || isDashing && isDashDamages || other.encolhido || isPac || zodiacAries && velMax || isBodySlamming)) {
       int danoIni = 1;
       if(other.isBoss || other.championType>0) danoIni = 2;
       takeDamage(danoIni);
@@ -2218,7 +2390,7 @@ class Player extends PositionComponent
   }
 
   void _handleWallCollision(Set<Vector2> points, PositionComponent wall) {
-    if(!voo){
+    if(!voo && !isBodySlamming){
       _collisionBuffer.setFrom(position);
       _collisionBuffer.sub(wall.position);
       _collisionBuffer.normalize();

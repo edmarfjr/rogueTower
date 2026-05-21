@@ -51,7 +51,7 @@ class PauseMenu extends StatelessWidget {
                     color: Pallete.amarelo,
                   ),
                 ),
-                const SizedBox(height: 20),
+              //  const SizedBox(height: 20),
 
                 // -----------------------------------------
                 // CAIXA DE STATUS DO JOGADOR
@@ -89,7 +89,7 @@ class PauseMenu extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 10),
+               // const SizedBox(height: 10),
 
                 Text(
                   "${'tempo'.tr()} ${game.formattedRunTime}",
@@ -104,14 +104,14 @@ class PauseMenu extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 
-                const SizedBox(height: 10),
+                //const SizedBox(height: 10),
 
                 // -----------------------------------------
                 // CARROSSEL DE ITENS ADQUIRIDOS
                 // -----------------------------------------
                 AcquiredItemsCarousel(items: itemsList),
 
-                const SizedBox(height: 30),
+               // const SizedBox(height: 30),
                 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -132,7 +132,7 @@ class PauseMenu extends StatelessWidget {
                   child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
                 
-                const SizedBox(height: 15),
+              //  const SizedBox(height: 15),
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -152,7 +152,7 @@ class PauseMenu extends StatelessWidget {
                   child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
 
-                const SizedBox(height: 15),
+               // const SizedBox(height: 15),
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -172,7 +172,7 @@ class PauseMenu extends StatelessWidget {
                   child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
                 ),
                 
-                const SizedBox(height: 20),
+                //const SizedBox(height: 20),
 
                 IconButton(
                   icon: const PixelSprite(
@@ -200,7 +200,7 @@ class PauseMenu extends StatelessWidget {
       children: [
         Row(
           children: [
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             Text(label, style: const TextStyle(color: Pallete.branco, fontSize: 16)),
           ],
         ),
@@ -284,7 +284,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
             "inventario".tr(),
             style:const TextStyle(color: Pallete.branco, fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,7 +319,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
             ],
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             item.name,
             style: TextStyle(color: item.color, fontSize: 16, fontWeight: FontWeight.bold),
@@ -335,7 +335,7 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
             overflow: TextOverflow.ellipsis,
           ),
           
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             "${currentIndex + 1} / ${widget.items.length}",
             style: const TextStyle(color: Pallete.cinzaCla, fontSize: 12),

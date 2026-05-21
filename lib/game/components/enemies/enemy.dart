@@ -740,6 +740,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     final rnd = Random();
     if (hp <= 0) return;
     if(isBlocking){
+      AudioManager.playSfx('block.mp3');
       gameRef.world.add(FloatingText(
           text: 'BLOCK!',
           position: position.clone() + Vector2(0, -size.y/2), 
@@ -750,6 +751,8 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
       return;
       
     }
+
+    AudioManager.playSfx('hitHurt.mp3');
     bool isCrit = false;
     double dmg = damage;
     double critChance = rnd.nextDouble() * 100;

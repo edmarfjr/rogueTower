@@ -3,6 +3,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flutter/material.dart';
+import 'package:towerrogue/game/components/core/audio_manager.dart';
 //import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 //import 'package:towerrogue/game/components/core/game_icon.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
@@ -94,11 +95,11 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
     gameRef.onInteractAction = () {
         _hideButton();
         botaoAtivo = false;
-        // --- 1. SE FOR A PORTA DE SAÍDA ---
+        
+        AudioManager.playSfx('door_open.mp3');
         if (isExit) {
           _isEntering = true; 
           
-          // LIBERTA A CÂMERA: Expande os limites para ela conseguir ir até a porta
           gameRef.camera.setBounds(
             Rectangle.fromCenter(center: Vector2.zero(), size: Vector2(4000, 4000)),
             considerViewport: false,
@@ -126,7 +127,6 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
           
         }
 
-        // --- 2. SE ESTIVER TRANCADA ---
         if (isLocked) {
           if (!requiresBomb) {
             if (gameRef.keysNotifier.value > 0) {
@@ -143,7 +143,6 @@ class SecretDoor extends PositionComponent with HasGameRef<TowerGame> {
           }
         } 
 
-        // --- 3. SE ESTIVER DESTRANCADA (ENTRAR!) ---
         else {
           _isEntering = true; 
           
