@@ -173,7 +173,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       //gameRef.world.add(EnemyFactory.createRat(Vector2(-50, -100)));
 
       //teste de itens
-      //gameRef.world.add(Chest(position: Vector2(0, 0)));
+      if(gameRef.difficultyMultiplier == 1)gameRef.world.add(Chest(position: Vector2(8, -200)));
       //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeDarkLamp));
       //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.damage));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
@@ -1261,14 +1261,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   }
   
   void _explosaoCriaItem() {
+    AudioManager.playSfx('powerUp.mp3');
     final directions = [
       Vector2(0, 0), Vector2(20, 0), Vector2(-20, 0),
       Vector2(0, 20), Vector2(0, -20), Vector2(20, 20),
       Vector2(20, -20), Vector2(-20, -20), Vector2(-20, 20),
     ];
-    AudioManager.playSfx('powerUp.mp3');
+    
     for (var dir in directions) {
       createExplosionEffect(gameRef.world, dir, Pallete.branco, count: 10);
     }
+    AudioManager.playSfx('pickUp.mp3');
   }
 }

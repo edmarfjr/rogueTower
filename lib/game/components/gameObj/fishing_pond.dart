@@ -184,8 +184,7 @@ class FishingPond extends PositionComponent with HasGameRef<TowerGame>, Collisio
     state = FishingState.cooldown;
     _timer = 1.0;
     fishesLeft--;
-    
-
+    atualizaIscasText();
     if (fishesLeft <= 0) {
       game.world.add(FloatingText(
         text: "sem_iscas".tr(),

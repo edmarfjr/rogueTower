@@ -1078,6 +1078,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void setCharm() {
     if (!isCharmed && !isBoss) {
       isCharmed = true;
+      AudioManager.playSfx('heal.mp3');
       numCondicoes ++;
       charmIcon = GameSprite(
         imagePath: 'sprites/condicoes/charm.png',
@@ -1095,6 +1096,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (!isFear && !isBoss) {
       isFear = true;
       numCondicoes ++;
+      AudioManager.playSfx('fear.mp3');
       fearIcon = GameSprite(
         imagePath: 'sprites/condicoes/caveira.png',
         color: Pallete.branco,
@@ -1125,6 +1127,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void setFreeze(){
     if (isFreeze) return;
+    AudioManager.playSfx('ice.mp3');
     numCondicoes ++;
     isFreeze = true;
     if (isBoss){
@@ -1191,6 +1194,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
 
   void setBurn(){
     if (burnStacks.value >= 5 + gameRef.player.stackBonus) return;
+    AudioManager.playSfx('fire.mp3');
     if(!isBurned) numCondicoes ++;
     isBurned = true;
     burnStacks.value += 1;
@@ -1230,6 +1234,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if(!isBleed) numCondicoes ++;
     isBleed = true;
     bleedStacks.value += 1;
+    AudioManager.playSfx('flesh.mp3');
 
     // Garante recriação se já tivesse sido apagado (Correção similar ao burnIcon)
     if (bleedIcon == null) {
@@ -1265,6 +1270,7 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   void setPoison({bool alastra = false}){
     if(alastra) pocaVenenoQuandoMorre = true;
     if (poisonStacks.value >= 10 + gameRef.player.stackBonus) return;
+    AudioManager.playSfx('poison.mp3');
     if(!isPoisoned) numCondicoes ++;
     isPoisoned = true;
     poisonStacks.value += 1;

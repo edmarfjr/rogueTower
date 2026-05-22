@@ -3559,7 +3559,7 @@ class CollectibleLogic {
 
         case CollectibleType.activeWoodenCoin:
           final int rng = Random().nextInt(100);
-          final pos = player.position.clone() + Vector2(0, -50);
+          final pos = player.position.clone() + Vector2(0, 8);
           var item;
           if (rng < 44) {
             game.world.add(FloatingText(text: "nada".tr(), position: pos, color: Pallete.vermelho, fontSize: 10));
