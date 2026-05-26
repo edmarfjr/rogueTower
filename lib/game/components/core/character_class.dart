@@ -161,7 +161,9 @@ class CharacterRoster {
         CollectibleType.saw,
         CollectibleType.wave,
         CollectibleType.laser,
-        CollectibleType.activeGlassStaff
+        CollectibleType.activeGlassStaff,
+        CollectibleType.sparkOrb,
+        CollectibleType.rainbowShot,
       ],
       stackBonus: 5,
       dot: 2,

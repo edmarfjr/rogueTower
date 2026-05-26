@@ -641,455 +641,455 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
   static Map<String, dynamic> getAttributes(CollectibleType t) {
     switch (t) {
       case CollectibleType.coin:
-        return {'name': 'gold'.tr(), 'desc': 'goldDesc'.tr(), 'icon': 'coins', 'color': Pallete.amarelo};
+        return {'name': 'gold', 'desc': 'goldDesc', 'icon': 'coins', 'color': Pallete.amarelo};
       case CollectibleType.coinUm:
-        return {'name': 'goldUm'.tr(), 'desc': 'goldUmDesc'.tr(), 'icon': 'coin', 'color': Pallete.amarelo};
+        return {'name': 'goldUm', 'desc': 'goldUmDesc', 'icon': 'coin', 'color': Pallete.amarelo};
       case CollectibleType.souls:
-        return {'name': 'soul'.tr(), 'desc': 'alma', 'icon': 'soul', 'color': Pallete.lilas};
+        return {'name': 'soul', 'desc': 'alma', 'icon': 'soul', 'color': Pallete.lilas};
       case CollectibleType.potion:
-        return {'name': 'heart'.tr(), 'desc': 'heartDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.vermelho};
+        return {'name': 'heart', 'desc': 'heartDesc', 'icon': 'hpCheio', 'color': Pallete.vermelho};
       case CollectibleType.potionUm:
-        return {'name': 'heartUm'.tr(), 'desc': 'heartUmDesc'.tr(), 'icon': 'hpMeio', 'color': Pallete.vermelho};
+        return {'name': 'heartUm', 'desc': 'heartUmDesc', 'icon': 'hpMeio', 'color': Pallete.vermelho};
       case CollectibleType.artificialHp:
-        return {'name': 'artificialHp'.tr(), 'desc': 'artificialHpDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.azulCla};
+        return {'name': 'artificialHp', 'desc': 'artificialHpDesc', 'icon': 'hpCheio', 'color': Pallete.azulCla};
       case CollectibleType.sanduiche:
-        return {'name': 'sanduiche'.tr(), 'desc': 'sanduiche'.tr(), 'icon': 'sanduiche', 'color': Pallete.marrom};
+        return {'name': 'sanduiche', 'desc': 'sanduiche', 'icon': 'sanduiche', 'color': Pallete.marrom};
       case CollectibleType.key:
-        return {'name': 'key'.tr(), 'desc': 'keyDesc'.tr(), 'icon': 'key', 'color': Pallete.laranja};
+        return {'name': 'key', 'desc': 'keyDesc', 'icon': 'key', 'color': Pallete.laranja};
       case CollectibleType.chaveNegra:
-        return {'name': 'chaveNegra'.tr(), 'desc': 'chaveNegraDesc'.tr(), 'icon': 'key', 'color': Pallete.cinzaEsc};
+        return {'name': 'chaveNegra', 'desc': 'chaveNegraDesc', 'icon': 'key', 'color': Pallete.cinzaEsc};
       case CollectibleType.keys:
-        return {'name': 'keys'.tr(), 'desc': 'keysDesc'.tr(), 'icon': 'molhoChaves', 'color': Pallete.laranja};
+        return {'name': 'keys', 'desc': 'keysDesc', 'icon': 'molhoChaves', 'color': Pallete.laranja};
       case CollectibleType.bomba:
-        return {'name': 'bomb'.tr(), 'desc': 'bombDesc'.tr(), 'icon': 'bomba', 'color': Pallete.lilas};
+        return {'name': 'bomb', 'desc': 'bombDesc', 'icon': 'bomba', 'color': Pallete.lilas};
       case CollectibleType.bombas:
-        return {'name': 'bombs'.tr(), 'desc': 'bombsDesc'.tr(), 'icon': 'sacoBomba', 'color': Pallete.lilas};
+        return {'name': 'bombs', 'desc': 'bombsDesc', 'icon': 'sacoBomba', 'color': Pallete.lilas};
       case CollectibleType.damage:
-        return {'name': 'potDmg'.tr(), 'desc': 'potDmgDesc'.tr(), 'icon': 'potion', 'color': Pallete.vermelho};
+        return {'name': 'potDmg', 'desc': 'potDmgDesc', 'icon': 'potion', 'color': Pallete.vermelho};
       case CollectibleType.dot:
-        return {'name': 'potDot'.tr(), 'desc': 'potDotDesc'.tr(), 'icon': 'potion', 'color': Pallete.verdeEsc};
+        return {'name': 'potDot', 'desc': 'potDotDesc', 'icon': 'potion', 'color': Pallete.verdeEsc};
       case CollectibleType.critChance:
-        return {'name': 'potChCrit'.tr(), 'desc': 'potChCritDesc'.tr(), 'icon': 'potion', 'color': Pallete.cinzaCla};
+        return {'name': 'potChCrit', 'desc': 'potChCritDesc', 'icon': 'potion', 'color': Pallete.cinzaCla};
       case CollectibleType.critDamage:
-        return {'name': 'potDmgCrit'.tr(), 'desc': 'potDmgCritDesc'.tr(), 'icon': 'potion', 'color': Pallete.lilas};
+        return {'name': 'potDmgCrit', 'desc': 'potDmgCritDesc', 'icon': 'potion', 'color': Pallete.lilas};
       case CollectibleType.fireRate:
-        return {'name': 'potFireRate'.tr(), 'desc': 'potFireRateDesc'.tr(), 'icon': 'potion', 'color': Pallete.laranja};
+        return {'name': 'potFireRate', 'desc': 'potFireRateDesc', 'icon': 'potion', 'color': Pallete.laranja};
       case CollectibleType.moveSpeed:
-        return {'name': 'boots'.tr(), 'desc': 'bootsDesc'.tr(), 'icon': 'potion', 'color': Pallete.verdeCla};
+        return {'name': 'boots', 'desc': 'bootsDesc', 'icon': 'potion', 'color': Pallete.verdeCla};
       case CollectibleType.range:
-        return {'name': 'aim'.tr(), 'desc': 'aimDesc'.tr(), 'icon': 'potion', 'color': Pallete.rosa};
+        return {'name': 'aim', 'desc': 'aimDesc', 'icon': 'potion', 'color': Pallete.rosa};
       case CollectibleType.sorte:
-        return {'name': 'sortePot'.tr(), 'desc': 'sortePotDesc'.tr(), 'icon': 'potion', 'color': Pallete.amarelo};
+        return {'name': 'sortePot', 'desc': 'sortePotDesc', 'icon': 'potion', 'color': Pallete.amarelo};
       case CollectibleType.shield:
-        return {'name': 'shield'.tr(), 'desc': 'shieldDesc'.tr(), 'icon': 'escudo', 'color': Pallete.cinzaCla};
+        return {'name': 'shield', 'desc': 'shieldDesc', 'icon': 'escudo', 'color': Pallete.cinzaCla};
       case CollectibleType.dash:
-        return {'name': 'dash'.tr(), 'desc': 'dashDesc'.tr(), 'icon': 'dash', 'color': Pallete.verdeCla};
+        return {'name': 'dash', 'desc': 'dashDesc', 'icon': 'dash', 'color': Pallete.verdeCla};
       case CollectibleType.healthContainer:
-        return {'name': 'hpContainer'.tr(), 'desc': 'hpContainerDesc'.tr(), 'icon': 'hpVazio', 'color': Pallete.vermelho};
+        return {'name': 'hpContainer', 'desc': 'hpContainerDesc', 'icon': 'hpVazio', 'color': Pallete.vermelho};
       case CollectibleType.berserk:
-        return {'name': 'berserk'.tr(), 'desc': 'berserkDesc'.tr(), 'icon': 'furia', 'color': Pallete.vermelho};
+        return {'name': 'berserk', 'desc': 'berserkDesc', 'icon': 'furia', 'color': Pallete.vermelho};
       case CollectibleType.audacious:
-        return {'name': 'audaz'.tr(), 'desc': 'audazDesc'.tr(), 'icon': 'raiva', 'color': Pallete.vermelho};
+        return {'name': 'audaz', 'desc': 'audazDesc', 'icon': 'raiva', 'color': Pallete.vermelho};
       case CollectibleType.steroids:
-        return {'name': 'steroids'.tr(), 'desc': 'steroidsDesc'.tr(), 'icon': 'seringa', 'color': Pallete.vermelho};
+        return {'name': 'steroids', 'desc': 'steroidsDesc', 'icon': 'seringa', 'color': Pallete.vermelho};
       case CollectibleType.cafe:
-        return {'name': 'cafe'.tr(), 'desc': 'cafeDesc'.tr(), 'icon': 'cafe', 'color': Pallete.marrom};
+        return {'name': 'cafe', 'desc': 'cafeDesc', 'icon': 'cafe', 'color': Pallete.marrom};
      // case CollectibleType.alcool:
-      //  return {'name': 'alcool'.tr(), 'desc': 'alcoolDesc'.tr(), 'icon': 'vinho', 'color': Pallete.lilas};
+      //  return {'name': 'alcool', 'desc': 'alcoolDesc', 'icon': 'vinho', 'color': Pallete.lilas};
       case CollectibleType.freeze:
-        return {'name': 'freeze'.tr(), 'desc': 'freezeDesc'.tr(), 'icon': 'neve', 'color': Pallete.azulCla};
+        return {'name': 'freeze', 'desc': 'freezeDesc', 'icon': 'neve', 'color': Pallete.azulCla};
       case CollectibleType.magicShield:
-        return {'name': 'magicShield'.tr(), 'desc': 'magicShieldDesc'.tr(), 'icon': 'escudoDivino', 'color': Pallete.amarelo};
+        return {'name': 'magicShield', 'desc': 'magicShieldDesc', 'icon': 'escudoDivino', 'color': Pallete.amarelo};
       case CollectibleType.orbitalShield:
-        return {'name': 'orbShield'.tr(), 'desc': 'orbShieldDesc'.tr(), 'icon': 'escudoOrbital', 'color': Pallete.lilas};
+        return {'name': 'orbShield', 'desc': 'orbShieldDesc', 'icon': 'escudoOrbital', 'color': Pallete.lilas};
       case CollectibleType.foice:
-        return {'name': 'foice'.tr(), 'desc': 'foiceDesc'.tr(), 'icon': 'foice', 'color': Pallete.lilas};
+        return {'name': 'foice', 'desc': 'foiceDesc', 'icon': 'foice', 'color': Pallete.lilas};
       case CollectibleType.revive:
-        return {'name': 'revive'.tr(), 'desc': 'reviveDesc'.tr(), 'icon': 'cogumelo', 'color': Pallete.verdeCla};
+        return {'name': 'revive', 'desc': 'reviveDesc', 'icon': 'cogumelo', 'color': Pallete.verdeCla};
       case CollectibleType.antimateria:
-        return {'name': 'antimat'.tr(), 'desc': 'antimatDesc'.tr(), 'icon': 'antimateria', 'color': Pallete.lilas};
+        return {'name': 'antimat', 'desc': 'antimatDesc', 'icon': 'antimateria', 'color': Pallete.lilas};
       case CollectibleType.piercing:
-        return {'name': 'piercing'.tr(), 'desc': 'piercingDesc'.tr(), 'icon': 'piercing', 'color': Pallete.vermelho};
+        return {'name': 'piercing', 'desc': 'piercingDesc', 'icon': 'piercing', 'color': Pallete.vermelho};
       case CollectibleType.homing:
-        return {'name': 'homing'.tr(), 'desc': 'homingDesc'.tr(), 'icon': 'telecinese', 'color': Pallete.vermelho};
+        return {'name': 'homing', 'desc': 'homingDesc', 'icon': 'telecinese', 'color': Pallete.vermelho};
       case CollectibleType.fogo:
-        return {'name': 'fogo'.tr(), 'desc': 'fogoDesc'.tr(), 'icon': 'fogo', 'color': Pallete.laranja};
+        return {'name': 'fogo', 'desc': 'fogoDesc', 'icon': 'fogo', 'color': Pallete.laranja};
       case CollectibleType.veneno:
-        return {'name': 'veneno'.tr(), 'desc': 'venenoDesc'.tr(), 'icon': 'sangue', 'color': Pallete.verdeCla};
+        return {'name': 'veneno', 'desc': 'venenoDesc', 'icon': 'sangue', 'color': Pallete.verdeCla};
       case CollectibleType.sangramento:
-        return {'name': 'sang'.tr(), 'desc': 'sangDesc'.tr(), 'icon': 'sangue', 'color': Pallete.vermelho};
+        return {'name': 'sang', 'desc': 'sangDesc', 'icon': 'sangue', 'color': Pallete.vermelho};
      case CollectibleType.druidScroll:
-        return {'name': 'druidScroll'.tr(), 'desc': 'druidScrollDesc'.tr(), 'icon': 'scroll', 'color': Pallete.verdeEsc};
+        return {'name': 'druidScroll', 'desc': 'druidScrollDesc', 'icon': 'scroll', 'color': Pallete.verdeEsc};
       case CollectibleType.dotBook:
-        return {'name': 'dotBook'.tr(), 'desc': 'dotBookDesc'.tr(), 'icon': 'book', 'color': Pallete.amarelo};
+        return {'name': 'dotBook', 'desc': 'dotBookDesc', 'icon': 'book', 'color': Pallete.amarelo};
       case CollectibleType.concentration:
-        return {'name': 'concentration'.tr(), 'desc': 'concentrationDesc'.tr(), 'icon': 'retribuicao', 'color': Pallete.azulCla};
+        return {'name': 'concentration', 'desc': 'concentrationDesc', 'icon': 'retribuicao', 'color': Pallete.azulCla};
       case CollectibleType.gravitacao:
-        return {'name': 'gravitacao'.tr(), 'desc': 'gravitacaoDesc'.tr(), 'icon': 'tiroOrbital', 'color': Pallete.branco};
+        return {'name': 'gravitacao', 'desc': 'gravitacaoDesc', 'icon': 'tiroOrbital', 'color': Pallete.branco};
       case CollectibleType.mine:
-        return {'name': 'mine'.tr(), 'desc': 'mineDesc'.tr(), 'icon': 'mina', 'color': Pallete.verdeEsc};
+        return {'name': 'mine', 'desc': 'mineDesc', 'icon': 'mina', 'color': Pallete.verdeEsc};
       case CollectibleType.soda:
-         return {'name': 'soda'.tr(), 'desc': 'sodaDesc'.tr(), 'icon': 'soda', 'color': Pallete.azulCla}; 
+         return {'name': 'soda', 'desc': 'sodaDesc', 'icon': 'soda', 'color': Pallete.azulCla}; 
       case CollectibleType.bloodstone:
-         return {'name': 'bloodstone'.tr(), 'desc': 'bloodstoneDesc'.tr(), 'icon': 'colar', 'color': Pallete.vermelho}; 
+         return {'name': 'bloodstone', 'desc': 'bloodstoneDesc', 'icon': 'colar', 'color': Pallete.vermelho}; 
       case CollectibleType.spectral:
-         return {'name': 'spectral'.tr(), 'desc': 'spectralDesc'.tr(), 'icon': 'spectralShot', 'color': Pallete.lilas}; 
+         return {'name': 'spectral', 'desc': 'spectralDesc', 'icon': 'spectralShot', 'color': Pallete.lilas}; 
       case CollectibleType.bounce:
-         return {'name': 'bounce'.tr(), 'desc': 'bounceDesc'.tr(), 'icon': 'bounceShot', 'color': Pallete.vermelho}; 
+         return {'name': 'bounce', 'desc': 'bounceDesc', 'icon': 'bounceShot', 'color': Pallete.vermelho}; 
       case CollectibleType.defBurst:
-         return {'name': 'defBurst'.tr(), 'desc': 'defBurstDesc'.tr(), 'icon': 'escudoExplode', 'color': Pallete.vermelho}; 
+         return {'name': 'defBurst', 'desc': 'defBurstDesc', 'icon': 'escudoExplode', 'color': Pallete.vermelho}; 
       case CollectibleType.kinetic:
-         return {'name': 'kinetic'.tr(), 'desc': 'kineticDesc'.tr(), 'icon': 'dash', 'color': Pallete.vermelho}; 
+         return {'name': 'kinetic', 'desc': 'kineticDesc', 'icon': 'dash', 'color': Pallete.vermelho}; 
       case CollectibleType.heavyShot:
-         return {'name': 'heavy'.tr(), 'desc': 'heavyDesc'.tr(), 'icon': 'bolaCorrente', 'color': Pallete.cinzaEsc}; 
+         return {'name': 'heavy', 'desc': 'heavyDesc', 'icon': 'bolaCorrente', 'color': Pallete.cinzaEsc}; 
       case CollectibleType.cupon:
-         return {'name': 'cupon'.tr(), 'desc': 'cuponDesc'.tr(), 'icon': 'cupon', 'color': Pallete.bege};
+         return {'name': 'cupon', 'desc': 'cuponDesc', 'icon': 'cupon', 'color': Pallete.bege};
       case CollectibleType.conqCrown:
-         return {'name': 'conqCrown'.tr(), 'desc': 'conqCrownDesc'.tr(), 'icon': 'coroa', 'color': Pallete.amarelo};
+         return {'name': 'conqCrown', 'desc': 'conqCrownDesc', 'icon': 'coroa', 'color': Pallete.amarelo};
       case CollectibleType.flail:
-         return {'name': 'flail'.tr(), 'desc': 'flailDesc'.tr(), 'icon': 'flail', 'color': Pallete.vermelho};
+         return {'name': 'flail', 'desc': 'flailDesc', 'icon': 'flail', 'color': Pallete.vermelho};
       case CollectibleType.bumerangue:
-         return {'name': 'bumerangue'.tr(), 'desc': 'bumerangueDesc'.tr(), 'icon': 'bumerangue', 'color': Pallete.marrom};
+         return {'name': 'bumerangue', 'desc': 'bumerangueDesc', 'icon': 'bumerangue', 'color': Pallete.marrom};
       case CollectibleType.pocaVeneno:
-         return {'name': 'pocaVeneno'.tr(), 'desc': 'pocaVenenoDesc'.tr(), 'icon': 'pocaVeneno', 'color': Pallete.verdeCla};
+         return {'name': 'pocaVeneno', 'desc': 'pocaVenenoDesc', 'icon': 'pocaVeneno', 'color': Pallete.verdeCla};
       case CollectibleType.rastroFogo:
-         return {'name': 'rastroFogo'.tr(), 'desc': 'rastroFogoDesc'.tr(), 'icon': 'fogoRastro', 'color': Pallete.laranja};
+         return {'name': 'rastroFogo', 'desc': 'rastroFogoDesc', 'icon': 'fogoRastro', 'color': Pallete.laranja};
       case CollectibleType.tornado:
-         return {'name': 'tornado'.tr(), 'desc': 'tornadoDesc'.tr(), 'icon': 'sonicBoom', 'color': Pallete.branco};
+         return {'name': 'tornado', 'desc': 'tornadoDesc', 'icon': 'sonicBoom', 'color': Pallete.branco};
       case CollectibleType.tripleShot:
-         return {'name': 'tripleShot'.tr(), 'desc': 'tripleShotDesc'.tr(), 'icon': 'tripleShot', 'color': Pallete.branco};
+         return {'name': 'tripleShot', 'desc': 'tripleShotDesc', 'icon': 'tripleShot', 'color': Pallete.branco};
       case CollectibleType.activeHeal:
-         return {'name': 'activeHeal'.tr(), 'desc': 'activeHealDesc'.tr(), 'icon': 'potCura', 'color': Pallete.vermelho};
+         return {'name': 'activeHeal', 'desc': 'activeHealDesc', 'icon': 'potCura', 'color': Pallete.vermelho};
       case CollectibleType.activePoisonBomb:
-         return {'name': 'activePoisonBomb'.tr(), 'desc': 'activePoisonBombDesc'.tr(), 'icon': 'bombaVeneno', 'color': Pallete.verdeCla};
+         return {'name': 'activePoisonBomb', 'desc': 'activePoisonBombDesc', 'icon': 'bombaVeneno', 'color': Pallete.verdeCla};
       case CollectibleType.activeLicantropia:
-         return {'name': 'activeLicantropia'.tr(), 'desc': 'activeLicantropiaDesc'.tr(), 'icon': 'licantropo', 'color': Pallete.vermelho};
+         return {'name': 'activeLicantropia', 'desc': 'activeLicantropiaDesc', 'icon': 'licantropo', 'color': Pallete.vermelho};
       case CollectibleType.activeBattery:
-         return {'name': 'activeBattery'.tr(), 'desc': 'activeBatteryDesc'.tr(), 'icon': 'pilha', 'color': Pallete.azulCla};
+         return {'name': 'activeBattery', 'desc': 'activeBatteryDesc', 'icon': 'pilha', 'color': Pallete.azulCla};
       case CollectibleType.battery:
-         return {'name': 'battery'.tr(), 'desc': 'batteryDesc'.tr(), 'icon': 'bateria', 'color': Pallete.azulCla};
+         return {'name': 'battery', 'desc': 'batteryDesc', 'icon': 'bateria', 'color': Pallete.azulCla};
       case CollectibleType.regenShield:
-         return {'name': 'regenShield'.tr(), 'desc': 'regenShieldDesc'.tr(), 'icon': 'escudoRegen', 'color': Pallete.azulCla};
+         return {'name': 'regenShield', 'desc': 'regenShieldDesc', 'icon': 'escudoRegen', 'color': Pallete.azulCla};
       case CollectibleType.activeArtHp:
-         return {'name': 'activeArtHp'.tr(), 'desc': 'activeArtHpDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.azulCla};
+         return {'name': 'activeArtHp', 'desc': 'activeArtHpDesc', 'icon': 'hpCheio', 'color': Pallete.azulCla};
       case CollectibleType.decoy:
-        return {'name': 'decoy'.tr(), 'desc': 'decoyDesc'.tr(), 'icon': 'decoy', 'color': Pallete.cinzaCla};
+        return {'name': 'decoy', 'desc': 'decoyDesc', 'icon': 'decoy', 'color': Pallete.cinzaCla};
       case CollectibleType.magicMush:
-        return {'name': 'magicMush'.tr(), 'desc': 'magicMushDesc'.tr(), 'icon': 'cogumelo', 'color': Pallete.vermelho};
+        return {'name': 'magicMush', 'desc': 'magicMushDesc', 'icon': 'cogumelo', 'color': Pallete.vermelho};
       case CollectibleType.activeMagicKey:
-        return {'name': 'activeMagicKey'.tr(), 'desc': 'activeMagicKeyDesc'.tr(), 'icon': 'key', 'color': Pallete.azulCla};
+        return {'name': 'activeMagicKey', 'desc': 'activeMagicKeyDesc', 'icon': 'key', 'color': Pallete.azulCla};
       case CollectibleType.activeMagicKeyChain:
-        return {'name': 'activeMagicKeyChain'.tr(), 'desc': 'activeMagicKeyChainDesc'.tr(), 'icon': 'molhoChaves', 'color': Pallete.azulCla};
+        return {'name': 'activeMagicKeyChain', 'desc': 'activeMagicKeyChainDesc', 'icon': 'molhoChaves', 'color': Pallete.azulCla};
       case CollectibleType.activeHoming:
-        return {'name': 'activeHoming'.tr(), 'desc': 'activeHomingDesc'.tr(), 'icon': 'telecinese', 'color': Pallete.laranja};
+        return {'name': 'activeHoming', 'desc': 'activeHomingDesc', 'icon': 'telecinese', 'color': Pallete.laranja};
       case CollectibleType.activeGift:
-        return {'name': 'activeGift'.tr(), 'desc': 'activeGiftDesc'.tr(), 'icon': 'presente', 'color': Pallete.rosa};
+        return {'name': 'activeGift', 'desc': 'activeGiftDesc', 'icon': 'presente', 'color': Pallete.rosa};
       case CollectibleType.activeD6:
-        return {'name': 'activeD6'.tr(), 'desc': 'activeD6Desc'.tr(), 'icon': 'd6', 'color': Pallete.verdeCla};
+        return {'name': 'activeD6', 'desc': 'activeD6Desc', 'icon': 'd6', 'color': Pallete.verdeCla};
       case CollectibleType.splitShot:
-        return {'name': 'splitShot'.tr(), 'desc': 'splitShotDesc'.tr(), 'icon': 'fragmento', 'color': Pallete.vermelho};
+        return {'name': 'splitShot', 'desc': 'splitShotDesc', 'icon': 'fragmento', 'color': Pallete.vermelho};
       case CollectibleType.familiarBlock:
-        return {'name': 'familiarBlock'.tr(), 'desc': 'familiarBlockDesc'.tr(), 'icon': 'wisp', 'color': Pallete.azulCla};
+        return {'name': 'familiarBlock', 'desc': 'familiarBlockDesc', 'icon': 'wisp', 'color': Pallete.azulCla};
       case CollectibleType.familiarAtira:
-        return {'name': 'familiarAtira'.tr(), 'desc': 'familiarAtiraDesc'.tr(), 'icon': 'fantasma', 'color': Pallete.vermelho};
+        return {'name': 'familiarAtira', 'desc': 'familiarAtiraDesc', 'icon': 'fantasma', 'color': Pallete.vermelho};
       case CollectibleType.confuseCrit:
-        return {'name': 'confuseCrit'.tr(), 'desc': 'confuseCritDesc'.tr(), 'icon': 'portal', 'color': Pallete.amarelo};
+        return {'name': 'confuseCrit', 'desc': 'confuseCritDesc', 'icon': 'portal', 'color': Pallete.amarelo};
       case CollectibleType.pregos:
-        return {'name': 'pregos'.tr(), 'desc': 'pregosDesc'.tr(), 'icon': 'prego', 'color': Pallete.cinzaCla};
+        return {'name': 'pregos', 'desc': 'pregosDesc', 'icon': 'prego', 'color': Pallete.cinzaCla};
       case CollectibleType.bombDecoy:
-        return {'name': 'bombDecoy'.tr(), 'desc': 'bombDecoyDesc'.tr(), 'icon': 'bombaDecoy', 'color': Pallete.cinzaEsc};
+        return {'name': 'bombDecoy', 'desc': 'bombDecoyDesc', 'icon': 'bombaDecoy', 'color': Pallete.cinzaEsc};
       case CollectibleType.activeHeartConverter:
-        return {'name': 'activeHeartConverter'.tr(), 'desc': 'activeHeartConverterDesc'.tr(), 'icon': 'hpVazio', 'color': Pallete.azulCla};
+        return {'name': 'activeHeartConverter', 'desc': 'activeHeartConverterDesc', 'icon': 'hpVazio', 'color': Pallete.azulCla};
       case CollectibleType.activeDivineShield:
-        return {'name': 'activeDivineShield'.tr(), 'desc': 'activeDivineShieldDesc'.tr(), 'icon': 'escudoDivino', 'color': Pallete.azulCla};
+        return {'name': 'activeDivineShield', 'desc': 'activeDivineShieldDesc', 'icon': 'escudoDivino', 'color': Pallete.azulCla};
       case CollectibleType.activeRerollItem:
-        return {'name': 'activeRerollItem'.tr(), 'desc': 'activeRerollItemDesc'.tr(), 'icon': 'd20', 'color': Pallete.laranja};
+        return {'name': 'activeRerollItem', 'desc': 'activeRerollItemDesc', 'icon': 'd20', 'color': Pallete.laranja};
       case CollectibleType.activeRitualDagger:
-        return {'name': 'activeRitualDagger'.tr(), 'desc': 'activeRitualDaggerDesc'.tr(), 'icon': 'adagaRitual', 'color': Pallete.vermelho};
+        return {'name': 'activeRitualDagger', 'desc': 'activeRitualDaggerDesc', 'icon': 'adagaRitual', 'color': Pallete.vermelho};
       case CollectibleType.activeBandage:
-        return {'name': 'activeBandage'.tr(), 'desc': 'activeBandageDesc'.tr(), 'icon': 'bandage', 'color': Pallete.bege};
+        return {'name': 'activeBandage', 'desc': 'activeBandageDesc', 'icon': 'bandage', 'color': Pallete.bege};
       case CollectibleType.activeMagicMirror:
-        return {'name': 'activeMagicMirror'.tr(), 'desc': 'activeMagicMirrorDesc'.tr(), 'icon': 'espelho', 'color': Pallete.laranja};
+        return {'name': 'activeMagicMirror', 'desc': 'activeMagicMirrorDesc', 'icon': 'espelho', 'color': Pallete.laranja};
       case CollectibleType.activeConvBruta:
-        return {'name': 'activeConvBruta'.tr(), 'desc': 'activeConvBrutaDesc'.tr(), 'icon': 'alqBrutal', 'color': Pallete.vermelho};
+        return {'name': 'activeConvBruta', 'desc': 'activeConvBrutaDesc', 'icon': 'alqBrutal', 'color': Pallete.vermelho};
       case CollectibleType.activeMidas:
-        return {'name': 'activeMidas'.tr(), 'desc': 'activeMidasDesc'.tr(), 'icon': 'mao', 'color': Pallete.laranja};
+        return {'name': 'activeMidas', 'desc': 'activeMidasDesc', 'icon': 'mao', 'color': Pallete.laranja};
       case CollectibleType.charmOnCrit:
-        return {'name': 'charmOnCrit'.tr(), 'desc': 'charmOnCritDesc'.tr(), 'icon': 'charm', 'color': Pallete.rosa};
+        return {'name': 'charmOnCrit', 'desc': 'charmOnCritDesc', 'icon': 'charm', 'color': Pallete.rosa};
       case CollectibleType.freezeDash:
-        return {'name': 'freezeDash'.tr(), 'desc': 'freezeDashDesc'.tr(), 'icon': 'patins', 'color': Pallete.azulCla};
+        return {'name': 'freezeDash', 'desc': 'freezeDashDesc', 'icon': 'patins', 'color': Pallete.azulCla};
       case CollectibleType.goldDmg:
-        return {'name': 'goldDmg'.tr(), 'desc': 'goldDmgDesc'.tr(), 'icon': 'cajado', 'color': Pallete.laranja};
+        return {'name': 'goldDmg', 'desc': 'goldDmgDesc', 'icon': 'cajado', 'color': Pallete.laranja};
       case CollectibleType.activeStunBomb:
-        return {'name': 'activeStunBomb'.tr(), 'desc': 'activeStunBombDesc'.tr(), 'icon': 'bombaConfusao', 'color': Pallete.amarelo};
+        return {'name': 'activeStunBomb', 'desc': 'activeStunBombDesc', 'icon': 'bombaConfusao', 'color': Pallete.amarelo};
       case CollectibleType.activeFairy:
-        return {'name': 'activeFairy'.tr(), 'desc': 'activeFairyDesc'.tr(), 'icon': 'fada', 'color': Pallete.amarelo};
+        return {'name': 'activeFairy', 'desc': 'activeFairyDesc', 'icon': 'fada', 'color': Pallete.amarelo};
       case CollectibleType.activeUnicorn:
-        return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': 'cabecaUnicornio', 'color': Pallete.laranja};
+        return {'name': 'activeUnicorn', 'desc': 'activeUnicornDesc', 'icon': 'cabecaUnicornio', 'color': Pallete.laranja};
       case CollectibleType.activeUnicornUnico:
-        return {'name': 'activeUnicorn'.tr(), 'desc': 'activeUnicornDesc'.tr(), 'icon': 'cabecaUnicornio', 'color': Pallete.amarelo};
+        return {'name': 'activeUnicorn', 'desc': 'activeUnicornDesc', 'icon': 'cabecaUnicornio', 'color': Pallete.amarelo};
       case CollectibleType.activeBombardeio:
-        return {'name': 'activeBombardeio'.tr(), 'desc': 'activeBombardeioDesc'.tr(), 'icon': 'bombardeio', 'color': Pallete.vermelho};
+        return {'name': 'activeBombardeio', 'desc': 'activeBombardeioDesc', 'icon': 'bombardeio', 'color': Pallete.vermelho};
       case CollectibleType.activeBombardeioUnico:
-        return {'name': 'activeBombardeio'.tr(), 'desc': 'activeBombardeioDesc'.tr(), 'icon': 'bombardeio', 'color': Pallete.laranja};
+        return {'name': 'activeBombardeio', 'desc': 'activeBombardeioDesc', 'icon': 'bombardeio', 'color': Pallete.laranja};
       case CollectibleType.curaCrit:
-        return {'name': 'curaCrit'.tr(), 'desc': 'curaCritDesc'.tr(), 'icon': 'bloodBag', 'color': Pallete.vermelho};
+        return {'name': 'curaCrit', 'desc': 'curaCritDesc', 'icon': 'bloodBag', 'color': Pallete.vermelho};
       case CollectibleType.molotov:
-        return {'name': 'molotov'.tr(), 'desc': 'molotovDesc'.tr(), 'icon': 'molotov', 'color': Pallete.laranja};
+        return {'name': 'molotov', 'desc': 'molotovDesc', 'icon': 'molotov', 'color': Pallete.laranja};
       case CollectibleType.laser:
-        return {'name': 'laser'.tr(), 'desc': 'laserDesc'.tr(), 'icon': 'laser', 'color': Pallete.vermelho};
+        return {'name': 'laser', 'desc': 'laserDesc', 'icon': 'laser', 'color': Pallete.vermelho};
       case CollectibleType.activeTurret:
-        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': 'turret', 'color': Pallete.vermelho};
+        return {'name': 'activeTurret', 'desc': 'activeTurretDesc', 'icon': 'turret', 'color': Pallete.vermelho};
       case CollectibleType.activeTurretUnico:
-        return {'name': 'activeTurret'.tr(), 'desc': 'activeTurretDesc'.tr(), 'icon': 'turret', 'color': Pallete.laranja};
+        return {'name': 'activeTurret', 'desc': 'activeTurretDesc', 'icon': 'turret', 'color': Pallete.laranja};
       case CollectibleType.wave:
-        return {'name': 'wave'.tr(), 'desc': 'waveDesc'.tr(), 'icon': 'onda', 'color': Pallete.azulCla};
+        return {'name': 'wave', 'desc': 'waveDesc', 'icon': 'onda', 'color': Pallete.azulCla};
       case CollectibleType.activeSuborno:
-        return {'name': 'activeSuborno'.tr(), 'desc': 'activeSubornoDesc'.tr(), 'icon': 'sacoMoedas', 'color': Pallete.verdeEsc};
+        return {'name': 'activeSuborno', 'desc': 'activeSubornoDesc', 'icon': 'sacoMoedas', 'color': Pallete.verdeEsc};
       case CollectibleType.pilNanicolina:
-        return {'name': 'pilNanicolina'.tr(), 'desc': 'pilNanicolinaDesc'.tr(), 'icon': 'pill', 'color': Pallete.vermelho};
+        return {'name': 'pilNanicolina', 'desc': 'pilNanicolinaDesc', 'icon': 'pill', 'color': Pallete.vermelho};
       case CollectibleType.saw:
-        return {'name': 'saw'.tr(), 'desc': 'sawDesc'.tr(), 'icon': 'saw', 'color': Pallete.cinzaCla};
+        return {'name': 'saw', 'desc': 'sawDesc', 'icon': 'saw', 'color': Pallete.cinzaCla};
       case CollectibleType.boloDinheiro:
-        return {'name': 'boloDinheiro'.tr(), 'desc': 'boloDinheiroDesc'.tr(), 'icon': 'cash', 'color': Pallete.verdeEsc};
+        return {'name': 'boloDinheiro', 'desc': 'boloDinheiroDesc', 'icon': 'cash', 'color': Pallete.verdeEsc};
       case CollectibleType.retaliar:
-        return {'name': 'retaliar'.tr(), 'desc': 'retaliarDesc'.tr(), 'icon': 'escudoExplode', 'color': Pallete.vermelho};
+        return {'name': 'retaliar', 'desc': 'retaliarDesc', 'icon': 'escudoExplode', 'color': Pallete.vermelho};
       case CollectibleType.restock:
-        return {'name': 'restock'.tr(), 'desc': 'restockDesc'.tr(), 'icon': 'restock', 'color': Pallete.vermelho};
+        return {'name': 'restock', 'desc': 'restockDesc', 'icon': 'restock', 'color': Pallete.vermelho};
       case CollectibleType.familiarFreeze:
-        return {'name': 'familiarFreeze'.tr(), 'desc': 'familiarFreezeDesc'.tr(), 'icon': 'espirito', 'color': Pallete.azulCla};
+        return {'name': 'familiarFreeze', 'desc': 'familiarFreezeDesc', 'icon': 'espirito', 'color': Pallete.azulCla};
       case CollectibleType.encolheOnCrit:
-        return {'name': 'encolheOnCrit'.tr(), 'desc': 'encolheOnCritDesc'.tr(), 'icon': 'encolhe', 'color': Pallete.marrom};
+        return {'name': 'encolheOnCrit', 'desc': 'encolheOnCritDesc', 'icon': 'encolhe', 'color': Pallete.marrom};
       case CollectibleType.familiarGlitch:
-        return {'name': 'familiarGlitch'.tr(), 'desc': 'familiarGlitchDesc'.tr(), 'icon': 'caveira', 'color': Pallete.rosa};
+        return {'name': 'familiarGlitch', 'desc': 'familiarGlitchDesc', 'icon': 'caveira', 'color': Pallete.rosa};
       case CollectibleType.familiarDmgBuff:
-        return {'name': 'familiarDmgBuff'.tr(), 'desc': 'familiarDmgBuffDesc'.tr(), 'icon': 'satelite', 'color': Pallete.vermelho};
+        return {'name': 'familiarDmgBuff', 'desc': 'familiarDmgBuffDesc', 'icon': 'satelite', 'color': Pallete.vermelho};
       case CollectibleType.familiarCircProt:
-        return {'name': 'familiarCircProt'.tr(), 'desc': 'familiarCircProtDesc'.tr(), 'icon': 'circuloProt', 'color': Pallete.branco};
+        return {'name': 'familiarCircProt', 'desc': 'familiarCircProtDesc', 'icon': 'circuloProt', 'color': Pallete.branco};
       case CollectibleType.glitterBomb:
-        return {'name': 'glitterBomb'.tr(), 'desc': 'glitterBombDesc'.tr(), 'icon': 'bombaGlitter', 'color': Pallete.rosa};
+        return {'name': 'glitterBomb', 'desc': 'glitterBombDesc', 'icon': 'bombaGlitter', 'color': Pallete.rosa};
       case CollectibleType.goldShot:
-        return {'name': 'goldShot'.tr(), 'desc': 'goldShotDesc'.tr(), 'icon': 'cajado', 'color': Pallete.laranja};
+        return {'name': 'goldShot', 'desc': 'goldShotDesc', 'icon': 'cajado', 'color': Pallete.laranja};
       case CollectibleType.clusterShot:
-        return {'name': 'clusterShot'.tr(), 'desc': 'clusterShotDesc'.tr(), 'icon': 'fragmento', 'color': Pallete.vinho};
+        return {'name': 'clusterShot', 'desc': 'clusterShotDesc', 'icon': 'fragmento', 'color': Pallete.vinho};
       case CollectibleType.evasao:
-        return {'name': 'evasao'.tr(), 'desc': 'evasaoDesc'.tr(), 'icon': 'capa', 'color': Pallete.azulCla};
+        return {'name': 'evasao', 'desc': 'evasaoDesc', 'icon': 'capa', 'color': Pallete.azulCla};
       case CollectibleType.primeiroInimigoPocaVeneno:
-        return {'name': 'primeiroInimigoPocaVeneno'.tr(), 'desc': 'primeiroInimigoPocaVenenoDesc'.tr(), 'icon': 'seringa', 'color': Pallete.verdeCla};
+        return {'name': 'primeiroInimigoPocaVeneno', 'desc': 'primeiroInimigoPocaVenenoDesc', 'icon': 'seringa', 'color': Pallete.verdeCla};
       case CollectibleType.familiarFinger:
-        return {'name': 'familiarFinger'.tr(), 'desc': 'familiarFingerDesc'.tr(), 'icon': 'dedo', 'color': Pallete.bege};
+        return {'name': 'familiarFinger', 'desc': 'familiarFingerDesc', 'icon': 'dedo', 'color': Pallete.bege};
       case CollectibleType.familiarBouncer:
-        return {'name': 'familiarBouncer'.tr(), 'desc': 'familiarBouncerDesc'.tr(), 'icon': 'tornado', 'color': Pallete.branco};
+        return {'name': 'familiarBouncer', 'desc': 'familiarBouncerDesc', 'icon': 'tornado', 'color': Pallete.branco};
       case CollectibleType.familiarEye:
-        return {'name': 'familiarEye'.tr(), 'desc': 'familiarEyeDesc'.tr(), 'icon': 'olho', 'color': Pallete.rosa};
+        return {'name': 'familiarEye', 'desc': 'familiarEyeDesc', 'icon': 'olho', 'color': Pallete.rosa};
       case CollectibleType.adrenalina:
-        return {'name': 'adrenalina'.tr(), 'desc': 'adrenalinaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.rosa};
+        return {'name': 'adrenalina', 'desc': 'adrenalinaDesc', 'icon': 'seringa', 'color': Pallete.rosa};
       case CollectibleType.eutanasia:
-        return {'name': 'eutanasia'.tr(), 'desc': 'eutanasiaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.lilas};
+        return {'name': 'eutanasia', 'desc': 'eutanasiaDesc', 'icon': 'seringa', 'color': Pallete.lilas};
       case CollectibleType.goldHeart:
-        return {'name': 'goldHeart'.tr(), 'desc': 'goldHeartDesc'.tr(), 'icon': 'hpCheio', 'color': Pallete.laranja};
+        return {'name': 'goldHeart', 'desc': 'goldHeartDesc', 'icon': 'hpCheio', 'color': Pallete.laranja};
       case CollectibleType.familiarPrisma:
-        return {'name': 'familiarPrisma'.tr(), 'desc': 'familiarPrismaDesc'.tr(), 'icon': 'prisma', 'color': Pallete.branco};
+        return {'name': 'familiarPrisma', 'desc': 'familiarPrismaDesc', 'icon': 'prisma', 'color': Pallete.branco};
       case CollectibleType.familiarRefletor:
-        return {'name': 'familiarRefletor'.tr(), 'desc': 'familiarRefletorDesc'.tr(), 'icon': 'espelho2', 'color': Pallete.cinzaCla};
+        return {'name': 'familiarRefletor', 'desc': 'familiarRefletorDesc', 'icon': 'espelho2', 'color': Pallete.cinzaCla};
       case CollectibleType.jumpersCable:
-        return {'name': 'jumpersCable'.tr(), 'desc': 'jumpersCableDesc'.tr(), 'icon': 'jumperCable', 'color': Pallete.lilas};
+        return {'name': 'jumpersCable', 'desc': 'jumpersCableDesc', 'icon': 'jumperCable', 'color': Pallete.lilas};
       case CollectibleType.activeCircularShots:
-        return {'name': 'activeCircularShots'.tr(), 'desc': 'activeCircularShotsDesc'.tr(), 'icon': 'fragmento', 'color': Pallete.branco};
+        return {'name': 'activeCircularShots', 'desc': 'activeCircularShotsDesc', 'icon': 'fragmento', 'color': Pallete.branco};
       case CollectibleType.keysToBombs:
-        return {'name': 'keysToBombs'.tr(), 'desc': 'keysToBombsDesc'.tr(), 'icon': 'bombsAreKeys', 'color': Pallete.lilas};
+        return {'name': 'keysToBombs', 'desc': 'keysToBombsDesc', 'icon': 'bombsAreKeys', 'color': Pallete.lilas};
       case CollectibleType.activeRandPill:
-        return {'name': 'activeRandPill'.tr(), 'desc': 'activeRandPillDesc'.tr(), 'icon': 'pill', 'color': Pallete.laranja};
+        return {'name': 'activeRandPill', 'desc': 'activeRandPillDesc', 'icon': 'pill', 'color': Pallete.laranja};
       case CollectibleType.activeRandPillUnico:
-        return {'name': 'activeRandPill'.tr(), 'desc': 'activeRandPillDesc'.tr(), 'icon': 'pill', 'color': Pallete.verdeEsc};
+        return {'name': 'activeRandPill', 'desc': 'activeRandPillDesc', 'icon': 'pill', 'color': Pallete.verdeEsc};
       case CollectibleType.portalBoss:
-        return {'name': 'portalBoss'.tr(), 'desc': 'portalBossDesc'.tr(), 'icon': 'portal', 'color': Pallete.vermelho};
+        return {'name': 'portalBoss', 'desc': 'portalBossDesc', 'icon': 'portal', 'color': Pallete.vermelho};
       case CollectibleType.activeFear:
-        return {'name': 'activeFear'.tr(), 'desc': 'activeFearDesc'.tr(), 'icon': 'raiva', 'color': Pallete.vinho};
+        return {'name': 'activeFear', 'desc': 'activeFearDesc', 'icon': 'raiva', 'color': Pallete.vinho};
       case CollectibleType.activeDiarreiaExplosiva:
-        return {'name': 'activeDiarreiaExplosiva'.tr(), 'desc': 'activeDiarreiaExplosivaDesc'.tr(), 'icon': 'bombaDiarreia', 'color': Pallete.marrom};
+        return {'name': 'activeDiarreiaExplosiva', 'desc': 'activeDiarreiaExplosivaDesc', 'icon': 'bombaDiarreia', 'color': Pallete.marrom};
       case CollectibleType.familiarDummy:
-        return {'name': 'familiarDummy'.tr(), 'desc': 'familiarDummyDesc'.tr(), 'icon': 'dummy', 'color': Pallete.bege};
+        return {'name': 'familiarDummy', 'desc': 'familiarDummyDesc', 'icon': 'dummy', 'color': Pallete.bege};
       case CollectibleType.voo:
-        return {'name': 'voo'.tr(), 'desc': 'vooDesc'.tr(), 'icon': 'asa', 'color': Pallete.azulCla};
+        return {'name': 'voo', 'desc': 'vooDesc', 'icon': 'asa', 'color': Pallete.azulCla};
       case CollectibleType.cardinalShot:
-        return {'name': 'cardinalShot'.tr(), 'desc': 'cardinalShotDesc'.tr(), 'icon': 'cardinal', 'color': Pallete.vermelho};
+        return {'name': 'cardinalShot', 'desc': 'cardinalShotDesc', 'icon': 'cardinal', 'color': Pallete.vermelho};
       case CollectibleType.noveVidas:
-        return {'name': 'noveVidas'.tr(), 'desc': 'noveVidasDesc'.tr(), 'icon': 'cat', 'color': Pallete.cinzaEsc};
+        return {'name': 'noveVidas', 'desc': 'noveVidasDesc', 'icon': 'cat', 'color': Pallete.cinzaEsc};
       case CollectibleType.activePacmen:
-        return {'name': 'activePacmen'.tr(), 'desc': 'activePacmenDesc'.tr(), 'icon': 'gameboy', 'color': Pallete.cinzaCla};
+        return {'name': 'activePacmen', 'desc': 'activePacmenDesc', 'icon': 'gameboy', 'color': Pallete.cinzaCla};
       case CollectibleType.hurtPac:
-        return {'name': 'hurtPac'.tr(), 'desc': 'hurtPacDesc'.tr(), 'icon': 'console', 'color': Pallete.cinzaCla};
+        return {'name': 'hurtPac', 'desc': 'hurtPacDesc', 'icon': 'console', 'color': Pallete.cinzaCla};
       case CollectibleType.zodiacAquarius:
-        return {'name': 'zodiacAquarius'.tr(), 'desc': 'zodiacAquariusDesc'.tr(), 'icon': 'aquarius', 'color': Pallete.azulCla};
+        return {'name': 'zodiacAquarius', 'desc': 'zodiacAquariusDesc', 'icon': 'aquarius', 'color': Pallete.azulCla};
       case CollectibleType.zodiacAries:
-        return {'name': 'zodiacAries'.tr(), 'desc': 'zodiacAriesDesc'.tr(), 'icon': 'aries', 'color': Pallete.azulCla};
+        return {'name': 'zodiacAries', 'desc': 'zodiacAriesDesc', 'icon': 'aries', 'color': Pallete.azulCla};
       case CollectibleType.zodiacCancer:
-        return {'name': 'zodiacCancer'.tr(), 'desc': 'zodiacCancerDesc'.tr(), 'icon': 'cancer', 'color': Pallete.azulCla};
+        return {'name': 'zodiacCancer', 'desc': 'zodiacCancerDesc', 'icon': 'cancer', 'color': Pallete.azulCla};
       case CollectibleType.zodiacCapricorn:
-        return {'name': 'zodiacCapricorn'.tr(), 'desc': 'zodiacCapricornDesc'.tr(), 'icon': 'capricorn', 'color': Pallete.azulCla};
+        return {'name': 'zodiacCapricorn', 'desc': 'zodiacCapricornDesc', 'icon': 'capricorn', 'color': Pallete.azulCla};
       case CollectibleType.zodiacGemini:
-        return {'name': 'zodiacGemini'.tr(), 'desc': 'zodiacGeminiDesc'.tr(), 'icon': 'gemini', 'color': Pallete.azulCla};
+        return {'name': 'zodiacGemini', 'desc': 'zodiacGeminiDesc', 'icon': 'gemini', 'color': Pallete.azulCla};
       case CollectibleType.zodiacLeo:
-        return {'name': 'zodiacLeo'.tr(), 'desc': 'zodiacLeoDesc'.tr(), 'icon': 'leo', 'color': Pallete.azulCla};
+        return {'name': 'zodiacLeo', 'desc': 'zodiacLeoDesc', 'icon': 'leo', 'color': Pallete.azulCla};
       case CollectibleType.zodiacLibra:
-        return {'name': 'zodiacLibra'.tr(), 'desc': 'zodiacLibraDesc'.tr(), 'icon': 'libra', 'color': Pallete.azulCla};
+        return {'name': 'zodiacLibra', 'desc': 'zodiacLibraDesc', 'icon': 'libra', 'color': Pallete.azulCla};
       case CollectibleType.zodiacPisces:
-        return {'name': 'zodiacPisces'.tr(), 'desc': 'zodiacPiscesDesc'.tr(), 'icon': 'pisces', 'color': Pallete.azulCla};
+        return {'name': 'zodiacPisces', 'desc': 'zodiacPiscesDesc', 'icon': 'pisces', 'color': Pallete.azulCla};
       case CollectibleType.zodiacSargittarius:
-        return {'name': 'zodiacSargittarius'.tr(), 'desc': 'zodiacSargittariusDesc'.tr(), 'icon': 'sagittarius', 'color': Pallete.azulCla};
+        return {'name': 'zodiacSargittarius', 'desc': 'zodiacSargittariusDesc', 'icon': 'sagittarius', 'color': Pallete.azulCla};
       case CollectibleType.zodiacScorpio:
-        return {'name': 'zodiacScorpio'.tr(), 'desc': 'zodiacScorpioDesc'.tr(), 'icon': 'scorpio', 'color': Pallete.azulCla};
+        return {'name': 'zodiacScorpio', 'desc': 'zodiacScorpioDesc', 'icon': 'scorpio', 'color': Pallete.azulCla};
       case CollectibleType.zodiacTaurus:
-        return {'name': 'zodiacTaurus'.tr(), 'desc': 'zodiacTaurusDesc'.tr(), 'icon': 'taurus', 'color': Pallete.azulCla};
+        return {'name': 'zodiacTaurus', 'desc': 'zodiacTaurusDesc', 'icon': 'taurus', 'color': Pallete.azulCla};
       case CollectibleType.zodiacVirgo:
-        return {'name': 'zodiacVirgo'.tr(), 'desc': 'zodiacVirgoDesc'.tr(), 'icon': 'virgo', 'color': Pallete.azulCla};
+        return {'name': 'zodiacVirgo', 'desc': 'zodiacVirgoDesc', 'icon': 'virgo', 'color': Pallete.azulCla};
       case CollectibleType.zodiac:
-        return {'name': 'zodiac'.tr(), 'desc': 'zodiacDesc'.tr(), 'icon': 'zodiac', 'color': Pallete.azulCla};
+        return {'name': 'zodiac', 'desc': 'zodiacDesc', 'icon': 'zodiac', 'color': Pallete.azulCla};
       case CollectibleType.activeDullRazor:
-        return {'name': 'activeDullRazor'.tr(), 'desc': 'activeDullRazorDesc'.tr(), 'icon': 'lamina', 'color': Pallete.marrom};
+        return {'name': 'activeDullRazor', 'desc': 'activeDullRazorDesc', 'icon': 'lamina', 'color': Pallete.marrom};
       case CollectibleType.activeBoxSpider:
-        return {'name': 'activeBoxSpider'.tr(), 'desc': 'activeBoxSpiderDesc'.tr(), 'icon': 'caixa', 'color': Pallete.azulCla};
+        return {'name': 'activeBoxSpider', 'desc': 'activeBoxSpiderDesc', 'icon': 'caixa', 'color': Pallete.azulCla};
       case CollectibleType.activeD10:
-        return {'name': 'activeD10'.tr(), 'desc': 'activeD10Desc'.tr(), 'icon': 'd10', 'color': Pallete.laranja};
+        return {'name': 'activeD10', 'desc': 'activeD10Desc', 'icon': 'd10', 'color': Pallete.laranja};
       case CollectibleType.activeScroll:
-        return {'name': 'activeScroll'.tr(), 'desc': 'activeScrollDesc'.tr(), 'icon': 'scroll', 'color': Pallete.bege};
+        return {'name': 'activeScroll', 'desc': 'activeScrollDesc', 'icon': 'scroll', 'color': Pallete.bege};
       case CollectibleType.defensiveFairys:
-        return {'name': 'defensiveFairys'.tr(), 'desc': 'defensiveFairysDesc'.tr(), 'icon': 'fada', 'color': Pallete.azulCla};
+        return {'name': 'defensiveFairys', 'desc': 'defensiveFairysDesc', 'icon': 'fada', 'color': Pallete.azulCla};
       case CollectibleType.familiarDmgBns:
-        return {'name': 'familiarDmgBns'.tr(), 'desc': 'familiarDmgBnsDesc'.tr(), 'icon': 'certificado', 'color': Pallete.verdeEsc};
+        return {'name': 'familiarDmgBns', 'desc': 'familiarDmgBnsDesc', 'icon': 'certificado', 'color': Pallete.verdeEsc};
       case CollectibleType.familiarMastery:
-        return {'name': 'familiarMastery'.tr(), 'desc': 'familiarMasteryDesc'.tr(), 'icon': 'pet', 'color': Pallete.verdeEsc};
+        return {'name': 'familiarMastery', 'desc': 'familiarMasteryDesc', 'icon': 'pet', 'color': Pallete.verdeEsc};
       case CollectibleType.itemExtraBoss:
-        return {'name': 'itemExtraBoss'.tr(), 'desc': 'itemExtraBossDesc'.tr(), 'icon': 'sacoMoedas', 'color': Pallete.verdeEsc};
+        return {'name': 'itemExtraBoss', 'desc': 'itemExtraBossDesc', 'icon': 'sacoMoedas', 'color': Pallete.verdeEsc};
       case CollectibleType.activeGoldenBox:
-        return {'name': 'activeGoldenBox'.tr(), 'desc': 'activeGoldenBoxDesc'.tr(), 'icon': 'caixa', 'color': Pallete.laranja};
+        return {'name': 'activeGoldenBox', 'desc': 'activeGoldenBoxDesc', 'icon': 'caixa', 'color': Pallete.laranja};
       case CollectibleType.activeSlot:
-        return {'name': 'activeSlot'.tr(), 'desc': 'activeSlotDesc'.tr(), 'icon': 'slot', 'color': Pallete.laranja};
+        return {'name': 'activeSlot', 'desc': 'activeSlotDesc', 'icon': 'slot', 'color': Pallete.laranja};
       case CollectibleType.activeJarroDeVida:
-        return {'name': 'activeJarroDeVida'.tr(), 'desc': 'activeJarroDeVidaDesc'.tr(), 'icon': 'jarroCoracao', 'color': Pallete.vermelho};
+        return {'name': 'activeJarroDeVida', 'desc': 'activeJarroDeVidaDesc', 'icon': 'jarroCoracao', 'color': Pallete.vermelho};
       case CollectibleType.activePa:
-        return {'name': 'activePa'.tr(), 'desc': 'activePaDesc'.tr(), 'icon': 'escada', 'color': Pallete.azulCla};
+        return {'name': 'activePa', 'desc': 'activePaDesc', 'icon': 'escada', 'color': Pallete.azulCla};
       case CollectibleType.activeBoxOfFriends:
-        return {'name': 'activeBoxOfFriends'.tr(), 'desc': 'activeBoxOfFriendsDesc'.tr(), 'icon': 'caixa', 'color': Pallete.verdeEsc};
+        return {'name': 'activeBoxOfFriends', 'desc': 'activeBoxOfFriendsDesc', 'icon': 'caixa', 'color': Pallete.verdeEsc};
       case CollectibleType.activeDupliItem:
-        return {'name': 'activeDupliItem'.tr(), 'desc': 'activeDupliItemDesc'.tr(), 'icon': 'duplicado', 'color': Pallete.vinho};
+        return {'name': 'activeDupliItem', 'desc': 'activeDupliItemDesc', 'icon': 'duplicado', 'color': Pallete.vinho};
       case CollectibleType.activeJarroFadas:
-        return {'name': 'activeJarroFadas'.tr(), 'desc': 'activeJarroFadasDesc'.tr(), 'icon': 'jarroFada', 'color': Pallete.azulCla};
+        return {'name': 'activeJarroFadas', 'desc': 'activeJarroFadasDesc', 'icon': 'jarroFada', 'color': Pallete.azulCla};
       case CollectibleType.activeFreezeBomb:
-        return {'name': 'activeFreezeBomb'.tr(), 'desc': 'activeFreezeBombDesc'.tr(), 'icon': 'bomba', 'color': Pallete.azulCla};
+        return {'name': 'activeFreezeBomb', 'desc': 'activeFreezeBombDesc', 'icon': 'bomba', 'color': Pallete.azulCla};
       case CollectibleType.activeSuperLaser:
-        return {'name': 'activeSuperLaser'.tr(), 'desc': 'activeSuperLaserDesc'.tr(), 'icon': 'laser', 'color': Pallete.vinho};
+        return {'name': 'activeSuperLaser', 'desc': 'activeSuperLaserDesc', 'icon': 'laser', 'color': Pallete.vinho};
       case CollectibleType.activeBltDetonator:
-        return {'name': 'activeBltDetonator'.tr(), 'desc': 'activeBltDetonatorDesc'.tr(), 'icon': 'detonador', 'color': Pallete.vinho};
+        return {'name': 'activeBltDetonator', 'desc': 'activeBltDetonatorDesc', 'icon': 'detonador', 'color': Pallete.vinho};
       case CollectibleType.activeGoldenrazor:
-        return {'name': 'activeGoldenrazor'.tr(), 'desc': 'activeGoldenrazorDesc'.tr(), 'icon': 'lamina', 'color': Pallete.laranja};
+        return {'name': 'activeGoldenrazor', 'desc': 'activeGoldenrazorDesc', 'icon': 'lamina', 'color': Pallete.laranja};
       case CollectibleType.activeSacrifFamiliar:
-        return {'name': 'activeSacrifFamiliar'.tr(), 'desc': 'activeSacrifFamiliarDesc'.tr(), 'icon': 'adagaRitual', 'color': Pallete.verdeEsc};
+        return {'name': 'activeSacrifFamiliar', 'desc': 'activeSacrifFamiliarDesc', 'icon': 'adagaRitual', 'color': Pallete.verdeEsc};
       case CollectibleType.activeTurretRotate:
-        return {'name': 'activeTurretRotate'.tr(), 'desc': 'activeTurretRotateDesc'.tr(), 'icon': 'turret2', 'color': Pallete.azulCla};
+        return {'name': 'activeTurretRotate', 'desc': 'activeTurretRotateDesc', 'icon': 'turret2', 'color': Pallete.azulCla};
       case CollectibleType.activeGlassStaff:
-        return {'name': 'activeGlassStaff'.tr(), 'desc': 'activeGlassStaffDesc'.tr(), 'icon': 'cajado', 'color': Pallete.azulCla};
+        return {'name': 'activeGlassStaff', 'desc': 'activeGlassStaffDesc', 'icon': 'cajado', 'color': Pallete.azulCla};
       case CollectibleType.cajadoQuebrado:
-        return {'name': 'cajadoQuebrado'.tr(), 'desc': 'cajadoQuebradoDesc'.tr(), 'icon': 'cajadoQuebrado', 'color': Pallete.azulCla};
+        return {'name': 'cajadoQuebrado', 'desc': 'cajadoQuebradoDesc', 'icon': 'cajadoQuebrado', 'color': Pallete.azulCla};
       case CollectibleType.activeBuracoNegro:
-        return {'name': 'activeBuracoNegro'.tr(), 'desc': 'activeBuracoNegroDesc'.tr(), 'icon': 'buracoNegro', 'color': Pallete.branco};
+        return {'name': 'activeBuracoNegro', 'desc': 'activeBuracoNegroDesc', 'icon': 'buracoNegro', 'color': Pallete.branco};
       case CollectibleType.activeLoja:
-        return {'name': 'activeLoja'.tr(), 'desc': 'activeLojaDesc'.tr(), 'icon': 'loja', 'color': Pallete.branco};
+        return {'name': 'activeLoja', 'desc': 'activeLojaDesc', 'icon': 'loja', 'color': Pallete.branco};
       case CollectibleType.activeRestart:
-        return {'name': 'activeRestart'.tr(), 'desc': 'activeRestartDesc'.tr(), 'icon': 'r', 'color': Pallete.bege};
+        return {'name': 'activeRestart', 'desc': 'activeRestartDesc', 'icon': 'r', 'color': Pallete.bege};
       case CollectibleType.activeNuke:
-        return {'name': 'activeNuke'.tr(), 'desc': 'activeNukeDesc'.tr(), 'icon': 'nuke', 'color': Pallete.cinzaCla};
+        return {'name': 'activeNuke', 'desc': 'activeNukeDesc', 'icon': 'nuke', 'color': Pallete.cinzaCla};
       case CollectibleType.activeKamikaze:
-        return {'name': 'activeKamikaze'.tr(), 'desc': 'activeKamikazeDesc'.tr(), 'icon': 'nuke2', 'color': Pallete.branco};
+        return {'name': 'activeKamikaze', 'desc': 'activeKamikazeDesc', 'icon': 'nuke2', 'color': Pallete.branco};
       case CollectibleType.retribuicao:
-        return {'name': 'retribuicao'.tr(), 'desc': 'retribuicaoDesc'.tr(), 'icon': 'retribuicao', 'color': Pallete.vermelho};
+        return {'name': 'retribuicao', 'desc': 'retribuicaoDesc', 'icon': 'retribuicao', 'color': Pallete.vermelho};
       case CollectibleType.machadoArremeco:
-        return {'name': 'machadoArremeco'.tr(), 'desc': 'machadoArremecoDesc'.tr(), 'icon': 'machadoArremeco', 'color': Pallete.lilas};
+        return {'name': 'machadoArremeco', 'desc': 'machadoArremecoDesc', 'icon': 'machadoArremeco', 'color': Pallete.lilas};
       case CollectibleType.bloquel:
-        return {'name': 'bloquel'.tr(), 'desc': 'bloquelDesc'.tr(), 'icon': 'bloquel', 'color': Pallete.cinzaCla};
+        return {'name': 'bloquel', 'desc': 'bloquelDesc', 'icon': 'bloquel', 'color': Pallete.cinzaCla};
       case CollectibleType.glifoEquilibrio:
-        return {'name': 'glifoEquilibrio'.tr(), 'desc': 'glifoEquilibrioDesc'.tr(), 'icon': 'glifo', 'color': Pallete.azulCla};
+        return {'name': 'glifoEquilibrio', 'desc': 'glifoEquilibrioDesc', 'icon': 'glifo', 'color': Pallete.azulCla};
       case CollectibleType.activeCleaver:
-        return {'name': 'activeCleaver'.tr(), 'desc': 'activeCleaverDesc'.tr(), 'icon': 'machado', 'color': Pallete.vermelho};
+        return {'name': 'activeCleaver', 'desc': 'activeCleaverDesc', 'icon': 'machado', 'color': Pallete.vermelho};
       case CollectibleType.bombaBuracoNegro:
-        return {'name': 'bombaBuracoNegro'.tr(), 'desc': 'bombaBuracoNegroDesc'.tr(), 'icon': 'bombaBuracoNegro', 'color': Pallete.cinzaEsc};
+        return {'name': 'bombaBuracoNegro', 'desc': 'bombaBuracoNegroDesc', 'icon': 'bombaBuracoNegro', 'color': Pallete.cinzaEsc};
       case CollectibleType.activeBloodBag:
-        return {'name': 'activeBloodBag'.tr(), 'desc': 'activeBloodBagDesc'.tr(), 'icon': 'bloodBag', 'color': Pallete.vermelho};
+        return {'name': 'activeBloodBag', 'desc': 'activeBloodBagDesc', 'icon': 'bloodBag', 'color': Pallete.vermelho};
       case CollectibleType.bltFireHazard:
-        return {'name': 'bltFireHazard'.tr(), 'desc': 'bltFireHazardDesc'.tr(), 'icon': 'bltRastroFogo', 'color': Pallete.laranja};
+        return {'name': 'bltFireHazard', 'desc': 'bltFireHazardDesc', 'icon': 'bltRastroFogo', 'color': Pallete.laranja};
       case CollectibleType.trofelCampeao:
-        return {'name': 'trofelCampeao'.tr(), 'desc': 'trofelCampeaoDesc'.tr(), 'icon': 'cinturao', 'color': Pallete.vermelho};
+        return {'name': 'trofelCampeao', 'desc': 'trofelCampeaoDesc', 'icon': 'cinturao', 'color': Pallete.vermelho};
       case CollectibleType.bltBuracoNegro:
-        return {'name': 'bltBuracoNegro'.tr(), 'desc': 'bltBuracoNegroDesc'.tr(), 'icon': 'bltBuracoNegro', 'color': Pallete.branco};
+        return {'name': 'bltBuracoNegro', 'desc': 'bltBuracoNegroDesc', 'icon': 'bltBuracoNegro', 'color': Pallete.branco};
       case CollectibleType.bltSparks:
-        return {'name': 'bltSparks'.tr(), 'desc': 'bltSparksDesc'.tr(), 'icon': 'raio', 'color': Pallete.azulCla};
+        return {'name': 'bltSparks', 'desc': 'bltSparksDesc', 'icon': 'raio', 'color': Pallete.azulCla};
       case CollectibleType.familiarLanca:
-        return {'name': 'familiarLanca'.tr(), 'desc': 'familiarLancaDesc'.tr(), 'icon': 'lanca', 'color': Pallete.verdeEsc};
+        return {'name': 'familiarLanca', 'desc': 'familiarLancaDesc', 'icon': 'lanca', 'color': Pallete.verdeEsc};
       case CollectibleType.activeWoodenCoin:
-        return {'name': 'activeWoodenCoin'.tr(), 'desc': 'activeWoodenCoinDesc'.tr(), 'icon': 'coin', 'color': Pallete.marrom};
+        return {'name': 'activeWoodenCoin', 'desc': 'activeWoodenCoinDesc', 'icon': 'coin', 'color': Pallete.marrom};
       case CollectibleType.paralisia:
-        return {'name': 'paralisia'.tr(), 'desc': 'paralisiaDesc'.tr(), 'icon': 'seringa', 'color': Pallete.lilas};
+        return {'name': 'paralisia', 'desc': 'paralisiaDesc', 'icon': 'seringa', 'color': Pallete.lilas};
       case CollectibleType.devilInside:
-        return {'name': 'devilInside'.tr(), 'desc': 'devilInsideDesc'.tr(), 'icon': 'devil', 'color': Pallete.vermelho};
+        return {'name': 'devilInside', 'desc': 'devilInsideDesc', 'icon': 'devil', 'color': Pallete.vermelho};
       case CollectibleType.rainbowShot:
-        return {'name': 'rainbowShot'.tr(), 'desc': 'rainbowShotDesc'.tr(), 'icon': 'cajado', 'color': Pallete.rosa};
+        return {'name': 'rainbowShot', 'desc': 'rainbowShotDesc', 'icon': 'cajado', 'color': Pallete.rosa};
       case CollectibleType.masterOrb:
-        return {'name': 'masterOrb'.tr(), 'desc': 'masterOrbDesc'.tr(), 'icon': 'masterOrb', 'color': Pallete.lilas};
+        return {'name': 'masterOrb', 'desc': 'masterOrbDesc', 'icon': 'masterOrb', 'color': Pallete.lilas};
       case CollectibleType.alga:
-        return {'name': 'alga'.tr(), 'desc': 'algaDesc'.tr(), 'icon': 'alga', 'color': Pallete.verdeEsc};
+        return {'name': 'alga', 'desc': 'algaDesc', 'icon': 'alga', 'color': Pallete.verdeEsc};
       case CollectibleType.pirarucu:
-        return {'name': 'pirarucu'.tr(), 'desc': 'pirarucuDesc'.tr(), 'icon': 'pirarucu', 'color': Pallete.lilas};
+        return {'name': 'pirarucu', 'desc': 'pirarucuDesc', 'icon': 'pirarucu', 'color': Pallete.lilas};
       case CollectibleType.espinhaPeixe:
-        return {'name': 'espinhaPeixe'.tr(), 'desc': 'espinhaPeixeDesc'.tr(), 'icon': 'espinhaPeixe', 'color': Pallete.cinzaCla};
+        return {'name': 'espinhaPeixe', 'desc': 'espinhaPeixeDesc', 'icon': 'espinhaPeixe', 'color': Pallete.cinzaCla};
       case CollectibleType.botaVelha:
-        return {'name': 'botaVelha'.tr(), 'desc': 'botaVelhaDesc'.tr(), 'icon': 'botaVelha', 'color': Pallete.marrom};
+        return {'name': 'botaVelha', 'desc': 'botaVelhaDesc', 'icon': 'botaVelha', 'color': Pallete.marrom};
       case CollectibleType.atum:
-        return {'name': 'atum'.tr(), 'desc': 'atumDesc'.tr(), 'icon': 'piranha', 'color': Pallete.vermelho};
+        return {'name': 'atum', 'desc': 'atumDesc', 'icon': 'piranha', 'color': Pallete.vermelho};
       case CollectibleType.xicara:
-        return {'name': 'xicara'.tr(), 'desc': 'xicaraDesc'.tr(), 'icon': 'xicara', 'color': Pallete.laranja};
+        return {'name': 'xicara', 'desc': 'xicaraDesc', 'icon': 'xicara', 'color': Pallete.laranja};
       case CollectibleType.lagosta:
-        return {'name': 'lagosta'.tr(), 'desc': 'lagostaDesc'.tr(), 'icon': 'camarao', 'color': Pallete.vermelho};
+        return {'name': 'lagosta', 'desc': 'lagostaDesc', 'icon': 'camarao', 'color': Pallete.vermelho};
       case CollectibleType.tetra:
-        return {'name': 'tetra'.tr(), 'desc': 'tetraDesc'.tr(), 'icon': 'tilapia', 'color': Pallete.azulCla};
+        return {'name': 'tetra', 'desc': 'tetraDesc', 'icon': 'tilapia', 'color': Pallete.azulCla};
       case CollectibleType.kelp:
-        return {'name': 'kelp'.tr(), 'desc': 'kelpDesc'.tr(), 'icon': 'vitoriaReg', 'color': Pallete.verdeCla};
+        return {'name': 'kelp', 'desc': 'kelpDesc', 'icon': 'vitoriaReg', 'color': Pallete.verdeCla};
       case CollectibleType.truta:
-        return {'name': 'truta'.tr(), 'desc': 'trutaDesc'.tr(), 'icon': 'pacu', 'color': Pallete.lilas};
+        return {'name': 'truta', 'desc': 'trutaDesc', 'icon': 'pacu', 'color': Pallete.lilas};
       case CollectibleType.cerveja:
-        return {'name': 'cerveja'.tr(), 'desc': 'cervejaDesc'.tr(), 'icon': 'latinha', 'color': Pallete.marrom};
+        return {'name': 'cerveja', 'desc': 'cervejaDesc', 'icon': 'latinha', 'color': Pallete.marrom};
       case CollectibleType.champanhe:
-        return {'name': 'champanhe'.tr(), 'desc': 'champanheDesc'.tr(), 'icon': 'champanhe', 'color': Pallete.verdeEsc};
+        return {'name': 'champanhe', 'desc': 'champanheDesc', 'icon': 'champanhe', 'color': Pallete.verdeEsc};
       case CollectibleType.hidromel:
-        return {'name': 'hidromel'.tr(), 'desc': 'hidromelDesc'.tr(), 'icon': 'vinho', 'color': Pallete.laranja};
+        return {'name': 'hidromel', 'desc': 'hidromelDesc', 'icon': 'vinho', 'color': Pallete.laranja};
       case CollectibleType.sake:
-        return {'name': 'sake'.tr(), 'desc': 'sakeDesc'.tr(), 'icon': 'vinho', 'color': Pallete.verdeCla};
+        return {'name': 'sake', 'desc': 'sakeDesc', 'icon': 'vinho', 'color': Pallete.verdeCla};
       case CollectibleType.vodka:
-        return {'name': 'vodka'.tr(), 'desc': 'vodkaDesc'.tr(), 'icon': 'vinho', 'color': Pallete.cinzaCla};
+        return {'name': 'vodka', 'desc': 'vodkaDesc', 'icon': 'vinho', 'color': Pallete.cinzaCla};
       case CollectibleType.vinho:
-        return {'name': 'vinho'.tr(), 'desc': 'vinhoDesc'.tr(), 'icon': 'vinho', 'color': Pallete.vinho};
+        return {'name': 'vinho', 'desc': 'vinhoDesc', 'icon': 'vinho', 'color': Pallete.vinho};
       case CollectibleType.cachaca:
-        return {'name': 'cachaca'.tr(), 'desc': 'cachacaDesc'.tr(), 'icon': 'garrafa', 'color': Pallete.cinzaCla}; 
+        return {'name': 'cachaca', 'desc': 'cachacaDesc', 'icon': 'garrafa', 'color': Pallete.cinzaCla}; 
       case CollectibleType.massagem:
-        return {'name': 'massagem'.tr(), 'desc': 'massagemDesc'.tr(), 'icon': 'relaxado', 'color': Pallete.verdeCla}; 
+        return {'name': 'massagem', 'desc': 'massagemDesc', 'icon': 'relaxado', 'color': Pallete.verdeCla}; 
       case CollectibleType.activeBodySlam:
-        return {'name': 'activeBodySlam'.tr(), 'desc': 'activeBodySlamDesc'.tr(), 'icon': 'bodySlam', 'color': Pallete.vermelho};    
+        return {'name': 'activeBodySlam', 'desc': 'activeBodySlamDesc', 'icon': 'bodySlam', 'color': Pallete.vermelho};    
       case CollectibleType.activeRepulsao:
-        return {'name': 'activeRepulsao'.tr(), 'desc': 'activeRepulsaoDesc'.tr(), 'icon': 'repulsao', 'color': Pallete.cinzaCla};    
+        return {'name': 'activeRepulsao', 'desc': 'activeRepulsaoDesc', 'icon': 'repulsao', 'color': Pallete.cinzaCla};    
       case CollectibleType.sparkOrb:
-        return {'name': 'sparkOrb'.tr(), 'desc': 'sparkOrbDesc'.tr(), 'icon': 'sparkOrb', 'color': Pallete.azulCla}; 
+        return {'name': 'sparkOrb', 'desc': 'sparkOrbDesc', 'icon': 'sparkOrb', 'color': Pallete.azulCla}; 
       case CollectibleType.activeBombaRelogio:
-        return {'name': 'activeBombaRelogio'.tr(), 'desc': 'activeBombaRelogioDesc'.tr(), 'icon': 'bombaRelogio', 'color': Pallete.vermelho};  
+        return {'name': 'activeBombaRelogio', 'desc': 'activeBombaRelogioDesc', 'icon': 'bombaRelogio', 'color': Pallete.vermelho};  
       case CollectibleType.activeMoedaTorta:
-        return {'name': 'activeMoedaTorta'.tr(), 'desc': 'activeMoedaTortaDesc'.tr(), 'icon': 'moedaTorta', 'color': Pallete.laranja};      
+        return {'name': 'activeMoedaTorta', 'desc': 'activeMoedaTortaDesc', 'icon': 'moedaTorta', 'color': Pallete.laranja};      
       case CollectibleType.activeBookFamiliar:
-        return {'name': 'activeBookFamiliar'.tr(), 'desc': 'activeBookFamiliarDesc'.tr(), 'icon': 'book', 'color': Pallete.verdeEsc};      
+        return {'name': 'activeBookFamiliar', 'desc': 'activeBookFamiliarDesc', 'icon': 'book', 'color': Pallete.verdeEsc};      
       case CollectibleType.activeCorrente:
-        return {'name': 'activeCorrente'.tr(), 'desc': 'activeCorrenteDesc'.tr(), 'icon': 'corrente', 'color': Pallete.cinzaCla};      
+        return {'name': 'activeCorrente', 'desc': 'activeCorrenteDesc', 'icon': 'corrente', 'color': Pallete.cinzaCla};      
       case CollectibleType.activeSharpKey:
-        return {'name': 'activeSharpKey'.tr(), 'desc': 'activeSharpKeyDesc'.tr(), 'icon': 'sharpKey', 'color': Pallete.laranja};      
+        return {'name': 'activeSharpKey', 'desc': 'activeSharpKeyDesc', 'icon': 'sharpKey', 'color': Pallete.laranja};      
      case CollectibleType.activeDarkLamp:
-        return {'name': 'activeDarkLamp'.tr(), 'desc': 'activeDarkLampDesc'.tr(), 'icon': 'lamp', 'color': Pallete.cinzaEsc};      
+        return {'name': 'activeDarkLamp', 'desc': 'activeDarkLampDesc', 'icon': 'lamp', 'color': Pallete.cinzaEsc};               
       default:
         return {'name': 'Item', 'desc': '???', 'icon': '', 'color': Pallete.cinzaCla};
     }

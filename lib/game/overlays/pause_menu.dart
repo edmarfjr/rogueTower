@@ -12,189 +12,167 @@ class PauseMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int hp = game.player.healthNotifier.value;
-    final int maxHp = game.player.maxHealth;
-    final int dmg = (game.player.returnDamage() / game.player.damageIni * 100).round();
-    final int dot = (game.player.dot / game.player.dotIni * 100).round();
-    final int fireRate = (game.player.fireRateIni / game.player.fireRate  * 100).round();
-    final int range = (game.player.attackRange / game.player.attackRangeIni * 100).round();
-    final int critChance = (game.player.returnCritChance()).round();
-    final int critDmg = (game.player.critDamage / game.player.critDamageIni * 100).round();
-    final int speed = (game.player.moveSpeed / game.player.moveSpeedIni * 100).round();
-    final int sorte = game.player.sorte.toInt();
-    final int level = game.currentLevel;
-    final int room = game.currentRoom;
-
-    // Busca a lista de itens adquiridos do jogador
-    final itemsList = game.player.getAcquiredItemsList();
-
     return Scaffold(
       backgroundColor: Pallete.preto.withOpacity(0.5),
-      body: Center(
-        child: Container(
-          width: 320, 
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Pallete.preto,
-            //borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Pallete.branco, width: 2),
-          ),
-          // SingleChildScrollView evita o erro de Pixel Overflow se a tela for pequena!
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'paused'.tr(),
-                  style: const TextStyle(
-                    fontSize: 30,
-                    color: Pallete.amarelo,
-                  ),
-                ),
-              //  const SizedBox(height: 20),
+      
+      body: ValueListenableBuilder<String>(
+        valueListenable: game.progress.languageNotifier,
+        builder: (context, idiomaAtual, child) {
+          
+          final int hp = game.player.healthNotifier.value;
+          final int maxHp = game.player.maxHealth;
+          final int dmg = (game.player.returnDamage() / game.player.damageIni * 100).round();
+          final int dot = (game.player.dot / game.player.dotIni * 100).round();
+          final int fireRate = (game.player.fireRateIni / game.player.fireRate  * 100).round();
+          final int range = (game.player.attackRange / game.player.attackRangeIni * 100).round();
+          final int critChance = (game.player.returnCritChance()).round();
+          final int critDmg = (game.player.critDamage / game.player.critDamageIni * 100).round();
+          final int speed = (game.player.moveSpeed / game.player.moveSpeedIni * 100).round();
+          final int sorte = game.player.sorte.toInt();
+          final int level = game.currentLevel;
+          final int room = game.currentRoom;
 
-                // -----------------------------------------
-                // CAIXA DE STATUS DO JOGADOR
-                // -----------------------------------------
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: const BoxDecoration(
-                    color: Pallete.preto,
-                  //  borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildStatRow('health'.tr(), '$hp / $maxHp'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('dmg'.tr(), '$dmg%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('dot'.tr(), '$dot%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('fire_rate'.tr(), '$fireRate%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('range'.tr(), '$range%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('critChance'.tr(), '$critChance%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('sorte'.tr(), '$sorte'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('critDmg'.tr(), '$critDmg%'),
-                      const SizedBox(height: 8),
-                      _buildStatRow('moveSpeed'.tr(), '$speed%'),
-                      
-                      const Divider(color: Pallete.cinzaCla, height: 20, thickness: 1),
-                      
-                      _buildStatRow('location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room'),
-                    ],
-                  ),
-                ),
-                
-               // const SizedBox(height: 10),
+          // A lista de itens agora é recriada com as traduções certas!
+          final itemsList = game.player.getAcquiredItemsList();
 
-                Text(
-                  "${'tempo'.tr()} ${game.formattedRunTime}",
-                  style: const TextStyle(
-                    fontFamily: 'pixelFont',
-                    color: Pallete.branco, // Combina com o estilo do seu jogo
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    shadows: [Shadow(color: Pallete.preto, blurRadius: 4)],
-                    decoration: TextDecoration.none,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                //const SizedBox(height: 10),
-
-                // -----------------------------------------
-                // CARROSSEL DE ITENS ADQUIRIDOS
-                // -----------------------------------------
-                AcquiredItemsCarousel(items: itemsList),
-
-               // const SizedBox(height: 30),
-                
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.preto,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero, 
+          return Center(
+            child: Container(
+              width: 320, 
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Pallete.preto,
+                border: Border.all(color: Pallete.branco, width: 2),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'paused'.tr(),
+                      style: const TextStyle(
+                        fontSize: 30,
+                        color: Pallete.amarelo,
+                      ),
                     ),
-                    //side: const BorderSide(
-                    //  width: 2.0,
-                    //  color: Pallete.branco,
-                    //),
-                  ),
-                
-                  onPressed: () {
-                    game.resumeGame();
-                  },
-                  child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
-                ),
-                
-              //  const SizedBox(height: 15),
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.preto,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero, 
+                    // -----------------------------------------
+                    // CAIXA DE STATUS DO JOGADOR
+                    // -----------------------------------------
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: const BoxDecoration(
+                        color: Pallete.preto,
+                      ),
+                      child: Column(
+                        children: [
+                          _buildStatRow('health'.tr(), '$hp / $maxHp'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('dmg'.tr(), '$dmg%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('dot'.tr(), '$dot%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('fire_rate'.tr(), '$fireRate%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('range'.tr(), '$range%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('critChance'.tr(), '$critChance%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('sorte'.tr(), '$sorte'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('critDmg'.tr(), '$critDmg%'),
+                          const SizedBox(height: 8),
+                          _buildStatRow('moveSpeed'.tr(), '$speed%'),
+                          
+                          const Divider(color: Pallete.cinzaCla, height: 20, thickness: 1),
+                          
+                          _buildStatRow('location'.tr(), '${'lvl'.tr()} $level - ${'room'.tr()} $room'),
+                        ],
+                      ),
                     ),
-                    //side: const BorderSide(
-                    //  width: 2.0,
-                    //  color: Pallete.branco,
-                    //),
-                  ),
-                  onPressed: () {
-                    game.overlays.add('SettingsMenu');
-                  },
-                  child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
-                ),
-
-               // const SizedBox(height: 15),
-
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.preto,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero, 
+                    
+                    Text(
+                      "${'tempo'.tr()} ${game.formattedRunTime}",
+                      style: const TextStyle(
+                        fontFamily: 'pixelFont',
+                        color: Pallete.branco, 
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        shadows: [Shadow(color: Pallete.preto, blurRadius: 4)],
+                        decoration: TextDecoration.none,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    //side: const BorderSide(
-                    //  width: 2.0,
-                    //  color: Pallete.branco,
-                    //),
-                  ),
-                  onPressed: () {
-                    game.returnToMenu();
-                  },
-                  child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
-                ),
-                
-                //const SizedBox(height: 20),
+                    
+                    // -----------------------------------------
+                    // CARROSSEL DE ITENS ADQUIRIDOS (ATUALIZADO!)
+                    // -----------------------------------------
+                    AcquiredItemsCarousel(items: itemsList),
 
-                IconButton(
-                  icon: const PixelSprite(
-                    imagePath: 'sprites/hud/bug.png',
-                    color: Pallete.marrom,
-                    size: 32,
-                  ),
-                  tooltip: "Menu de Debug",
-                  onPressed: () {
-                    game.overlays.remove('PauseMenu');
-                    game.overlays.add('DebugMenu');
-                  },
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.preto,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero, 
+                        ),
+                      ),
+                      onPressed: () {
+                        game.resumeGame();
+                      },
+                      child: Text('continue'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
+                    ),
+                    
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.preto,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero, 
+                        ),
+                      ),
+                      onPressed: () {
+                        game.overlays.add('SettingsMenu');
+                      },
+                      child: Text('settings'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
+                    ),
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.preto,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero, 
+                        ),
+                      ),
+                      onPressed: () {
+                        game.returnToMenu();
+                      },
+                      child: Text('main_menu'.tr(), style: const TextStyle(fontSize: 18, color: Pallete.amarelo)),
+                    ),
+                    
+                    IconButton(
+                      icon: const PixelSprite(
+                        imagePath: 'sprites/hud/bug.png',
+                        color: Pallete.marrom,
+                        size: 32,
+                      ),
+                      tooltip: "Menu de Debug",
+                      onPressed: () {
+                        game.overlays.remove('PauseMenu');
+                        game.overlays.add('DebugMenu');
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStatRow( String label, String value) {
+  Widget _buildStatRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -209,7 +187,6 @@ class PauseMenu extends StatelessWidget {
     );
   }
 }
-
 // ============================================================================
 // WIDGET DO CARROSSEL DE ITENS (Pode ficar neste mesmo arquivo)
 // ============================================================================
@@ -321,14 +298,14 @@ class _AcquiredItemsCarouselState extends State<AcquiredItemsCarousel> {
           
           const SizedBox(height: 4),
           Text(
-            item.name,
+            item.name.tr(),
             style: TextStyle(color: item.color, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           
           Text(
-            item.description,
+            item.description.tr(),
             style: const TextStyle(color: Pallete.cinzaCla, fontSize: 12),
             textAlign: TextAlign.center,
             maxLines: 3,

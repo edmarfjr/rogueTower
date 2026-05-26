@@ -1,4 +1,5 @@
 //import 'package:flutter/foundation.dart';
+import 'package:towerrogue/game/components/core/i18n.dart';
 import 'package:towerrogue/game/components/gameObj/collectible.dart';
 import 'package:flutter/material.dart';
 import '../tower_game.dart';
@@ -611,7 +612,7 @@ class Hud extends StatelessWidget {
       slotContainer = Tooltip(
         preferBelow: false, 
         verticalOffset: 35,
-        message: "${slotName?.toUpperCase()}\n$slotDesc", 
+        message: "${slotName?.tr().toUpperCase()}\n${slotDesc?.tr()}", 
         
         textStyle:  TextStyle(
           fontFamily: 'pixelFont', 
