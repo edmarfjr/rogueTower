@@ -34,6 +34,7 @@ typedef EnemyFactoryFunction = Enemy Function(Vector2 position, int phase);
 class RoomManager extends Component with HasGameRef<TowerGame> {
   
   bool _levelCleared = false;
+  bool hasReward = false;
   double _checkTimer = 0.0; 
 
   bool teveShop = false;
@@ -134,6 +135,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     if (_checkTimer < _minTimeBeforeClear) return;
 
     if (!_levelCleared) {
+      
       final allEnemies = gameRef.world.children.query<Enemy>();
       
       final realEnemies = allEnemies.where((enemy) => !enemy.isDummy && !enemy.isCharmed);
@@ -161,6 +163,7 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
   void startRoom(int roomNumber) {   
     _levelCleared = false;
+    hasReward = false;
     _checkTimer = 0.0; 
 
     // TESTES DE OBJETOS
@@ -174,9 +177,9 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       if(gameRef.difficultyMultiplier == 1)gameRef.world.add(Chest(position: Vector2(8, -200)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeDarkLamp));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.damage));
-      //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.bloquel));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeMagicKeyChain));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeKamikaze));
+      //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.steroids));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
       //gameRef.world.add(Collectible(position: Vector2(0,64), type: CollectibleType.familiarBlock));
 
@@ -261,11 +264,20 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     
     // --- LÓGICA DE SPAWN ---
     if (gameRef.salasLimpas.contains(roomNumber)) {
-      // Se a sala já foi limpa antes, NÃO spawna inimigos!
-      //_levelCleared = true; 
-      //print('level clear');
-      // Como não tem inimigos para matar, as portas já devem nascer destrancadas
-      // (Opcional, pois o update tentaria destrancar depois, mas assim é mais seguro)
+      // 1. Trava o loop de update para não executar o clearRoom() novamente
+      _levelCleared = true; 
+      
+      // 2. Trava a geração de recompensa para o save load
+      hasReward = true; 
+      
+      // 3. Destranca as portas de forma agendada (garante que _spawnDoors já rodou)
+      add(TimerComponent(
+        period: 0.1,
+        repeat: false,
+        removeOnFinish: true,
+        onTick: () => _unlockDoors(),
+      ));
+
     } else {
       // Se a sala é inédita (ou se o jogador fugiu no meio da luta), spawna os monstros!
       if (roomNumber == bossRoom) {
@@ -1125,10 +1137,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
     for (final door in sDoors) {
       door.temInimigos = false;
     }
+
+    if (hasReward) return;
+    hasReward = true;
     
     if (gameRef.nextRoomReward == CollectibleType.bank || gameRef.nextRoomReward == CollectibleType.shop
     || gameRef.nextRoomReward == CollectibleType.alquimista || gameRef.nextRoomReward == CollectibleType.darkShop
-    || gameRef.nextRoomReward == CollectibleType.pescaria || gameRef.nextRoomReward == CollectibleType.bar){
+    || gameRef.nextRoomReward == CollectibleType.pescaria || gameRef.nextRoomReward == CollectibleType.bar
+    ){
       return;
     } else if (gameRef.nextRoomReward == CollectibleType.chest) {
       _explosaoCriaItem();

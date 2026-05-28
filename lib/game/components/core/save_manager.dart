@@ -28,7 +28,7 @@ class SaveManager {
       'level': game.currentLevelNotifier.value,
       'room': game.currentRoomNotifier.value,
       'salasLimpas': game.salasLimpas.toList(),
-      'reward':game.nextRoomReward,
+      'reward':game.nextRoomReward.name,
 
       'runTime':game.runTime,
 
@@ -207,7 +207,11 @@ class SaveManager {
     } else {
       game.salasLimpas = {}; 
     }
-    game.nextRoomReward = runData['reward'] ?? CollectibleType.nextLevel;
+    String rewardSalvoStr = runData['reward'] as String? ?? 'nextLevel';
+    game.nextRoomReward = CollectibleType.values.firstWhere(
+      (e) => e.name == rewardSalvoStr,
+      orElse: () => CollectibleType.nextLevel, // Fallback de segurança
+    );
 
     game.runTime = runData['runTime'] ?? 0.0;
 

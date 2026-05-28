@@ -24,99 +24,121 @@ class Hud extends StatelessWidget {
               top: 28,
               left: 10,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // --- VIDA ---
-                  ValueListenableBuilder<int>(
-                    valueListenable: game.player.healthNotifier,
-                    builder: (context, currentHealth, child) {
-                      final int totalHearts = (game.player.maxHealth / 2).ceil();
-                      return Row(
-                        children: List.generate(totalHearts, (index) {
-                          int heartValueTimesTwo = (index + 1) * 2;
-                          String spriteName;
-                          
-                          if (currentHealth >= heartValueTimesTwo) {
-                             spriteName = 'sprites/hud/hpCheio.png'; 
-                          } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             spriteName = 'sprites/hud/hpMeio.png'; 
-                          } else {
-                             spriteName = 'sprites/hud/hpVazio.png'; 
-                          }
-                          return PixelSprite(imagePath: spriteName, color: Pallete.vermelho, size: 32);
-                        }),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 2),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- VIDA ---
+                    ValueListenableBuilder<int>(
+                      valueListenable: game.player.healthNotifier,
+                      builder: (context, currentHealth, child) {
+                        final int totalHearts = (game.player.maxHealth / 2).ceil();
+                        return SizedBox(
+                          width: 196, // Trava a largura para caber exatamente 6 ícones (6 * 32 = 192)
+                          child: Wrap(
+                            spacing: 0,
+                            runSpacing: 2, // Espaço vertical caso crie uma segunda linha
+                            children: List.generate(totalHearts, (index) {
+                              int heartValueTimesTwo = (index + 1) * 2;
+                              String spriteName;
+                              
+                              if (currentHealth >= heartValueTimesTwo) {
+                                 spriteName = 'sprites/hud/hpCheio.png'; 
+                              } else if (currentHealth >= heartValueTimesTwo - 1) {
+                                 spriteName = 'sprites/hud/hpMeio.png'; 
+                              } else {
+                                 spriteName = 'sprites/hud/hpVazio.png'; 
+                              }
+                              return PixelSprite(imagePath: spriteName, color: Pallete.vermelho, size: 32);
+                            }),
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    const SizedBox(height: 2),
 
-                  // --- VIDA ARTIFICIAL ---
-                  ValueListenableBuilder<int>(
-                    valueListenable: game.player.artificialHealthNotifier,
-                    builder: (context, currentHealth, child) {
-                      final int totalHearts = (game.player.maxArtificialHealth / 2).ceil();
-                      return Row(
-                        children: List.generate(totalHearts, (index) {
-                          int heartValueTimesTwo = (index + 1) * 2;
-                          String spriteName;
-                          if (currentHealth >= heartValueTimesTwo) {
-                             spriteName = 'sprites/hud/hpCheio.png'; 
-                          } else if (currentHealth >= heartValueTimesTwo - 1) {
-                             spriteName = 'sprites/hud/hpMeio.png'; 
-                          } else {
-                             spriteName = 'sprites/hud/hpVazio.png'; 
-                          }
-                          return PixelSprite(imagePath: spriteName, color: Pallete.azulCla, size: 32);
-                        }),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 2),
-                  
-                  // ESCUDO
-                  ValueListenableBuilder<int>(
-                    valueListenable: game.player.shieldNotifier,
-                    builder: (context, currentShield, child) {
-                      if (currentShield == 0) return const SizedBox.shrink();
-                      return Row(
-                        children: List.generate(currentShield, (index) {
-                          return const PixelSprite(imagePath: 'sprites/hud/escudo.png', color: Pallete.cinzaCla, size: 32);
-                        }),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 2),
-                  
-                  // DASH
-                  ValueListenableBuilder<int>(
-                    valueListenable: game.player.dashNotifier,
-                    builder: (context, currentDash, child) {
-                      final int totalDashes = game.player.maxDash; 
-                      return Row(
-                        children: List.generate(totalDashes, (index) {
-                          // 2. Se o índice atual for menor que a quantidade que temos, ele está CHEIO.
-                          // Exemplo: Se temos 2 dashes (currentDash = 2), os índices 0 e 1 são menores que 2 (Cheios).
-                          bool isCheio = index < currentDash;
+                    // --- VIDA ARTIFICIAL ---
+                    ValueListenableBuilder<int>(
+                      valueListenable: game.player.artificialHealthNotifier,
+                      builder: (context, currentHealth, child) {
+                        final int totalHearts = (game.player.maxArtificialHealth / 2).ceil();
+                        
+                        if (totalHearts <= 0) return const SizedBox.shrink();
 
-                          String spriteName = isCheio 
-                              ? 'sprites/hud/dashCheio.png' 
-                              : 'sprites/hud/dashVazio.png'; 
+                        return SizedBox(
+                          width: 196, 
+                          child: Wrap(
+                            spacing: 0,
+                            runSpacing: 2,
+                            children: List.generate(totalHearts, (index) {
+                              int heartValueTimesTwo = (index + 1) * 2;
+                              String spriteName;
+                              if (currentHealth >= heartValueTimesTwo) {
+                                 spriteName = 'sprites/hud/hpCheio.png'; 
+                              } else if (currentHealth >= heartValueTimesTwo - 1) {
+                                 spriteName = 'sprites/hud/hpMeio.png'; 
+                              } else {
+                                 spriteName = 'sprites/hud/hpVazio.png'; 
+                              }
+                              return PixelSprite(imagePath: spriteName, color: Pallete.azulCla, size: 32);
+                            }),
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    const SizedBox(height: 2),
+                    
+                    // --- ESCUDO ---
+                    ValueListenableBuilder<int>(
+                      valueListenable: game.player.shieldNotifier,
+                      builder: (context, currentShield, child) {
+                        if (currentShield == 0) return const SizedBox.shrink();
+                        
+                        return SizedBox(
+                          width: 196,
+                          child: Wrap(
+                            spacing: 0,
+                            runSpacing: 2,
+                            children: List.generate(currentShield, (index) {
+                              return const PixelSprite(imagePath: 'sprites/hud/escudo.png', color: Pallete.cinzaCla, size: 32);
+                            }),
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    const SizedBox(height: 2),
+                    
+                    // --- DASH ---
+                    ValueListenableBuilder<int>(
+                      valueListenable: game.player.dashNotifier,
+                      builder: (context, currentDash, child) {
+                        final int totalDashes = game.player.maxDash; 
+                        return SizedBox(
+                          width: 196,
+                          child: Wrap(
+                            spacing: 0,
+                            runSpacing: 2,
+                            children: List.generate(totalDashes, (index) {
+                              bool isCheio = index < currentDash;
 
-                          Color dashColor = Pallete.verdeCla ; // Deixa o sprite vazio mais apagado
+                              String spriteName = isCheio 
+                                  ? 'sprites/hud/dashCheio.png' 
+                                  : 'sprites/hud/dashVazio.png'; 
 
-                          return PixelSprite(
-                            imagePath: spriteName, 
-                            color: dashColor, 
-                            size: 32
-                          );
-                        }),
-                      );
-                    },
-                  ),
-                  
+                              Color dashColor = Pallete.verdeCla; 
+
+                              return PixelSprite(
+                                imagePath: spriteName, 
+                                color: dashColor, 
+                                size: 32
+                              );
+                            }),
+                          ),
+                        );
+                      },
+                    ),
+                    
                   const SizedBox(height: 8),
                   
                   // MOEDAS
@@ -248,7 +270,7 @@ class Hud extends StatelessWidget {
                   // --- SLOTS DE EMBRIAGUEZ / BEBIDAS ---
                   
                   ValueListenableBuilder<List<ActiveDrinkEffect>>(
-                    valueListenable: game.player.drinksNotifier, // Se der erro aqui na sua IDE, significa que a variável não existe no Player!
+                    valueListenable: game.player.drinksNotifier,
                     builder: (context, activeDrinks, child) {
                       
                       if (activeDrinks.isEmpty) {
@@ -674,7 +696,7 @@ class PixelSprite extends StatelessWidget {
 Widget _buildDrinkSlot(ActiveDrinkEffect? drink) {
     bool isEmpty = drink == null;
     
-    String iconPath = 'sprites/itens/garrafaVazia.png'; // Crie um ícone de silhueta
+    String iconPath = 'sprites/itens/garrafaVazia.png'; 
     Color color = Pallete.cinzaEsc;
     String roomsText = "";
 
@@ -705,20 +727,28 @@ Widget _buildDrinkSlot(ActiveDrinkEffect? drink) {
             size: 28,
           ),
           
-          // Contador de Salas (Apenas se não estiver vazio)
+          // Contador de Salas com fundo super visível!
           if (!isEmpty)
             Positioned(
               bottom: 0,
-              right: 2,
-              child: Text(
-                roomsText,
-                style: const TextStyle(
-                  fontFamily: 'pixelFont',
-                  fontSize: 14,
-                  color: Pallete.branco,
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(color: Pallete.preto, blurRadius: 2)],
-                  decoration: TextDecoration.none,
+              right: 0, // Alinhado perfeitamente no canto
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: Pallete.preto.withOpacity(0.85), // Fundo escuro para dar contraste
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(6), // Curvinha charmosa
+                  ),
+                ),
+                child: Text(
+                  roomsText,
+                  style: const TextStyle(
+                    fontFamily: 'pixelFont',
+                    fontSize: 14,
+                    color: Pallete.branco,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none, // Remove qualquer linha estranha
+                  ),
                 ),
               ),
             ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:towerrogue/game/components/core/audio_manager.dart';
 import 'package:towerrogue/game/components/core/game_sprite.dart';
 import 'package:towerrogue/game/components/effects/explosion_effect.dart';
+import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 //import 'package:towerrogue/game/components/effects/ghost_particle.dart';
 import 'package:towerrogue/game/components/effects/shadow_component.dart';
 import 'package:towerrogue/game/components/gameObj/chest.dart';
@@ -626,17 +627,17 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
     if (visual == null) return;
     _ghostTimer += dt;
     if (_ghostTimer >= 0.1) {
-   /*   gameRef.world.add(
+      gameRef.world.add(
         GhostParticle(
-          icon: visual!.icon,
-          color: originalColor.withOpacity(0.3),
-          position: position.clone() - Vector2(0, size.y/5), 
+          imagePath: visual!.imagePath,
+          color: originalColor.withValues(alpha: 0.3),
+          position: position.clone(), 
           size: size,
           anchor: anchor,
-          scale: visual!.scale
+          scale: visual!.scale.clone(), 
         ),
       );
-      */
+      
       _ghostTimer = 0;
     }
   }

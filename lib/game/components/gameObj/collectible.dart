@@ -1587,8 +1587,10 @@ class CollectibleLogic {
 */
         case CollectibleType.steroids:
           player.damage *= 1.4;
-          player.maxHealth -=2;
-          player.healthNotifier.value = min(player.healthNotifier.value,player.maxHealth) ;
+          if (player.maxHealth > 2) {
+            player.maxHealth -= 2;
+          }
+          player.healthNotifier.value = min(player.healthNotifier.value, player.maxHealth);
           text = "+ 40% Damage, but 1 less Health";
           //color = Pallete.vermelho;
           break;
@@ -3464,7 +3466,7 @@ class CollectibleLogic {
           break;
 
         case CollectibleType.activeKamikaze:
-          if(player.healthNotifier.value <= 1){
+          if(player.healthNotifier.value <= 1 && player.shieldNotifier.value <= 0 && player.artificialHealthNotifier.value <= 0 ){
             return {
               'text': "noHp".tr(), 
               'color': Pallete.branco, 

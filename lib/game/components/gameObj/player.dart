@@ -2275,6 +2275,7 @@ class Player extends PositionComponent
     hasShieldRegen = false;
     items = [];
     familiars = [];
+    drinksNotifier.value = [];
     isShootSplits = false;
     confuseOnCrit = false;
     isBombSplits = false;

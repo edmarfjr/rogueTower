@@ -231,7 +231,7 @@ class EnemyBoss extends Enemy {
           gameRef.shakeCamera(intensity: 12.0, duration: 1.5);
 
           bool isUm = Random().nextBool();
-          final item = Collectible(position: position, type: isUm? CollectibleType.potionUm : CollectibleType.potion);
+          final item = Collectible(position: position, type: gameRef.player.isZumbi? CollectibleType.shield : isUm? CollectibleType.potionUm : CollectibleType.potion);
           gameRef.world.add(item);
           double direcaoX = (Random().nextBool() ? 1 : -1) * 20.0;
           double altura = Random().nextDouble() * 100 + 150 * -1;
