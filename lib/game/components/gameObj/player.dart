@@ -661,7 +661,7 @@ class Player extends PositionComponent
     _handleUnicorn(dt);
     _handlePacmen(dt);
 
-    if (healthNotifier.value <= 0 && shieldNotifier.value <= 0 && gameRef.isGodMode == false) {
+    if (healthNotifier.value <= 0 && shieldNotifier.value <= 0 && artificialHealthNotifier.value <= 0 && gameRef.isGodMode == false) {
       _die();
     }
 

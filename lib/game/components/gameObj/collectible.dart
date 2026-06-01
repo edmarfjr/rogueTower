@@ -457,7 +457,7 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
       }
     }
     if (custoVida) {
-      if (player.maxHealth <= 6) {
+      if (player.maxHealth < 6 && player.maxArtificialHealth < 6) {
         game.world.add(FloatingText(text: "noHp".tr(), position: position + Vector2(0, -20), color: Pallete.vermelho, fontSize: 10));
         return;
       }
@@ -472,7 +472,20 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoKeys > 0) game.keysNotifier.value -= custoKeys;
     if (custoBombs > 0) player.bombNotifier.value -= custoBombs;
     if (custoVida) {
-      player.increaseHp(-6);
+      if(player.maxHealth > 6){
+        player.increaseHp(-6);
+      }else{
+        player.artificialHealthNotifier.value -= 6;
+        player.maxArtificialHealth -= 6;
+        if (player.artificialHealthNotifier.value < 0) {
+          player.artificialHealthNotifier.value = 0;
+        }
+        if (player.maxArtificialHealth < 0) {
+          player.maxArtificialHealth = 0;
+        }
+
+      }
+      
     }
 
     // 4. RESTOCK DE ITENS

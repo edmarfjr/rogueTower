@@ -159,7 +159,7 @@ class SlotMachine extends PositionComponent with HasGameRef<TowerGame> {
       
     }else{
       gameRef.world.add(FloatingText(
-        text: "noCoin".tr(),
+        text: "noCoins".tr(),
         position: player.position.clone() + Vector2(0, -30),
         paint:Pallete.textoPadrao
       ));
