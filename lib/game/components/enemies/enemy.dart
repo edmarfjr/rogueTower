@@ -319,6 +319,12 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
   }
 
   void criaChampion(){
+    // criar só um champ por sala
+    final enemies = gameRef.world.children.query<Enemy>();
+    for (final enemy in enemies) {
+      if (enemy.championType > 0) return;
+    }
+
     int rng = Random().nextInt(100);
     if(rng <= 10 + gameRef.chanceChampBonus && rng > 5 + gameRef.chanceChampBonus){
       championType = Random().nextInt(5) + 1;
@@ -373,11 +379,15 @@ class Enemy extends PositionComponent with HasGameRef<TowerGame>, CollisionCallb
         break;
       case 9:
         originalColor = Pallete.rosa;
-        var itens = retornaItensComuns(gameRef.player);
-        var pocoes = retornaPocoes();
-        itens.addAll(pocoes);
-        itens.shuffle();
-        dropList = [itens[0]];
+        if(Random().nextBool()){
+          var pocoes = retornaPocoes();
+          pocoes.shuffle();
+          dropList = [pocoes[0]];
+        }else{
+          var itens = gameRef.itensComunsPoolCurrent.toList();
+          gameRef.itensComunsPoolCurrent.remove(itens[0]);
+          dropList = [itens[0]];
+        }
         break;
         
     }

@@ -131,6 +131,9 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
 
   bool reviveuAdd = false;
 
+  //impedir de pegar chaves infinitas com sharpkey
+  bool pegouSharpKey = false;
+
   String get formattedRunTime {
     int minutes = (runTime / 60).floor();
     int seconds = (runTime % 60).floor();
@@ -956,6 +959,7 @@ class TowerGame extends FlameGame with MultiTouchDragDetector, HasCollisionDetec
     resumeEngine();
 
     usouBomba = false;
+    pegouSharpKey = false;
 
     currentRoomNotifier.value = 0;
     currentLevelNotifier.value = 1;

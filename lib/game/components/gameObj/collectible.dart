@@ -473,7 +473,8 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
     if (custoBombs > 0) player.bombNotifier.value -= custoBombs;
     if (custoVida) {
       if(player.maxHealth > 6){
-        player.increaseHp(-6);
+        player.maxHealth -= 6;
+        player.healthNotifier.value = min(player.healthNotifier.value, player.maxHealth);
       }else{
         player.artificialHealthNotifier.value -= 6;
         player.maxArtificialHealth -= 6;
@@ -565,10 +566,10 @@ class Collectible extends PositionComponent with HasGameRef<TowerGame> {
 
       if (type == CollectibleType.activeSharpKey) { // Substitua pelo nome real do seu item
       
-      // 1. Dá as 5 chaves instantaneamente
-      gameRef.keysNotifier.value += 5;
-
-      // 2. Feedback Visual: Mostra para o jogador que ele ganhou algo!
+      if (!game.pegouSharpKey) { 
+        game.pegouSharpKey = true; 
+        gameRef.keysNotifier.value += 5;
+      }
       gameRef.world.add(FloatingText(
         text: '+5 ${'keys'.tr()}!',
         position: absoluteCenter, 

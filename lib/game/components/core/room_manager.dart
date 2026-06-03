@@ -42,6 +42,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
   bool teveBanco = false;
   bool teveDesafio = false;
   bool teveAlquimista = false;
+  bool tevePescaria = false;
+  bool teveBar = false;
 
   bool isSpawnningBoss = false;
 
@@ -177,8 +179,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       //teste de itens
       if(gameRef.difficultyMultiplier == 1)gameRef.world.add(Chest(position: Vector2(8, -200)));
-      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.activeMagicKeyChain));
-      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.activeKamikaze));
+      //gameRef.world.add(Collectible(position: Vector2(0,160), type: CollectibleType.healthContainer));
+      //gameRef.world.add(Collectible(position: Vector2(0, 128), type: CollectibleType.healthContainer));
       //gameRef.world.add(Collectible(position: Vector2(0,96), type: CollectibleType.steroids));
       //gameRef.world.add(Collectible(position: Vector2(0,80), type: CollectibleType.activeTurretRotate));
       //gameRef.world.add(Collectible(position: Vector2(0,64), type: CollectibleType.familiarBlock));
@@ -611,15 +613,13 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       CollectibleType.key,
       CollectibleType.bomba,
       CollectibleType.healthContainer,
-      CollectibleType.chest,
     };
 
     if (roomNumber > 1){
       possibleRewards.add(CollectibleType.rareChest);
       possibleRewards.add(CollectibleType.doacaoSangue);
       possibleRewards.add(CollectibleType.slotMachine);
-      possibleRewards.add(CollectibleType.pescaria);
-      possibleRewards.add(CollectibleType.bar);
+      possibleRewards.add(CollectibleType.chest);
 
       if (gameRef.nextRoomReward != CollectibleType.shop){
         possibleRewards.add(CollectibleType.shop);
@@ -639,6 +639,14 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
 
       if (gameRef.nextRoomReward != CollectibleType.alquimista && !teveAlquimista){
         possibleRewards.add(CollectibleType.alquimista);
+      }
+
+      if (gameRef.nextRoomReward != CollectibleType.pescaria && !tevePescaria){
+        possibleRewards.add(CollectibleType.pescaria);
+      }
+
+      if (gameRef.nextRoomReward != CollectibleType.bar && !teveBar){
+        possibleRewards.add(CollectibleType.bar);
       }
     }
 
@@ -680,6 +688,16 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       teveDarkShop = true;
     }
 
+    //garantir que nao tenha mais de uma pescaria por andar
+    if(rewardLeft == CollectibleType.pescaria || rewardRight == CollectibleType.pescaria){
+      tevePescaria = true;
+    }
+
+    //garantir que nao tenha mais de um bar por andar
+    if(rewardLeft == CollectibleType.bar || rewardRight == CollectibleType.bar){
+      teveBar = true;
+    }
+
     //limpar as var de sala unica por andar
     if (gameRef.currentRoomNotifier.value == gameRef.bossRoom){
       teveShop = false;
@@ -687,6 +705,8 @@ class RoomManager extends Component with HasGameRef<TowerGame> {
       teveAlquimista = false;
       teveDesafio = false;
       teveDarkShop = false;
+      tevePescaria = false;
+      teveBar = false;
     } 
 
     bool tranca1 = false;
